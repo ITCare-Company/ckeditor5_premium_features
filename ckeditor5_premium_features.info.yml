@@ -1,0 +1,8 @@
+name: CKEditor 5 Premium Features
+type: module
+description: "The premium features for the CKEditor 5 WYSIWYG editor."
+package: CKEditor 5 Premium
+core_version_requirement: ^9.2
+dependencies:
+  - drupal:editor
+  - drupal:ckeditor5
