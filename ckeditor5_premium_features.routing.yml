@@ -1,0 +1,8 @@
+fp_global.global_pages_settings:
+  path: '/admin/config/ckeditor5-premium-features/settings'
+  defaults:
+    _title: 'CKEditor 5 Premium Features - Settings'
+    _form: 'Drupal\ckeditor5_premium_features\Form\SettingsForm'
+  requirements:
+    # TODO: It may be more granullar - TBD if there is a need for dedicated permission.
+    _permission: 'administer site configuration'
