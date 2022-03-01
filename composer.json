@@ -1,0 +1,26 @@
+{
+    "name": "drupal/ckeditor5_premium_features",
+    "type": "drupal-module",
+    "description": "The premium features for the CKEditor 5 WYSIWYG editor.",
+    "license": "GPL-2.0+",
+    "minimum-stability": "dev",
+    "homepage": "https://www.drupal.org/project/ckeditor5_premium_features",
+    "authors": [
+        {
+            "name": "Mariusz Andrzejewski (sayco)",
+            "homepage": "https://www.drupal.org/u/sayco",
+            "role": "Maintainer"
+        },
+        {
+            "name": "Paweł Górski (Pawelgorski87)",
+            "homepage": "https://www.drupal.org/u/pawelgorski87",
+            "role": "Maintainer"
+        }
+    ],
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/ckeditor5_premium_features"
+    },
+    "require": {
+        "drupal/core": "^9.2 || ^10.0"
+    }
+}
