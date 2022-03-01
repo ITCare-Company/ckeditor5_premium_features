@@ -11,3 +11,6 @@ ckeditor5_premium_features.settings:
     access_key:
       type: string
       label: 'Access key'
+    dev_token_url:
+      type: string
+      label: 'Development token URL'

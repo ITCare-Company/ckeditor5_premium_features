@@ -73,11 +73,39 @@ class SettingsForm extends ConfigFormBase {
       . $this->t('Required for Export to Word/PDF and Real-time collaboration.'),
     ];
 
+    $configuration['dev_token_url'] = [
+      '#type' => 'url',
+      '#title' => $this->t('Development token URL'),
+      '#description' => $this->t('The development token URL should be used with care as it does not provide sufficient permission validation. It is highly recommended to specify Environment ID and Access Key instead.'),
+      '#attributes' => [
+        'placeholder' => 'https://',
+      ],
+    ];
+
     $this->setDefaultValues($configuration);
 
     $form['configuration'] = $configuration + $form['configuration'];
 
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
+    $dev_token_url = $form_state->getValue('dev_token_url', FALSE);
+    $access_key = $form_state->getValue('access_key', FALSE);
+    $env = $form_state->getValue('env', FALSE);
+
+    if ($dev_token_url && $access_key && $env) {
+      $form_state->setErrorByName(
+        'dev_token_url',
+        $this->t('A combination of Environment ID/Access Key and Development token URL cannot be used together. Specify either the Environment ID/Access Key or the Development Token URL')
+      );
+    }
+
+
+    parent::validateForm($form, $form_state);
   }
 
   /**
