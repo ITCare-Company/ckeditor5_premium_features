@@ -1,0 +1,16 @@
+ckeditor5_premium_features_export_word__export_word:
+  ckeditor5:
+    plugins:
+      - exportWord.ExportWord
+# @todo: figure out the cloud services and token url.
+#    config:
+#      cloudServices:
+#        tokenUrl: ''
+  drupal:
+    label: Export to word
+    library: ckeditor5_premium_features_export_word/export_word
+    toolbar_items:
+      exportWord:
+        label: Export to word
+    elements: false
+    conditions: [ ]
