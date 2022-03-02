@@ -1,6 +1,6 @@
-fp_global.global_pages_setting:
+ckeditor5_premium_features.form.settings:
   title: CKEditor 5 Premium Features
-  route_name: fp_global.global_pages_settings
+  route_name: ckeditor5_premium_features.form.settings
   parent: system.admin_config_content
   description: 'Setup additional features such as Real-time collaboration, Track changes or Export to PDF/Word.'
   weight: 20
