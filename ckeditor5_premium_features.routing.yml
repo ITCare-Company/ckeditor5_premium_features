@@ -1,4 +1,4 @@
-fp_global.global_pages_settings:
+ckeditor5_premium_features.form.settings:
   path: '/admin/config/ckeditor5-premium-features/settings'
   defaults:
     _title: 'CKEditor 5 Premium Features - Settings'
@@ -6,3 +6,13 @@ fp_global.global_pages_settings:
   requirements:
     # TODO: It may be more granullar - TBD if there is a need for dedicated permission.
     _permission: 'administer site configuration'
+
+ckeditor5_premium_features.endpoint.jwt_token:
+  path: '/ckeditor5-premium-features/token'
+  defaults:
+    _controller: '\Drupal\ckeditor5_premium_features\Controller\EndpointController::jwtToken'
+  requirements:
+    # TODO: To be verified if any permission will be required for this.
+    _access: 'TRUE'
+  options:
+    no_cache: 'TRUE'

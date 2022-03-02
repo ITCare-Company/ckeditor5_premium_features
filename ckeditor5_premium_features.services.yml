@@ -1,0 +1,11 @@
+services:
+  ckeditor5_premium_features.config_handler.settings:
+    class: \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandler
+    arguments:
+      - '@config.factory'
+
+  ckeditor5_premium_features.token_generator:
+    class: \Drupal\ckeditor5_premium_features\Generator\TokenGenerator
+    arguments:
+      - '@current_user'
+      - '@ckeditor5_premium_features.config_handler.settings'

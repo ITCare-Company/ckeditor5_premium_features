@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Form;
 
+use Drupal\ckeditor5_premium_features\Enum\Config;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -16,7 +17,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return 'ckeditor5_premium_features.settings';
+    return Config::SETTINGS->name();
   }
 
   /**

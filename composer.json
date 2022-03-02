@@ -21,6 +21,7 @@
         "issues": "https://www.drupal.org/project/issues/ckeditor5_premium_features"
     },
     "require": {
-        "drupal/core": "^9.2 || ^10.0"
+        "drupal/core": "^9.2 || ^10.0",
+        "firebase/php-jwt": "^6.0"
     }
 }
