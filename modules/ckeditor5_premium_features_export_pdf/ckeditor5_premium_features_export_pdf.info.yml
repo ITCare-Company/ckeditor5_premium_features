@@ -5,6 +5,4 @@ package: CKEditor 5 Premium
 core_version_requirement: ^9.2 || ^10.0
 configure: ckeditor5_premium_features_export_pdf.form.settings
 dependencies:
-  - drupal:editor
-  - drupal:ckeditor5
   - drupal:ckeditor5_premium_features

@@ -1,0 +1,14 @@
+ckeditor5_premium_features_export_pdf_export_pdf_exportPdf:
+  ckeditor5:
+    plugins: [ckeditor5_premium_features_export_pdf.ExportPdf]
+  drupal:
+    label: Export to Pdf
+    library: ckeditor5_premium_features_export_pdf/exportPdf
+    admin_library: ckeditor5_premium_features_export_pdf/admin.exportPdf
+    toolbar_items:
+      exportPdf:
+        label: Export to Pdf
+    elements:
+      - <h2 class="simple-box-title">
+      - <div class="simple-box-description">
+      - <section class="simple-box">
