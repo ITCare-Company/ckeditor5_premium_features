@@ -1,0 +1,12 @@
+ckeditor5_premium_features_cloud_services:
+  ckeditor5:
+    plugins: [cloudServices.CloudServices]
+    # @todo add dynamically the token url or internal path for generating the JWT TOKEN
+#    config:
+#      cloudServices:
+#        tokenUrl:
+  drupal:
+    label: CloudServices
+    library: ckeditor5_premium_features/cloudServices
+    conditions: []
+    elements: false
