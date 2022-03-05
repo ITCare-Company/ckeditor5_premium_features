@@ -1,0 +1,16 @@
+ckeditor5_premium_features_export_pdf_exportPdf:
+  ckeditor5:
+    plugins: [exportPdf.ExportPdf]
+    config:
+      exportPdf:
+        # @todo make the filename dynamic - probably by implementing the plugin class from CKEditor5PluginDefault.
+        fileName: filename.pdf
+  drupal:
+    label: Export to PDF
+    library: ckeditor5_premium_features_export_pdf/exportPdf
+    admin_library: ckeditor5_premium_features_export_pdf/admin.exportPdf
+    toolbar_items:
+      exportPdf:
+        label: Export to PDF
+    conditions: []
+    elements: false

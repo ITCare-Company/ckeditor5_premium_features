@@ -3,6 +3,7 @@ type: module
 description: "The premium features for the CKEditor 5 WYSIWYG editor."
 package: CKEditor 5 Premium
 core_version_requirement: ^9.2 || ^10.0
+configure: ckeditor5_premium_features.form.settings
 dependencies:
   - drupal:editor
   - drupal:ckeditor5
