@@ -1,0 +1,8 @@
+ckeditor5_premium_features_export_pdf.form.settings:
+  path: '/admin/config/ckeditor5-premium-features/export-pdf'
+  defaults:
+    _title: 'Export to PDF'
+    _form: 'Drupal\ckeditor5_premium_features_export_pdf\Form\SettingsForm'
+  requirements:
+    # TODO: It may be more granullar - TBD if there is a need for dedicated permission.
+    _permission: 'administer site configuration'

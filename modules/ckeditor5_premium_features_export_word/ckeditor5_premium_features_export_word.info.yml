@@ -1,0 +1,7 @@
+name: Export to Word
+type: module
+description: "The CKEditor 5 editor plugin allowing export to Word."
+package: CKEditor 5 Premium
+core_version_requirement: ^9.2 || ^10.0
+dependencies:
+  - ckeditor5_premium_features:ckeditor5_premium_features

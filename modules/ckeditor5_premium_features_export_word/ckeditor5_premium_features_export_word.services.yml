@@ -1,0 +1,5 @@
+services:
+  ckeditor5_premium_features_export_word.config_handler.settings:
+    class: \Drupal\ckeditor5_premium_features_export_word\Config\SettingsConfigHandler
+    arguments:
+      - '@config.factory'

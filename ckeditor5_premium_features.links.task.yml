@@ -1,0 +1,6 @@
+ckeditor5_premium_features.form.settings:
+  title: General Settings
+  route_name: ckeditor5_premium_features.form.settings
+  base_route: ckeditor5_premium_features.form.settings
+  description: 'Setup additional features such as Real-time collaboration, Track changes or Export to PDF/Word.'
+  weight: 20
