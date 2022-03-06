@@ -16,6 +16,7 @@ use Drupal\Core\Url;
 function ckeditor5_premium_features_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     case 'help.page.ckeditor5_premium_features':
+      # TODO: Load text from Readme.md
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('The CKEditor Premium Features, see <a href=":doc_url">online documentation for the CKEditor Premium Features</a>.', [':doc_url' => 'https://ckeditor.com/docs/trial/latest/guides/overview.html']) . '</p>';
