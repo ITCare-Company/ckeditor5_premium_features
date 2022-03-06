@@ -72,17 +72,19 @@ class SettingsForm extends ConfigFormBase {
       ];
     }
 
-    $options['header'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Header'),
-      '#default_value' => $config->get($options_key . '.header'),
-    ];
-
-    $options['footer'] = [
-      '#type' => 'textarea',
-      '#title' => $this->t('Footer'),
-      '#default_value' => $config->get($options_key . '.footer'),
-    ];
+    foreach (['header', 'footer'] as $type) {
+      FormElement::headingFooter($options, $type, [
+        'html' => [
+          '#default_value' => $config->get("$options_key.$type.html"),
+        ],
+        'css' => [
+          '#default_value' => $config->get("$options_key.$type.css"),
+        ],
+        'type' => [
+          '#default_value' => $config->get("$options_key.$type.type"),
+        ],
+      ]);
+    }
 
     return $form;
   }

@@ -10,6 +10,7 @@ ckeditor5_premium_features_export_word__export_word:
     label: Export to word
     library: ckeditor5_premium_features_export_word/export_word
     admin_library: ckeditor5_premium_features_export_word/admin.export_word
+    class: Drupal\ckeditor5_premium_features_export_word\Plugin\CKEditor5Plugin\ExportWord
     toolbar_items:
       exportWord:
         label: Export to word

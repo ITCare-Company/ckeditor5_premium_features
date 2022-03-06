@@ -1,6 +1,6 @@
 export_word:
   js:
-    js/export-word.js: { minified: true }
+    js/export-word.js: { preprocess: false, minified: true }
   dependencies:
     - ckeditor5/ckeditor5
     - ckeditor5_premium_features/cloudServices
