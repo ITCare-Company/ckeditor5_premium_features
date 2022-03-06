@@ -42,6 +42,26 @@ class FormElement {
   }
 
   /**
+   * Adds the page orientation select field to the element.
+   *
+   * @param array $element
+   *   The form or form element to which the page orientation
+   *   should be added.
+   * @param array $options
+   *   The additional options to merged into element.
+   */
+  public static function pageOrientation(array &$element, array $options = []): void {
+    $element['page_orientation'] = $options + [
+      '#type' => 'select',
+      '#title' => new TranslatableMarkup('Page orientation'),
+      '#options' => [
+        'portrait' => new TranslatableMarkup('Portrait'),
+        'landscape' => new TranslatableMarkup('Landscape'),
+      ],
+    ];
+  }
+
+  /**
    * Adds the footer or header to the element.
    *
    * @param array $element
