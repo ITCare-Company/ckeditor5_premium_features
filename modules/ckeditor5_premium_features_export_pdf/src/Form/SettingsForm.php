@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_export_pdf\Form;
 
-use Drupal\ckeditor5_premium_features_export_pdf\Enum\Config;
+use Drupal\ckeditor5_premium_features\Utility\FormElement;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Provides the form for the main module & submodule configuration.
+ * Provides the configuration form of the "Export to PDF" feature.
  */
 class SettingsForm extends ConfigFormBase {
 
@@ -17,7 +17,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return Config::SETTINGS->name();
+    return 'ckeditor5_premium_features_export_pdf.settings';
   }
 
   /**
@@ -34,32 +34,57 @@ class SettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $form = parent::buildForm($form, $form_state);
+    $config = $this->config($this->getFormId());
 
-    $form['configuration'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Export to PDF'),
-      '#open' => TRUE,
-      '#description' =>
-      $this->t("Premium features will work only if configured correctly. If you haven't subscribed yet, you cen start <a href='@trial'>a free trial</a>.", ['@trial' => 'https://orders.ckeditor.com/trial/premium-features'])
-      . '<br>'
-      // @todo define the documentation URL.
-      . $this->t("Follow the <a href='@documentation'>dedicated documentation for Drupal</a> as most of the steps necessary to run premium features have been already included in this module.", ['@documentation' => '#']),
+    $form['coverter_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Converter URL'),
+      '#description' => $this->t('Leave this field empty unless you are using the on-premises version of Export to PDF.'),
+      '#default_value' => $config->get('converter_url'),
     ];
 
-    $configuration = [];
+    $options_key = 'converter_options';
+    $form[$options_key] = [
+      '#type' => 'details',
+      '#title' => $this->t('Converter options'),
+      '#tree' => TRUE,
+      '#open' => TRUE,
+    ];
 
-    $this->setDefaultValues($configuration);
+    $options = &$form[$options_key];
 
-    $form['configuration'] = $configuration + $form['configuration'];
+    FormElement::format($options, [
+      '#default_value' => $config->get($options_key . '.format') ?? 'A4',
+    ]);
+
+    $margins = [
+      'top',
+      'bottom',
+      'left',
+      'right',
+    ];
+
+    foreach ($margins as $margin) {
+      $options['margin_' . $margin] = [
+        '#type' => 'textfield',
+        '#title' => $this->t("Margin $margin"),
+        '#default_value' => $config->get($options_key . '.margin_' . $margin),
+      ];
+    }
+
+    $options['header'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Header'),
+      '#default_value' => $config->get($options_key . '.header'),
+    ];
+
+    $options['footer'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Footer'),
+      '#default_value' => $config->get($options_key . '.footer'),
+    ];
 
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state): void {
-
   }
 
   /**
@@ -72,21 +97,6 @@ class SettingsForm extends ConfigFormBase {
       ->save();
 
     parent::submitForm($form, $form_state);
-  }
-
-  /**
-   * Sets the default value on the form elements.
-   *
-   * It is taking the config value if present.
-   *
-   * @param array $elements
-   *   The form elements to be processed.
-   */
-  private function setDefaultValues(array &$elements): void {
-    $config = $this->config(($this->getFormId()));
-    foreach ($elements as $key => $element) {
-      $elements[$key]['#default_value'] = $config->get($key);
-    }
   }
 
 }
