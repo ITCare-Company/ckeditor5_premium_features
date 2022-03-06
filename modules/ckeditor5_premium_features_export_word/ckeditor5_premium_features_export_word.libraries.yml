@@ -1,0 +1,12 @@
+export_word:
+  js:
+    js/export-word.js: { minified: true }
+  dependencies:
+    - ckeditor5/ckeditor5
+    - ckeditor5_premium_features/cloudServices
+
+admin.export_word:
+  css:
+    theme:
+      css/export-word.admin.css: { }
+

@@ -1,0 +1,8 @@
+ckeditor5_premium_features_export_word.form.settings:
+  path: '/admin/config/ckeditor5-premium-features/export-word'
+  defaults:
+    _title: 'Export to Word'
+    _form: 'Drupal\ckeditor5_premium_features_export_word\Form\SettingsForm'
+  requirements:
+    # TODO: It may be more granullar - TBD if there is a need for dedicated permission.
+    _permission: 'administer site configuration'

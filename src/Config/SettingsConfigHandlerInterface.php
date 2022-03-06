@@ -25,4 +25,20 @@ interface SettingsConfigHandlerInterface {
    */
   public function getEnvironmentId(): ?string;
 
+  /**
+   * Getter for the development token url.
+   *
+   * @return string|null
+   *   The development token url if defined, null otherwise.
+   */
+  public function getDevelopmentTokenUrl(): ?string;
+
+  /**
+   * Gets the token URL based on the configuration values.
+   *
+   * @return string
+   *   The token URL.
+   */
+  public function getTokenUrl(): string;
+
 }
