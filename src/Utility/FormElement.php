@@ -82,7 +82,7 @@ class FormElement {
       ];
     }
 
-    $element[$type] = NestedArray::mergeDeepArray([$fieldset, $options]);
+    $element[$type] = NestedArray::mergeDeepArray([$fieldset, $options], TRUE);
   }
 
 }

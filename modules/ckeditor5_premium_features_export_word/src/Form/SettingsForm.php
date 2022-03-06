@@ -74,14 +74,16 @@ class SettingsForm extends ConfigFormBase {
 
     foreach (['header', 'footer'] as $type) {
       FormElement::headingFooter($options, $type, [
-        'html' => [
-          '#default_value' => $config->get("$options_key.$type.html"),
-        ],
-        'css' => [
-          '#default_value' => $config->get("$options_key.$type.css"),
-        ],
-        'type' => [
-          '#default_value' => $config->get("$options_key.$type.type"),
+        [
+          'html' => [
+            '#default_value' => $config->get("$options_key.$type.0.html"),
+          ],
+          'css' => [
+            '#default_value' => $config->get("$options_key.$type.0.css"),
+          ],
+          'type' => [
+            '#default_value' => $config->get("$options_key.$type.0.type"),
+          ],
         ],
       ]);
     }
