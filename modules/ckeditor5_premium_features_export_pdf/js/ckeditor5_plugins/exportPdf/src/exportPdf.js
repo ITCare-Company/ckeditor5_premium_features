@@ -17,6 +17,6 @@ export default class ExportPdf extends Plugin {
   // are not seen as individual plugins by CKEditor 5. CKEditor 5 will only
   // discover the plugins explicitly exported in index.js.
   static get requires() {
-    return [SimpleBoxEditing, SimpleBoxUI];
+    return [Widget];
   }
 }

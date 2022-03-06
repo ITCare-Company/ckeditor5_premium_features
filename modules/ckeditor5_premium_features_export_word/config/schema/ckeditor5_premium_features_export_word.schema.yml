@@ -1,0 +1,56 @@
+ckeditor5_premium_features_export_word.settings:
+  type: config_object
+  label: 'CKEditor 5 Premium Features - Export to Word'
+  mapping:
+    coverter_url:
+      type: string
+      label: 'Converter URL'
+    converter_options:
+      type: mapping
+      label: 'Converter options'
+      mapping:
+        format:
+          type: string
+          label: 'Page format'
+        margin_top:
+          type: string
+          label: 'Margin top'
+        margin_bottom:
+          type: string
+          label: 'Margin bottom'
+        margin_left:
+          type: string
+          label: 'Margin left'
+        margin_right:
+          type: string
+          label: 'Margin right'
+        header:
+          type: sequence
+          label: 'Header'
+          sequence:
+            type: mapping
+            mapping:
+              html:
+                type: string
+                label: 'HTML'
+              css:
+                type: string
+                label: 'CSS'
+              type:
+                type: string
+                label: 'Type'
+        footer:
+          type: sequence
+          label: 'Footer'
+          sequence:
+            type: mapping
+            mapping:
+              html:
+                type: string
+                label: 'HTML'
+              css:
+                type: string
+                label: 'CSS'
+              type:
+                type: string
+                label: 'Type'
