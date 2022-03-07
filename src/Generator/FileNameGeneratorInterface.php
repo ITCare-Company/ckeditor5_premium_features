@@ -11,7 +11,7 @@ interface FileNameGeneratorInterface {
    * Generates the file name.
    *
    * @return string
-   *   The token.
+   *   File name.
    */
   public function generate(): string;
 
