@@ -28,32 +28,11 @@ ckeditor5_premium_features_export_pdf.settings:
           type: string
           label: 'Page orientation'
         header_html:
-          type: sequence
+          type: string
           label: 'Header'
-          sequence:
-            type: mapping
-            mapping:
-              html:
-                type: string
-                label: 'HTML'
-              css:
-                type: string
-                label: 'CSS'
-              type:
-                type: string
-                label: 'Type'
         footer_html:
-          type: sequence
+          type: string
           label: 'Footer'
-          sequence:
-            type: mapping
-            mapping:
-              html:
-                type: string
-                label: 'HTML'
-              css:
-                type: string
-                label: 'CSS'
-              type:
-                type: string
-                label: 'Type'
+        header_and_footer_css:
+          type: string
+          label: 'Header and footer css'

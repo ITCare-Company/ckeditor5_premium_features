@@ -12,7 +12,7 @@ use Drupal\Core\Config\ImmutableConfig;
  */
 class SettingsConfigHandler implements SettingsConfigHandlerInterface {
 
-  public const CONFIG_NAME = 'ckeditor5_premium_features_export_word.settings';
+  public const CONFIG_NAME = 'ckeditor5_premium_features_export_pdf.settings';
 
   /**
    * The configuration object.

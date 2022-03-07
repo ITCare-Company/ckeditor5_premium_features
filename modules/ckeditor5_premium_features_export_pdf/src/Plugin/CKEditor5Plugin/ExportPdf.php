@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_export_pdf\Plugin\CKEditor5Plugin;
 
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
-use Drupal\ckeditor5_premium_features_export_word\Config\SettingsConfigHandlerInterface;
+use Drupal\ckeditor5_premium_features_export_pdf\Config\SettingsConfigHandlerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;

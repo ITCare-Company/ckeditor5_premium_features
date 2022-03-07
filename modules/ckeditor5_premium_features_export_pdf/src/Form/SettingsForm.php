@@ -88,6 +88,12 @@ class SettingsForm extends ConfigFormBase {
       '#default_value' => $config->get($options_key . '.footer_html'),
     ];
 
+    $options['header_and_footer_css'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Header and footer css'),
+      '#default_value' => $config->get($options_key . '.header_and_footer_css'),
+    ];
+
     return $form;
   }
 
