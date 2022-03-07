@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Generator;
 
-use Drupal\Core\Path\CurrentPathStack;
-use Drupal\path_alias\AliasManagerInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -14,30 +13,20 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class FileNameFromAlias implements FileNameGeneratorInterface {
 
   /**
-   * The alias manager that caches alias lookups based on the request.
+   * The route match service.
    *
-   * @var \Drupal\path_alias\AliasManagerInterface
+   * @var \Drupal\Core\Routing\RouteMatchInterface
    */
-  protected AliasManagerInterface $aliasManager;
+  private $routeMatch;
 
   /**
-   * The current path.
+   * Constructs a new BookNavigationCacheContext service.
    *
-   * @var \Drupal\Core\Path\CurrentPathStack
+   * @param \Drupal\Core\Routing\RouteMatchInterface $routeMatch
+   *   The current route match.
    */
-  protected CurrentPathStack $currentPath;
-
-  /**
-   * Constructs a new WorkspaceRequestSubscriber instance.
-   *
-   * @param \Drupal\path_alias\AliasManagerInterface $alias_manager
-   *   The alias manager.
-   * @param \Drupal\Core\Path\CurrentPathStack $current_path
-   *   The current path.
-   */
-  public function __construct(AliasManagerInterface $alias_manager, CurrentPathStack $current_path) {
-    $this->aliasManager = $alias_manager;
-    $this->currentPath = $current_path;
+  public function __construct(RouteMatchInterface $routeMatch) {
+    $this->routeMatch = $routeMatch;
   }
 
   /**
@@ -45,8 +34,7 @@ class FileNameFromAlias implements FileNameGeneratorInterface {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('path_alias.manager'),
-      $container->get('path.current'),
+      $container->get('route_match'),
     );
   }
 
@@ -54,7 +42,7 @@ class FileNameFromAlias implements FileNameGeneratorInterface {
    * Generate file name based on node alias.
    */
   public function generate(): string {
-    $node = \Drupal::routeMatch()->getParameter('node') ?? NULL;
+    $node = $this->routeMatch->getParameter('node') ?? NULL;
     $alias = $node->toUrl()->toString() ?? NULL;
     if ($alias) {
       $alias = ltrim($alias, '/');

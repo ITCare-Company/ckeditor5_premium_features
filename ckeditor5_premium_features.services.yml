@@ -13,5 +13,4 @@ services:
   ckeditor5_premium_features.file_name_generator:
     class: \Drupal\ckeditor5_premium_features\Generator\FileNameFromAlias
     arguments:
-      - '@path_alias.manager'
-      - '@path.current'
+      - '@route_match'
