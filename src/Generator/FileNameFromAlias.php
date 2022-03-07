@@ -8,7 +8,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides the common form elements that may be reused among the features.
+ * Provides file name generator based on current node alias.
  */
 class FileNameFromAlias implements FileNameGeneratorInterface {
 
@@ -17,7 +17,7 @@ class FileNameFromAlias implements FileNameGeneratorInterface {
    *
    * @var \Drupal\Core\Routing\RouteMatchInterface
    */
-  private $routeMatch;
+  private RouteMatchInterface $routeMatch;
 
   /**
    * Constructs a new BookNavigationCacheContext service.
