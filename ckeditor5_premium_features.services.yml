@@ -9,3 +9,9 @@ services:
     arguments:
       - '@current_user'
       - '@ckeditor5_premium_features.config_handler.settings'
+
+  ckeditor5_premium_features.file_name_generator:
+    class: \Drupal\ckeditor5_premium_features\Generator\FileNameFromAlias
+    arguments:
+      - '@path_alias.manager'
+      - '@path.current'
