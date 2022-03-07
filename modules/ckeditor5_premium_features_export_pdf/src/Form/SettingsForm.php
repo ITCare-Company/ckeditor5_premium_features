@@ -72,16 +72,26 @@ class SettingsForm extends ConfigFormBase {
       ];
     }
 
-    $options['header'] = [
+    FormElement::pageOrientation($options, [
+      '#default_value' => $config->get($options_key . '.page_orientation') ?? 'portrait',
+    ]);
+
+    $options['header_html'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Header'),
-      '#default_value' => $config->get($options_key . '.header'),
+      '#default_value' => $config->get($options_key . '.header_html'),
     ];
 
-    $options['footer'] = [
+    $options['footer_html'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Footer'),
-      '#default_value' => $config->get($options_key . '.footer'),
+      '#default_value' => $config->get($options_key . '.footer_html'),
+    ];
+
+    $options['header_and_footer_css'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Header and footer css'),
+      '#default_value' => $config->get($options_key . '.header_and_footer_css'),
     ];
 
     return $form;

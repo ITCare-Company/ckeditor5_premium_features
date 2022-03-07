@@ -1,13 +1,11 @@
-exportPdf:
+export_pdf:
   js:
-    js/build/export-pdf.js: { preprocess: false, minified: true }
+    js/export-pdf.js: { preprocess: false, minified: true }
   dependencies:
     - ckeditor5/ckeditor5
     - ckeditor5_premium_features/cloudServices
 
-# Loaded in the text format configuration form to provide styling for the icon
-# used in toolbar config.
-admin.exportPdf:
+admin.export_pdf:
   css:
     theme:
       css/export-pdf.admin.css: { }
