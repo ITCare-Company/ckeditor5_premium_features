@@ -4,31 +4,21 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_export_word\Form;
 
-use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormInterface;
+use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormBase;
 use Drupal\ckeditor5_premium_features\Utility\FormElement;
 use Drupal\Core\Config\Config;
-use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Provides the configuration form of the "Export to Word" feature.
  */
-class SettingsForm extends ConfigFormBase implements SharedBuildConfigFormInterface {
+class SettingsForm extends SharedBuildConfigFormBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId(): string {
     return 'ckeditor5_premium_features_export_word.settings';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getEditableConfigNames(): array {
-    return [
-      $this->getFormId(),
-    ];
   }
 
   /**
@@ -88,28 +78,6 @@ class SettingsForm extends ConfigFormBase implements SharedBuildConfigFormInterf
     }
 
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function buildForm(array $form, FormStateInterface $form_state): array {
-    $form = parent::buildForm($form, $form_state);
-    $config = $this->config($this->getFormId());
-
-    return static::form($form, $form_state, $config);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $this
-      ->config($this->getFormId())
-      ->setData($form_state->cleanValues()->getValues())
-      ->save();
-
-    parent::submitForm($form, $form_state);
   }
 
 }

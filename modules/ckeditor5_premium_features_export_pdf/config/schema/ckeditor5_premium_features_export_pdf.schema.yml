@@ -1,3 +1,43 @@
+# Plugin Drupal\ckeditor5_premium_features_export_pdf\Plugin\CKEditor5Plugin\ExportPdf
+ckeditor5.plugin.ckeditor5_premium_features_export_pdf__export_pdf:
+  type: mapping
+  label: 'Export to PDF'
+  mapping:
+    converter_url:
+      type: string
+      label: 'Converter URL'
+    converter_options:
+      type: mapping
+      label: 'Converter options'
+      mapping:
+        format:
+          type: string
+          label: 'Page format'
+        margin_top:
+          type: string
+          label: 'Margin top'
+        margin_bottom:
+          type: string
+          label: 'Margin bottom'
+        margin_left:
+          type: string
+          label: 'Margin left'
+        margin_right:
+          type: string
+          label: 'Margin right'
+        page_orientation:
+          type: string
+          label: 'Page orientation'
+        header_html:
+          type: string
+          label: 'Header'
+        footer_html:
+          type: string
+          label: 'Footer'
+        header_and_footer_css:
+          type: string
+          label: 'Header and footer css'
+
 ckeditor5_premium_features_export_pdf.settings:
   type: config_object
   label: 'CKEditor 5 Premium Features - Export to PDF'
