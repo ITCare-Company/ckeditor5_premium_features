@@ -63,7 +63,7 @@ class ExportWord extends ExportBase {
   }
 
   /**
-   * Removes items that have the emtpty HTML content.
+   * Removes items that have the empty HTML content.
    *
    * @param array $element
    *   The element to be processed.
