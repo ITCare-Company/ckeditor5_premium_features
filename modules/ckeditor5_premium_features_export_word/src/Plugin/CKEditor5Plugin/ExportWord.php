@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_export_word\Plugin\CKEditor5Plugin;
 
-use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
-use Drupal\ckeditor5_premium_features_export_word\Config\SettingsConfigHandlerInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin\ExportBase;
 use Drupal\editor\EditorInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * CKEditor 5 "Export to Word" plugin.
@@ -16,43 +13,67 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  *   Plugin classes are internal.
  */
-class ExportWord extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface {
-
-  /**
-   * Creates the cloud service plugin instance.
-   *
-   * @param \Drupal\ckeditor5_premium_features_export_word\Config\SettingsConfigHandlerInterface $settingsConfigHandler
-   *   The settings configuration handler.
-   * @param mixed ...$parent_arguments
-   *   The parent plugin arguments.
-   */
-  public function __construct(
-    protected SettingsConfigHandlerInterface $settingsConfigHandler,
-    ...$parent_arguments
-  ) {
-    parent::__construct(...$parent_arguments);
-  }
+class ExportWord extends ExportBase {
 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, ...$parent_arguments): static {
-    return new static(
-      $container->get('ckeditor5_premium_features_export_word.config_handler.settings'),
-      ...$parent_arguments
-    );
+  public function defaultConfiguration(): array {
+    return [
+      'converter_url' => NULL,
+      'converter_options' => [
+        'format' => NULL,
+        'margin_top' => NULL,
+        'margin_bottom' => NULL,
+        'margin_left' => NULL,
+        'margin_right' => NULL,
+        'header' => [
+          [
+            'html' => NULL,
+            'css' => NULL,
+            'type' => NULL,
+          ],
+        ],
+        'footer' => [
+          [
+            'html' => NULL,
+            'css' => NULL,
+            'type' => NULL,
+          ],
+        ],
+      ],
+    ];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
-    if ($this->settingsConfigHandler->hasConverterUrl()) {
-      $static_plugin_config['exportWord']['converterUrl'] = $this->settingsConfigHandler->getConverterUrl();
+    $static_plugin_config = parent::getDynamicPluginConfig($static_plugin_config, $editor);
+
+    $options = &$static_plugin_config[$this->getFeaturePlugin()]['converterOptions'];
+
+    foreach (['footer', 'header'] as $item) {
+      if (isset($options[$item]) && is_array($options[$item])) {
+        $this->cleanUpEmptyHtmlElements($options[$item]);
+      }
     }
-    $static_plugin_config['exportWord']['converterOptions'] = $this->settingsConfigHandler->getConverterOptions();
 
     return $static_plugin_config;
+  }
+
+  /**
+   * Removes items that have the emtpty HTML content.
+   *
+   * @param array $element
+   *   The element to be processed.
+   */
+  private function cleanUpEmptyHtmlElements(array &$element): void {
+    foreach ($element as $key => $item) {
+      if (empty($item['html'])) {
+        unset($element[$key]);
+      }
+    }
   }
 
 }

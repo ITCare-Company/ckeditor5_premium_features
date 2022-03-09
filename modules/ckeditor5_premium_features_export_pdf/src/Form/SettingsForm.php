@@ -36,7 +36,7 @@ class SettingsForm extends ConfigFormBase {
     $form = parent::buildForm($form, $form_state);
     $config = $this->config($this->getFormId());
 
-    $form['coverter_url'] = [
+    $form['converter_url'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Converter URL'),
       '#description' => $this->t('Leave this field empty unless you are using the on-premises version of Export to PDF.'),

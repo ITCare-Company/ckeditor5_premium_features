@@ -2,24 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_export_word\Config;
+namespace Drupal\ckeditor5_premium_features\Config;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 
 /**
- * Provides handler for the "Export to Word" module base settings configuration.
+ * Provides handler for the export features settings configuration.
  */
-class SettingsConfigHandler implements SettingsConfigHandlerInterface {
-
-  public const CONFIG_NAME = 'ckeditor5_premium_features_export_word.settings';
+class ExportFeaturesConfigHandler implements ExportFeaturesConfigHandlerInterface {
 
   /**
    * The configuration object.
    *
-   * @var \Drupal\Core\Config\ImmutableConfig
+   * @var \Drupal\Core\Config\ImmutableConfig|null
    */
-  protected ImmutableConfig $config;
+  protected ?ImmutableConfig $config;
 
   /**
    * Constructs the handler.
@@ -28,7 +26,18 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    *   The config factory service.
    */
   public function __construct(protected ConfigFactoryInterface $configFactory) {
-    $this->config = $this->configFactory->get(static::CONFIG_NAME);
+  }
+
+  /**
+   * Sets the config based on the given name.
+   *
+   * @param string $name
+   *   The config name.
+   */
+  public function setConfig(string $name): static {
+    $this->config = $this->configFactory->get($name);
+
+    return $this;
   }
 
   /**

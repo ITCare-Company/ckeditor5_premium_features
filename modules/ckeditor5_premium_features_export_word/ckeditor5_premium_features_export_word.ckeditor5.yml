@@ -16,3 +16,7 @@ ckeditor5_premium_features_export_word__export_word:
         label: Export to word
     elements: false
     conditions: [ ]
+    premium_features:
+      plugin: exportWord
+      settings_form: Drupal\ckeditor5_premium_features_export_word\Form\SettingsForm
+      configuration: ckeditor5_premium_features_export_word.settings

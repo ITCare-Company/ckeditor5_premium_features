@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_export_word\Form;
 
+use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormInterface;
 use Drupal\ckeditor5_premium_features\Utility\FormElement;
+use Drupal\Core\Config\Config;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Provides the configuration form of the "Export to Word" feature.
  */
-class SettingsForm extends ConfigFormBase {
+class SettingsForm extends ConfigFormBase implements SharedBuildConfigFormInterface {
 
   /**
    * {@inheritdoc}
@@ -32,21 +34,18 @@ class SettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state): array {
-    $form = parent::buildForm($form, $form_state);
-    $config = $this->config($this->getFormId());
-
-    $form['coverter_url'] = [
+  public static function form(array $form, FormStateInterface $form_state, Config $config): array {
+    $form['converter_url'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Converter URL'),
-      '#description' => $this->t('Leave this field empty unless you are using the on-premises version of Export to Word.'),
+      '#title' => t('Converter URL'),
+      '#description' => t('Leave this field empty unless you are using the on-premises version of Export to Word.'),
       '#default_value' => $config->get('converter_url'),
     ];
 
     $options_key = 'converter_options';
     $form[$options_key] = [
       '#type' => 'details',
-      '#title' => $this->t('Converter options'),
+      '#title' => t('Converter options'),
       '#tree' => TRUE,
       '#open' => TRUE,
     ];
@@ -67,7 +66,7 @@ class SettingsForm extends ConfigFormBase {
     foreach ($margins as $margin) {
       $options['margin_' . $margin] = [
         '#type' => 'textfield',
-        '#title' => $this->t("Margin $margin"),
+        '#title' => t("Margin $margin"),
         '#default_value' => $config->get($options_key . '.margin_' . $margin),
       ];
     }
@@ -89,6 +88,16 @@ class SettingsForm extends ConfigFormBase {
     }
 
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state): array {
+    $form = parent::buildForm($form, $form_state);
+    $config = $this->config($this->getFormId());
+
+    return static::form($form, $form_state, $config);
   }
 
   /**
