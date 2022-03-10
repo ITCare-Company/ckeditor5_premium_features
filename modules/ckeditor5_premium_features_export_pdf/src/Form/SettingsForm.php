@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_export_pdf\Form;
 
+use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormBase;
 use Drupal\ckeditor5_premium_features\Utility\FormElement;
-use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Config\Config;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Provides the configuration form of the "Export to PDF" feature.
  */
-class SettingsForm extends ConfigFormBase {
+class SettingsForm extends SharedBuildConfigFormBase {
 
   /**
    * {@inheritdoc}
@@ -23,30 +24,18 @@ class SettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames(): array {
-    return [
-      $this->getFormId(),
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function buildForm(array $form, FormStateInterface $form_state): array {
-    $form = parent::buildForm($form, $form_state);
-    $config = $this->config($this->getFormId());
-
-    $form['coverter_url'] = [
+  public static function form(array $form, FormStateInterface $form_state, Config $config): array {
+    $form['converter_url'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Converter URL'),
-      '#description' => $this->t('Leave this field empty unless you are using the on-premises version of Export to PDF.'),
+      '#title' => t('Converter URL'),
+      '#description' => t('Leave this field empty unless you are using the on-premises version of Export to PDF.'),
       '#default_value' => $config->get('converter_url'),
     ];
 
     $options_key = 'converter_options';
     $form[$options_key] = [
       '#type' => 'details',
-      '#title' => $this->t('Converter options'),
+      '#title' => t('Converter options'),
       '#tree' => TRUE,
       '#open' => TRUE,
     ];
@@ -67,7 +56,7 @@ class SettingsForm extends ConfigFormBase {
     foreach ($margins as $margin) {
       $options['margin_' . $margin] = [
         '#type' => 'textfield',
-        '#title' => $this->t("Margin $margin"),
+        '#title' => t("Margin $margin"),
         '#default_value' => $config->get($options_key . '.margin_' . $margin),
       ];
     }
@@ -78,35 +67,23 @@ class SettingsForm extends ConfigFormBase {
 
     $options['header_html'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('Header'),
+      '#title' => t('Header'),
       '#default_value' => $config->get($options_key . '.header_html'),
     ];
 
     $options['footer_html'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('Footer'),
+      '#title' => t('Footer'),
       '#default_value' => $config->get($options_key . '.footer_html'),
     ];
 
     $options['header_and_footer_css'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('Header and footer css'),
+      '#title' => t('Header and footer css'),
       '#default_value' => $config->get($options_key . '.header_and_footer_css'),
     ];
 
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $this
-      ->config($this->getFormId())
-      ->setData($form_state->cleanValues()->getValues())
-      ->save();
-
-    parent::submitForm($form, $form_state);
   }
 
 }

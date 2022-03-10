@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_export_word\Config;
+namespace Drupal\ckeditor5_premium_features\Config;
 
 /**
- * Defines the "Export to Word" settings config interface.
+ * Defines the interface for handling export features settings configuration.
  */
-interface SettingsConfigHandlerInterface {
+interface ExportFeaturesConfigHandlerInterface {
 
   /**
    * Gets the converter URL if defined.
