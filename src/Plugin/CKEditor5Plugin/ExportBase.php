@@ -99,12 +99,12 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       $static_plugin_config[$plugin]['converterUrl'] = $this->settingsConfigHandler->getConverterUrl();
     }
 
-    $options = NestedArray::mergeDeepArray([
-      $this->settingsConfigHandler->getConverterOptions(),
-      $this->configuration['converter_options'],
-    ], TRUE);
+    $global_config = array_filter($this->settingsConfigHandler->getConverterOptions());
+    $format_config = array_filter($this->configuration['converter_options']);
 
-    $static_plugin_config[$plugin]['converterOptions'] = array_filter($options);
+    $static_plugin_config[$plugin]['converterOptions'] = NestedArray::mergeDeepArray([
+      $global_config, $format_config,
+    ], TRUE);
 
     return $static_plugin_config;
   }
