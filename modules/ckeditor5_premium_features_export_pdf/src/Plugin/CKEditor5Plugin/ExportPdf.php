@@ -56,7 +56,7 @@ class ExportPdf extends CKEditor5PluginDefault implements ContainerFactoryPlugin
       $static_plugin_config['exportPdf']['converterUrl'] = $this->settingsConfigHandler->getConverterUrl();
     }
     $static_plugin_config['exportPdf']['converterOptions'] = $this->settingsConfigHandler->getConverterOptions();
-    $static_plugin_config['exportPdf']['fileName'] = $this->fileNameGenerator->generate();
+    $static_plugin_config['exportPdf']['fileName'] = $this->fileNameGenerator->generateFromRequest();
 
     return $static_plugin_config;
   }

@@ -8,11 +8,11 @@ namespace Drupal\ckeditor5_premium_features\Generator;
 interface FileNameGeneratorInterface {
 
   /**
-   * Generates the file name.
+   * Generate file name based on url/alias.
    *
    * @return string
    *   File name.
    */
-  public function generate(): string;
+  public function generateFromRequest(): string;
 
 }

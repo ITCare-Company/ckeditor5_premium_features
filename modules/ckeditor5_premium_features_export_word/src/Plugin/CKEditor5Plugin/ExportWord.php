@@ -19,6 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ExportWord extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface {
 
+  public const EXPORT_WORD_EXTENSION = '.docx';
+
   /**
    * Creates the cloud service plugin instance.
    *
@@ -56,7 +58,7 @@ class ExportWord extends CKEditor5PluginDefault implements ContainerFactoryPlugi
       $static_plugin_config['exportWord']['converterUrl'] = $this->settingsConfigHandler->getConverterUrl();
     }
     $static_plugin_config['exportWord']['converterOptions'] = $this->settingsConfigHandler->getConverterOptions();
-    $static_plugin_config['exportPdf']['fileName'] = $this->fileNameGenerator->generate();
+    $static_plugin_config['exportWord']['fileName'] = $this->fileNameGenerator->generateFromRequest() . self::EXPORT_WORD_EXTENSION;
 
     return $static_plugin_config;
   }
