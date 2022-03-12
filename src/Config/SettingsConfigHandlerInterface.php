@@ -41,4 +41,12 @@ interface SettingsConfigHandlerInterface {
    */
   public function getTokenUrl(): string;
 
+  /**
+   * Gets the DLLs location.
+   *
+   * @return string
+   *   The DLLs location.
+   */
+  public function getDllLocation(string $file_name = ''): string;
+
 }

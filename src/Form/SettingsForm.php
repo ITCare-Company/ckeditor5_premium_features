@@ -87,6 +87,26 @@ class SettingsForm extends ConfigFormBase {
 
     $form['configuration'] = $configuration + $form['configuration'];
 
+    $form['advanced'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Advanced settings'),
+      '#open' => TRUE,
+      '#description' =>
+      $this->t('CKEditor Premium Features needs to load additional plugins (“DLLs”) in order to run. By default this module will detect the version of CKEditor your website is running and load automatically required plugins from a CDN.')
+      . '<br>'
+      . $this->t('Specify the DLL packages location only if you host the DLL packages by yourself. Contact us in case of any questions.'),
+    ];
+
+    $advanced['dll_location'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('DLL packages location'),
+      '#description' => $this->t('Leave this field empty unless you know what you are doing.'),
+    ];
+
+    $this->setDefaultValues($advanced);
+
+    $form['advanced'] = $advanced + $form['advanced'];
+
     return $form;
   }
 
@@ -104,7 +124,6 @@ class SettingsForm extends ConfigFormBase {
         $this->t('A combination of Environment ID/Access Key and Development token URL cannot be used together. Specify either the Environment ID/Access Key or the Development Token URL')
       );
     }
-
 
     parent::validateForm($form, $form_state);
   }

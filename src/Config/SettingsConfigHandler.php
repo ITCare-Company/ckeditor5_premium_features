@@ -46,20 +46,14 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   }
 
   /**
-   * Getter for the development token url.
-   *
-   * @return string|null
-   *   The development token url if defined, null otherwise.
+   * {@inheritdoc}
    */
   public function getDevelopmentTokenUrl(): ?string {
     return $this->config->get('dev_token_url');
   }
 
   /**
-   * Gets the token URL based on the configuration values.
-   *
-   * @return string
-   *   The token URL.
+   * {@inheritdoc}
    */
   public function getTokenUrl(): string {
     if ($token_url = $this->getDevelopmentTokenUrl()) {
@@ -74,6 +68,13 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
 
     // The empty string allows to use the evaluation version note.
     return '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDllLocation(string $file_name = ''): string {
+    return $this->config->get('dll_location') . $file_name;
   }
 
 }
