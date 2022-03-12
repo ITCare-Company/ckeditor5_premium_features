@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features\Form;
 
 use Drupal\ckeditor5_premium_features\Enum\Config;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -181,10 +182,16 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $this
-      ->config($this->getFormId())
+    $config = $this->config($this->getFormId());
+    $dll_changed = $config->get('dll_location') !== $form_state->getValue('dll_location');
+
+    $config
       ->setData($form_state->cleanValues()->getValues())
       ->save();
+
+    if ($dll_changed) {
+      Cache::invalidateTags(['library_info']);
+    }
 
     parent::submitForm($form, $form_state);
   }
