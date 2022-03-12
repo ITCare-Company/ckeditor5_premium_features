@@ -56,11 +56,13 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    * {@inheritdoc}
    */
   public function getTokenUrl(): string {
-    if ($token_url = $this->getDevelopmentTokenUrl()) {
+    $type = $this->config->get('auth_type');
+
+    if ($type === 'dev_token' && $token_url = $this->getDevelopmentTokenUrl()) {
       return $token_url;
     }
 
-    if ($this->getAccessKey() && $this->getEnvironmentId()) {
+    if ($type === 'key' && $this->getAccessKey() && $this->getEnvironmentId()) {
       return Url::fromRoute('ckeditor5_premium_features.endpoint.jwt_token')
         ->toString(TRUE)
         ->getGeneratedUrl();
