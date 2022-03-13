@@ -1,8 +1,6 @@
-# @todo as this JS files sits in the core, it should be defined as a core library,
-# let's wait untill it will be defined in the core and replace in the libraries that will
-# require the cloud services.
+# @todo to be removed - will be loaded from a CDN.
 cloudServices:
   js:
-    /core/modules/ckeditor5/js/build/cloud-services.js: { preprocess: false, minified: true }
+    js/cloud-services.js: { preprocess: false, minified: true }
   dependencies:
     - ckeditor5/ckeditor5

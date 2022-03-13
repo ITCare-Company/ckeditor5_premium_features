@@ -1,4 +1,4 @@
-ckeditor5_premium_features_export_pdf_exportPdf:
+ckeditor5_premium_features_export_pdf__export_pdf:
   ckeditor5:
     plugins:
      - exportPdf.ExportPdf
@@ -12,3 +12,7 @@ ckeditor5_premium_features_export_pdf_exportPdf:
         label: Export to PDF
     conditions: []
     elements: false
+    premium_features:
+      plugin: exportPdf
+      settings_form: Drupal\ckeditor5_premium_features_export_pdf\Form\SettingsForm
+      configuration: ckeditor5_premium_features_export_pdf.settings
