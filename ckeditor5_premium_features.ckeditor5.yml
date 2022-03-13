@@ -3,7 +3,7 @@ ckeditor5_premium_features_cloud_services:
     plugins: [cloudServices.CloudServices]
   drupal:
     label: CloudServices
-    library: ckeditor5_premium_features/cloudServices
+    library: ckeditor5_premium_features/cloud-services
     class: Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin\CloudServices
     conditions: []
     elements: false

@@ -5,6 +5,9 @@ ckeditor5_premium_features.settings:
     license_key:
       type: string
       label: 'License key'
+    auth_type:
+      type: string
+      label: 'Authroization type'
     env:
       type: string
       label: 'Environment ID'
@@ -14,3 +17,9 @@ ckeditor5_premium_features.settings:
     dev_token_url:
       type: string
       label: 'Development token URL'
+    dev_token_accept:
+      type: integer
+      label: 'Accept using development token URL'
+    dll_location:
+      type: string
+      label: 'DLL packages location'

@@ -8,7 +8,7 @@ ckeditor5_premium_features_export_pdf__export_pdf:
         fileName: 'filename.pdf'
   drupal:
     label: Export to PDF
-    library: ckeditor5_premium_features_export_pdf/export_pdf
+    library: ckeditor5_premium_features_export_pdf/export-pdf
     admin_library: ckeditor5_premium_features_export_pdf/admin.export_pdf
     class: Drupal\ckeditor5_premium_features_export_pdf\Plugin\CKEditor5Plugin\ExportPdf
     toolbar_items:
