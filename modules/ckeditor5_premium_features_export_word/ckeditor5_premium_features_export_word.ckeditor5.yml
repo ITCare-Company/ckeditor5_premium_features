@@ -14,5 +14,6 @@ ckeditor5_premium_features_export_word__export_word:
     conditions: [ ]
     premium_features:
       plugin: exportWord
+      file_extension: .docx
       settings_form: Drupal\ckeditor5_premium_features_export_word\Form\SettingsForm
       configuration: ckeditor5_premium_features_export_word.settings

@@ -9,6 +9,7 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandlerInterface;
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormInterface;
+use Drupal\ckeditor5_premium_features\Generator\FileNameGeneratorInterface;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -44,6 +45,10 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    *   The config factory.
    * @param \Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandlerInterface $settingsConfigHandler
    *   The settings configuration handler.
+   * @param \Drupal\ckeditor5_premium_features\Generator\FileNameGeneratorInterface $fileNameGenerator
+   *   The generator filename service.
+   * @param string $fileExtension
+   *   File extension used in exported file.
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    *
@@ -52,8 +57,10 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
   public function __construct(
     protected string $featurePlugin,
     protected string $settingsFormClass,
+    protected string $fileExtension,
     protected ConfigFactoryInterface $configFactory,
     protected ExportFeaturesConfigHandlerInterface $settingsConfigHandler,
+    protected FileNameGeneratorInterface $fileNameGenerator,
     ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
@@ -69,8 +76,10 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     return new static(
       $config['plugin'],
       $config['settings_form'],
+      $config['file_extension'],
       $container->get('config.factory'),
       $container->get('ckeditor5_premium_features.config_handler.export_settings')->setConfig($config['configuration']),
+      $container->get('ckeditor5_premium_features.file_name_generator'),
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -85,6 +94,16 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    */
   public function getFeaturePlugin(): string {
     return $this->featurePlugin;
+  }
+
+  /**
+   * Get file extension.
+   *
+   * @return string
+   *   Export file extension.
+   */
+  public function getFileExtension(): string {
+    return $this->fileExtension;
   }
 
   /**
@@ -105,6 +124,11 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $static_plugin_config[$plugin]['converterOptions'] = NestedArray::mergeDeepArray([
       $global_config, $format_config,
     ], TRUE);
+
+    $file_extension = $this->getFileExtension();
+    $file_name = $this->fileNameGenerator->generateFromRequest();
+    $this->fileNameGenerator->addExtensionFile($file_name, $file_extension);
+    $static_plugin_config[$plugin]['fileName'] = $file_name;
 
     return $static_plugin_config;
   }
@@ -129,7 +153,8 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
   /**
    * {@inheritdoc}
    */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {}
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+  }
 
   /**
    * {@inheritdoc}

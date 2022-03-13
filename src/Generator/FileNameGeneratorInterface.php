@@ -15,4 +15,14 @@ interface FileNameGeneratorInterface {
    */
   public function generateFromRequest(): string;
 
+  /**
+   * Add Extension to filename.
+   *
+   * @param string $filename
+   *   Generated filename.
+   * @param string $extension
+   *   Extension file to add.
+   */
+  public function addExtensionFile(string &$filename, string $extension): void;
+
 }

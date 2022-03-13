@@ -41,6 +41,19 @@ class FileNameGenerator implements FileNameGeneratorInterface {
   }
 
   /**
+   * Add extension to filename.
+   *
+   * @param string $filename
+   *   Filename.
+   * @param string $extension
+   *   Extension file.
+   */
+  public function addExtensionFile(string &$filename, string $extension): void {
+    $extension = str_starts_with($extension, '.') ? $extension : '.' . $extension;
+    $filename .= $extension;
+  }
+
+  /**
    * Cleanup and convert alias to friendly filename.
    *
    * @param string $alias
