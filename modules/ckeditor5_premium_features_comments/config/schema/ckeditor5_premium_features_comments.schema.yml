@@ -1,0 +1,7 @@
+ckeditor5.plugin.ckeditor5_premium_features_comments__comments:
+  type: mapping
+  label: 'Comments'
+  mapping:
+    allowed_tags:
+      type: string
+      label: 'Allowed tags'

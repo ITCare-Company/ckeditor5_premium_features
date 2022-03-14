@@ -1,0 +1,9 @@
+name: Comments
+type: module
+description: "The CKEditor 5 editor Comments plugin."
+package: CKEditor 5 Premium
+core_version_requirement: ^9.2 || ^10.0
+#configure: @todo
+dependencies:
+  - ckeditor5_premium_features:ckeditor5_premium_features
+  - ckeditor5_premium_features:ckeditor5_premium_features_collaboration
