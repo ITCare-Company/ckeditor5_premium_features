@@ -1,0 +1,13 @@
+ckeditor5_premium_features_comments__comments:
+  ckeditor5:
+    plugins:
+      - comments.Comments
+  drupal:
+    label: Comments
+    library: ckeditor5_premium_features_comments/comments
+    admin_library: ckeditor5_premium_features_comments/admin.comments
+    toolbar_items:
+      comments:
+        label: Comments
+    elements: false
+    conditions: [ ]

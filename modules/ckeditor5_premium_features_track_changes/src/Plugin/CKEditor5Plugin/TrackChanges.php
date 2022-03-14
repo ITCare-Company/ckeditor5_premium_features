@@ -1,0 +1,81 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Drupal\ckeditor5_premium_features_track_changes\Plugin\CKEditor5Plugin;
+
+use Drupal\ckeditor5\HTMLRestrictions;
+use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
+use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
+use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\editor\EditorInterface;
+
+/**
+ * CKEditor 5 Track changes plugin.
+ *
+ * @internal
+ *   Plugin classes are internal.
+ */
+class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElementsSubsetInterface {
+  use CKEditor5PluginConfigurableTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getElementsSubset(): array {
+    return [
+      '<comment-start name>',
+      '<comment-end name>',
+      '<suggestion-start name>',
+      '<suggestion-end name> ',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration(): array {
+    return [
+      'allowed_tags' => '',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
+    $form['allowed_tags'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Allowed tags'),
+    ];
+
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
+    $restrictions = HTMLRestrictions::fromString(implode(' ', $this->getElementsSubset()));
+    return $static_plugin_config;
+    return [
+      'htmlSupport' => [
+        'allow' => $restrictions->toGeneralHtmlSupportConfig(),
+      ],
+    ];
+  }
+
+}
