@@ -19,3 +19,8 @@ services:
     class: \Drupal\ckeditor5_premium_features\Generator\FileNameGenerator
     arguments:
       - '@current_route_match'
+
+  ckeditor5_premium_features.css_style_provider:
+    class: \Drupal\ckeditor5_premium_features\Utility\CssStyleProvider
+    arguments:
+      - '@theme.manager'
