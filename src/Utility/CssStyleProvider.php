@@ -32,7 +32,7 @@ class CssStyleProvider implements ContainerFactoryPluginInterface {
   }
 
   /**
-   * Check if uri ist font css.
+   * Check if url is font css.
    *
    * @param string $url
    *   Url to style file.
@@ -45,29 +45,24 @@ class CssStyleProvider implements ContainerFactoryPluginInterface {
   }
 
   /**
-   * Get List of styles urls based on type.
+   * Get List of styles file urls.
    *
    * @param bool $fonts_list
-   *   Type of list which will be rerun.
+   *   Return fonts files.
    *
    * @return array
    *   Css file style list.
    */
-  public function getFontsUrlsList(bool $fonts_list = FALSE): array {
+  public function getCssStylesheetsUrls(bool $fonts_list = FALSE): array {
     $styles_urls = $this->getCssFilesListFromActiveTheme();
     $fonts = [];
-    $non_fonts = [];
     foreach ($styles_urls as $styles_url) {
-      $is_font = $this->isFontCssFile($styles_url);
-      if ($is_font) {
+      if ($this->isFontCssFile($styles_url)) {
         $fonts[] = $styles_url;
-      }
-      else {
-        $non_fonts[] = $styles_url;
       }
     }
 
-    return $fonts_list ? $fonts : $non_fonts;
+    return $fonts_list ? $fonts : array_diff($styles_urls, $fonts);
   }
 
   /**
@@ -93,8 +88,8 @@ class CssStyleProvider implements ContainerFactoryPluginInterface {
    * - All others (non fonts).
    */
   public function getFormattedListOfCssFiles(): array {
-    $fonts = $this->getFontsUrlsList(TRUE);
-    $non_fonts = $this->getFontsUrlsList();
+    $fonts = $this->getCssStylesheetsUrls(TRUE);
+    $non_fonts = $this->getCssStylesheetsUrls();
 
     return array_merge($fonts, ['EDITOR_STYLES'], $non_fonts);
   }
