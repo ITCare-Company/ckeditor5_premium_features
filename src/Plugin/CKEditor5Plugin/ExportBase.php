@@ -10,6 +10,7 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandlerInterface;
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormInterface;
 use Drupal\ckeditor5_premium_features\Generator\FileNameGeneratorInterface;
+use Drupal\ckeditor5_premium_features\Utility\CssStyleProvider;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -41,14 +42,17 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    *   The id of the faeture plugin.
    * @param string $settingsFormClass
    *   The settings form class namespace.
+   *   The generator filename service.
+   * @param string $fileExtension
+   *   File extension used in exported file.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory.
    * @param \Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandlerInterface $settingsConfigHandler
    *   The settings configuration handler.
    * @param \Drupal\ckeditor5_premium_features\Generator\FileNameGeneratorInterface $fileNameGenerator
-   *   The generator filename service.
-   * @param string $fileExtension
-   *   File extension used in exported file.
+   *   The file name generator service.
+   * @param \Drupal\ckeditor5_premium_features\Utility\CssStyleProvider $cssStyleProvider
+   *   The style css list provider service.
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    *
@@ -61,6 +65,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     protected ConfigFactoryInterface $configFactory,
     protected ExportFeaturesConfigHandlerInterface $settingsConfigHandler,
     protected FileNameGeneratorInterface $fileNameGenerator,
+    protected CssStyleProvider $cssStyleProvider,
     ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
@@ -80,6 +85,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       $container->get('config.factory'),
       $container->get('ckeditor5_premium_features.config_handler.export_settings')->setConfig($config['configuration']),
       $container->get('ckeditor5_premium_features.file_name_generator'),
+      $container->get('ckeditor5_premium_features.css_style_provider'),
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -129,6 +135,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $file_name = $this->fileNameGenerator->generateFromRequest();
     $this->fileNameGenerator->addExtensionFile($file_name, $file_extension);
     $static_plugin_config[$plugin]['fileName'] = $file_name;
+    $static_plugin_config[$plugin]['stylesheets'] = $this->cssStyleProvider->getFormattedListOfCssFiles();
 
     return $static_plugin_config;
   }
