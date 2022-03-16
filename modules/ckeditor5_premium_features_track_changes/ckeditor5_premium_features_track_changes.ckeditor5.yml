@@ -12,3 +12,13 @@ ckeditor5_premium_features_track_changes__track_changes:
         label: Track changes
     elements: false
     conditions: [ ]
+
+ckeditor5_premium_features_track_changes__track_changes_adapter:
+  ckeditor5:
+    plugins:
+      - trackChangesAdapter.TrackChangesAdapter
+  drupal:
+    label: Track changes adapter
+    library: ckeditor5_premium_features_track_changes/adapter
+    elements: false
+    conditions: [ ]

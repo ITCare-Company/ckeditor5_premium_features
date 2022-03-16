@@ -5,5 +5,5 @@ admin.track-changes:
 
 adapter:
   js:
-    js/track-changes.adapter.js: {}
+    js/build/trackChangesAdapter.js: {}
 

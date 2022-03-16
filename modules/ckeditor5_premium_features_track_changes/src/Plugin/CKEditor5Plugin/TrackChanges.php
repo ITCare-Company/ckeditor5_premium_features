@@ -8,8 +8,11 @@ use Drupal\ckeditor5\HTMLRestrictions;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
+use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\editor\EditorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * CKEditor 5 Track changes plugin.
@@ -17,8 +20,33 @@ use Drupal\editor\EditorInterface;
  * @internal
  *   Plugin classes are internal.
  */
-class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElementsSubsetInterface {
+class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElementsSubsetInterface, ContainerFactoryPluginInterface {
   use CKEditor5PluginConfigurableTrait;
+
+  /**
+   * Creates the Track Changes plugin instance.
+   *
+   * @param \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $settingsConfigHandler
+   *   The settings configuration handler.
+   * @param mixed ...$parent_arguments
+   *   The parent plugin arguments.
+   */
+  public function __construct(
+    protected SettingsConfigHandlerInterface $settingsConfigHandler,
+    ...$parent_arguments
+  ) {
+    parent::__construct(...$parent_arguments);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, ...$parent_arguments): static {
+    return new static(
+      $container->get('ckeditor5_premium_features.config_handler.settings'),
+      ...$parent_arguments
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -28,7 +56,7 @@ class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElem
       '<comment-start name>',
       '<comment-end name>',
       '<suggestion-start name>',
-      '<suggestion-end name> ',
+      '<suggestion-end name>',
     ];
   }
 
@@ -37,7 +65,7 @@ class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElem
    */
   public function defaultConfiguration(): array {
     return [
-      'allowed_tags' => '',
+      'sidebar' => NULL,
     ];
   }
 
@@ -45,9 +73,17 @@ class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElem
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
-    $form['allowed_tags'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Allowed tags'),
+    $form['sidebar'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Annotation sidebar'),
+      '#options' => [
+        // @todo Define key for automatic mode.
+        '' => $this->t('Automatic'),
+        'inline' => $this->t('Use inline balloons'),
+        'narrowSidebar' => $this->t('Use narrow sidebar'),
+        'wideSidebar' => $this->t('Use wide sidebar'),
+      ],
+      '#default_value' => $this->getConfiguration()['sidebar'] ?? '',
     ];
 
     return $form;
@@ -63,19 +99,21 @@ class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElem
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
+    $this->configuration = $form_state->cleanValues()->getValues();
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
+    $static_plugin_config['licenseKey'] = $this->settingsConfigHandler->getLicenseKey();
+
     $restrictions = HTMLRestrictions::fromString(implode(' ', $this->getElementsSubset()));
+    $static_plugin_config['htmlSupport']['allow'] = $restrictions->toGeneralHtmlSupportConfig();
+
+//    $static_plugin_config['trackChanges']['articleId'] = \Drupal::request()->get('node')->id();
+
     return $static_plugin_config;
-    return [
-      'htmlSupport' => [
-        'allow' => $restrictions->toGeneralHtmlSupportConfig(),
-      ],
-    ];
   }
 
 }

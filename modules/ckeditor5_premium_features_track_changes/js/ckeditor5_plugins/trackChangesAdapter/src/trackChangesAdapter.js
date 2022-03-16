@@ -1,21 +1,17 @@
-/**
- * @license Copyright (c) 2003-2021, CKSource Holding sp. z o.o. All rights reserved.
- * This file is licensed under the terms of the MIT License (see LICENSE.md).
- */
-
-/* globals EXAMPLE */
-
-// eslint-disable-next-line no-unused-vars
-class CustomTrackChangesAdapter {
+class TrackChangesAdapter {
   constructor( editor ) {
     this.editor = editor;
+  }
+
+  static get pluginName() {
+    return 'TrackChangesAdapter'
   }
 
   init() {
     const trackChangesPlugin = this.editor.plugins.get( 'TrackChanges' );
 
-    // Set the adapter to the `TrackChanges#adapter` property.
     trackChangesPlugin.adapter = {
+
       /**
        * Called each time the suggestion data is needed.
        *
@@ -25,8 +21,7 @@ class CustomTrackChangesAdapter {
        * @returns {Promise}
        */
       getSuggestion: id => {
-        console.log( 'Getting suggestion', id );
-
+        console.log(id);
         return fetch( '/suggestions/' + id )
           .then( response => response.json() )
           .then( suggestion => {
@@ -69,13 +64,12 @@ class CustomTrackChangesAdapter {
        * @returns {Promise}
        */
       addSuggestion: params => {
-        console.log( 'Suggestion added', params );
-
+        console.log(params);
         const formData = new FormData();
         formData.append( 'id', params.id );
         formData.append( 'type', params.type );
-        formData.append( 'article_id', EXAMPLE.ARTICLE_ID );
-        formData.append( 'csrf_token', EXAMPLE.CSRF_TOKEN );
+        formData.append( 'article_id', this.editor.config.get('trackChanges.articleId') );
+        formData.append( 'csrf_token', 1234 );
         formData.append( 'data', JSON.stringify( params.data ) );
 
         if ( params.originalSuggestionId ) {
@@ -116,6 +110,7 @@ class CustomTrackChangesAdapter {
        * @returns {Promise}
        */
       updateSuggestion: ( id, options ) => {
+        console.log(id);
         console.log( 'Suggestion updated', id );
 
         const formData = new FormData();
@@ -128,7 +123,7 @@ class CustomTrackChangesAdapter {
           formData.append( 'state', options.state );
         }
 
-        formData.append( 'csrf_token', EXAMPLE.CSRF_TOKEN );
+        formData.append( 'csrf_token', 1234 );
 
         return fetch( '/suggestions/update/' + id, {
           method: 'POST',
@@ -138,3 +133,5 @@ class CustomTrackChangesAdapter {
     };
   }
 }
+
+export default TrackChangesAdapter;
