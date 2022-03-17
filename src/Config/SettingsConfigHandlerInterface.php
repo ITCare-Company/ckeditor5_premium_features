@@ -10,6 +10,14 @@ namespace Drupal\ckeditor5_premium_features\Config;
 interface SettingsConfigHandlerInterface {
 
   /**
+   * Getter for the license key.
+   *
+   * @return string|null
+   *   The license key if defined, null otherwise.
+   */
+  public function getLicenseKey(): ?string;
+
+  /**
    * Getter for the access key.
    *
    * @return string|null

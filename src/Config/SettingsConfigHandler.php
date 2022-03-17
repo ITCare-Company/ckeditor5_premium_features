@@ -34,6 +34,13 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   /**
    * {@inheritdoc}
    */
+  public function getLicenseKey(): ?string {
+    return $this->config->get('license_key');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getAccessKey(): ?string {
     return $this->config->get('access_key');
   }

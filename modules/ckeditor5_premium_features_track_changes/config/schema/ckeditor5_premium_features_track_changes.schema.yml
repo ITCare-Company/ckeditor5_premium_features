@@ -2,6 +2,6 @@ ckeditor5.plugin.ckeditor5_premium_features_track_changes__track_changes:
   type: mapping
   label: 'Track changes'
   mapping:
-    allowed_tags:
+    sidebar:
       type: string
-      label: 'Allowed tags'
+      label: 'Annotations sidebar'
