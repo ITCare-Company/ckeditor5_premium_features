@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_track_changes\Plugin\CKEditor5Plugin;
+namespace Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin;
 
 use Drupal\ckeditor5\HTMLRestrictions;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
@@ -109,9 +109,8 @@ class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElem
     $static_plugin_config['licenseKey'] = $this->settingsConfigHandler->getLicenseKey();
 
     $restrictions = HTMLRestrictions::fromString(implode(' ', $this->getElementsSubset()));
-    $static_plugin_config['htmlSupport']['allow'] = $restrictions->toGeneralHtmlSupportConfig();
 
-//    $static_plugin_config['trackChanges']['articleId'] = \Drupal::request()->get('node')->id();
+    $static_plugin_config['sidebar'] = ['inline'];
 
     return $static_plugin_config;
   }

@@ -1,4 +1,0 @@
-admin.comments:
-  css:
-    theme:
-      css/comments.admin.css: { }

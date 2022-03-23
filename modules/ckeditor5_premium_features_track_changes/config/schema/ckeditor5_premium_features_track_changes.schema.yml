@@ -1,7 +1,0 @@
-ckeditor5.plugin.ckeditor5_premium_features_track_changes__track_changes:
-  type: mapping
-  label: 'Track changes'
-  mapping:
-    sidebar:
-      type: string
-      label: 'Annotations sidebar'

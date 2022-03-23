@@ -1,0 +1,30 @@
+admin.track-changes:
+  css:
+    theme:
+      css/track-changes.admin.css: { }
+
+admin.comments:
+  css:
+    theme:
+      css/comments.admin.css: { }
+
+adapter.track-changes:
+  js:
+    js/build/trackChangesAdapter.js: { }
+
+adapter.comments:
+  js:
+    js/build/commentsAdapter.js: { }
+
+adapter.user:
+  js:
+    js/build/userAdapter.js: { }
+
+collaboration:
+  dependencies:
+    - ckeditor5_premium_features_collaboration/ckeditor5-collaboration-dll
+    - ckeditor5_premium_features_collaboration/track-changes
+    - ckeditor5_premium_features_collaboration/comments
+   # - ckeditor5_premium_features_collaboration/adapter.user
+
+

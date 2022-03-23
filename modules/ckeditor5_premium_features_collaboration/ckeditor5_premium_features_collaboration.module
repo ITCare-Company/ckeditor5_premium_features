@@ -5,7 +5,7 @@
  * Implements hooks for the CKEditor 5 Premium Features Collaboration module.
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 
@@ -16,10 +16,18 @@ function ckeditor5_premium_features_collaboration_library_info_build(): array {
   /** @var \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $config_handler */
   $config_handler = \Drupal::service('ckeditor5_premium_features.config_handler.settings');
 
-  $library = new LibraryDefinitionItem('ckeditor5-collaboration-dll', $config_handler->getDllLocation());
-  $library->addRemoteJs($library->id());
+  $ck_collaboration_dll = new LibraryDefinitionItem('ckeditor5-collaboration-dll', $config_handler->getDllLocation());
+  $ck_collaboration_dll->addRemoteJs($ck_collaboration_dll->id());
 
-  $libraries[$library->id()] = $library->getDefinition();
+  $track_changes = new LibraryDefinitionItem('track-changes', $config_handler->getDllLocation());
+  $track_changes->addRemoteJs($track_changes->id());
 
-  return $libraries;
+  $comments = new LibraryDefinitionItem('comments', $config_handler->getDllLocation());
+  $comments->addRemoteJs($comments->id());
+
+  return [
+    $ck_collaboration_dll->id() => $ck_collaboration_dll->getDefinition(),
+    $track_changes->id() => $track_changes->getDefinition(),
+    $comments->id() => $comments->getDefinition(),
+  ];
 }
