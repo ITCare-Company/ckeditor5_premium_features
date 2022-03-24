@@ -1,0 +1,49 @@
+ckeditor5_premium_features_collaboration__track_changes:
+  ckeditor5:
+    plugins:
+      - trackChanges.TrackChanges
+  drupal:
+    label: Track changes
+    library: ckeditor5_premium_features_collaboration/collaboration
+    admin_library: ckeditor5_premium_features_collaboration/admin.track-changes
+    class: Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\TrackChanges
+    toolbar_items:
+      trackChanges:
+        label: Track changes
+    elements: false
+    conditions: [ ]
+
+ckeditor5_premium_features_collaboration__track_changes_adapter:
+  ckeditor5:
+    plugins:
+      - trackChangesAdapter.TrackChangesAdapter
+  drupal:
+    label: Track changes adapter
+    library: ckeditor5_premium_features_collaboration/adapter.track-changes
+    elements: false
+    conditions: [ ]
+
+ckeditor5_premium_features_collaboration__comments:
+  ckeditor5:
+    plugins:
+      - comments.Comments
+  drupal:
+    label: comments
+    library: ckeditor5_premium_features_collaboration/collaboration
+    admin_library: ckeditor5_premium_features_collaboration/admin.comments
+    class: Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\Comments
+    toolbar_items:
+      comment:
+        label: Comment
+    elements: false
+    conditions: [ ]
+
+ckeditor5_premium_features_collaboration__comments_adapter:
+  ckeditor5:
+    plugins:
+      - commentsAdapter.CommentsAdapter
+  drupal:
+    label: Comments adapter
+    library: ckeditor5_premium_features_collaboration/adapter.comments
+    elements: false
+    conditions: [ ]

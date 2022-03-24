@@ -1,9 +1,0 @@
-admin.track-changes:
-  css:
-    theme:
-      css/track-changes.admin.css: { }
-
-adapter:
-  js:
-    js/build/trackChangesAdapter.js: {}
-
