@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -86,10 +87,7 @@ class Suggestion extends ContentEntityBase implements SuggestionInterface {
   }
 
   /**
-   * Gets the suggestion author ID.
-   *
-   * @return int|null
-   *   The author ID.
+   * {@inheritdoc}
    */
   public function getAuthorId(): ?int {
     $field = $this->get('uid');
@@ -104,16 +102,35 @@ class Suggestion extends ContentEntityBase implements SuggestionInterface {
     return (int) $this->get('created')->value;
   }
 
-  public function getTargetEntityType(): string {
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityTypeTargetId(): string {
     return (string) $this->get('entity_type')->value;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function setEntityTypeTargetId(string $id): static {
+    $id = Html::decodeEntities(strip_tags($id));
+    $this->set('entity_type', $id);
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getData(bool $raw = FALSE): string|array {
     $data = (string) $this->get('data')->value;
 
     return $raw ? $data : (array) Json::decode($data);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function setData(array|string $data): static {
     $data = is_array($data) ? Json::encode($data) : $data;
     $this->set('data', $data);
@@ -121,12 +138,18 @@ class Suggestion extends ContentEntityBase implements SuggestionInterface {
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function setCommentState(bool $state): static {
     $this->set('has_comments', $state);
 
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function hasComments(): bool {
     return (bool) $this->get('has_comments')->value;
   }

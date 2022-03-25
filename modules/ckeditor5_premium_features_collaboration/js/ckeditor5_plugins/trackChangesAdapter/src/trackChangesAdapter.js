@@ -12,6 +12,11 @@ class TrackChangesAdapter {
   init() {
     const trackChangesPlugin = this.editor.plugins.get( 'TrackChanges' );
 
+    /**
+     * Call the session endpoint in order to get the CSRF token.
+     *
+     * @returns {Promise<string>}
+     */
     function fetchToken() {
       return fetch('/session/token').then(response => response.text())
     }
@@ -72,13 +77,12 @@ class TrackChangesAdapter {
         return fetchToken().then((csrf_token) => {
           const formData = new FormData();
           formData.append( 'id', params.id );
-          formData.append( 'type', this.config.get('routeContext.type'));
-          formData.append( 'article_id', this.editor.config.get('routeContext.id'));
-          // formData.append( 'csrf_token', csrf_token);
+          formData.append( 'entity_type', this.config.get('routeContext.type'));
+          formData.append( 'entity_id', this.editor.config.get('routeContext.id'));
           formData.append( 'data', JSON.stringify( params.data ) );
 
           if ( params.originalSuggestionId ) {
-            formData.append( 'original_suggestion_id', params.originalSuggestionId );
+            formData.append( 'original', params.originalSuggestionId );
           }
 
           return fetch( this.basePath, {
@@ -91,7 +95,7 @@ class TrackChangesAdapter {
             .then( response => response.json() )
             .then( responseData => {
               return {
-                createdAt: new Date( responseData.created_at * 1000 )
+                createdAt: new Date( responseData.created * 1000 )
               };
             } );
         })
@@ -113,7 +117,6 @@ class TrackChangesAdapter {
        *
        * @param {String} id The suggestion ID.
        * @param {Object} options
-       * @param {String} options.state The state of the suggestion.
        * @param {Boolean} options.hasComments Information if
        * the suggestion has comments or not.
        * @returns {Promise}
@@ -125,12 +128,6 @@ class TrackChangesAdapter {
           if (options.hasComments !== undefined) {
             formData.append('has_comments', options.hasComments);
           }
-
-          if (options.state !== undefined) {
-            formData.append('state', options.state);
-          }
-
-          formData.append('csrf_token', fetchToken());
 
           return fetch('/suggestions/update/' + id, {
             method: 'PUT',

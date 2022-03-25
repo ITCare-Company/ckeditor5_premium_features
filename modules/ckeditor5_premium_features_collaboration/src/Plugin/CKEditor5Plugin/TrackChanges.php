@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin;
 
-use Drupal\ckeditor5\HTMLRestrictions;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Utility\RouteContextEntityTrait;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\editor\EditorInterface;
@@ -22,6 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElementsSubsetInterface, ContainerFactoryPluginInterface {
   use CKEditor5PluginConfigurableTrait;
+  use RouteContextEntityTrait;
 
   /**
    * Creates the Track Changes plugin instance.
@@ -107,19 +108,10 @@ class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElem
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
     $static_plugin_config['licenseKey'] = $this->settingsConfigHandler->getLicenseKey();
-
-    $restrictions = HTMLRestrictions::fromString(implode(' ', $this->getElementsSubset()));
-
     $static_plugin_config['sidebar'] = ['inline'];
 
-    $route_components = explode('.', \Drupal::routeMatch()->getRouteName());
-    $is_entity_route = ($route_components[0] ?? '') === 'entity';
-
-    if ($is_entity_route) {
-      $static_plugin_config['routeContext']  = [
-        'type' => $route_components[1],
-        'id' => \Drupal::request()->attributes->get($route_components[1])->id(),
-      ];
+    if (!isset($static_plugin_config['routeContext'])) {
+      $static_plugin_config['routeContext'] = $this->getRouteContext();
     }
 
     return $static_plugin_config;
