@@ -112,6 +112,16 @@ class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElem
 
     $static_plugin_config['sidebar'] = ['inline'];
 
+    $route_components = explode('.', \Drupal::routeMatch()->getRouteName());
+    $is_entity_route = ($route_components[0] ?? '') === 'entity';
+
+    if ($is_entity_route) {
+      $static_plugin_config['routeContext']  = [
+        'type' => $route_components[1],
+        'id' => \Drupal::request()->attributes->get($route_components[1])->id(),
+      ];
+    }
+
     return $static_plugin_config;
   }
 

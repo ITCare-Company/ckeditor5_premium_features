@@ -1,6 +1,8 @@
 class TrackChangesAdapter {
   constructor( editor ) {
     this.editor = editor;
+    this.config = this.editor.config;
+    this.basePath = '/ckeditor5/premium/collaboration/suggestion';
   }
 
   static get pluginName() {
@@ -9,6 +11,10 @@ class TrackChangesAdapter {
 
   init() {
     const trackChangesPlugin = this.editor.plugins.get( 'TrackChanges' );
+
+    function fetchToken() {
+      return fetch('/session/token').then(response => response.text())
+    }
 
     trackChangesPlugin.adapter = {
 
@@ -21,12 +27,11 @@ class TrackChangesAdapter {
        * @returns {Promise}
        */
       getSuggestion: id => {
-        console.log(id);
-        return fetch( '/suggestions/' + id )
+        return fetch( this.basePath + '/' + id )
           .then( response => response.json() )
           .then( suggestion => {
-            suggestion.createdAt = new Date( suggestion.created_at * 1000 );
-            suggestion.authorId = suggestion.user_id;
+            suggestion.createdAt = new Date( suggestion.created * 1000 );
+            suggestion.authorId = suggestion.user;
             suggestion.hasComments = !!parseInt( suggestion.has_comments );
 
             return suggestion;
@@ -64,28 +69,32 @@ class TrackChangesAdapter {
        * @returns {Promise}
        */
       addSuggestion: params => {
-        console.log(params);
-        const formData = new FormData();
-        formData.append( 'id', params.id );
-        formData.append( 'type', params.type );
-        formData.append( 'article_id', this.editor.config.get('trackChanges.articleId') );
-        formData.append( 'csrf_token', 1234 );
-        formData.append( 'data', JSON.stringify( params.data ) );
+        return fetchToken().then((csrf_token) => {
+          const formData = new FormData();
+          formData.append( 'id', params.id );
+          formData.append( 'type', this.config.get('routeContext.type'));
+          formData.append( 'article_id', this.editor.config.get('routeContext.id'));
+          // formData.append( 'csrf_token', csrf_token);
+          formData.append( 'data', JSON.stringify( params.data ) );
 
-        if ( params.originalSuggestionId ) {
-          formData.append( 'original_suggestion_id', params.originalSuggestionId );
-        }
+          if ( params.originalSuggestionId ) {
+            formData.append( 'original_suggestion_id', params.originalSuggestionId );
+          }
 
-        return fetch( '/suggestions', {
-          method: 'POST',
-          body: formData
-        } )
-          .then( response => response.json() )
-          .then( responseData => {
-            return {
-              createdAt: new Date( responseData.created_at * 1000 )
-            };
-          } );
+          return fetch( this.basePath, {
+            method: 'POST',
+            body: formData,
+            headers: new Headers({
+              'X-CSRF-Token': csrf_token,
+            })
+          } )
+            .then( response => response.json() )
+            .then( responseData => {
+              return {
+                createdAt: new Date( responseData.created_at * 1000 )
+              };
+            } );
+        })
       },
 
       /**
@@ -110,25 +119,26 @@ class TrackChangesAdapter {
        * @returns {Promise}
        */
       updateSuggestion: ( id, options ) => {
-        console.log(id);
-        console.log( 'Suggestion updated', id );
+        return fetchToken().then((csrf_token) => {
+          const formData = new FormData();
 
-        const formData = new FormData();
+          if (options.hasComments !== undefined) {
+            formData.append('has_comments', options.hasComments);
+          }
 
-        if ( options.hasComments !== undefined ) {
-          formData.append( 'has_comments', options.hasComments );
-        }
+          if (options.state !== undefined) {
+            formData.append('state', options.state);
+          }
 
-        if ( options.state !== undefined ) {
-          formData.append( 'state', options.state );
-        }
+          formData.append('csrf_token', fetchToken());
 
-        formData.append( 'csrf_token', 1234 );
-
-        return fetch( '/suggestions/update/' + id, {
-          method: 'POST',
-          body: formData
-        } );
+          return fetch('/suggestions/update/' + id, {
+            method: 'PUT',
+            headers: new Headers({
+              'X-CSRF-Token': csrf_token,
+            })
+          });
+        });
       }
     };
   }
