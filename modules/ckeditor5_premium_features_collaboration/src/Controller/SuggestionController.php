@@ -4,142 +4,148 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Controller;
 
+use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Utility\ExceptionResponse;
 use Drupal\Core\Controller\ControllerBase;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Drupal\Core\Entity\ContentEntityStorageInterface;
+use Drupal\Core\Entity\EntityStorageException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Provides the suggestion entity controller.
+ */
 class SuggestionController extends ControllerBase {
 
   /**
-   * Acton that returns a suggestion with a given ID.
+   * Constructs the Suggestion controller instance.
    *
-   * @param RequestInterface $req
-   * @param ResponseInterface $res
-   * @param array $args
-   *
-   * @return ResponseInterface
+   * @param \Drupal\Core\Entity\ContentEntityStorageInterface $suggestionStorage
+   *   The suggestion entity storage.
    */
-  public function get(RequestInterface $req, ResponseInterface $res, array $args): ResponseInterface {
-    return $this->json($this->getSuggestion($args['suggestion_id']));
+  public function __construct(
+    protected ContentEntityStorageInterface $suggestionStorage,
+  ) {
   }
 
   /**
-   * Action that adds a new suggestion to the database.
-   *
-   * @param ServerRequestInterface $req
-   *
-   * @return ResponseInterface
+   * {@inheritdoc}
    */
-  public function add(ServerRequestInterface $req): ResponseInterface {
-    $post = $req->getParsedBody();
-
-    $requiredFields = ['id', 'article_id', 'type'];
-
-    foreach ($requiredFields as $field) {
-      if (empty($post[$field])) {
-        return $this->error('Invalid request. Missing POST field: ' . $field);
-      }
-    }
-
-    $stmt = $this->db->prepare(
-      'INSERT INTO suggestions (id, article_id, user_id, type, data, created_at)
-                        VALUES (:id, :article_id, :user_id, :type, :data, :created_at)'
-    );
-
-    $currentUser = $this->getUserRepository()->getCurrentUser();
-    $authorId = $currentUser['id'];
-    $createdAt = time();
-    $type = $post['type'];
-    $data = $post['data'];
-
-    /**
-     * If the `original_suggestion_id` field is set, it means that this suggestion has been
-     * created as a result of editing other existing suggestion contents (e.g. the existing
-     * suggestion could be split to two separate suggestions).
-     * In this case, the current application user may be not the original author of this
-     * suggestion, so it is required to fetch the original suggestion and assign the
-     * id of the original author.
-     */
-    if (!empty($post['original_suggestion_id'])) {
-      $originalSuggestion = $this->getSuggestion($post['original_suggestion_id']);
-
-      if (!empty($originalSuggestion)) {
-        $authorId = $originalSuggestion['user_id'];
-        $createdAt = $originalSuggestion['created_at'];
-        $type = $originalSuggestion['type'];
-        $data = $originalSuggestion['data'];
-      }
-    }
-
-    $stmt->bindParam(':id', $post['id'], \PDO::PARAM_STR);
-    $stmt->bindParam(':article_id', $post['article_id'], \PDO::PARAM_INT);
-    $stmt->bindParam(':type', $type, \PDO::PARAM_STR);
-    $stmt->bindParam(':user_id', $authorId, \PDO::PARAM_INT);
-    $stmt->bindParam(':created_at', $createdAt, \PDO::PARAM_INT);
-    $stmt->bindParam(':data', $data, \PDO::PARAM_STR);
-
-    $stmt->execute();
-
-    return $this->json(
-      [
-        'id' => $post['id'],
-        'created_at' => $createdAt,
-      ]
+  public static function create(ContainerInterface $container): static {
+    return new static(
+      $container->get('entity_type.manager')->getStorage(SuggestionInterface::ENTITY_TYPE_ID),
     );
   }
 
   /**
-   * Action that updates a suggestion in the database.
+   * Respond to the GET request with the CKEDitor5 Suggestion entity data.
    *
-   * @param ServerRequestInterface $req
-   * @param ResponseInterface $res
-   * @param array $args
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $ckeditor5_suggestion
+   *   The suggestion entity.
    *
-   * @return ResponseInterface
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The suggestion data.
    */
-  public function update(ServerRequestInterface $req, ResponseInterface $res, array $args): ResponseInterface {
-    $suggestionId = $args['suggestion_id'] ?? NULL;
-    $post = $req->getParsedBody();
-
-    if (!$suggestionId) {
-      return $this->error('Could not update suggestion - invalid request.');
-    }
-
-    $suggestion = $this->getSuggestion($suggestionId);
-
-    if (empty($suggestion)) {
-      return $this->error('Could not update suggestion - suggestion not found');
-    }
-
-    $hasComments = $post['has_comments'] === 'true';
-
-    $stmt = $this->db->prepare('UPDATE suggestions SET has_comments=:has_comments WHERE id=:id');
-    $stmt->bindParam(':id', $suggestionId, \PDO::PARAM_STR);
-    $stmt->bindParam(':has_comments', $hasComments, \PDO::PARAM_BOOL);
-
-    return $this->json(['ok' => $stmt->execute()]);
+  public function get(SuggestionInterface $ckeditor5_suggestion): JsonResponse {
+    // @todo We can replace it with a CacheableJsonResponse if possible.
+    return new JsonResponse($ckeditor5_suggestion->toArray());
   }
 
   /**
-   * Helper method that returns a suggestion with a given ID from the database.
+   * Creates the CKEDitor5 Suggestion entity.
    *
-   * @param string $suggestionId
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request object.
    *
-   * @return array|null
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The created time in case of success or error.
    */
-  private function getSuggestion(string $suggestionId): ?array {
-    $stmt = $this->db->prepare("SELECT * FROM suggestions WHERE id=:id");
-    $stmt->bindParam(':id', $suggestionId, \PDO::PARAM_STR);
-    $stmt->execute();
+  public function add(Request $request): JsonResponse {
+    $data = $request->request;
 
-    $suggestion = $stmt->fetch(\PDO::FETCH_ASSOC);
+    $object_data = [
+      'id' => $data->getAlnum('id'),
+      'entity_id' => $data->getInt('entity_id'),
+    ];
 
-    if (!empty($suggestion['data'])) {
-      $suggestion['data'] = \json_decode($suggestion['data']);
+    $original_suggestion = $this->loadOriginalSuggestionFromRequestData($request);
+    if ($original_suggestion instanceof SuggestionInterface) {
+      $object_data = [
+        'uid' => $original_suggestion->getAuthorId(),
+        'entity_type' => $original_suggestion->getEntityTypeTargetId(),
+        'created' => $original_suggestion->getCreatedTime(),
+      ] + $object_data;
+
+      $entity_type = $original_suggestion->getEntityTypeTargetId();
+      $suggestion_data = $original_suggestion->getData();
+    }
+    else {
+      $object_data = [
+        'uid' => $this->currentUser()->id(),
+      ] + $object_data;
+
+      $entity_type = $data->get('entity_type');
+      $suggestion_data = (string) $data->get('data');
     }
 
-    return $suggestion;
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion */
+    $suggestion = $this->suggestionStorage->create($object_data);
+    $suggestion->setData($suggestion_data);
+    $suggestion->setEntityTypeTargetId($entity_type);
+
+    try {
+      $suggestion->save();
+
+      return new JsonResponse(['created' => $suggestion->getCreatedTime()]);
+    }
+    catch (EntityStorageException $exception) {
+      return ExceptionResponse::entityStorage($exception);
+    }
+  }
+
+  /**
+   * Updates the CKEDitor5 Suggestion entity.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $ckeditor5_suggestion
+   *   The suggestion entity.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request object.
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   The success message or error.
+   */
+  public function update(SuggestionInterface $ckeditor5_suggestion, Request $request): JsonResponse {
+    $suggestion = $ckeditor5_suggestion;
+    $data = $request->request;
+    $has_comments = (bool) filter_var($data['has_comments'] ?? '', FILTER_VALIDATE_BOOL);
+
+    $suggestion->setData((array) $data['data']);
+    $suggestion->setCommentState($has_comments);
+
+    try {
+      $suggestion->save();
+
+      return new JsonResponse(['ok' => TRUE]);
+    }
+    catch (EntityStorageException $exception) {
+      return ExceptionResponse::entityStorage($exception);
+    }
+  }
+
+  /**
+   * Loads the original suggestion if present in the request data.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request object.
+   *
+   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface|null
+   *   The suggestion entity or null.
+   */
+  protected function loadOriginalSuggestionFromRequestData(Request $request): ?SuggestionInterface {
+    $original_suggestion_id = $request->request->getAlnum('original');
+
+    return $original_suggestion_id ? $this->suggestionStorage->load($original_suggestion_id) : NULL;
   }
 
 }
