@@ -9,6 +9,8 @@ use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
  * Adds functionality for retrieving the entity context data from the route.
+ *
+ * @todo To be removed if not needed anymore.
  */
 trait RouteContextEntityTrait {
 

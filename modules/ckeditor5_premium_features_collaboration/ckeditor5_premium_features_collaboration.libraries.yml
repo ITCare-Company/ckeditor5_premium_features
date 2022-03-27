@@ -19,12 +19,12 @@ adapter.comments:
 adapter.user:
   js:
     js/build/userAdapter.js: { }
+  dependencies:
+    - core/drupalSettings
 
 collaboration:
   dependencies:
     - ckeditor5_premium_features_collaboration/ckeditor5-collaboration-dll
+    - ckeditor5_premium_features_collaboration/adapter.user
     - ckeditor5_premium_features_collaboration/track-changes
     - ckeditor5_premium_features_collaboration/comments
-   # - ckeditor5_premium_features_collaboration/adapter.user
-
-

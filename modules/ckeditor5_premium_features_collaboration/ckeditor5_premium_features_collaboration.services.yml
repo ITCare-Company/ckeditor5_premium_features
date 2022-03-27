@@ -1,0 +1,6 @@
+services:
+  ckeditor5_premium_features_collaboration.makrup_data_provider:
+    class: Drupal\ckeditor5_premium_features_collaboration\Service\MarkupDataProvider
+    arguments:
+      - '@current_user'
+      - '@entity_type.manager'
