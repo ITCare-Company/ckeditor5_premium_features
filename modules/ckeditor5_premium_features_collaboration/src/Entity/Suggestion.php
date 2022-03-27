@@ -46,12 +46,19 @@ class Suggestion extends ContentEntityBase implements SuggestionInterface {
       ->setSetting('target_type', 'user')
       ->setRequired(TRUE);
 
+    $fields['type'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Suggestion type'))
+      ->setRequired(TRUE)
+      ->setSetting('machine_name', TRUE)
+      ->setDescription(t('The editor suggestion type.'));
+
     // We need to have two string (non-reference) fields,
     // because the entity id is not available before
     // the entity is created. We are only able to store some temp hash.
     $fields['entity_type'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Entity type'))
       ->setRequired(TRUE)
+      ->setSetting('machine_name', TRUE)
       ->setDescription(t('The target entity type.'));
 
     $fields['entity_id'] = BaseFieldDefinition::create('string')
@@ -70,7 +77,13 @@ class Suggestion extends ContentEntityBase implements SuggestionInterface {
 
     $fields['data'] = BaseFieldDefinition::create('string_long')
       ->setLabel(t('Data'))
+      ->setSetting('json', TRUE)
       ->setDescription(t('The suggestion data.'));
+
+    $fields['attributes'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Attributes'))
+      ->setSetting('json', TRUE)
+      ->setDescription(t('The suggestion attributes.'));
 
     return $fields;
   }
@@ -78,11 +91,16 @@ class Suggestion extends ContentEntityBase implements SuggestionInterface {
   /**
    * {@inheritdoc}
    */
-  public function toArray() {
+  public function toArray(): array {
     return [
+      'id' => $this->id(),
       'user' => $this->getAuthorId(),
       'created' => $this->getCreatedTime(),
+      // @todo verify why `type` is not working.
+//      'type' => $this->getType(),
       'has_comments' => $this->hasComments(),
+      'data' => $this->getData(),
+      'attributes' => $this->getAttributes(),
     ];
   }
 
@@ -93,6 +111,20 @@ class Suggestion extends ContentEntityBase implements SuggestionInterface {
     $field = $this->get('uid');
 
     return $field->isEmpty() ? NULL : (int) $field->target_id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getType(): string {
+    return (string) $this->get('type')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setType(string $type): static {
+    return $this->setMachineName('type', $type);
   }
 
   /**
@@ -113,29 +145,35 @@ class Suggestion extends ContentEntityBase implements SuggestionInterface {
    * {@inheritdoc}
    */
   public function setEntityTypeTargetId(string $id): static {
-    $id = Html::decodeEntities(strip_tags($id));
-    $this->set('entity_type', $id);
-
-    return $this;
+    return $this->setMachineName('entity_type', $id);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getData(bool $raw = FALSE): string|array {
-    $data = (string) $this->get('data')->value;
-
-    return $raw ? $data : (array) Json::decode($data);
+    return $this->getJsonFieldValue('data', $raw);
   }
 
   /**
    * {@inheritdoc}
    */
   public function setData(array|string $data): static {
-    $data = is_array($data) ? Json::encode($data) : $data;
-    $this->set('data', $data);
+    return $this->setJsonFieldValue('data', $data);
+  }
 
-    return $this;
+  /**
+   * {@inheritdoc}
+   */
+  public function getAttributes(bool $raw = FALSE): string|array {
+    return $this->getJsonFieldValue('attributes', $raw);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setAttributes(array|string $data): static {
+    return $this->setJsonFieldValue('attributes', $data);
   }
 
   /**
@@ -152,6 +190,63 @@ class Suggestion extends ContentEntityBase implements SuggestionInterface {
    */
   public function hasComments(): bool {
     return (bool) $this->get('has_comments')->value;
+  }
+
+  /**
+   * Gets the value of the fields containing the JSON data.
+   *
+   * @param string $field_name
+   *   The name of the field.
+   * @param bool $raw
+   *   FALSE to return decoded, TRUE for having
+   *   the raw string value.
+   *
+   * @return string|array
+   *   The data decoded or raw.
+   */
+  protected function getJsonFieldValue(string $field_name, bool $raw = FALSE): array|string {
+    $data = '';
+    if ($this->hasField($field_name)) {
+      $data = (string) $this->get($field_name)->value;
+    }
+
+    return $raw ? $data : (array) Json::decode($data);
+  }
+
+  /**
+   * Sets the value of the fields containg the JSON data.
+   *
+   * @param string $field_name
+   *   The name of the field.
+   * @param array|string $data
+   *   The data value (decoded or raw)
+   */
+  protected function setJsonFieldValue(string $field_name, array|string $data): static {
+    if ($this->hasField($field_name)) {
+      $data = is_array($data) ? Json::encode($data) : $data;
+      $this->set($field_name, $data);
+    }
+
+    return $this;
+  }
+
+  /**
+   * Sets the string as the machine name.
+   *
+   * Adds some sanitizion methods before saving the value.
+   *
+   * @param string $field_name
+   *   The name of the field.
+   * @param string $value
+   *   The value to be sanitized and stored.
+   *
+   * @return $this
+   */
+  protected function setMachineName(string $field_name, string $value): static {
+    $name = Html::decodeEntities(strip_tags($value));
+    $this->set($field_name, $name);
+
+    return $this;
   }
 
 }

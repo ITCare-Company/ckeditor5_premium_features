@@ -10,6 +10,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\ContentEntityStorageInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -70,29 +71,24 @@ class SuggestionController extends ControllerBase {
     ];
 
     $original_suggestion = $this->loadOriginalSuggestionFromRequestData($request);
-    if ($original_suggestion instanceof SuggestionInterface) {
-      $object_data = [
-        'uid' => $original_suggestion->getAuthorId(),
-        'entity_type' => $original_suggestion->getEntityTypeTargetId(),
-        'created' => $original_suggestion->getCreatedTime(),
-      ] + $object_data;
+    $has_original = $original_suggestion instanceof SuggestionInterface;
 
-      $entity_type = $original_suggestion->getEntityTypeTargetId();
-      $suggestion_data = $original_suggestion->getData();
-    }
-    else {
-      $object_data = [
-        'uid' => $this->currentUser()->id(),
-      ] + $object_data;
+    $callback = $has_original ? 'getSuggestionEntityData' : 'getSuggestionRequestData';
+    $source = $has_original ? $original_suggestion : $data;
 
-      $entity_type = $data->get('entity_type');
-      $suggestion_data = (string) $data->get('data');
-    }
+    [
+      $object_data,
+      $suggestion_data,
+      $attributes,
+      $type,
+    ] = call_user_func([__CLASS__, $callback], $object_data, $source);
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion */
     $suggestion = $this->suggestionStorage->create($object_data);
+    $suggestion->setEntityTypeTargetId($data->get('entity_type', ''));
+    $suggestion->setType($type);
     $suggestion->setData($suggestion_data);
-    $suggestion->setEntityTypeTargetId($entity_type);
+    $suggestion->setAttributes($attributes);
 
     try {
       $suggestion->save();
@@ -117,10 +113,8 @@ class SuggestionController extends ControllerBase {
    */
   public function update(SuggestionInterface $ckeditor5_suggestion, Request $request): JsonResponse {
     $suggestion = $ckeditor5_suggestion;
-    $data = $request->request;
-    $has_comments = (bool) filter_var($data['has_comments'] ?? '', FILTER_VALIDATE_BOOL);
+    $has_comments = $request->request->getBoolean('has_comments');
 
-    $suggestion->setData((array) $data['data']);
     $suggestion->setCommentState($has_comments);
 
     try {
@@ -146,6 +140,56 @@ class SuggestionController extends ControllerBase {
     $original_suggestion_id = $request->request->getAlnum('original');
 
     return $original_suggestion_id ? $this->suggestionStorage->load($original_suggestion_id) : NULL;
+  }
+
+  /**
+   * Gets the suggestion data based on what was send with the request.
+   *
+   * @param array $current_data
+   *   The common data already added.
+   * @param \Symfony\Component\HttpFoundation\InputBag $data
+   *   The request paramters.
+   *
+   * @return array
+   *   The data required to be stored on the entity.
+   */
+  protected function getSuggestionRequestData(array $current_data, InputBag $data): array {
+    $object_data = [
+      'uid' => $this->currentUser()->id(),
+    ] + $current_data;
+
+    return [
+      $object_data,
+      (string) $data->get('data'),
+      (string) $data->get('attributes'),
+      (string) $data->get('type'),
+    ];
+  }
+
+  /**
+   * Gets the suggestion data based on the suggestion entity..
+   *
+   * @param array $current_data
+   *   The common data already added.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
+   *   The suggestion entity.
+   *
+   * @return array
+   *   The data required to be stored on the entity.
+   */
+  protected function getSuggestionEntityData(array $current_data, SuggestionInterface $suggestion): array {
+    $object_data = [
+      'uid' => $suggestion->getAuthorId(),
+      'type' => $suggestion->getType(),
+      'created' => $suggestion->getCreatedTime(),
+    ] + $current_data;
+
+    return [
+      $object_data,
+      $suggestion->getData(),
+      $suggestion->getAttributes(),
+      $suggestion->getType(),
+    ];
   }
 
 }

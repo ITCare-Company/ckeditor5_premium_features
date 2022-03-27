@@ -71,15 +71,24 @@ class TrackChangesAdapter {
        * @param {String} [params.originalSuggestionId] Id of a suggestion from which
        * `authorId` property should be taken.
        * @param {Object|null} [params.data] Additional suggestion data.
+       * @param {Object} [params.attributes] The suggestion attributes.
+       * @param {Boolean} [params.hasComments] Information if
+       * the suggestion has comments or not.
+       * @param {String} [params.type] The suggestion type.
        * @returns {Promise}
        */
       addSuggestion: params => {
         return fetchToken().then((csrf_token) => {
           const formData = new FormData();
           formData.append( 'id', params.id );
+          formData.append( 'type', params.type);
+
+          // @todo entity type and ID from the entity related to editor.
           formData.append( 'entity_type', this.config.get('routeContext.type'));
           formData.append( 'entity_id', this.editor.config.get('routeContext.id'));
-          formData.append( 'data', JSON.stringify( params.data ) );
+          formData.append( 'data', JSON.stringify( params.data ));
+          formData.append( 'attributes', JSON.stringify( params.attributes ));
+          formData.append( 'has_comments', JSON.stringify( params.hasComments ));
 
           if ( params.originalSuggestionId ) {
             formData.append( 'original', params.originalSuggestionId );
@@ -129,8 +138,11 @@ class TrackChangesAdapter {
             formData.append('has_comments', options.hasComments);
           }
 
-          return fetch('/suggestions/update/' + id, {
-            method: 'PUT',
+          // @todo The `state` to be added if needed?
+
+          return fetch(this.basePath + '/' + id, {
+            method: 'POST',
+            body: formData,
             headers: new Headers({
               'X-CSRF-Token': csrf_token,
             })
