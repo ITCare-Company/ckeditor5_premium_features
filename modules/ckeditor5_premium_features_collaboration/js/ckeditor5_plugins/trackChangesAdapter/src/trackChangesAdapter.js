@@ -88,7 +88,6 @@ class TrackChangesAdapter {
           formData.append( 'entity_id', this.editor.config.get('routeContext.id'));
           formData.append( 'data', JSON.stringify( params.data ));
           formData.append( 'attributes', JSON.stringify( params.attributes ));
-          formData.append( 'has_comments', JSON.stringify( params.hasComments ));
 
           if ( params.originalSuggestionId ) {
             formData.append( 'original', params.originalSuggestionId );
