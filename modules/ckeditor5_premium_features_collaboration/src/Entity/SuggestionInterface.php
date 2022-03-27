@@ -22,6 +22,22 @@ interface SuggestionInterface extends ContentEntityInterface {
   public function getAuthorId(): ?int;
 
   /**
+   * Gets the suggestion type.
+   *
+   * @return string
+   *   The type, defaults to empty string.
+   */
+  public function getType(): string;
+
+  /**
+   * Sets the suggestion type.
+   *
+   * @param string $type
+   *   The type to be set.
+   */
+  public function setType(string $type): static;
+
+  /**
    * Gets the node creation timestamp.
    *
    * @return int
@@ -64,6 +80,26 @@ interface SuggestionInterface extends ContentEntityInterface {
    *   The data value (decoded or raw)
    */
   public function setData(array|string $data): static;
+
+  /**
+   * Gets the JSON suggestion attributes.
+   *
+   * @param bool $raw
+   *   FALSE to return decoded, TRUE for having
+   *   the raw string value.
+   *
+   * @return string|array
+   *   The data decoded or raw.
+   */
+  public function getAttributes(bool $raw = FALSE): string|array;
+
+  /**
+   * Sets the attributes value.
+   *
+   * @param array|string $data
+   *   The data value (decoded or raw)
+   */
+  public function setAttributes(array|string $data): static;
 
   /**
    * Sets the comment state (if has comments).

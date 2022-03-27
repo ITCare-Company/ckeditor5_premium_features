@@ -25,10 +25,11 @@ ckeditor5_premium_features_collaboration.suggestion.update:
   path: '/ckeditor5/premium/collaboration/suggestion/{ckeditor5_suggestion}'
   defaults:
     _controller: 'Drupal\ckeditor5_premium_features_collaboration\Controller\SuggestionController::update'
-  methods:  [PUT]
+  methods:  [POST]
   requirements:
     # @todo change to entity access.
     _access: 'TRUE'
+    _csrf_request_header_token: 'TRUE'
   options:
     parameters:
       ckeditor5_suggestion:
