@@ -8,6 +8,8 @@
 declare(strict_types=1);
 
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_library_info_build().
@@ -30,4 +32,34 @@ function ckeditor5_premium_features_collaboration_library_info_build(): array {
     $track_changes->id() => $track_changes->getDefinition(),
     $comments->id() => $comments->getDefinition(),
   ];
+}
+
+/**
+ * Implements hook_element_info_alter().
+ *
+ * @see \Drupal\filter\Element\TextFormat
+ */
+function ckeditor5_premium_features_collaboration_field_widget_single_element_form_alter(array &$element, FormStateInterface $form_state, array $context) : void {
+  $type = $element['#type'] ?? NULL;
+
+  if ($type !== 'text_format') {
+    return;
+  }
+
+  /** @var \Drupal\Core\Field\FieldItemListInterface|null $items */
+  $items = $context['items'] ?? NULL;
+  $entity = $items?->getEntity();
+
+  if ($entity instanceof EntityInterface) {
+    $entity_context = [
+      'data-entity' => $entity->id(),
+      'data-entity-type' => $entity->getEntityTypeId(),
+    ];
+    $element['#attributes'] = $entity_context + $element['#attributes'];
+  }
+
+  /** @var \Drupal\ckeditor5_premium_features_collaboration\Service\MarkupDataProviderInterface $data_provider */
+  $data_provider = \Drupal::service('ckeditor5_premium_features_collaboration.makrup_data_provider');
+  $content = $element['#default_value'] ?? '';
+  $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $data_provider->getSuggestionsUsers($content);
 }

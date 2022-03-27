@@ -3,6 +3,12 @@ class TrackChangesAdapter {
     this.editor = editor;
     this.config = this.editor.config;
     this.basePath = '/ckeditor5/premium/collaboration/suggestion';
+
+    const dataset = this.editor.sourceElement.dataset;
+    this.context = {
+      entity: dataset.entity,
+      entityType: dataset.entityType,
+    }
   }
 
   static get pluginName() {
@@ -82,10 +88,8 @@ class TrackChangesAdapter {
           const formData = new FormData();
           formData.append( 'id', params.id );
           formData.append( 'type', params.type);
-
-          // @todo entity type and ID from the entity related to editor.
-          formData.append( 'entity_type', this.config.get('routeContext.type'));
-          formData.append( 'entity_id', this.editor.config.get('routeContext.id'));
+          formData.append( 'entity_type', this.context.entityType);
+          formData.append( 'entity_id', this.context.entity);
           formData.append( 'data', JSON.stringify( params.data ));
           formData.append( 'attributes', JSON.stringify( params.attributes ));
 
