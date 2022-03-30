@@ -47,13 +47,3 @@ ckeditor5_premium_features_collaboration__comments_adapter:
     library: ckeditor5_premium_features_collaboration/adapter.comments
     elements: false
     conditions: [ ]
-
-ckeditor5_premium_features_collaboration__user_adapter:
-  ckeditor5:
-    plugins:
-      - userAdapter.UserAdapter
-  drupal:
-    label: User adapter
-    library: ckeditor5_premium_features_collaboration/adapter.user
-    elements: false
-    conditions: [ ]

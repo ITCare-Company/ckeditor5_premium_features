@@ -24,7 +24,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *      "entity_id" = "entity_id",
  *   },
  *   handlers = {
- *     "storage" = "Drupal\Core\Entity\Sql\SqlContentEntityStorage",
+ *     "storage" = "Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage",
  *   }
  * )
  */
@@ -92,16 +92,44 @@ class Suggestion extends ContentEntityBase implements SuggestionInterface {
    * {@inheritdoc}
    */
   public function toArray(): array {
-    return [
+    $data = [
       'id' => $this->id(),
-      'user' => $this->getAuthorId(),
-      'created' => $this->getCreatedTime(),
-      // @todo verify why `type` is not working.
-//      'type' => $this->getType(),
+      'uid' => $this->getAuthorId(),
+      'created' => $this->getCreatedTime() * 1000,
+      'type' => $this->getType(),
       'has_comments' => $this->hasComments(),
-      'data' => $this->getData(),
+      'data' => $this->getData() ?: NULL,
       'attributes' => $this->getAttributes(),
     ];
+
+    return static::normalizeData($data, TRUE);
+  }
+
+  public static function normalizeData(array $data, bool $reversed = FALSE) {
+    $mapping = [
+      'id' => 'id',
+      'type' => 'type',
+      'createdAt' => 'created',
+      'hasComments' => 'has_comments',
+      'data' => 'data',
+      'attributes' => 'attributes',
+      'entity_id' => 'entity_id',
+      'entity_type' => 'entity_type',
+    ];
+
+    if ($reversed) {
+      $mapping['authorId'] = 'uid';
+      $mapping = array_flip($mapping);
+    }
+
+    $normalized = [];
+    foreach ($data as $property => $value) {
+      if (isset($mapping[$property])) {
+        $normalized[$mapping[$property]] = $value;
+      }
+    }
+
+    return $normalized;
   }
 
   /**
