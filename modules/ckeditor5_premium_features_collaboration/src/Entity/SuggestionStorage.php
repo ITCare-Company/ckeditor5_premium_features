@@ -8,7 +8,6 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Session\AccountProxyInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
@@ -52,7 +51,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements SuggestionSto
    * {@inheritdoc}
    */
   public function add(array $raw_data): SuggestionInterface {
-    Suggestion::normalizeData($raw_data);
+    $raw_data = Suggestion::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
     $object_data = [
@@ -88,7 +87,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements SuggestionSto
    * {@inheritdoc}
    */
   public function update(SuggestionInterface $suggestion, array $raw_data): SuggestionInterface {
-    Suggestion::normalizeData($raw_data);
+    $raw_data = Suggestion::normalize($raw_data);
     $data = new ParameterBag($raw_data);
     $has_comments = $data->getBoolean('has_comments');
 
@@ -133,7 +132,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements SuggestionSto
     return [
       $object_data,
       (string) $data->get('data'),
-      (string) $data->get('attributes'),
+      (array) $data->get('attributes'),
       (string) $data->get('type'),
     ];
   }

@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Service;
 
 use DOMXPath;
+use Drupal\ckeditor5_premium_features_collaboration\EditorElement\CommentItem;
 use Drupal\ckeditor5_premium_features_collaboration\EditorElement\SuggestionItem;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -19,6 +22,13 @@ use function in_array;
  * The utility service for handling the data stored in the HTML markup.
  */
 class MarkupDataProvider implements MarkupDataProviderInterface {
+
+  /**
+   * The comments storage.
+   *
+   * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage
+   */
+  protected CommentsStorage $commentsStorage;
 
   /**
    * The image style storage.
@@ -51,6 +61,7 @@ class MarkupDataProvider implements MarkupDataProviderInterface {
   ) {
     $this->userStorage = $entity_type_manager->getStorage('user');
     $this->imageStyleStorage = $entity_type_manager->getStorage('image_style');
+    $this->commentsStorage = $entity_type_manager->getStorage(CommentInterface::ENTITY_TYPE_ID);
   }
 
   /**
@@ -62,8 +73,11 @@ class MarkupDataProvider implements MarkupDataProviderInterface {
    * @return array
    *   The users data.
    */
-  public function getSuggestionsUsers(string $content): array {
-    $users = $this->getSuggestionsUserIds($content);
+  public function getMarkupUsers(string $content): array {
+    $users = array_merge(
+      $this->getSuggestionsUserIds($content),
+      $this->getCommentsUserIds($content),
+    );
 
     if (!in_array($this->account->id(), $users)) {
       $users[] = $this->account->id();
@@ -102,9 +116,16 @@ class MarkupDataProvider implements MarkupDataProviderInterface {
    *   The list of suggestions IDs.
    */
   public function getSuggestionsIds(string $content): array {
-    $suggestions = $this->getSuggestionsData($content);
+    $suggestions = $this->getTagData(static::TAG_SUGGESTION, $content);
 
     return array_map(fn ($suggestion) => $suggestion->getSuggestionId(), $suggestions);
+  }
+
+  public function getCommentsIds(string $content): array {
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\EditorElement\CommentItem[] $comments */
+    $comments = $this->getTagData(static::TAG_COMMENT, $content);
+
+    return array_map(fn ($comment) => $comment->getThreadId(), $comments);
   }
 
   /**
@@ -117,9 +138,24 @@ class MarkupDataProvider implements MarkupDataProviderInterface {
    *   The user IDs.
    */
   protected function getSuggestionsUserIds(string $content): array {
-    $suggestions = $this->getSuggestionsData($content);
+    $suggestions = $this->getTagData(static::TAG_SUGGESTION, $content);
 
     return array_map(fn ($suggestion) => $suggestion->getUserId(), $suggestions);
+  }
+
+  /**
+   * Gets the user ids stored in the comments.
+   *
+   * @param string $content
+   *   The content containg HTML markup.
+   *
+   * @return array
+   *   The user IDs.
+   */
+  protected function getCommentsUserIds(string $content): array {
+    $ids = $this->getCommentsIds($content);
+
+    return $this->commentsStorage->getUserIdsByCommentsIdsAndThread($ids, '');
   }
 
   /**
@@ -148,39 +184,54 @@ class MarkupDataProvider implements MarkupDataProviderInterface {
   }
 
   /**
-   * Loads the suggestion elements from the given markup.
+   * Loads the elements from the given tag and markup.
    *
+   * @param string $tag
+   *   The HTML tag name.
    * @param string $content
    *   The markup string.
    *
    * @return \DOMNodeList|false|mixed
-   *   The founded suggestions.
+   *   The founded tags.
    */
-  protected function loadSuggestionsFromMarkup(string $content): mixed {
+  protected function loadFromMarkup(string $tag, string $content): mixed {
     $dom = Html::load($content);
     $xpath = new DOMXPath($dom);
 
-    return $xpath->query('//suggestion-start');
+    return $xpath->query('//' . $tag);
   }
 
   /**
-   * Gets the suggestion data from the given content.
+   * Gets the tag data from the given content.
    *
+   * @param string $tag
+   *   The HTML tag name.
    * @param string $content
    *   The markup string.
    *
    * @return \Drupal\ckeditor5_premium_features_collaboration\EditorElement\SuggestionItem[]
-   *   The list of the suggestions.
+   *   The list of the data stored in the given tag.
    */
-  protected function getSuggestionsData(string $content): array {
-    $suggestions = $this->loadSuggestionsFromMarkup($content);
+  protected function getTagData(string $tag, string $content): array {
+    $suggestions = $this->loadFromMarkup($tag, $content);
     $data = [];
+
+    $class = match ($tag) {
+      static::TAG_SUGGESTION => SuggestionItem::class,
+      static::TAG_COMMENT => CommentItem::class,
+      default => NULL,
+    };
+
+    if (is_null($class)) {
+      return $data;
+    }
+
     foreach ($suggestions as $suggestion) {
       if (!$suggestion->hasAttribute('name')) {
         continue;
       }
 
-      $data[] = new SuggestionItem($suggestion->getAttribute('name'));
+      $data[] = new $class($suggestion->getAttribute('name'));
     }
 
     return $data;

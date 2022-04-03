@@ -9,8 +9,12 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Service;
  */
 interface MarkupDataProviderInterface {
 
+  public const TAG_SUGGESTION = 'suggestion-start';
+
+  public const TAG_COMMENT = 'comment-start';
+
   /**
-   * Gets the users data stored in suggestions.
+   * Gets the users data stored in the markup.
    *
    * @param string $content
    *   The content containg HTML markup.
@@ -18,6 +22,6 @@ interface MarkupDataProviderInterface {
    * @return array
    *   The users data.
    */
-  public function getSuggestionsUsers(string $content): array;
+  public function getMarkupUsers(string $content): array;
 
 }

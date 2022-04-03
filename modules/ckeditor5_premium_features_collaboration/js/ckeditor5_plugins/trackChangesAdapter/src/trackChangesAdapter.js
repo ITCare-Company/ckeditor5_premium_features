@@ -1,9 +1,10 @@
 import UserAdapter from "../../userAdapter/src/userAdapter";
+import CollaborationStorage from "../../collaborationStorage";
 
 class TrackChangesAdapter {
   constructor( editor ) {
     this.editor = editor;
-    this.elementId = this.editor.sourceElement.dataset.ckeditor5PremiumElementId;
+    this.storage = new CollaborationStorage(editor);
   }
 
   static get pluginName() {
@@ -15,7 +16,7 @@ class TrackChangesAdapter {
     new UserAdapter(this.editor).init();
 
     const trackChangesPlugin = this.editor.plugins.get( 'TrackChanges' );
-    const trackChangesElement = document.querySelector(this.getSourceDataSelector());
+    const trackChangesElement = document.querySelector(this.storage.getSourceDataSelector('trackChanges'));
 
     // Load suggestions.
     const suggestions = JSON.parse(trackChangesElement.value);
@@ -25,20 +26,19 @@ class TrackChangesAdapter {
 
     // Observe data change and update the data fields.
     this.editor.model.document.on( 'change:data', () => {
-      trackChangesElement.value = JSON.stringify(trackChangesPlugin.getSuggestions({
-        skipNotAttached: true,
-        toJSON: true
-      }));
+      this.updateStorage(trackChangesPlugin, trackChangesElement);
     });
 
-    // @todo move the Suggestions adapter logic here.
+    this.editor.model.document.on( 'comments:change:data', () => {
+      this.updateStorage(trackChangesPlugin, trackChangesElement);
+    });
   }
 
-  getSourceDataSelector() {
-    const cssClass = '.track-changes-data';
-    const dataAttribute = `[data-ckeditor5-premium-element-id="${this.elementId}"]`;
-
-    return cssClass + dataAttribute;
+  updateStorage(plugin, storageElement) {
+    storageElement.value = JSON.stringify(plugin.getSuggestions({
+      skipNotAttached: true,
+      toJSON: true
+    }));
   }
 }
 
