@@ -1,9 +1,8 @@
-import CollaborationStorage from "../../collaborationStorage";
+import CollaborationStorage from "./collaborationStorage";
 
 class CommentsAdapter {
   constructor( editor ) {
     this.editor = editor;
-    this.elementId = this.editor.sourceElement.dataset.ckeditor5PremiumElementId;
     this.storage = new CollaborationStorage(editor);
   }
 
@@ -21,10 +20,6 @@ class CommentsAdapter {
     }
 
     // Observe data change and update the data fields.
-    this.editor.model.document.on( 'change:data', () => {
-      this.updateStorage(commentsRepositoryPlugin, commentsRepositoryElement);
-    });
-
     this.editor.model.document.on( 'comments:change:data', () => {
       this.updateStorage(commentsRepositoryPlugin, commentsRepositoryElement);
     });
@@ -35,7 +30,6 @@ class CommentsAdapter {
 
     const events = [
       'addComment',
-      'addCommentThread',
       'change',
       'removeComment',
       'removeCommentThread',
