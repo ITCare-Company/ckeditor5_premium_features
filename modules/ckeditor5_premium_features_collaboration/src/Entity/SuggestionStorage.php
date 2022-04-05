@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 /**
  * Provides the storage class for the Suggestion entity.
  */
-class SuggestionStorage extends SqlContentEntityStorage implements SuggestionStorageInterface {
+class SuggestionStorage extends SqlContentEntityStorage implements CollaborationEntityStorageInterface, EditorDataStorageProviderInterface {
 
   /**
    * Creates the storage instance.
@@ -50,7 +50,21 @@ class SuggestionStorage extends SqlContentEntityStorage implements SuggestionSto
   /**
    * {@inheritdoc}
    */
-  public function add(array $raw_data): SuggestionInterface {
+  public function loadEditorDataFromIds(array $ids): array {
+    $suggestions = $this->loadMultiple($ids);
+
+    $normalized = [];
+    foreach ($suggestions as $suggestion) {
+      $normalized[] = $suggestion->toArray();
+    }
+
+    return $normalized;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function add(array $raw_data): CollaborationEntityInterface {
     $raw_data = Suggestion::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
@@ -86,16 +100,16 @@ class SuggestionStorage extends SqlContentEntityStorage implements SuggestionSto
   /**
    * {@inheritdoc}
    */
-  public function update(SuggestionInterface $suggestion, array $raw_data): SuggestionInterface {
+  public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface {
     $raw_data = Suggestion::normalize($raw_data);
     $data = new ParameterBag($raw_data);
     $has_comments = $data->getBoolean('has_comments');
 
-    $suggestion
+    $entity
       ->setCommentState($has_comments)
       ->save();
 
-    return $suggestion;
+    return $entity;
   }
 
   /**

@@ -1,4 +1,3 @@
-import UserAdapter from "../../userAdapter/src/userAdapter";
 import CollaborationStorage from "../../collaborationStorage";
 
 class TrackChangesAdapter {
@@ -12,8 +11,6 @@ class TrackChangesAdapter {
   }
 
   init() {
-    // Initialize the user adapter.
-    new UserAdapter(this.editor).init();
 
     const trackChangesPlugin = this.editor.plugins.get( 'TrackChanges' );
     const trackChangesElement = document.querySelector(this.storage.getSourceDataSelector('trackChanges'));

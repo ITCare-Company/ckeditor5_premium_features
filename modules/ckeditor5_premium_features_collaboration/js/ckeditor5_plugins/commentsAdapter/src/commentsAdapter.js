@@ -1,4 +1,5 @@
 import CollaborationStorage from "../../collaborationStorage";
+import UserAdapter from "../../userAdapter/src/userAdapter";
 
 class CommentsAdapter {
   constructor( editor ) {
@@ -12,6 +13,9 @@ class CommentsAdapter {
   }
 
   init() {
+    // Initialize the user adapter.
+    new UserAdapter(this.editor).init();
+
     const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
     const commentsRepositoryElement = document.querySelector(this.storage.getSourceDataSelector('comments'));
     // Load comments.
@@ -21,10 +25,6 @@ class CommentsAdapter {
     }
 
     // Observe data change and update the data fields.
-    this.editor.model.document.on( 'change:data', () => {
-      this.updateStorage(commentsRepositoryPlugin, commentsRepositoryElement);
-    });
-
     this.editor.model.document.on( 'comments:change:data', () => {
       this.updateStorage(commentsRepositoryPlugin, commentsRepositoryElement);
     });
@@ -35,7 +35,6 @@ class CommentsAdapter {
 
     const events = [
       'addComment',
-      'addCommentThread',
       'change',
       'removeComment',
       'removeCommentThread',

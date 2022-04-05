@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\EditorDataStorageProviderInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\StorageDataNormalizationAwareInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Service\MarkupDataProviderInterface;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Crypt;
@@ -46,21 +46,18 @@ class TextFormat {
     $id_attribute = 'data-' . static::STORAGE_KEY . '-element-id';
 
     $content = $element['#default_value'] ?? '';
+
+    // Setup the users.
     $users = static::getDataProvider()->getMarkupUsers($content);
-    $suggestions_ids = static::getDataProvider()->getSuggestionsIds($content);
-    $suggestions = static::getSuggestionStorage()->loadMultiple($suggestions_ids);
-
-    $suggestions_data = [];
-    foreach ($suggestions as $suggestion) {
-      $suggestions_data[] = $suggestion->toArray();
-    }
-
     $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $users;
+
+    // Setup the suggestions.
+    $suggestions_ids = static::getDataProvider()->getSuggestionsIds($content);
+    $suggestions = static::getSuggestionStorage()->loadEditorDataFromIds($suggestions_ids);
 
     $element['value']['#attributes'][$id_attribute] = $id;
     $element['track_changes'] = [
-      // @todo change to hidden once develompent will be finished.
-      '#type' => 'textarea',
+      '#type' => 'hidden',
       '#title' => t('Track changes'),
       '#attributes' => [
         'class' => [
@@ -68,29 +65,15 @@ class TextFormat {
         ],
         $id_attribute => $id,
       ],
-      '#default_value' => Json::encode($suggestions_data),
+      '#default_value' => Json::encode($suggestions),
     ];
 
+    // Setup the comments.
     $comments_ids = static::getDataProvider()->getCommentsIds($content);
-    $comments = static::getCommentStorage()->loadMultipleByThreadsIds($comments_ids);
-    $comments_data = [];
-
-    /** @var CommentInterface[] $comment */
-    foreach ($comments as $comment) {
-      $thread_id = $comment->getThreadId();
-      $comments_data[$thread_id][] = $comment->toArray();
-    }
-
-    $normalized_comments_data = [];
-    foreach ($comments_data as $thread_id => $thread_comments) {
-      $normalized_comments_data[] = [
-        'threadId' => $thread_id,
-        'comments' => $thread_comments,
-      ];
-    }
+    $comments = static::getCommentStorage()->loadEditorDataFromIds($comments_ids);
 
     $element['comments'] = [
-      '#type' => 'textarea',
+      '#type' => 'hidden',
       '#title' => t('Comments'),
       '#attributes' => [
         'class' => [
@@ -98,7 +81,7 @@ class TextFormat {
         ],
         $id_attribute => $id,
       ],
-      '#default_value' => json_encode($normalized_comments_data),
+      '#default_value' => json_encode($comments),
     ];
 
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
@@ -136,11 +119,6 @@ class TextFormat {
       foreach ($features as $key => $storage) {
         $source = $form_state->getValue([...$item_parents, $key]);
         $source_data = (array) Json::decode($source);
-
-        if ($key === 'comments') {
-          // @todo move to a separate utiliy class? whatever will be better.
-          $source_data = static::normalizeComments($source_data);
-        }
         static::doStorageOperations($source_data, $storage, $entity);
       }
     }
@@ -178,6 +156,9 @@ class TextFormat {
    *   The entity related to the text format item.
    */
   private static function doStorageOperations(array $markup_data, object $storage, EntityInterface $entity): void {
+    if ($storage instanceof StorageDataNormalizationAwareInterface) {
+      $markup_data = $storage->normalize($markup_data);
+    }
     foreach ($markup_data as $element_data) {
       $data_entity = $storage->load($element_data['id']);
       if ($data_entity instanceof EntityInterface) {
@@ -189,23 +170,6 @@ class TextFormat {
         $storage->add($element_data);
       }
     }
-  }
-
-  private static function normalizeComments(array $data): array {
-    $normalized = [];
-    foreach ($data as $thread) {
-      $thread_id = $thread['threadId'];
-      $comments = $thread['comments'];
-
-      foreach ($comments as $comment) {
-        $comment['id'] = $comment['commentId'];
-        $comment['threadId'] = $thread_id;
-
-        $normalized[] = $comment;
-      }
-    }
-
-    return $normalized;
   }
 
   /**
@@ -233,26 +197,26 @@ class TextFormat {
   /**
    * Gets the suggestion entity storage.
    *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorageInterface
+   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\EditorDataStorageProviderInterface
    *   The storage object.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  private static function getSuggestionStorage(): SuggestionStorageInterface {
+  private static function getSuggestionStorage(): EditorDataStorageProviderInterface {
     return \Drupal::entityTypeManager()->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
   }
 
   /**
    * Gets the suggestion entity storage.
    *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage
+   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\EditorDataStorageProviderInterface
    *   The storage object.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  private static function getCommentStorage(): CommentsStorage {
+  private static function getCommentStorage(): EditorDataStorageProviderInterface {
     return \Drupal::entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID);
   }
 
