@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * Provides the storage class for the Suggestion entity.
  */
 class SuggestionStorage extends SqlContentEntityStorage implements CollaborationEntityStorageInterface, EditorDataStorageProviderInterface {
+  use CollaborationEntityStorageTrait;
 
   /**
    * Creates the storage instance.

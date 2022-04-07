@@ -16,4 +16,6 @@ collaboration:
 
 collaboration-integration:
   js:
-    js/build/collaborationIntegration.js: { }
+    js/build/userAdapter.js: { }
+    js/build/commentsAdapter.js: { }
+    js/build/trackChangesAdapter.js: { }

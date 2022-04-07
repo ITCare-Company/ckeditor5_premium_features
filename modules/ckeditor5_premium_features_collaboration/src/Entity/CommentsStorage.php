@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * Provides the storage class for the Comments entity.
  */
 class CommentsStorage extends SqlContentEntityStorage implements CollaborationEntityStorageInterface, StorageDataNormalizationAwareInterface, EditorDataStorageProviderInterface {
+  use CollaborationEntityStorageTrait;
 
   /**
    * Creates the storage instance.

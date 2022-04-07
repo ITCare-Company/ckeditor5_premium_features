@@ -12,11 +12,6 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\file\Entity\File;
-use Drupal\image\ImageStyleStorageInterface;
-use Drupal\user\UserInterface;
-use Drupal\user\UserStorageInterface;
-use function in_array;
 
 /**
  * The utility service for handling the data stored in the HTML markup.
@@ -29,20 +24,6 @@ class MarkupDataProvider implements MarkupDataProviderInterface {
    * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage
    */
   protected CommentsStorage $commentsStorage;
-
-  /**
-   * The image style storage.
-   *
-   * @var \Drupal\image\ImageStyleStorageInterface|\Drupal\Core\Entity\EntityStorageInterface
-   */
-  protected ImageStyleStorageInterface $imageStyleStorage;
-
-  /**
-   * The user storage.
-   *
-   * @var \Drupal\user\UserStorageInterface|\Drupal\Core\Entity\EntityStorageInterface
-   */
-  protected UserStorageInterface $userStorage;
 
   /**
    * Creates the provider instance.
@@ -59,51 +40,7 @@ class MarkupDataProvider implements MarkupDataProviderInterface {
     protected  AccountProxyInterface $account,
     EntityTypeManagerInterface $entity_type_manager,
   ) {
-    $this->userStorage = $entity_type_manager->getStorage('user');
-    $this->imageStyleStorage = $entity_type_manager->getStorage('image_style');
     $this->commentsStorage = $entity_type_manager->getStorage(CommentInterface::ENTITY_TYPE_ID);
-  }
-
-  /**
-   * Gets the users data stored in suggestions.
-   *
-   * @param string $content
-   *   The content containg HTML markup.
-   *
-   * @return array
-   *   The users data.
-   */
-  public function getMarkupUsers(string $content): array {
-    $users = array_merge(
-      $this->getSuggestionsUserIds($content),
-      $this->getCommentsUserIds($content),
-    );
-
-    if (!in_array($this->account->id(), $users)) {
-      $users[] = $this->account->id();
-    }
-
-    $users_data = [];
-    foreach ($users as $id) {
-      $user = $this->userStorage->load($id);
-
-      if (!$user instanceof UserInterface) {
-        continue;
-      }
-
-      // @todo To be consider if we need to restrict the view access or not.
-      if (!$user->access('view')) {
-        continue;
-      }
-
-      $users_data[$user->id()] = [
-        'id' => $user->id(),
-        'name' => $user->getDisplayName(),
-        'avatar' => $this->getUserPicture($user),
-      ];
-    }
-
-    return $users_data;
   }
 
   /**
@@ -156,31 +93,6 @@ class MarkupDataProvider implements MarkupDataProviderInterface {
     $ids = $this->getCommentsIds($content);
 
     return $this->commentsStorage->getUserIdsByCommentsIdsAndThread($ids, '');
-  }
-
-  /**
-   * Gets the user picture URL if defined.
-   *
-   * @param \Drupal\user\UserInterface $user
-   *   The user entity.
-   *
-   * @return string|null
-   *   URL or null.
-   */
-  protected function getUserPicture(UserInterface $user): ?string {
-    if (!$user->hasField('user_picture')) {
-      return NULL;
-    }
-
-    /** @var \Drupal\file\Entity\File $image */
-    $image = $user->get('user_picture')->entity;
-    $picture = NULL;
-    if ($image instanceof File) {
-      $style = $this->imageStyleStorage->load('thumbnail');
-      $picture = $style?->buildUrl($image->getFileUri());
-    }
-
-    return $picture;
   }
 
   /**

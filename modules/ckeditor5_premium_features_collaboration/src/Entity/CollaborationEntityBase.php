@@ -9,6 +9,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\user\UserInterface;
 
 /**
  * Provides the base entity class for the collaboration entities.
@@ -107,6 +108,13 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
     $field = $this->get('uid');
 
     return $field->isEmpty() ? NULL : (int) $field->target_id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAuthor(): ?UserInterface {
+    return $this->get('uid')->entity;
   }
 
   /**

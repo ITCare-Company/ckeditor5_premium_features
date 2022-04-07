@@ -1,4 +1,4 @@
-import CollaborationStorage from "./collaborationStorage";
+import CollaborationStorage from "../../collaborationStorage";
 
 class TrackChangesAdapter {
   constructor( editor ) {

@@ -7,12 +7,8 @@
  */
 // cSpell:ignore simplebox
 
-import UserAdapter from "./userAdapter";
-import CommentsAdapter from "./commentsAdapter";
 import TrackChangesAdapter from "./trackChangesAdapter";
 
 export default {
-  UserAdapter,
-  CommentsAdapter,
   TrackChangesAdapter,
 };

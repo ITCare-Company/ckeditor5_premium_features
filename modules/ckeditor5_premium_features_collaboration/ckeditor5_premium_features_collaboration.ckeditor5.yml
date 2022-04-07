@@ -2,7 +2,7 @@ ckeditor5_premium_features_collaboration__track_changes:
   ckeditor5:
     plugins:
       - trackChanges.TrackChanges
-      - collaborationIntegration.TrackChangesAdapter
+      - trackChangesAdapter.TrackChangesAdapter
   drupal:
     label: Track changes
     library: ckeditor5_premium_features_collaboration/collaboration
@@ -18,7 +18,7 @@ ckeditor5_premium_features_collaboration__comments:
   ckeditor5:
     plugins:
       - comments.Comments
-      - collaborationIntegration.CommentsAdapter
+      - commentsAdapter.CommentsAdapter
   drupal:
     label: comments
     library: ckeditor5_premium_features_collaboration/collaboration
@@ -34,7 +34,7 @@ ckeditor5_premium_features_collaboration__comments:
 ckeditor5_premium_features_collaboration__collaboration_integration:
   ckeditor5:
     plugins:
-      - collaborationIntegration.UserAdapter
+      - userAdapter.UserAdapter
   drupal:
     label: The load & save integration of collaboration tools.
     library: ckeditor5_premium_features_collaboration/collaboration-integration

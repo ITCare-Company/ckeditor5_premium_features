@@ -13,15 +13,4 @@ interface MarkupDataProviderInterface {
 
   public const TAG_COMMENT = 'comment-start';
 
-  /**
-   * Gets the users data stored in the markup.
-   *
-   * @param string $content
-   *   The content containg HTML markup.
-   *
-   * @return array
-   *   The users data.
-   */
-  public function getMarkupUsers(string $content): array;
-
 }

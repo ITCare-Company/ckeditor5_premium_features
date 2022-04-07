@@ -1,4 +1,4 @@
-import CollaborationStorage from "./collaborationStorage";
+import CollaborationStorage from "../../collaborationStorage";
 
 class CommentsAdapter {
   constructor( editor ) {
