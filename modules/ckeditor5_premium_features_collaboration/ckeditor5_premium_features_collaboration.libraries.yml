@@ -11,20 +11,15 @@ admin.comments:
 adapter.track-changes:
   js:
     js/build/trackChangesAdapter.js: { }
+  dependencies:
+    - core/drupalSettings
 
 adapter.comments:
   js:
     js/build/commentsAdapter.js: { }
 
-adapter.user:
-  js:
-    js/build/userAdapter.js: { }
-  dependencies:
-    - core/drupalSettings
-
 collaboration:
   dependencies:
     - ckeditor5_premium_features_collaboration/ckeditor5-collaboration-dll
-    - ckeditor5_premium_features_collaboration/adapter.user
     - ckeditor5_premium_features_collaboration/track-changes
     - ckeditor5_premium_features_collaboration/comments

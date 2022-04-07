@@ -10,6 +10,7 @@ declare(strict_types=1);
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat;
 
 /**
  * Implements hook_library_info_build().
@@ -57,9 +58,13 @@ function ckeditor5_premium_features_collaboration_field_widget_single_element_fo
     ];
     $element['#attributes'] = $entity_context + $element['#attributes'];
   }
+}
 
-  /** @var \Drupal\ckeditor5_premium_features_collaboration\Service\MarkupDataProviderInterface $data_provider */
-  $data_provider = \Drupal::service('ckeditor5_premium_features_collaboration.makrup_data_provider');
-  $content = $element['#default_value'] ?? '';
-  $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $data_provider->getSuggestionsUsers($content);
+/**
+ * Implements hook_element_info_alter().
+ */
+function ckeditor5_premium_features_collaboration_element_info_alter(array &$info): void {
+  if (isset($info['text_format'])) {
+    $info['text_format']['#process'][] = [TextFormat::class, 'process'];
+  }
 }
