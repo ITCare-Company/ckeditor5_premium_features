@@ -1,4 +1,4 @@
-import CollaborationStorage from "../../collaborationStorage";
+import CollaborationStorage from "./collaborationStorage";
 
 class TrackChangesAdapter {
   constructor( editor ) {
@@ -11,14 +11,13 @@ class TrackChangesAdapter {
   }
 
   init() {
-
     const trackChangesPlugin = this.editor.plugins.get( 'TrackChanges' );
     const trackChangesElement = document.querySelector(this.storage.getSourceDataSelector('trackChanges'));
 
     // Load suggestions.
     const suggestions = JSON.parse(trackChangesElement.value);
     for (const sugesstion of suggestions) {
-      trackChangesPlugin.addSuggestion((sugesstion));
+      trackChangesPlugin.addSuggestion(sugesstion);
     }
 
     // Observe data change and update the data fields.
