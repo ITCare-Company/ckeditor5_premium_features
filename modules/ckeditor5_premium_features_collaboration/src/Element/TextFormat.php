@@ -79,6 +79,7 @@ class TextFormat {
 
     $element['value']['#attributes'][$id_attribute] = $id;
     $element['track_changes'] = [
+      // @todo change to hidden once the development will be finished.
       '#type' => 'textarea',
       '#title' => t('Track changes'),
       '#attributes' => [
@@ -100,6 +101,7 @@ class TextFormat {
     $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $this->userDataProvider->getFromEntities($users_data);
 
     $element['comments'] = [
+      // @todo change to hidden once the development will be finished.
       '#type' => 'textarea',
       '#title' => t('Comments'),
       '#attributes' => [

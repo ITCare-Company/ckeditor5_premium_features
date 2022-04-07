@@ -8,9 +8,6 @@ services:
 
   ckeditor5_premium_features_collaboration.markup_data_provider:
     class: Drupal\ckeditor5_premium_features_collaboration\Service\MarkupDataProvider
-    arguments:
-      - '@current_user'
-      - '@entity_type.manager'
 
   ckeditor5_premium_features_collaboration.data_provider.users:
     class: Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider
