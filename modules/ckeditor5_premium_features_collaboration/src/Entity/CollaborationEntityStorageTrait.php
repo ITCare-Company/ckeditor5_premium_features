@@ -23,6 +23,9 @@ trait CollaborationEntityStorageTrait {
    *   The entities matches the given entity.
    */
   public function loadByEntity(EntityInterface $entity): array {
+    if (!$entity->id()) {
+      return [];
+    }
     return $this->loadByProperties([
       'entity_id' => $entity->id(),
       'entity_type' => $entity->getEntityTypeId(),
