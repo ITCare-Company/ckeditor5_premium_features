@@ -7,7 +7,7 @@
  */
 // cSpell:ignore simplebox
 
-import TrackChangesAdapter from './trackChangesAdapter';
+import TrackChangesAdapter from "./trackChangesAdapter";
 
 export default {
   TrackChangesAdapter,

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\user\UserInterface;
+
 /**
  * Provides the interface shared by the all CKEditor5 collaboration entities.
  */
@@ -40,6 +42,14 @@ interface CollaborationEntityInterface {
    *   The author ID.
    */
   public function getAuthorId(): ?int;
+
+  /**
+   * Gets the entity author.
+   *
+   * @return \Drupal\user\UserInterface|null
+   *   The user.
+   */
+  public function getAuthor(): ?UserInterface;
 
   /**
    * Gets the node creation timestamp.

@@ -1,10 +1,8 @@
 import CollaborationStorage from "../../collaborationStorage";
-import UserAdapter from "../../userAdapter/src/userAdapter";
 
 class CommentsAdapter {
   constructor( editor ) {
     this.editor = editor;
-    this.elementId = this.editor.sourceElement.dataset.ckeditor5PremiumElementId;
     this.storage = new CollaborationStorage(editor);
   }
 
@@ -13,9 +11,6 @@ class CommentsAdapter {
   }
 
   init() {
-    // Initialize the user adapter.
-    new UserAdapter(this.editor).init();
-
     const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
     const commentsRepositoryElement = document.querySelector(this.storage.getSourceDataSelector('comments'));
     // Load comments.

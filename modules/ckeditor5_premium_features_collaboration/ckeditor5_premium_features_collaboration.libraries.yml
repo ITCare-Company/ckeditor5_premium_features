@@ -8,18 +8,14 @@ admin.comments:
     theme:
       css/comments.admin.css: { }
 
-adapter.track-changes:
-  js:
-    js/build/trackChangesAdapter.js: { }
-  dependencies:
-    - core/drupalSettings
-
-adapter.comments:
-  js:
-    js/build/commentsAdapter.js: { }
-
 collaboration:
   dependencies:
     - ckeditor5_premium_features_collaboration/ckeditor5-collaboration-dll
     - ckeditor5_premium_features_collaboration/track-changes
     - ckeditor5_premium_features_collaboration/comments
+
+collaboration-integration:
+  js:
+    js/build/userAdapter.js: { }
+    js/build/commentsAdapter.js: { }
+    js/build/trackChangesAdapter.js: { }

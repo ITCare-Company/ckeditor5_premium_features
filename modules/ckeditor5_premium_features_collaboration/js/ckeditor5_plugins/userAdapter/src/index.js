@@ -7,7 +7,7 @@
  */
 // cSpell:ignore simplebox
 
-import UserAdapter from './userAdapter';
+import UserAdapter from "./userAdapter";
 
 export default {
   UserAdapter,

@@ -1,6 +1,16 @@
 services:
-  ckeditor5_premium_features_collaboration.makrup_data_provider:
+  ckeditor5_premium_features_collaboration.element.text_format:
+    class: Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat
+    arguments:
+      - '@entity_type.manager'
+      - '@ckeditor5_premium_features_collaboration.data_provider.users'
+      - '@ckeditor5_premium_features_collaboration.markup_data_provider'
+
+  ckeditor5_premium_features_collaboration.markup_data_provider:
     class: Drupal\ckeditor5_premium_features_collaboration\Service\MarkupDataProvider
+
+  ckeditor5_premium_features_collaboration.data_provider.users:
+    class: Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider
     arguments:
       - '@current_user'
       - '@entity_type.manager'
