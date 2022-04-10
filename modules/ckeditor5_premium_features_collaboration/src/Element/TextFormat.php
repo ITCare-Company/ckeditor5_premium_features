@@ -158,7 +158,7 @@ class TextFormat {
     foreach ($items as $item_parents) {
       foreach ($features as $key => $storage) {
         $source = $form_state->getValue([...$item_parents, $key]);
-        $source_data = (array) json_decode($source);
+        $source_data = (array) json_decode($source, TRUE);
         $this->doStorageOperations($source_data, $storage, $entity);
       }
     }
