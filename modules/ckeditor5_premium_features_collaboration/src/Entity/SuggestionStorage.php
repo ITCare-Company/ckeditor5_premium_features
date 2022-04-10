@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\Core\Access\AccessException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -89,10 +90,16 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion */
     $suggestion = $this->create($object_data);
-    $suggestion->setEntityTypeTargetId($data->get('entity_type', ''));
-    $suggestion->setType($type);
-    $suggestion->setData($suggestion_data);
-    $suggestion->setAttributes($attributes);
+    $suggestion
+      ->setEntityTypeTargetId($data->get('entity_type', ''))
+      ->setType($type)
+      ->setData($suggestion_data)
+      ->setAttributes($attributes);
+
+    if (!$suggestion->access('update')) {
+      throw new AccessException();
+    }
+
     $suggestion->save();
 
     return $suggestion;
@@ -102,6 +109,10 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
    * {@inheritdoc}
    */
   public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface {
+    if (!$entity->access('update')) {
+      throw new AccessException();
+    }
+
     $raw_data = Suggestion::normalize($raw_data);
     $data = new ParameterBag($raw_data);
     $has_comments = $data->getBoolean('has_comments');

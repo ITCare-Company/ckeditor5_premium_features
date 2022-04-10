@@ -77,6 +77,14 @@ interface CollaborationEntityInterface {
 
 
   /**
+   * Gets the target entity ID.
+   *
+   * @return string
+   *   The ID of the entity.
+   */
+  public function getEntityId(): string;
+
+  /**
    * Gets the JSON suggestion attributes.
    *
    * @param bool $raw

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\Core\Access\AccessException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -92,57 +93,6 @@ class CommentsStorage extends SqlContentEntityStorage implements CollaborationEn
   }
 
   /**
-   * Gets the user related to the comments and specific thread.
-   *
-   * @param array $ids
-   *   The comments IDs.
-   * @param string $thread_id
-   *   The thread id.
-   *
-   * @return int[]|string[]
-   *   The id of the users.
-   */
-  public function getUserIdsByCommentsIdsAndThread(array $ids, string $thread_id): array {
-    $query = $this->buildQuery($ids)
-      ->condition('thread_id', $thread_id)
-      ->execute();
-
-    return array_keys($query->fetchAllKeyed('uid'));
-  }
-
-  /**
-   * Loads the comments by the given thread.
-   *
-   * @param string $thread_id
-   *   The ID of the thread.
-   *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface[]
-   *   The comments.
-   */
-  public function loadByThread(string $thread_id): array {
-    return $this->loadByProperties(['thread_id' => $thread_id]);
-  }
-
-  /**
-   * Loads multiple threads comments by the given threads id.
-   *
-   * @param array $thread_ids
-   *   The IDs of the threads.
-   *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface[]
-   *   The comments.
-   */
-  public function loadMultipleByThreadsIds(array $thread_ids): array {
-    $results = [];
-
-    foreach ($thread_ids as $id) {
-      $results = array_merge($results, $this->loadByThread($id));
-    }
-
-    return $results;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function add(array $raw_data): CollaborationEntityInterface {
@@ -159,8 +109,13 @@ class CommentsStorage extends SqlContentEntityStorage implements CollaborationEn
     $comment = $this->create($object_data);
     $comment->setEntityTypeTargetId($data->get('entity_type', ''))
       ->setThreadId($data->get('thread_id'))
-      ->setContent($data->get('content'))
-      ->save();
+      ->setContent($data->get('content'));
+
+    if (!$comment->access('update')) {
+      throw new AccessException();
+    }
+
+    $comment->save();
 
     return $comment;
   }
@@ -169,6 +124,10 @@ class CommentsStorage extends SqlContentEntityStorage implements CollaborationEn
    * {@inheritdoc}
    */
   public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface {
+    if (!$entity->access('update')) {
+      throw new AccessException();
+    }
+
     $raw_data = Comment::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
