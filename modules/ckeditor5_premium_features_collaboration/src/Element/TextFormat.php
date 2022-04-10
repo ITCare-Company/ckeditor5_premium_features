@@ -6,11 +6,10 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Entity\EditorDataStorageProviderInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\StorageDataNormalizationAwareInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Service\MarkupDataProviderInterface;
-use Drupal\Component\Serialization\Json;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
@@ -26,20 +25,36 @@ class TextFormat {
   public const STORAGE_KEY = 'ckeditor5-premium';
 
   /**
+   * The suggestion storage.
+   *
+   * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage
+   */
+  protected SuggestionStorage $suggestionStorage;
+
+  /**
+   * The comments storage.
+   *
+   * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage
+   */
+  protected CommentsStorage $commentsStorage;
+
+  /**
    * Creates the text format element instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
    * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userDataProvider
    *   The user data storage.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Service\MarkupDataProviderInterface $markupDataProvider
-   *   The markup data provider.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
     protected UserDataProvider $userDataProvider,
-    protected MarkupDataProviderInterface $markupDataProvider,
   ) {
+    $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
+    $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
   }
 
   /**
@@ -71,11 +86,8 @@ class TextFormat {
     $id = $this->getElementId();
     $id_attribute = 'data-' . static::STORAGE_KEY . '-element-id';
 
-    $content = $element['#default_value'] ?? '';
-
     // Setup the suggestions.
-    $suggestions_ids = $this->markupDataProvider->getSuggestionsIds($content);
-    $suggestions = $this->getSuggestionStorage()->loadEditorDataFromIds($suggestions_ids);
+    $suggestions = $this->suggestionStorage->loadByEntity($entity);
 
     $element['value']['#attributes'][$id_attribute] = $id;
     $element['track_changes'] = [
@@ -88,16 +100,14 @@ class TextFormat {
         ],
         $id_attribute => $id,
       ],
-      '#default_value' => Json::encode($suggestions),
+      '#default_value' => $this->suggestionStorage->serializeCollection($suggestions),
     ];
 
     // Setup the comments.
-    $comments_ids = $this->getDataProvider()->getCommentsIds($content);
-    $comments_ids = array_merge($suggestions_ids, $comments_ids);
-    $comments = $this->getCommentStorage()->loadEditorDataFromIds($comments_ids);
+    $comments = $this->commentsStorage->loadByEntity($entity);
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface[] $users_data */
-    $users_data = array_merge($this->getCommentStorage()->loadByEntity($entity), $this->getSuggestionStorage()->loadByEntity($entity));
+    $users_data = array_merge($comments, $suggestions);
     $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $this->userDataProvider->getFromEntities($users_data);
 
     $element['comments'] = [
@@ -110,7 +120,7 @@ class TextFormat {
         ],
         $id_attribute => $id,
       ],
-      '#default_value' => json_encode($comments),
+      '#default_value' => $this->commentsStorage->serializeCollection($comments),
     ];
 
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
@@ -141,14 +151,14 @@ class TextFormat {
 
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
     $features = [
-      'track_changes' => $this->getSuggestionStorage(),
-      'comments' => $this->getCommentStorage(),
+      'track_changes' => $this->suggestionStorage,
+      'comments' => $this->commentsStorage,
     ];
 
     foreach ($items as $item_parents) {
       foreach ($features as $key => $storage) {
         $source = $form_state->getValue([...$item_parents, $key]);
-        $source_data = (array) Json::decode($source);
+        $source_data = (array) json_decode($source);
         $this->doStorageOperations($source_data, $storage, $entity);
       }
     }
@@ -251,42 +261,6 @@ class TextFormat {
     $id = 'id-' . Crypt::randomBytesBase64(8);
 
     return Html::getId($id);
-  }
-
-  /**
-   * Gets the markup data provider.
-   *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Service\MarkupDataProviderInterface
-   *   The markup data provider instance.
-   */
-  private static function getDataProvider(): MarkupDataProviderInterface {
-    return \Drupal::service('ckeditor5_premium_features_collaboration.markup_data_provider');
-  }
-
-  /**
-   * Gets the suggestion entity storage.
-   *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\EditorDataStorageProviderInterface
-   *   The storage object.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   */
-  private function getSuggestionStorage(): EditorDataStorageProviderInterface {
-    return $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
-  }
-
-  /**
-   * Gets the suggestion entity storage.
-   *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\EditorDataStorageProviderInterface
-   *   The storage object.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   */
-  private function getCommentStorage(): EditorDataStorageProviderInterface {
-    return $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
   }
 
 }

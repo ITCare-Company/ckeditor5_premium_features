@@ -10,14 +10,14 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 interface EditorDataStorageProviderInterface {
 
   /**
-   * Loads the editor plugins data by the given entity IDs.
+   * Serialize the collection of entities to the editor data.
    *
-   * @param array $ids
-   *   The IDs of the entity to be fetched.
+   * @param array|\Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface[] $entities
+   *   The entities to be serialized.
    *
-   * @return array
-   *   The normalized data to be consumed by the editor plugins.
+   * @return string
+   *   The serialized JSON data to be used by the editor.
    */
-  public function loadEditorDataFromIds(array $ids): array;
+  public function serializeCollection(array $entities): string;
 
 }
