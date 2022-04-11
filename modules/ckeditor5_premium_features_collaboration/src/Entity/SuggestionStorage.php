@@ -51,15 +51,15 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
   /**
    * {@inheritdoc}
    */
-  public function loadEditorDataFromIds(array $ids): array {
-    $suggestions = $this->loadMultiple($ids);
+  public function serializeCollection(array $entities): string {
+    $suggestions = $entities;
 
-    $normalized = [];
+    $serialized = [];
     foreach ($suggestions as $suggestion) {
-      $normalized[] = $suggestion->toArray();
+      $serialized[] = $suggestion->toArray();
     }
 
-    return $normalized;
+    return (string) json_encode($serialized);
   }
 
   /**

@@ -51,8 +51,8 @@ class CommentsStorage extends SqlContentEntityStorage implements CollaborationEn
   /**
    * {@inheritdoc}
    */
-  public function loadEditorDataFromIds(array $ids): array {
-    $comments = $this->loadMultipleByThreadsIds($ids);
+  public function serializeCollection(array $entities): string {
+    $comments = $entities;
     $data = [];
 
     foreach ($comments as $comment) {
@@ -60,15 +60,15 @@ class CommentsStorage extends SqlContentEntityStorage implements CollaborationEn
       $data[$thread_id][] = $comment->toArray();
     }
 
-    $normalized = [];
+    $serialized = [];
     foreach ($data as $thread_id => $thread_comments) {
-      $normalized[] = [
+      $serialized[] = [
         'threadId' => $thread_id,
         'comments' => $thread_comments,
       ];
     }
 
-    return $normalized;
+    return (string) json_encode($serialized);
   }
 
   /**
@@ -127,7 +127,7 @@ class CommentsStorage extends SqlContentEntityStorage implements CollaborationEn
    * Loads multiple threads comments by the given threads id.
    *
    * @param array $thread_ids
-   *   The IDs of the threads,
+   *   The IDs of the threads.
    *
    * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface[]
    *   The comments.
