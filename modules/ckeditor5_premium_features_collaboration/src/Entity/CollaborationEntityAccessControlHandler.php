@@ -66,12 +66,11 @@ class CollaborationEntityAccessControlHandler extends EntityAccessControlHandler
       $storage = $this->entityTypeManager->getStorage($entity_type);
       $related_entity = $storage->load($entity_id);
 
-      if ($related_entity instanceof EntityInterface) {
-        $result = $related_entity->access($operation, $account, TRUE);
+      if (!$related_entity instanceof EntityInterface) {
+        throw new \Exception();
       }
-      else {
-        $result = AccessResult::forbidden("Invalid entity type defined. The access can't be verified.");
-      }
+
+      $result = $related_entity->access($operation, $account, TRUE);
     }
     catch (\Throwable $exception) {
       $result = AccessResult::forbidden("Invalid entity type defined. The access can't be verified.");
