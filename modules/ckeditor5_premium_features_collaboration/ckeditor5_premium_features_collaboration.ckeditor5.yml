@@ -20,7 +20,7 @@ ckeditor5_premium_features_collaboration__comments:
       - comments.Comments
       - commentsAdapter.CommentsAdapter
   drupal:
-    label: comments
+    label: Comments
     library: ckeditor5_premium_features_collaboration/collaboration
     admin_library: ckeditor5_premium_features_collaboration/admin.comments
     class: Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\Comments
