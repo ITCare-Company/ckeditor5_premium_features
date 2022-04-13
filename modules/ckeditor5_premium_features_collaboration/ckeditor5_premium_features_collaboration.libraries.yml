@@ -16,6 +16,7 @@ collaboration:
 
 collaboration-integration:
   js:
-    js/build/userAdapter.js: { }
-    js/build/commentsAdapter.js: { }
-    js/build/trackChangesAdapter.js: { }
+    js/build/disableGhsTableIntegration.js: { minified: true }
+    js/build/userAdapter.js: { minified: true }
+    js/build/commentsAdapter.js: { minified: true }
+    js/build/trackChangesAdapter.js: { minified: true }
