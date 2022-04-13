@@ -41,10 +41,10 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Premium features configuration'),
       '#open' => TRUE,
       '#description' =>
-      $this->t("Premium features will work only if configured correctly. If you haven't subscribed yet, you cen start <a href='@trial'>a free trial</a>.", ['@trial' => 'https://orders.ckeditor.com/trial/premium-features'])
-      . '<br>'
-      // @todo define the documentation URL.
-      . $this->t("Follow the <a href='@documentation'>dedicated documentation for Drupal</a> as most of the steps necessary to run premium features have been already included in this module.", ['@documentation' => '#']),
+        $this->t("Premium features will work only if configured correctly. If you haven't subscribed yet, you cen start <a href='@trial'>a free trial</a>.", ['@trial' => 'https://orders.ckeditor.com/trial/premium-features'])
+        . '<br>'
+        // @todo define the documentation URL.
+        . $this->t("Follow the <a href='@documentation'>dedicated documentation for Drupal</a> as most of the steps necessary to run premium features have been already included in this module.", ['@documentation' => '#']),
     ];
 
     $configuration = [];
@@ -72,9 +72,9 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Environment ID'),
       '#description' =>
-      $this->t('The environment management panel can be found in <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-      . '<br>'
-      . $this->t('Required for Export to Word/PDF and Real-time collaboration.'),
+        $this->t('The environment management panel can be found in <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        . '<br>'
+        . $this->t('Required for Export to Word/PDF and Real-time collaboration.'),
       '#states' => [
         'visible' => [
           'select[name="auth_type"]' => ['value' => 'key'],
@@ -86,9 +86,9 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Access key'),
       '#description' =>
-      $this->t('The access key to the environment can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-      . '<br>'
-      . $this->t('Required for Export to Word/PDF and Real-time collaboration.'),
+        $this->t('The access key to the environment can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        . '<br>'
+        . $this->t('Required for Export to Word/PDF and Real-time collaboration.'),
       '#states' => [
         'visible' => [
           'select[name="auth_type"]' => ['value' => 'key'],
@@ -132,9 +132,9 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Advanced settings'),
       '#open' => TRUE,
       '#description' =>
-      $this->t('CKEditor Premium Features needs to load additional plugins (“DLLs”) in order to run. By default this module will detect the version of CKEditor your website is running and load automatically required plugins from a CDN.')
-      . '<br>'
-      . $this->t('Specify the DLL packages location only if you host the DLL packages by yourself. Contact us in case of any questions.'),
+        $this->t('CKEditor Premium Features needs to load additional plugins (“DLLs”) in order to run. By default this module will detect the version of CKEditor your website is running and load automatically required plugins from a CDN.')
+        . '<br>'
+        . $this->t('Specify the DLL packages location only if you host the DLL packages by yourself. Contact us in case of any questions.'),
     ];
 
     $advanced['dll_location'] = [
@@ -189,9 +189,17 @@ class SettingsForm extends ConfigFormBase {
       ->setData($form_state->cleanValues()->getValues())
       ->save();
 
+    $invalidate_tags = [
+      'ckeditor5_plugins',
+      'editor_plugins',
+      'filter_plugins',
+    ];
+
     if ($dll_changed) {
-      Cache::invalidateTags(['library_info', 'ckeditor5_plugins']);
+      $invalidate_tags[] = 'library_info';
     }
+
+    Cache::invalidateTags($invalidate_tags);
 
     parent::submitForm($form, $form_state);
   }
