@@ -190,7 +190,7 @@ class SettingsForm extends ConfigFormBase {
       ->save();
 
     if ($dll_changed) {
-      Cache::invalidateTags(['library_info']);
+      Cache::invalidateTags(['library_info', 'ckeditor5_plugins']);
     }
 
     parent::submitForm($form, $form_state);
