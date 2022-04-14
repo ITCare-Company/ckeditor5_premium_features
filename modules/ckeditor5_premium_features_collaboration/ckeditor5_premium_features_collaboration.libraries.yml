@@ -1,18 +1,24 @@
-admin.track-changes:
-  css:
-    theme:
-      css/track-changes.admin.css: { }
-
 admin.comments:
   css:
     theme:
       css/comments.admin.css: { }
+
+admin.revision-history:
+  css:
+    theme:
+      css/revision-history.admin.css: { }
+
+admin.track-changes:
+  css:
+    theme:
+      css/track-changes.admin.css: { }
 
 collaboration:
   dependencies:
     - ckeditor5_premium_features_collaboration/ckeditor5-collaboration-dll
     - ckeditor5_premium_features_collaboration/track-changes
     - ckeditor5_premium_features_collaboration/comments
+    - ckeditor5_premium_features_collaboration/revision-history
 
 collaboration-integration:
   js:

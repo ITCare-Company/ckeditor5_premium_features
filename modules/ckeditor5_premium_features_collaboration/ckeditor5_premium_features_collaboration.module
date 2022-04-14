@@ -19,20 +19,23 @@ function ckeditor5_premium_features_collaboration_library_info_build(): array {
   /** @var \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $config_handler */
   $config_handler = \Drupal::service('ckeditor5_premium_features.config_handler.settings');
 
-  $ck_collaboration_dll = new LibraryDefinitionItem('ckeditor5-collaboration-dll', $config_handler->getDllLocation());
-  $ck_collaboration_dll->addRemoteJs($ck_collaboration_dll->id());
-
-  $track_changes = new LibraryDefinitionItem('track-changes', $config_handler->getDllLocation());
-  $track_changes->addRemoteJs($track_changes->id());
-
-  $comments = new LibraryDefinitionItem('comments', $config_handler->getDllLocation());
-  $comments->addRemoteJs($comments->id());
-
-  return [
-    $ck_collaboration_dll->id() => $ck_collaboration_dll->getDefinition(),
-    $track_changes->id() => $track_changes->getDefinition(),
-    $comments->id() => $comments->getDefinition(),
+  $libraries = [
+    'ckeditor5-collaboration-dll',
+    'track-changes',
+    'comments',
+    'revision-history',
   ];
+
+  $definitions = [];
+
+  foreach ($libraries as $library) {
+    $definition = new LibraryDefinitionItem($library, $config_handler->getDllLocation());
+    $definition->addRemoteJs($definition->id());
+
+    $definitions[$definition->id()] = $definition->getDefinition();
+  }
+
+  return $definitions;
 }
 
 /**
