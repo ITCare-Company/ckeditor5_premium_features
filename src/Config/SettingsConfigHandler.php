@@ -83,7 +83,23 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    * {@inheritdoc}
    */
   public function getDllLocation(string $file_name = ''): string {
-    return $this->config->get('dll_location') . $file_name;
+    $base_path = $this->config->get('dll_location') ?: $this->getDefaultDllLocation();
+
+    return $base_path . $file_name;
+  }
+
+  /**
+   * Gets the default DLL location if it was not overriden in the config.
+   *
+   * @return string
+   *   The URL of the DLL location.
+   */
+  protected function getDefaultDllLocation(): string {
+    $host = Url::fromRoute('<front>')->setAbsolute()->toString();
+    // We don't do a DI here, because it will be replaced with the CDN URL.
+    $path = \Drupal::moduleHandler()->getModule('ckeditor5_premium_features')->getPath();
+
+    return $host . $path . '/js/';
   }
 
 }
