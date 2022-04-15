@@ -6,6 +6,7 @@
  * I.e. this file's purpose is to make plugin(s) discoverable.
  */
 // cSpell:ignore simplebox
+
 import RevisionHistoryAdapter from "./revisionHistoryAdapter";
 
 export default {

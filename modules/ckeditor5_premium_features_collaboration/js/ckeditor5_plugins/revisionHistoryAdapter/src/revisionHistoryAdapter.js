@@ -16,7 +16,7 @@ class RevisionHistoryAdapter {
     const revisionHistoryElement = document.querySelector(this.storage.getSourceDataSelector('revisionHistory'));
 
     // Load revisions.
-    // const revisions = JSON.parse(revisionHistoryElement.value);
+    //const revisions = JSON.parse(revisionHistoryElement.value);
     const revisions = [];
     for (const revision of revisions) {
       revisionHistoryPlugin.addRevisionData(revision);
@@ -35,4 +35,4 @@ class RevisionHistoryAdapter {
   }
 }
 
-export default TrackChangesAdapter;
+export default RevisionHistoryAdapter;
