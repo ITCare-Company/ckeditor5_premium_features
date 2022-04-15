@@ -134,6 +134,13 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
   /**
    * {@inheritdoc}
    */
+  public function getEntityId(): string {
+    return (string) $this->get('entity_id')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function setEntityTypeTargetId(string $id): static {
     return $this->setMachineName('entity_type', $id);
   }

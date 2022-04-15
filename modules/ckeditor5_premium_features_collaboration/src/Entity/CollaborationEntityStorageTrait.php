@@ -26,10 +26,13 @@ trait CollaborationEntityStorageTrait {
     if (!$entity->id()) {
       return [];
     }
-    return $this->loadByProperties([
+
+    $entities = $this->loadByProperties([
       'entity_id' => $entity->id(),
       'entity_type' => $entity->getEntityTypeId(),
     ]);
+
+    return array_filter($entities, fn($item) => $item->access('view'));
   }
 
 }

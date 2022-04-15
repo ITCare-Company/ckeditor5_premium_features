@@ -82,6 +82,10 @@ class UserDataProvider {
     $data = [];
 
     foreach ($users as $user) {
+      if (!$user->access('view')) {
+        continue;
+      }
+
       $data[$user->id()] = [
         'id' => $user->id(),
         'name' => $user->getDisplayName(),
