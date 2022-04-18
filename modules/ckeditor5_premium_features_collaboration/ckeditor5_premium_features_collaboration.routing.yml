@@ -1,3 +1,11 @@
+ckeditor5_premium_features_collaboration.form.settings:
+  path: '/admin/config/ckeditor5-premium-features/collaboration'
+  defaults:
+    _title: 'Collaboration'
+    _form: 'Drupal\ckeditor5_premium_features_collaboration\Form\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
+
 ckeditor5_premium_features_collaboration.comments:
   path: '/ck5/api/comments'
   defaults:

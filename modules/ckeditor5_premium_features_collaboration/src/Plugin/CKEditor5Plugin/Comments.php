@@ -123,8 +123,6 @@ class Comments extends CKEditor5PluginDefault implements CKEditor5PluginElements
 
     $restrictions = HTMLRestrictions::fromString(implode(' ', $this->getElementsSubset()));
 
-    $static_plugin_config['sidebar'] = ['inline'];
-
     return $static_plugin_config;
   }
 
