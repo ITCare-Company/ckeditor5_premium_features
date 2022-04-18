@@ -46,13 +46,12 @@ class AnnotationSidebar {
         ],
       ],
     ];
+
+    // TODO: Change to something.
     $sidebar_html = \Drupal::service('renderer')->render($sidebar);
     $element['value']['#prefix'] = "<div class='ck-editor-sidebar-wrapper'>";
     $element['value']['#suffix'] = $sidebar_html . '</div>';
-
-    $element['value']['#attributes']['class'][] = 'ck-slider-textarea';
     $element['#attached']['drupalSettings']['ckeditor5SidebarMode'] = $sidebar_mode;
-    $element['#attached']['library'][] = 'ckeditor5_premium_features_collaboration/sidebar';
 
     return $element;
   }

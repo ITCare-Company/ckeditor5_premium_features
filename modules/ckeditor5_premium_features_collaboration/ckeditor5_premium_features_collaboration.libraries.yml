@@ -13,13 +13,6 @@ admin.track-changes:
     theme:
       css/track-changes.admin.css: { }
 
-sidebar:
-  css:
-    theme:
-      css/sidebar.css: { }
-  js:
-    js/build/sidebarAdapter.js: { minified: true }
-
 collaboration:
   dependencies:
     - ckeditor5_premium_features_collaboration/ckeditor5-collaboration-dll
@@ -28,6 +21,9 @@ collaboration:
     - ckeditor5_premium_features_collaboration/revision-history
 
 collaboration-integration:
+  css:
+    theme:
+      css/sidebar.css: { }
   js:
     js/build/disableGhsTableIntegration.js: { minified: true }
     js/build/userAdapter.js: { minified: true }
