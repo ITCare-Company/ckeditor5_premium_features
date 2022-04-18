@@ -9,7 +9,7 @@ use Drupal\Core\Config\Config;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Provides the configuration form of the "Export to PDF" feature.
+ * Provides the configuration form of the "Collaboration" feature.
  */
 class SettingsForm extends SharedBuildConfigFormBase {
 
