@@ -59,6 +59,7 @@ function setCkEditorSidebarMode(newMode, ck_sidebar_wrapper, annotationsUIs) {
  *   AnnotationsUIs Plugin.
  */
 function updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs) {
+  // TODO: move to config?
   let w = document.documentElement.clientWidth;
   if (w >= 1200) {
     setCkEditorSidebarMode('wideSidebar', ck_sidebar_wrapper, annotationsUIs);
