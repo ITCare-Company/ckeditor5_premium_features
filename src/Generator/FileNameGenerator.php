@@ -32,9 +32,13 @@ class FileNameGenerator implements FileNameGeneratorInterface {
     $route_name = $this->routeMatch->getRouteName();
     $route_param = explode('.', $route_name);
     $entity = $this?->routeMatch->getParameter($route_param[1]);
-    if ($entity) {
-      $alias = $entity->toUrl()->toString();
-      return $this->convertUrlToFileName($alias);
+    try {
+      if ($entity) {
+        $alias = $entity->toUrl()->toString();
+        return $this->convertUrlToFileName($alias);
+      }
+    }
+    catch (\Exception $e) {
     }
 
     return self::DEFAULT_FILENAME;

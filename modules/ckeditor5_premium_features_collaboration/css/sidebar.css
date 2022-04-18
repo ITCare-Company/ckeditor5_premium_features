@@ -5,6 +5,9 @@
   margin-bottom: 0;
   width: 100%;
 }
+.ck-sidebar-wrapper.slider-off {
+  display: none;
+}
 .ck-sidebar-wrapper.wideSidebar,
 .ck-sidebar-wrapper.narrowSidebar {
   background: var(--ck-color-toolbar-background);

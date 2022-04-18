@@ -30,7 +30,7 @@ class AnnotationSidebar {
   public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array {
     $sidebar_mode = \Drupal::service('config.factory')
       ->getEditable('ckeditor5_premium_features_collaboration.settings')
-      ->get('sidebar');
+      ->get('sidebar') ?? 'auto';
 
     $sidebar['ck_sidebar_type'] = [
       '#type' => 'hidden',
@@ -46,10 +46,10 @@ class AnnotationSidebar {
         ],
       ],
     ];
-
     // TODO: Change to something.
+    $class_wrapper = $element['#id'] . '-value-ck-sidebar-wrapper';
     $sidebar_html = \Drupal::service('renderer')->render($sidebar);
-    $element['value']['#prefix'] = "<div class='ck-editor-sidebar-wrapper'>";
+    $element['value']['#prefix'] = "<div class='ck-editor-sidebar-wrapper $class_wrapper'>";
     $element['value']['#suffix'] = $sidebar_html . '</div>';
     $element['#attached']['drupalSettings']['ckeditor5SidebarMode'] = $sidebar_mode;
 

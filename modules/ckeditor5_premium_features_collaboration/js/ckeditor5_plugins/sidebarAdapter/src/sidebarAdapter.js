@@ -4,6 +4,7 @@ class SidebarAdapter {
   constructor( editor ) {
     this.editor = editor;
     let id_sidebar = this.editor.sourceElement.id + '-ck-sidebar';
+    // TODO: Do we have some better way?
     this.editor.config._config.sidebar = {
       container: document.querySelector('#' + id_sidebar),
     }
@@ -16,9 +17,18 @@ class SidebarAdapter {
 
   init() {
     const annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
+    const toolbar = this.editor.ui._toolbarConfig.items
+    const class_wrapper = this.editor.sourceElement.id + '-ck-sidebar-wrapper .ck-sidebar-wrapper';
+    let ck_sidebar_wrapper = document.querySelector('.' + class_wrapper);
+    if (!toolbar.includes('trackChanges') && !toolbar.includes('comment')) {
+      ck_sidebar_wrapper.classList.add('slider-off');
+    }
+    else {
+      ck_sidebar_wrapper.classList.remove('slider-off');
+    }
+
     const sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'auto';
     if (sidebarMode === 'auto') {
-      const ck_sidebar_wrapper = document.querySelector('.ck-sidebar-wrapper');
       window.onresize = function () {
         updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs);
       }
