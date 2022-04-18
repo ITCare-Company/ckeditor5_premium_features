@@ -15,7 +15,7 @@ class SidebarAdapter {
   }
 
   init() {
-    const annotationsUIs = this.editor.plugins.get( 'AnnotationsUIs' );
+    const annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
     const sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'inline';
     if (sidebarMode === 'auto') {
       const ck_sidebar_wrapper = document.querySelector('.ck-sidebar-wrapper');
@@ -31,7 +31,17 @@ class SidebarAdapter {
 
 }
 
-function updateCkEditorSidebarMode(newMode, ck_sidebar_wrapper, annotationsUIs) {
+/**
+ * Setup new sidebar mode.
+ *
+ * @param newMode
+ *   Sidebar mode to setup.
+ * @param ck_sidebar_wrapper
+ *   JS sidebar object.
+ * @param annotationsUIs
+ *   AnnotationsUIs Plugin.
+ */
+function setCkEditorSidebarMode(newMode, ck_sidebar_wrapper, annotationsUIs) {
   ck_sidebar_wrapper.classList.remove('inline');
   ck_sidebar_wrapper.classList.remove('narrowSidebar');
   ck_sidebar_wrapper.classList.remove('wideSidebar');
@@ -39,16 +49,25 @@ function updateCkEditorSidebarMode(newMode, ck_sidebar_wrapper, annotationsUIs) 
   ck_sidebar_wrapper.classList.add(newMode);
 }
 
-function updateCkeditorMode(ck_sidebar_wrapper , annotationsUIs) {
+/**
+ * Setup sidebar mode depends on resoltion.
+ *
+ * @param ck_sidebar_wrapper
+ *   JS sidebar object.
+ *
+ * @param annotationsUIs
+ *   AnnotationsUIs Plugin.
+ */
+function updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs) {
   let w = document.documentElement.clientWidth;
   if (w >= 1200) {
-    updateCkEditorSidebarMode('wideSidebar', ck_sidebar_wrapper, annotationsUIs);
+    setCkEditorSidebarMode('wideSidebar', ck_sidebar_wrapper, annotationsUIs);
   }
-  else if(w < 500) {
-    updateCkEditorSidebarMode('inline', ck_sidebar_wrapper , annotationsUIs);
+  else if (w < 500) {
+    setCkEditorSidebarMode('inline', ck_sidebar_wrapper, annotationsUIs);
   }
-  else if(w < 1199) {
-    updateCkEditorSidebarMode('narrowSidebar', ck_sidebar_wrapper, annotationsUIs);
+  else if (w < 1200) {
+    setCkEditorSidebarMode('narrowSidebar', ck_sidebar_wrapper, annotationsUIs);
   }
 }
 
