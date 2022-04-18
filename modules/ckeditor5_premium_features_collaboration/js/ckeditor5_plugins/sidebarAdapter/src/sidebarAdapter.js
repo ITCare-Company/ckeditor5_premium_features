@@ -16,7 +16,7 @@ class SidebarAdapter {
 
   init() {
     const annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
-    const sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'inline';
+    const sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'auto';
     if (sidebarMode === 'auto') {
       const ck_sidebar_wrapper = document.querySelector('.ck-sidebar-wrapper');
       window.onresize = function () {
