@@ -45,7 +45,7 @@ interface SuggestionInterface extends ContentEntityInterface {
    * Sets the data value.
    *
    * @param array|string $data
-   *   The data value (decoded or raw)
+   *   The data value (decoded or raw).
    */
   public function setData(array|string $data): static;
 

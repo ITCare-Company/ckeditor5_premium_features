@@ -3,6 +3,6 @@ type: module
 description: "Provides the functionalities shared between all premium collaboration features."
 package: CKEditor 5 Premium
 core_version_requirement: ^9.2 || ^10.0
-#configure: @todo
+configure: ckeditor5_premium_features_collaboration.form.settings
 dependencies:
   - ckeditor5_premium_features:ckeditor5_premium_features

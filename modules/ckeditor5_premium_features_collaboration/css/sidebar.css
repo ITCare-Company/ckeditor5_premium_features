@@ -1,0 +1,25 @@
+.ck-editor-sidebar-wrapper {
+  display: flex;
+}
+.ck-editor-sidebar-wrapper .form-item {
+  margin-bottom: 0;
+  width: 100%;
+}
+.ck-sidebar-wrapper.slider-off {
+  display: none;
+}
+.ck-sidebar-wrapper.wideSidebar,
+.ck-sidebar-wrapper.narrowSidebar {
+  background: var(--ck-color-toolbar-background);
+  border: 1px solid var(--ck-color-toolbar-border);
+  border-left: 0;
+  overflow: hidden;
+  margin: 2.4em 0 0 0;
+}
+.ck-sidebar-wrapper.narrowSidebar {
+  min-width: 65px;
+}
+.ck-sidebar-wrapper.wideSidebar {
+  min-width: 300px;
+  padding: 0 10px;
+}
