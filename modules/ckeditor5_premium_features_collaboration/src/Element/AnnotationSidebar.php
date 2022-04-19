@@ -7,7 +7,7 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Defines the Text Format utility class for handling the collaboration data.
+ * Add sidebar view mode, when comments or track changes plugin is on.
  */
 class AnnotationSidebar {
 
