@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Plugin\Filter;
 
+use Drupal\ckeditor5_premium_features_collaboration\Utility\DomSuggestion;
 use Drupal\Component\Utility\Html;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
@@ -17,9 +18,9 @@ use Drupal\filter\Plugin\FilterBase;
  * @Filter(
  *   id = "ckeditor5_premium_features_collaboration_filter",
  *   title = @Translation("Removes the collaboration (suggestions, comments)
- *   data from the markup"), type =
- *   Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE, weight
- *   = -100
+ *   data from the markup"),
+ *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
+ *   weight = -100
  * )
  */
 class FilterCollaboration extends FilterBase {
@@ -29,15 +30,25 @@ class FilterCollaboration extends FilterBase {
    */
   public function process($text, $langcode) {
     $dom = Html::load($text);
-    $this->filterTags($dom);
-//    $this->filterAttributes($markup);
+    $xpath = new \DOMXPath($dom);
+
+    $this->filterComments($xpath);
+    $this->filterSuggestionsTags($xpath);
+    $this->filterSuggestionsAttributes($xpath);
+
     $dom->saveHTML();
     $text = Html::serialize($dom);
+
     return new FilterProcessResult($text);
   }
 
-  public function filterTags(\DOMDocument $dom) {
-    $xpath = new \DOMXPath($dom);
+  /**
+   * Filter out the comment tags and attributes.
+   *
+   * @param \DOMXPath $xpath
+   *   The DOM XPath.
+   */
+  public function filterComments(\DOMXPath $xpath): void {
     $comment_tags = [
       'comment-start',
       'comment-end',
@@ -45,6 +56,7 @@ class FilterCollaboration extends FilterBase {
 
     foreach ($comment_tags as $comment_tag) {
       $comments = $xpath->query('//' . $comment_tag);
+
       if (!$comments) {
         continue;
       }
@@ -55,6 +67,31 @@ class FilterCollaboration extends FilterBase {
       }
     }
 
+    $comments_attributes = [
+      'data-comment-start-before',
+      'data-comment-end-after',
+    ];
+
+    foreach ($comments_attributes as $attribute) {
+      $elements = $xpath->query("//*[@$attribute]");
+      if (!$elements) {
+        continue;
+      }
+
+      /** @var \DOMElement $element */
+      foreach ($elements as $element) {
+        $element->removeAttribute($attribute);
+      }
+    }
+  }
+
+  /**
+   * Filter out the suggestion tags or attributes (where needed).
+   *
+   * @param \DOMXPath $xpath
+   *   The DOM XPath.
+   */
+  public function filterSuggestionsTags(\DOMXPath $xpath): void {
     $suggestions_tags = [
       'suggestion-start',
       'suggestion-end',
@@ -69,11 +106,9 @@ class FilterCollaboration extends FilterBase {
 
       /** @var \DOMElement $suggestion */
       foreach ($suggestions as $suggestion) {
-        $name = $suggestion->getAttribute('name');
-        [$type, $id, $user_id] = explode(':', $name);
-
-        if ($type === 'insertion' && str_ends_with($suggestion_tag, '-start')) {
-          $this->removeUntilEnd($suggestion, $name);
+        $dom_suggestion = new DomSuggestion($suggestion);
+        if ($dom_suggestion->isInsertion() && $dom_suggestion->isStartTag()) {
+          $this->removeUntilEnd($suggestion, $dom_suggestion->getNameAttributeValue());
         }
         else {
           $suggestion->remove();
@@ -82,36 +117,51 @@ class FilterCollaboration extends FilterBase {
     }
   }
 
-  public function filterAttributes(\DOMDocument $dom) {
-    $suggestion_start_attribute = 'data-suggestion-start-before';
-    $suggestion_end_attribute = 'data-suggestion-end-after';
+  /**
+   * Filter out the suggestion attributes.
+   *
+   * @param \DOMXPath $xpath
+   *   The DOM XPath.
+   */
+  public function filterSuggestionsAttributes(\DOMXPath $xpath): void {
+    $attributes = [
+      'start' => 'data-suggestion-start-before',
+      'end' => 'data-suggestion-end-after',
+    ];
 
-    $xpath = new \DOMXPath($dom);
-    $suggestions = $xpath->query("//*[@$suggestion_start_attribute]");
+    $suggestions = $xpath->query("//*[@{$attributes['start']}");
+
     if (!$suggestions) {
       return;
     }
 
     /** @var \DOMElement $suggestion */
     foreach ($suggestions as $suggestion) {
-      $suggestion_start_data_value = $suggestion->getAttribute($suggestion_start_attribute);
-      if ($suggestion_start_data_value === $suggestion->getAttribute($suggestion_end_attribute)) {
-        [$type, $id, $uid] = explode(':', $suggestion_start_data_value);
-        if ($type === 'insertion') {
-          $suggestion->remove();
-        }
-        else {
-          $suggestion->removeAttribute($suggestion_start_attribute);
-          $suggestion->removeAttribute($suggestion_end_attribute);
+      $dom_suggestion = new DomSuggestion($suggestion);
+      if ($dom_suggestion->isInsertion()) {
+        $suggestion->remove();
+      }
+      else {
+        foreach ($attributes as $attribute) {
+          $suggestion->removeAttribute($attribute);
         }
       }
     }
   }
 
-  public function removeUntilEnd(\DOMElement|\DOMText $element, $name) {
+  /**
+   * Removes all DOM elements and text until met the end tag or attribute.
+   *
+   * @param \DOMElement|\DOMText $element
+   *   The DOM element.
+   * @param string $name
+   *   The name attribute value.
+   */
+  public function removeUntilEnd(\DOMElement|\DOMText $element, string $name = ''): void {
     $next = $element->nextSibling;
     $parent = $element->parentNode;
     $element->remove();
+
     if (empty($next)) {
       $next = $parent?->nextSibling?->firstChild;
       if (!$parent?->hasChildNodes()) {
@@ -119,14 +169,20 @@ class FilterCollaboration extends FilterBase {
       }
     }
 
-    if ($element->nodeName === 'suggestion-end' && $element->getAttribute('name') === $name) {
-      // This is end of the journey because of the html tag...
-      return;
+    if ($element instanceof \DOMElement) {
+      $dom_element = new DomSuggestion($element);
+      if ($dom_element->isEndTag() && $dom_element->hasName($name)) {
+        // This is the end of the journey because of the html tag.
+        return;
+      }
+      elseif ($dom_element->getEndAttributeValue() === $name) {
+        // This is the end of the journey because of the attribute.
+        return;
+      }
     }
-    $attribute_name = 'data-suggestion-end-after';
 
-    if ($element instanceof \DOMElement && $element->hasAttribute($attribute_name) && $element->getAttribute($attribute_name) === $name) {
-      // This is end of the journey because of the attribute...
+    if (!$next instanceof \DOMNode) {
+      // Something went wrong, stop further processing.
       return;
     }
 
