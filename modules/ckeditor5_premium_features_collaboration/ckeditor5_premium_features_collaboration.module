@@ -73,3 +73,10 @@ function ckeditor5_premium_features_collaboration_element_info_alter(array &$inf
     $info['text_format']['#process'][] = [TextFormat::class, 'process'];
   }
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function ckeditor5_premium_features_collaboration_form_filter_format_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+//  dd($form, $form_state);
+}

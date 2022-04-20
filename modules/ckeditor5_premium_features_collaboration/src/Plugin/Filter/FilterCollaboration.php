@@ -129,7 +129,7 @@ class FilterCollaboration extends FilterBase {
       'end' => 'data-suggestion-end-after',
     ];
 
-    $suggestions = $xpath->query("//*[@{$attributes['start']}");
+    $suggestions = $xpath->query("//*[@{$attributes['start']}]");
 
     if (!$suggestions) {
       return;
