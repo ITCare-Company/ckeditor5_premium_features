@@ -4,6 +4,16 @@ class RevisionHistoryAdapter {
   constructor( editor ) {
     this.editor = editor;
     this.storage = new CollaborationStorage(editor);
+
+    const revisionHistoryContainer = document.querySelector(this.storage.getSourceDataSelector('revisionHistoryContainer'));
+    // Initialize revision history settings.
+    this.editor.config._config.revisionHistory = {
+      editorContainer: revisionHistoryContainer.querySelector('.editor-container'),
+      viewerContainer: revisionHistoryContainer,
+      viewerEditorElement: revisionHistoryContainer.querySelector('.revision-viewer-editor'),
+      viewerSidebarContainer: revisionHistoryContainer.querySelector('.revision-viewer-sidebar'),
+    }
+
   }
 
   static get pluginName() {

@@ -121,6 +121,38 @@ class TextFormat {
     $items[$id] = $element['#parents'];
     $form_state->set(static::STORAGE_KEY, $items);
 
+    // Setup the revision history.
+    $element['revision_history'] = [
+      // @todo load serialized data from storage (simillar to comments and track changes storage).
+      '#default_value' => json_encode([]),
+    ] + $default_element_keys;
+    $element['revision_history']['#attributes']['class'] = ['revision-history-data'];
+    $element['revision_history_container'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => ['revision-history-container-data'],
+        $id_attribute => $id,
+      ],
+      [
+        '#type' => 'container',
+        '#attributes' => [
+          'class' => ['editor-container'],
+        ],
+        [
+          '#type' => 'container',
+          '#attributes' => [
+            'class' => ['revision-viewer-editor'],
+          ],
+        ],
+        [
+          '#type' => 'container',
+          '#attributes' => [
+            'class' => ['revision-viewer-sidebar'],
+          ],
+        ],
+      ],
+    ];
+
     return $element;
   }
 
