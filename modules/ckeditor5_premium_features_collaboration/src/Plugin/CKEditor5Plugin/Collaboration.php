@@ -8,18 +8,20 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Url;
 use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * CKEditor 5 Track changes plugin.
+ * CKEditor 5 Track changes & comments plugin.
  *
  * @internal
  *   Plugin classes are internal.
  */
-class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElementsSubsetInterface, ContainerFactoryPluginInterface {
+class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginElementsSubsetInterface, ContainerFactoryPluginInterface {
   use CKEditor5PluginConfigurableTrait;
 
   /**
@@ -60,11 +62,27 @@ class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElem
   }
 
   /**
+   * Gets the list of all toolbars related to the collaboration features.
+   *
+   * @return string[]
+   *   The toolbar names.
+   */
+  public function getToolbars(): array {
+    return [
+      'trackChanges',
+      'comment',
+    ];
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function defaultConfiguration(): array {
+    // A dummy configuration value becasue of the parent class
+    // which force to have a form related methods
+    // in case we want to use `getElementsSubset` method.
     return [
-      'sidebar' => NULL,
+      'enabled' => FALSE,
     ];
   }
 
@@ -72,17 +90,18 @@ class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElem
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
-    $form['sidebar'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Annotation sidebar'),
-      '#options' => [
-        // @todo Define key for automatic mode.
-        '' => $this->t('Automatic'),
-        'inline' => $this->t('Use inline balloons'),
-        'narrowSidebar' => $this->t('Use narrow sidebar'),
-        'wideSidebar' => $this->t('Use wide sidebar'),
-      ],
-      '#default_value' => $this->getConfiguration()['sidebar'] ?? '',
+    $note = $this->t('In order to setup the annotation sidebar use the <a href="@url">global collaboration configuration instead</a>.', [
+      '@url' => Url::fromRoute('ckeditor5_premium_features_collaboration.form.settings')->toString(),
+    ]);
+    $form['note'] = [
+       ['#markup' => '<p>' . $this->t('The configuration for this plugin is not available.') . '</p>'],
+       ['#markup' => '<p>' . $note . '</p>'],
+    ];
+
+    // A dummy form element in order to make the submission works.
+    $form['enabled'] = [
+      '#type' => 'hidden',
+      '#default_value' => $this->configuration['enabled'],
     ];
 
     return $form;
@@ -98,7 +117,35 @@ class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElem
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
-    $this->configuration = $form_state->cleanValues()->getValues();
+
+    /** @var \Drupal\Core\Form\FormState $complete_form_state */
+    $complete_form_state = $form_state->getCompleteFormState();
+    $values = $complete_form_state->cleanValues()->getValues();
+    $toolbars_raw = (string) NestedArray::getValue($values, [
+      'editor',
+      'settings',
+      'toolbar',
+      'items',
+    ]);
+    $toolbars = (array) json_decode($toolbars_raw);
+
+    // Enable filter if any collaboration feature is enabled.
+    $has_any_collaboration_feature = (bool) array_intersect($toolbars, $this->getToolbars());
+    $complete_form_state->setValue([
+      'filters',
+      'ckeditor5_premium_features_collaboration_filter',
+      'status',
+    ], $has_any_collaboration_feature);
+
+    // Set the dummy enabled flag on the configuration.
+    /** @var \Drupal\ckeditor5\Plugin\CKEditor5PluginDefinition $definition */
+    $definition = $this->getPluginDefinition();
+    $toolbar_item = array_key_first($definition->getToolbarItems());
+    $status = in_array($toolbar_item, (array) $toolbars, TRUE);
+
+    $this->configuration = [
+      'enabled' => $status,
+    ];
   }
 
   /**
@@ -106,7 +153,6 @@ class TrackChanges extends CKEditor5PluginDefault implements CKEditor5PluginElem
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
     $static_plugin_config['licenseKey'] = $this->settingsConfigHandler->getLicenseKey();
-    $static_plugin_config['sidebar'] = ['inline'];
 
     return $static_plugin_config;
   }

@@ -7,7 +7,7 @@ ckeditor5_premium_features_collaboration__track_changes:
     label: Track changes
     library: ckeditor5_premium_features_collaboration/collaboration
     admin_library: ckeditor5_premium_features_collaboration/admin.track-changes
-    class: Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\TrackChanges
+    class: Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\Collaboration
     toolbar_items:
       trackChanges:
         label: Track changes
@@ -24,7 +24,7 @@ ckeditor5_premium_features_collaboration__comments:
     label: Comments
     library: ckeditor5_premium_features_collaboration/collaboration
     admin_library: ckeditor5_premium_features_collaboration/admin.comments
-    class: Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\Comments
+    class: Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\Collaboration
     toolbar_items:
       comment:
         label: Comment

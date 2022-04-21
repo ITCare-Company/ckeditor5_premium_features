@@ -86,22 +86,24 @@ class TextFormat {
     $id = $this->getElementId();
     $id_attribute = 'data-' . static::STORAGE_KEY . '-element-id';
 
+    $default_element_keys = [
+      '#type' => 'textarea',
+      '#attributes' => [
+        // The admin theme may vary, so this is the safest solution.
+        'style' => 'display: none;',
+        $id_attribute => $id,
+      ],
+      '#theme_wrappers' => [],
+    ];
+
     // Setup the suggestions.
     $suggestions = $this->suggestionStorage->loadByEntity($entity);
 
     $element['value']['#attributes'][$id_attribute] = $id;
     $element['track_changes'] = [
-      // @todo change to hidden once the development will be finished.
-      '#type' => 'textarea',
-      '#title' => t('Track changes'),
-      '#attributes' => [
-        'class' => [
-          'track-changes-data',
-        ],
-        $id_attribute => $id,
-      ],
       '#default_value' => $this->suggestionStorage->serializeCollection($suggestions),
-    ];
+    ] + $default_element_keys;
+    $element['track_changes']['#attributes']['class'] = ['track-changes-data'];
 
     // Setup the comments.
     $comments = $this->commentsStorage->loadByEntity($entity);
@@ -111,17 +113,9 @@ class TextFormat {
     $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $this->userDataProvider->getFromEntities($users_data);
 
     $element['comments'] = [
-      // @todo change to hidden once the development will be finished.
-      '#type' => 'textarea',
-      '#title' => t('Comments'),
-      '#attributes' => [
-        'class' => [
-          'comments-data',
-        ],
-        $id_attribute => $id,
-      ],
       '#default_value' => $this->commentsStorage->serializeCollection($comments),
-    ];
+    ] + $default_element_keys;
+    $element['comments']['#attributes']['class'] = ['comments-data'];
 
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
     $items[$id] = $element['#parents'];
