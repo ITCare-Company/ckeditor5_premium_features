@@ -67,10 +67,11 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    * @return string[]
    *   The toolbar names.
    */
-  public function getToolbars(): array {
+  public static function getToolbars(): array {
     return [
       'trackChanges',
       'comment',
+      'revisionHistory',
     ];
   }
 
@@ -130,7 +131,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
     $toolbars = (array) json_decode($toolbars_raw);
 
     // Enable filter if any collaboration feature is enabled.
-    $has_any_collaboration_feature = (bool) array_intersect($toolbars, $this->getToolbars());
+    $has_any_collaboration_feature = (bool) array_intersect($toolbars, static::getToolbars());
     $complete_form_state->setValue([
       'filters',
       'ckeditor5_premium_features_collaboration_filter',
