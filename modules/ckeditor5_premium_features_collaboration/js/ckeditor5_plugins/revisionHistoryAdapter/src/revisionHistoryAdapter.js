@@ -4,23 +4,30 @@ class RevisionHistoryAdapter {
   constructor( editor ) {
     this.editor = editor;
     this.storage = new CollaborationStorage(editor);
-
-    const revisionHistoryContainer = document.querySelector(this.storage.getSourceDataSelector('revisionHistoryContainer'));
-    // Initialize revision history settings.
-    this.editor.config._config.revisionHistory = {
-      editorContainer: revisionHistoryContainer.querySelector('.editor-container'),
-      viewerContainer: revisionHistoryContainer,
-      viewerEditorElement: revisionHistoryContainer.querySelector('.revision-viewer-editor'),
-      viewerSidebarContainer: revisionHistoryContainer.querySelector('.revision-viewer-sidebar'),
-    }
-
   }
 
   static get pluginName() {
     return 'RevisionHistoryAdapter'
   }
 
+  static get requires() {
+    return [ 'RevisionHistory' ]
+  }
+
   init() {
+    // Initialize revision history settings.
+    const revisionHistoryConfig = this.editor.config._config.revisionHistory;
+    let revisionHistoryContainer = document.querySelector(this.storage.getSourceDataSelector('revisionHistoryContainer'));
+    if (revisionHistoryContainer === null) {
+      revisionHistoryContainer = revisionHistoryConfig.viewerEditorElement.parentNode;
+    }
+
+    revisionHistoryConfig.viewerContainer = revisionHistoryContainer;
+    revisionHistoryConfig.viewerEditorElement = revisionHistoryContainer.querySelector('.revision-viewer-editor');
+    revisionHistoryConfig.viewerSidebarContainer = revisionHistoryContainer.querySelector('.revision-viewer-sidebar');
+    revisionHistoryConfig.editorContainer = revisionHistoryContainer.querySelector('.editor-container');
+
+    // Initialize plugin.
     const revisionHistoryPlugin = this.editor.plugins.get('RevisionHistory');
     // @todo not yet implemented.
     const revisionHistoryElement = document.querySelector(this.storage.getSourceDataSelector('revisionHistory'));

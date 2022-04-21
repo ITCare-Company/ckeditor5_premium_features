@@ -10,6 +10,10 @@ class TrackChangesAdapter {
     return 'TrackChangesAdapter'
   }
 
+  static get requires() {
+    return [ 'TrackChanges' ]
+  }
+
   init() {
     const trackChangesPlugin = this.editor.plugins.get( 'TrackChanges' );
     const trackChangesElement = document.querySelector(this.storage.getSourceDataSelector('trackChanges'));
