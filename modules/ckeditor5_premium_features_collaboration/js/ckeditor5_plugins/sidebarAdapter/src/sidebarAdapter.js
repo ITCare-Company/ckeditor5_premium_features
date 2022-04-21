@@ -15,6 +15,11 @@ class SidebarAdapter {
     return 'SidebarAdapter'
   }
 
+  static get requires() {
+    // AnnotationsUIs is part of the comments repository.
+    return [ 'CommentsRepository' ]
+  }
+
   init() {
     const annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
     const toolbar = this.editor.ui._toolbarConfig.items
