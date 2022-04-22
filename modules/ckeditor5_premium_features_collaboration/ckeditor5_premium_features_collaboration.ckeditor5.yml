@@ -16,7 +16,7 @@ ckeditor5_premium_features_collaboration__track_changes:
     conditions:
       toolbarItem: trackChanges
       plugins:
-        - ckeditor5_premium_features_collaboration__collaboration_integration
+        - ckeditor5_premium_features_collaboration__comments
 
 ckeditor5_premium_features_collaboration__comments:
   ckeditor5:
@@ -36,7 +36,7 @@ ckeditor5_premium_features_collaboration__comments:
     conditions:
       toolbarItem: comment
       plugins:
-        - ckeditor5_premium_features_collaboration__collaboration_integration
+        - ckeditor5_premium_features_collaboration__track_changes
 
 #ckeditor5_premium_features_collaboration__revision_history:
 #  ckeditor5:
@@ -65,3 +65,7 @@ ckeditor5_premium_features_collaboration__collaboration_integration:
     label: The load & save integration of collaboration tools.
     library: ckeditor5_premium_features_collaboration/collaboration-integration
     elements: false
+    conditions:
+      plugins:
+        - ckeditor5_premium_features_collaboration__track_changes
+        - ckeditor5_premium_features_collaboration__comments
