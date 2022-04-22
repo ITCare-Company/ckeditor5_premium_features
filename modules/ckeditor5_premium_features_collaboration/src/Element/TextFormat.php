@@ -107,7 +107,7 @@ class TextFormat {
       '#type' => 'textarea',
       '#attributes' => [
         // The admin theme may vary, so this is the safest solution.
-//        'style' => 'display: none;',
+        'style' => 'display: none;',
         $id_attribute => $id,
       ],
       '#theme_wrappers' => [],

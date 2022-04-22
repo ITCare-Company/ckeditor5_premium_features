@@ -3,6 +3,7 @@ ckeditor5_premium_features_collaboration__track_changes:
     plugins:
       - trackChanges.TrackChanges
       - trackChangesAdapter.TrackChangesAdapter
+      - sidebarAdapter.SidebarAdapter
   drupal:
     label: Track changes
     library: ckeditor5_premium_features_collaboration/collaboration
@@ -12,7 +13,10 @@ ckeditor5_premium_features_collaboration__track_changes:
       trackChanges:
         label: Track changes
     elements: false
-    conditions: [ ]
+    conditions:
+      toolbarItem: trackChanges
+      plugins:
+        - ckeditor5_premium_features_collaboration__collaboration_integration
 
 ckeditor5_premium_features_collaboration__comments:
   ckeditor5:
@@ -29,7 +33,10 @@ ckeditor5_premium_features_collaboration__comments:
       comment:
         label: Comment
     elements: false
-    conditions: [ ]
+    conditions:
+      toolbarItem: comment
+      plugins:
+        - ckeditor5_premium_features_collaboration__collaboration_integration
 
 #ckeditor5_premium_features_collaboration__revision_history:
 #  ckeditor5:
@@ -44,8 +51,10 @@ ckeditor5_premium_features_collaboration__comments:
 #      comment:
 #        label: Revision history
 #    elements: false
-#    conditions: [ ]
-
+#    conditions:
+#      toolbarItem: revisionHistory
+#      plugins:
+#        - ckeditor5_premium_features_collaboration__collaboration_integration
 
 ckeditor5_premium_features_collaboration__collaboration_integration:
   ckeditor5:
@@ -56,4 +65,3 @@ ckeditor5_premium_features_collaboration__collaboration_integration:
     label: The load & save integration of collaboration tools.
     library: ckeditor5_premium_features_collaboration/collaboration-integration
     elements: false
-    conditions: [ ]

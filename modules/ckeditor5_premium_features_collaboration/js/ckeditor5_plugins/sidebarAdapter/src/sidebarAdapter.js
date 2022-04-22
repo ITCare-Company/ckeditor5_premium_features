@@ -20,6 +20,11 @@ class SidebarAdapter {
     const toolbar = this.editor.ui._toolbarConfig.items
     const class_wrapper = this.editor.sourceElement.id + '-ck-sidebar-wrapper .ck-sidebar-wrapper';
     const ck_sidebar_wrapper = document.querySelector('.' + class_wrapper);
+
+    if (!ck_sidebar_wrapper) {
+      return;
+    }
+
     if (!toolbar.includes('trackChanges') && !toolbar.includes('comment')) {
       ck_sidebar_wrapper.classList.add('slider-off');
     }
