@@ -34,9 +34,9 @@ class SidebarAdapter {
 
     const sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'auto';
     if (sidebarMode === 'auto') {
-      window.onresize = function () {
+      window.addEventListener('resize', function (event) {
         updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs);
-      }
+      });
       updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs)
     }
     else {
