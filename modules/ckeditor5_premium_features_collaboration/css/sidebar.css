@@ -7,7 +7,7 @@
   min-width: 0;
   width: 100%;
 }
-.ck-editor-sidebar-wrapper .ck-editor__main > .ck-editor__editable {
+.ck-editor-sidebar-wrapper .ck-content:not(.ck-comment__input *) {
   min-height: 120px;
   padding-bottom: 120px;
 }
