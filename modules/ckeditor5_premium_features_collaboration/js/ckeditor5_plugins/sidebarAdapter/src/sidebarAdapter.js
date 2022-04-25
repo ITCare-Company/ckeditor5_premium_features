@@ -15,6 +15,11 @@ class SidebarAdapter {
     return 'SidebarAdapter'
   }
 
+  static get requires() {
+    // AnnotationsUIs is part of the comments repository.
+    return [ 'CommentsRepository' ]
+  }
+
   init() {
     const annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
     const toolbar = this.editor.ui._toolbarConfig.items
@@ -34,9 +39,9 @@ class SidebarAdapter {
 
     const sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'auto';
     if (sidebarMode === 'auto') {
-      window.onresize = function () {
+      window.addEventListener('resize', function (event) {
         updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs);
-      }
+      });
       updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs)
     }
     else {

@@ -3,7 +3,13 @@
 }
 .ck-editor-sidebar-wrapper .form-item {
   margin-bottom: 0;
+  flex: 0 1 auto;
+  min-width: 0;
   width: 100%;
+}
+.ck-editor-sidebar-wrapper .ck-content:not(.ck-comment__input *) {
+  min-height: 120px;
+  padding-bottom: 120px;
 }
 .ck-sidebar-wrapper.slider-off {
   display: none;
