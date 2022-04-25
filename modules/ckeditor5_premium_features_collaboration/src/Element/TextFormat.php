@@ -10,6 +10,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\StorageDataNormalizationAwareInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
+use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
@@ -43,6 +44,8 @@ class TextFormat {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface $editorStorageHandler
+   *   The editor storage handler.
    * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userDataProvider
    *   The user data storage.
    *
@@ -51,6 +54,7 @@ class TextFormat {
    */
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
+    protected EditorStorageHandlerInterface $editorStorageHandler,
     protected UserDataProvider $userDataProvider,
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
@@ -74,12 +78,25 @@ class TextFormat {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-    $entity = $form_state->getFormObject()->getEntity();
+    if (!$this->editorStorageHandler->isCkeditor5($element)) {
+      // Don't process if this is not a CKEditor5.
+      return $element;
+    }
 
+    if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element)) {
+      // Don't process as the editor does not have
+      // any collaboration features enabled.
+      return $element;
+    }
+
+    $entity = $form_state->getFormObject()->getEntity();
     if (!$entity instanceof EntityInterface) {
       // Do not process anything, the entity is missing.
       return $element;
     }
+
+    // Attach annotation sidebar.
+    AnnotationSidebar::process($element, $form_state, $complete_form);
 
     $this->addSubmitCallback($complete_form);
 

@@ -3,10 +3,17 @@ services:
     class: Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat
     arguments:
       - '@entity_type.manager'
+      - '@ckeditor5_premium_features_collaboration.storage_handler.editor'
       - '@ckeditor5_premium_features_collaboration.data_provider.users'
 
   ckeditor5_premium_features_collaboration.data_provider.users:
     class: Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider
     arguments:
       - '@current_user'
+      - '@entity_type.manager'
+
+
+  ckeditor5_premium_features_collaboration.storage_handler.editor:
+    class: Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandler
+    arguments:
       - '@entity_type.manager'
