@@ -1,0 +1,15 @@
+.revision-viewer-container-data {
+    display: none;
+}
+
+.editor-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    position: relative;
+    width: 100%;
+}
+
+.revision-history-container-data > .editor-container > .ck-editor {
+    width: 75%;
+}
