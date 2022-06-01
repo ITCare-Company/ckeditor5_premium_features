@@ -50,7 +50,7 @@ class CollaborationEntityAccessControlHandler extends EntityAccessControlHandler
     $account = $this->prepareUser($account);
 
     if ($operation === 'delete') {
-      $result = AccessResult::forbidden("The delete opeartion is not allowed.");
+      $result = AccessResult::forbidden("The delete operation is not allowed.");
       return $return_as_object ? $result : $result->isAllowed();
     }
 

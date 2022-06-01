@@ -7,6 +7,8 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\StorageDataNormalizationAwareInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
@@ -40,6 +42,13 @@ class TextFormat {
   protected CommentsStorage $commentsStorage;
 
   /**
+   * The revision storage.
+   *
+   * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage
+   */
+  protected RevisionStorage $revisionStorage;
+
+  /**
    * Creates the text format element instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
@@ -59,6 +68,7 @@ class TextFormat {
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
     $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
+    $this->revisionStorage = $this->entityTypeManager->getStorage(RevisionInterface::ENTITY_TYPE_ID);
   }
 
   /**
@@ -107,7 +117,7 @@ class TextFormat {
       '#type' => 'textarea',
       '#attributes' => [
         // The admin theme may vary, so this is the safest solution.
-        'style' => 'display: none;',
+        //'style' => 'display: none;',
         $id_attribute => $id,
       ],
       '#theme_wrappers' => [],
@@ -138,12 +148,17 @@ class TextFormat {
     $items[$id] = $element['#parents'];
     $form_state->set(static::STORAGE_KEY, $items);
 
+
     // Setup the revision history.
+    $revisions = $this->revisionStorage->loadByEntity($entity);
+
     $element['revision_history'] = [
       // @todo load serialized data from storage (simillar to comments and track changes storage).
-      '#default_value' => json_encode([]),
+      '#default_value' => $this->revisionStorage->serializeCollection($revisions),
     ] + $default_element_keys;
     $element['revision_history']['#attributes']['class'] = ['revision-history-data'];
+
+    // Add the container for the revision list.
     $element['revision_history_container'] = [
       '#type' => 'container',
       '#attributes' => [
@@ -196,6 +211,7 @@ class TextFormat {
     $features = [
       'track_changes' => $this->suggestionStorage,
       'comments' => $this->commentsStorage,
+      'revision_history' => $this->revisionStorage,
     ];
 
     foreach ($items as $item_parents) {

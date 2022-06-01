@@ -21,7 +21,8 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *      "entity_id" = "entity_id",
  *   },
  *   handlers = {
- *     "storage" = "Drupal\Core\Entity\Sql\SqlContentEntityStorage",
+ *     "storage" = "Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage",
+ *     "access" = "Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityAccessControlHandler",
  *   }
  * )
  */
@@ -80,11 +81,13 @@ class Revision extends CollaborationEntityBase implements RevisionInterface {
   public function toArray(): array {
     $data = parent::toArray();
     $data = [
+      'id' => $this->id(),
       'name' => $this->getName(),
-      'authors' => $this->getAuthors(),
+      'creator_id' => $this->getAuthor(),
+      'authors_ids' => $this->getAuthors(),
       'diff_data' => $this->getDiffData(),
-      'current_version' => $this->getCurrentVersion(),
-      'previous_version' => $this->getPreviousVersion(),
+      'to_version' => $this->getCurrentVersion(),
+      'from_version' => $this->getPreviousVersion(),
     ] + $data;
 
     return static::normalize($data, TRUE);
@@ -93,14 +96,14 @@ class Revision extends CollaborationEntityBase implements RevisionInterface {
   /**
    * {@inheritdoc}
    */
-  public function getName(): string {
+  public function getName(): ?string {
     return $this->get('name')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setName(string $name): static {
+  public function setName(?string $name): static {
     return $this->set('name', $name);
   }
 
