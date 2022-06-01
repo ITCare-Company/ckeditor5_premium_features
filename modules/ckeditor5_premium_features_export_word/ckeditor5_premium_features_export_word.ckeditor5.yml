@@ -11,7 +11,10 @@ ckeditor5_premium_features_export_word__export_word:
       exportWord:
         label: Export to word
     elements: false
-    conditions: [ ]
+    conditions:
+      toolbarItem: exportWord
+      plugins:
+        - ckeditor5_premium_features_cloud_services
     premium_features:
       plugin: exportWord
       file_extension: .docx

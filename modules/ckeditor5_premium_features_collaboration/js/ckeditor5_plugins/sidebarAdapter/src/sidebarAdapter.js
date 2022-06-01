@@ -25,6 +25,11 @@ class SidebarAdapter {
     const toolbar = this.editor.ui._toolbarConfig.items
     const class_wrapper = this.editor.sourceElement.id + '-ck-sidebar-wrapper .ck-sidebar-wrapper';
     const ck_sidebar_wrapper = document.querySelector('.' + class_wrapper);
+
+    if (!ck_sidebar_wrapper) {
+      return;
+    }
+
     if (!toolbar.includes('trackChanges') && !toolbar.includes('comment')) {
       ck_sidebar_wrapper.classList.add('slider-off');
     }
@@ -34,9 +39,9 @@ class SidebarAdapter {
 
     const sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'auto';
     if (sidebarMode === 'auto') {
-      window.onresize = function () {
+      window.addEventListener('resize', function (event) {
         updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs);
-      }
+      });
       updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs)
     }
     else {

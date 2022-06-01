@@ -17,6 +17,11 @@ class CommentsAdapter {
   init() {
     const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
     const commentsRepositoryElement = document.querySelector(this.storage.getSourceDataSelector('comments'));
+
+    if (!commentsRepositoryElement) {
+      return;
+    }
+
     // Load comments.
     const threads = JSON.parse(commentsRepositoryElement.value);
     for (const thread of threads) {

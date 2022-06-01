@@ -18,6 +18,10 @@ class TrackChangesAdapter {
     const trackChangesPlugin = this.editor.plugins.get( 'TrackChanges' );
     const trackChangesElement = document.querySelector(this.storage.getSourceDataSelector('trackChanges'));
 
+    if (!trackChangesElement) {
+      return;
+    }
+
     // Load suggestions.
     const suggestions = JSON.parse(trackChangesElement.value);
     for (const sugesstion of suggestions) {
