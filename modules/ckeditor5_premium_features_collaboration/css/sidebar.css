@@ -1,8 +1,12 @@
 .ck-editor-sidebar-wrapper {
   display: flex;
 }
+.ck-editor-sidebar-wrapper .form-item__label {
+  margin: 0;
+  line-height: 27px;
+}
 .ck-editor-sidebar-wrapper .form-item {
-  margin-bottom: 0;
+  margin: 0;
   flex: 0 1 auto;
   min-width: 0;
   width: 100%;
@@ -20,7 +24,10 @@
   border: 1px solid var(--ck-color-toolbar-border);
   border-left: 0;
   overflow: hidden;
-  margin: 2.4em 0 0 0;
+  margin: 1.7em 0 0 0;
+}
+#block-bartik-content .ck-sidebar-wrapper.wideSidebar {
+  margin: 1.35em 0 0 0;
 }
 .ck-sidebar-wrapper.narrowSidebar {
   min-width: 65px;
