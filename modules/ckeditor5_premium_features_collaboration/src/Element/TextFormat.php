@@ -10,6 +10,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\StorageDataNormalizationAwareInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\StorageIdSpecificationAwareInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
@@ -153,7 +154,6 @@ class TextFormat {
     $revisions = $this->revisionStorage->loadByEntity($entity);
 
     $element['revision_history'] = [
-      // @todo load serialized data from storage (simillar to comments and track changes storage).
       '#default_value' => $this->revisionStorage->serializeCollection($revisions),
     ] + $default_element_keys;
     $element['revision_history']['#attributes']['class'] = ['revision-history-data'];
@@ -298,6 +298,17 @@ class TextFormat {
       $markup_data = $storage->normalize($markup_data);
     }
     foreach ($markup_data as $element_data) {
+      if ($storage instanceof StorageIdSpecificationAwareInterface) {
+        if ($storage->isCommonId($element_data['id'])) {
+          $element_data['id'] = sprintf(
+            '%s_%s_%s',
+            $element_data['id'],
+            $entity->getEntityTypeId(),
+            $entity->id()
+          );
+        }
+      }
+
       $data_entity = $storage->load($element_data['id']);
       if ($data_entity instanceof EntityInterface) {
         $storage->update($data_entity, $element_data);

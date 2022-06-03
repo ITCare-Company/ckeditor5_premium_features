@@ -1,4 +1,4 @@
-import CollaborationStorage from "../../collaborationStorage";
+import CollaborationStorage from "../../collaborationStorage/src/collaborationStorage";
 
 class RevisionHistoryAdapter {
   constructor( editor ) {
@@ -29,12 +29,10 @@ class RevisionHistoryAdapter {
 
     // Initialize plugin.
     const revisionHistoryPlugin = this.editor.plugins.get('RevisionHistory');
-    // @todo not yet implemented.
     const revisionHistoryElement = document.querySelector(this.storage.getSourceDataSelector('revisionHistory'));
 
     // Load revisions.
-    //const revisions = JSON.parse(revisionHistoryElement.value);
-    const revisions = [];
+    const revisions = JSON.parse(revisionHistoryElement.value);
     for (const revision of revisions) {
       revisionHistoryPlugin.addRevisionData(revision);
     }

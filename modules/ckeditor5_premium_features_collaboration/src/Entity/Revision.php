@@ -69,6 +69,7 @@ class Revision extends CollaborationEntityBase implements RevisionInterface {
     return [
       'name' => 'name',
       'authorsIds' => 'authors',
+      'creatorId' => 'creator',
       'diffData' => 'diff_data',
       'toVersion' => 'current_version',
       'fromVersion' => 'previous_version',
@@ -79,15 +80,21 @@ class Revision extends CollaborationEntityBase implements RevisionInterface {
    * {@inheritdoc}
    */
   public function toArray(): array {
+    $created_timestamp = $this->getCreatedTime();
+    $id = $this->id();
+    if (str_starts_with($id, 'initial_')) {
+      $id = 'initial';
+    }
     $data = parent::toArray();
     $data = [
-      'id' => $this->id(),
+      'id' => $id,
       'name' => $this->getName(),
-      'creator_id' => $this->getAuthor(),
-      'authors_ids' => $this->getAuthors(),
+      'creator' => $this->getAuthor()->id(),
+      'createdAt' => date('c', $created_timestamp),
+      'authors' => $this->getAuthors(),
       'diff_data' => $this->getDiffData(),
-      'to_version' => $this->getCurrentVersion(),
-      'from_version' => $this->getPreviousVersion(),
+      'current_version' => $this->getCurrentVersion(),
+      'previous_version' => $this->getPreviousVersion(),
     ] + $data;
 
     return static::normalize($data, TRUE);

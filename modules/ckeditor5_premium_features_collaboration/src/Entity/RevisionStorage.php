@@ -14,7 +14,10 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 /**
  * Provides the storage class for the Revision entity.
  */
-class RevisionStorage extends SqlContentEntityStorage implements CollaborationEntityStorageInterface, EditorDataStorageProviderInterface {
+class RevisionStorage extends SqlContentEntityStorage implements
+  CollaborationEntityStorageInterface, EditorDataStorageProviderInterface,
+  StorageIdSpecificationAwareInterface {
+
   use CollaborationEntityStorageTrait;
 
   /**
@@ -70,17 +73,19 @@ class RevisionStorage extends SqlContentEntityStorage implements CollaborationEn
     $raw_data = Revision::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
-    $id = $data->getAlnum('id');
-    if ($id == 'initial') {
-      // Avoid duplicate IDs.
-      $id = $data->getInt('entity_id') . '-initial';
-    }
+    // Restrict ID to alphanumeric and underscores.
+    $id = $data->get('id');
+    $id = preg_replace('/[^[:alnum:]_]/', '', $id);
 
     $object_data = [
       'id' => $id,
       'uid' => $this->user->id(),
       'entity_id' => $data->getInt('entity_id'),
     ];
+
+    if ($created_at = $data->get('created')) {
+      $object_data['created'] = strtotime($created_at);
+    }
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface $revision */
     $revision = $this->create($object_data);
@@ -119,5 +124,11 @@ class RevisionStorage extends SqlContentEntityStorage implements CollaborationEn
     return $entity;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function isCommonId(string $id): bool {
+    return $id == 'initial';
+  }
 
 }
