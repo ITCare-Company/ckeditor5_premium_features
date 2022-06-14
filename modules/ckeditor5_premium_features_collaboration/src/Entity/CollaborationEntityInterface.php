@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -54,10 +55,12 @@ interface CollaborationEntityInterface {
   /**
    * Sets the entity author.
    *
-   * @param \Drupal\user\UserInterface|null $author
+   * @param \Drupal\Core\Session\AccountProxyInterface|null $author
    *   The user ID.
+   *
+   * @return static
    */
-  public function setAuthor(?UserInterface $author): static;
+  public function setAuthor(?AccountProxyInterface $author): static;
 
   /**
    * Gets the node creation timestamp.

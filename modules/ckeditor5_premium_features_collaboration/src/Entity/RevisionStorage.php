@@ -126,7 +126,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
     $data = new ParameterBag($raw_data);
 
     // Determine the creator. Avoid injecting uid by JavaScript.
-    /** @var \Drupal\user\UserInterface $creator */
+    /** @var \Drupal\Core\Session\AccountProxyInterface $creator */
     $creator = $data->get('creator') ? $this->user : NULL;
 
     $entity
