@@ -80,17 +80,20 @@ class Revision extends CollaborationEntityBase implements RevisionInterface {
    * {@inheritdoc}
    */
   public function toArray(): array {
-    $created_timestamp = $this->getCreatedTime();
+    // If the revision is initial, strip the UUID from the id.
     $id = $this->id();
-    if (str_starts_with($id, 'initial_')) {
+    if (str_starts_with((string) $id, 'initial_')) {
       $id = 'initial';
     }
+
+    // Convert the revision to an array.
     $data = parent::toArray();
+    unset($data['authorId']);
     $data = [
       'id' => $id,
-      'name' => $this->getName(),
-      'creator' => $this->getAuthor()->id(),
-      'createdAt' => date('c', $created_timestamp),
+      'name' => $this->getName() ?: '',
+      'creator' => $this->getAuthor()?->id(),
+      'createdAt' => gmdate('Y-m-d\TH:i:s.v\Z', $this->getCreatedTime()),
       'authors' => $this->getAuthors(),
       'diff_data' => $this->getDiffData(),
       'current_version' => $this->getCurrentVersion(),
@@ -98,6 +101,21 @@ class Revision extends CollaborationEntityBase implements RevisionInterface {
     ] + $data;
 
     return static::normalize($data, TRUE);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function normalize(array $data, bool $reversed = FALSE): array {
+    if (!$reversed) {
+      // Restrict ID to alphanumeric and underscores.
+      $data['id'] = preg_replace('/[^[:alnum:]_]/', '', $data['id']);
+
+      // Read the datetime.
+      $data['createdAt'] = strtotime($data['createdAt'] ?: '') ?: 0;
+    }
+
+    return parent::normalize($data, $reversed);
   }
 
   /**

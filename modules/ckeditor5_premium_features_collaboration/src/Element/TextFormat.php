@@ -301,10 +301,9 @@ class TextFormat {
       if ($storage instanceof StorageIdSpecificationAwareInterface) {
         if ($storage->isCommonId($element_data['id'])) {
           $element_data['id'] = sprintf(
-            '%s_%s_%s',
+            '%s_%s',
             $element_data['id'],
-            $entity->getEntityTypeId(),
-            $entity->id()
+            str_replace('-', '', $entity->uuid())
           );
         }
       }

@@ -15,8 +15,9 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * Provides the storage class for the Revision entity.
  */
 class RevisionStorage extends SqlContentEntityStorage implements
-  CollaborationEntityStorageInterface, EditorDataStorageProviderInterface,
-  StorageIdSpecificationAwareInterface {
+    CollaborationEntityStorageInterface,
+    EditorDataStorageProviderInterface,
+    StorageIdSpecificationAwareInterface {
 
   use CollaborationEntityStorageTrait;
 
@@ -56,11 +57,23 @@ class RevisionStorage extends SqlContentEntityStorage implements
    * {@inheritdoc}
    */
   public function serializeCollection(array $entities): string {
-    $suggestions = $entities;
-
     $serialized = [];
-    foreach ($suggestions as $suggestion) {
-      $serialized[] = $suggestion->toArray();
+    usort($entities, function (RevisionInterface $a, RevisionInterface $b) {
+      // First, sort by timestamp.
+      $compare_result = $a->getCreatedTime() <=> $b->getCreatedTime();
+      if (!$compare_result) {
+        // In case of equal timestamps, sort by version precedence.
+        $compare_result = $a->getCurrentVersion() <=> $b->getCurrentVersion();
+        if (!$compare_result) {
+          $compare_result = $a->getPreviousVersion() <=> $b->getPreviousVersion();
+        }
+      }
+      return $compare_result;
+    });
+
+    foreach ($entities as $entity) {
+      /** @var \Drupal\Core\Entity\EntityInterface $entity */
+      $serialized[] = $entity->toArray();
     }
 
     return (string) json_encode($serialized);
@@ -73,19 +86,15 @@ class RevisionStorage extends SqlContentEntityStorage implements
     $raw_data = Revision::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
-    // Restrict ID to alphanumeric and underscores.
-    $id = $data->get('id');
-    $id = preg_replace('/[^[:alnum:]_]/', '', $id);
+    // Determine the creator. Avoid injecting uid by JavaScript.
+    $creator_id = $data->get('creator') ? $this->user->id() : NULL;
 
     $object_data = [
-      'id' => $id,
-      'uid' => $this->user->id(),
+      'id' => $data->get('id'),
+      'uid' => $creator_id,
       'entity_id' => $data->getInt('entity_id'),
+      'created' => $data->getInt('created'),
     ];
-
-    if ($created_at = $data->get('created')) {
-      $object_data['created'] = strtotime($created_at);
-    }
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface $revision */
     $revision = $this->create($object_data);
@@ -102,7 +111,6 @@ class RevisionStorage extends SqlContentEntityStorage implements
     }
 
     $revision->save();
-
     return $revision;
   }
 
@@ -117,8 +125,17 @@ class RevisionStorage extends SqlContentEntityStorage implements
     $raw_data = Revision::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
+    // Determine the creator. Avoid injecting uid by JavaScript.
+    /** @var \Drupal\user\UserInterface $creator */
+    $creator = $data->get('creator') ? $this->user : NULL;
+
     $entity
       ->setName($data->get('name'))
+      ->setAuthors($data->get('authors'))
+      ->setDiffData($data->get('diff_data'))
+      ->setPreviousVersion($data->get('previous_version'))
+      ->setCurrentVersion($data->get('current_version'))
+      ->setAuthor($creator)
       ->save();
 
     return $entity;

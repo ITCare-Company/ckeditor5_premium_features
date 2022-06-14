@@ -52,6 +52,14 @@ interface CollaborationEntityInterface {
   public function getAuthor(): ?UserInterface;
 
   /**
+   * Sets the entity author.
+   *
+   * @param \Drupal\user\UserInterface|null $author
+   *   The user ID.
+   */
+  public function setAuthor(?UserInterface $author): static;
+
+  /**
    * Gets the node creation timestamp.
    *
    * @return int
@@ -74,7 +82,6 @@ interface CollaborationEntityInterface {
    *   The ID of target entity type.
    */
   public function setEntityTypeTargetId(string $id): static;
-
 
   /**
    * Gets the target entity ID.

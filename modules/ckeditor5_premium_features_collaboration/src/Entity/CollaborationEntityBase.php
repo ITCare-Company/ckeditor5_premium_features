@@ -30,7 +30,7 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('User'))
       ->setSetting('target_type', 'user')
-      ->setRequired(TRUE);
+      ->setRequired(FALSE);
 
     // We need to have two string (non-reference) fields,
     // because the entity id is not available before
@@ -115,6 +115,14 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
    */
   public function getAuthor(): ?UserInterface {
     return $this->get('uid')->entity;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setAuthor(?UserInterface $author): static {
+    $this->set('uid', $author?->id());
+    return $this;
   }
 
   /**
