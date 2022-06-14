@@ -29,6 +29,7 @@ class RevisionHistoryAdapter {
 
     // Initialize plugin.
     const revisionHistoryPlugin = this.editor.plugins.get('RevisionHistory');
+    const revisionTrackerPlugin = this.editor.plugins.get('RevisionTracker');
     const revisionHistoryElement = document.querySelector(this.storage.getSourceDataSelector('revisionHistory'));
 
     // Load revisions.
@@ -37,13 +38,16 @@ class RevisionHistoryAdapter {
       revisionHistoryPlugin.addRevisionData(revision);
     }
 
-    // Observe data change and update the data fields.
-    this.editor.model.document.on( 'change:data', () => {
-      this.updateStorage(revisionHistoryPlugin, revisionHistoryElement);
+    // Hook to form submit.
+    const form = this.editor.sourceElement.closest('form');
+    form.addEventListener("submit", (e) => {
+      this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin, revisionHistoryElement)
     });
   }
 
-  updateStorage(plugin, storageElement) {
+  updateStorage(plugin, tracker, storageElement) {
+    tracker.update();
+    // tracker.saveRevision( { name: 'Entity save' } );
     storageElement.value = JSON.stringify(plugin.getRevisions({
       toJSON: true
     }));
