@@ -45,8 +45,8 @@ class RevisionHistoryAdapter {
     });
   }
 
-  updateStorage(plugin, tracker, storageElement) {
-    tracker.update();
+  async updateStorage(plugin, tracker, storageElement) {
+    await tracker.update();
     // tracker.saveRevision( { name: 'Entity save' } );
     storageElement.value = JSON.stringify(plugin.getRevisions({
       toJSON: true
