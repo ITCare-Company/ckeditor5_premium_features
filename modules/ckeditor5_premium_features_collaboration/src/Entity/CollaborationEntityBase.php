@@ -9,6 +9,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -30,7 +31,7 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('User'))
       ->setSetting('target_type', 'user')
-      ->setRequired(TRUE);
+      ->setRequired(FALSE);
 
     // We need to have two string (non-reference) fields,
     // because the entity id is not available before
@@ -115,6 +116,14 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
    */
   public function getAuthor(): ?UserInterface {
     return $this->get('uid')->entity;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setAuthor(?AccountProxyInterface $author): static {
+    $this->set('uid', $author?->id());
+    return $this;
   }
 
   /**

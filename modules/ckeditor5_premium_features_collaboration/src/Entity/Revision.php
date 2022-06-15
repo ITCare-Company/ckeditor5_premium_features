@@ -21,7 +21,8 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *      "entity_id" = "entity_id",
  *   },
  *   handlers = {
- *     "storage" = "Drupal\Core\Entity\Sql\SqlContentEntityStorage",
+ *     "storage" = "Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage",
+ *     "access" = "Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityAccessControlHandler",
  *   }
  * )
  */
@@ -68,6 +69,7 @@ class Revision extends CollaborationEntityBase implements RevisionInterface {
     return [
       'name' => 'name',
       'authorsIds' => 'authors',
+      'creatorId' => 'creator',
       'diffData' => 'diff_data',
       'toVersion' => 'current_version',
       'fromVersion' => 'previous_version',
@@ -78,9 +80,20 @@ class Revision extends CollaborationEntityBase implements RevisionInterface {
    * {@inheritdoc}
    */
   public function toArray(): array {
+    // If the revision is initial, strip the UUID from the id.
+    $id = $this->id();
+    if (str_starts_with((string) $id, 'initial_')) {
+      $id = 'initial';
+    }
+
+    // Convert the revision to an array.
     $data = parent::toArray();
+    unset($data['authorId']);
     $data = [
-      'name' => $this->getName(),
+      'id' => $id,
+      'name' => $this->getName() ?: '',
+      'creator' => $this->getAuthor()?->id(),
+      'createdAt' => gmdate('Y-m-d\TH:i:s.v\Z', $this->getCreatedTime()),
       'authors' => $this->getAuthors(),
       'diff_data' => $this->getDiffData(),
       'current_version' => $this->getCurrentVersion(),
@@ -93,14 +106,29 @@ class Revision extends CollaborationEntityBase implements RevisionInterface {
   /**
    * {@inheritdoc}
    */
-  public function getName(): string {
+  public static function normalize(array $data, bool $reversed = FALSE): array {
+    if (!$reversed) {
+      // Restrict ID to alphanumeric and underscores.
+      $data['id'] = preg_replace('/[^[:alnum:]_]/', '', $data['id']);
+
+      // Read the datetime.
+      $data['createdAt'] = strtotime($data['createdAt'] ?: '') ?: 0;
+    }
+
+    return parent::normalize($data, $reversed);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getName(): ?string {
     return $this->get('name')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setName(string $name): static {
+  public function setName(?string $name): static {
     return $this->set('name', $name);
   }
 

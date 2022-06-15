@@ -1,4 +1,4 @@
-import CollaborationStorage from "../../collaborationStorage";
+import CollaborationStorage from "../../collaborationStorage/src/collaborationStorage";
 
 class TrackChangesAdapter {
   constructor( editor ) {
@@ -8,6 +8,10 @@ class TrackChangesAdapter {
 
   static get pluginName() {
     return 'TrackChangesAdapter'
+  }
+
+  static get requires() {
+    return [ 'TrackChanges' ]
   }
 
   init() {

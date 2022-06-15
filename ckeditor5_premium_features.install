@@ -1,0 +1,20 @@
+<?php
+
+/**
+* @file
+* Install and update hooks for the CKEditor 5 Premium Features module.
+*/
+
+use Drupal\Core\Database\Database;
+
+/**
+ * Change uid field to nullable.
+ */
+function ckeditor5_premium_features_update_9000() {
+  $schema = Database::getConnection()->schema();
+  $schema->changeField('ckeditor5_revision', 'uid', 'uid', [
+    'not null' => FALSE,
+    'mysql_type' => 'INT(10)',
+    'unsigned' => TRUE,
+  ]);
+}

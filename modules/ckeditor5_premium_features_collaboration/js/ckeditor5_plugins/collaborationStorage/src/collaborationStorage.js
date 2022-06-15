@@ -8,6 +8,8 @@ class CollaborationStorage {
     const types = {
       'trackChanges': '.track-changes',
       'comments': '.comments',
+      'revisionHistory': '.revision-history',
+      'revisionHistoryContainer': '.revision-history-container',
     };
 
     const cssClass = types[type] + '-data';

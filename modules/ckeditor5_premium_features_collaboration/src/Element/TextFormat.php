@@ -7,7 +7,10 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\StorageDataNormalizationAwareInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\StorageIdSpecificationAwareInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
@@ -40,6 +43,13 @@ class TextFormat {
   protected CommentsStorage $commentsStorage;
 
   /**
+   * The revision storage.
+   *
+   * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage
+   */
+  protected RevisionStorage $revisionStorage;
+
+  /**
    * Creates the text format element instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
@@ -59,6 +69,7 @@ class TextFormat {
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
     $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
+    $this->revisionStorage = $this->entityTypeManager->getStorage(RevisionInterface::ENTITY_TYPE_ID);
   }
 
   /**
@@ -138,6 +149,42 @@ class TextFormat {
     $items[$id] = $element['#parents'];
     $form_state->set(static::STORAGE_KEY, $items);
 
+
+    // Setup the revision history.
+    $revisions = $this->revisionStorage->loadByEntity($entity);
+
+    $element['revision_history'] = [
+      '#default_value' => $this->revisionStorage->serializeCollection($revisions),
+    ] + $default_element_keys;
+    $element['revision_history']['#attributes']['class'] = ['revision-history-data'];
+
+    // Add the container for the revision list.
+    $element['revision_history_container'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => ['revision-history-container-data'],
+        $id_attribute => $id,
+      ],
+      [
+        '#type' => 'container',
+        '#attributes' => [
+          'class' => ['editor-container'],
+        ],
+        [
+          '#type' => 'container',
+          '#attributes' => [
+            'class' => ['revision-viewer-editor'],
+          ],
+        ],
+        [
+          '#type' => 'container',
+          '#attributes' => [
+            'class' => ['revision-viewer-sidebar'],
+          ],
+        ],
+      ],
+    ];
+
     return $element;
   }
 
@@ -164,6 +211,7 @@ class TextFormat {
     $features = [
       'track_changes' => $this->suggestionStorage,
       'comments' => $this->commentsStorage,
+      'revision_history' => $this->revisionStorage,
     ];
 
     foreach ($items as $item_parents) {
@@ -250,6 +298,16 @@ class TextFormat {
       $markup_data = $storage->normalize($markup_data);
     }
     foreach ($markup_data as $element_data) {
+      if ($storage instanceof StorageIdSpecificationAwareInterface) {
+        if ($storage->isCommonId($element_data['id'])) {
+          $element_data['id'] = sprintf(
+            '%s_%s',
+            $element_data['id'],
+            str_replace('-', '', $entity->uuid())
+          );
+        }
+      }
+
       $data_entity = $storage->load($element_data['id']);
       if ($data_entity instanceof EntityInterface) {
         $storage->update($data_entity, $element_data);

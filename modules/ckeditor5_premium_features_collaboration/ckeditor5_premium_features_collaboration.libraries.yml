@@ -13,12 +13,21 @@ admin.track-changes:
     theme:
       css/track-changes.admin.css: { }
 
+revision-history-integration:
+  css:
+      theme:
+        css/revision-history.css: { }
+  js:
+    js/build/revisionHistoryAdapter.js: { minified: true }
+  dependencies:
+    - ckeditor5_premium_features_collaboration/ckeditor5-collaboration-dll
+    - ckeditor5_premium_features_collaboration/revision-history
+
 collaboration:
   dependencies:
     - ckeditor5_premium_features_collaboration/ckeditor5-collaboration-dll
     - ckeditor5_premium_features_collaboration/track-changes
     - ckeditor5_premium_features_collaboration/comments
-    - ckeditor5_premium_features_collaboration/revision-history
 
 collaboration-integration:
   css:
@@ -30,4 +39,3 @@ collaboration-integration:
     js/build/commentsAdapter.js: { minified: true }
     js/build/sidebarAdapter.js: { minified: true }
     js/build/trackChangesAdapter.js: { minified: true }
-    js/build/revisionHistoryAdapter.js: { minified: true }
