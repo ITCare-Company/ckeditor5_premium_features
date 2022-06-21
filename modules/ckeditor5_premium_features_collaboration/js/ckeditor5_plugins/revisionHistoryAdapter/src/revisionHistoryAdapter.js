@@ -16,6 +16,7 @@ class RevisionHistoryAdapter {
 
   init() {
     // Initialize revision history settings.
+    const addRevisionOnSubmit = drupalSettings.ckeditor5Premium.addRevisionOnSubmit ?? false;
     const revisionHistoryConfig = this.editor.config._config.revisionHistory;
     let revisionHistoryContainer = document.querySelector(this.storage.getSourceDataSelector('revisionHistoryContainer'));
     if (revisionHistoryContainer === null) {
@@ -41,13 +42,15 @@ class RevisionHistoryAdapter {
     // Hook to form submit.
     const form = this.editor.sourceElement.closest('form');
     form.addEventListener("submit", (e) => {
-      this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin, revisionHistoryElement)
+      this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin, revisionHistoryElement, addRevisionOnSubmit)
     });
   }
 
-  async updateStorage(plugin, tracker, storageElement) {
+  async updateStorage(plugin, tracker, storageElement, addRevisionOnSubmit) {
     await tracker.update();
-    // tracker.saveRevision( { name: 'Entity save' } );
+    if (addRevisionOnSubmit) {
+      await tracker.saveRevision({name: 'Entity save'});
+    }
     storageElement.value = JSON.stringify(plugin.getRevisions({
       toJSON: true
     }));

@@ -24,8 +24,8 @@ class TrackChangesAdapter {
 
     // Load suggestions.
     const suggestions = JSON.parse(trackChangesElement.value);
-    for (const sugesstion of suggestions) {
-      trackChangesPlugin.addSuggestion(sugesstion);
+    for (const suggestion of suggestions) {
+      trackChangesPlugin.addSuggestion(suggestion);
     }
 
     // Observe data change and update the data fields.

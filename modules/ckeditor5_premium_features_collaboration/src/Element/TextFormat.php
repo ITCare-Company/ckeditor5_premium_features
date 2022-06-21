@@ -17,6 +17,8 @@ use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandler
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Config\Config;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -50,6 +52,13 @@ class TextFormat {
   protected RevisionStorage $revisionStorage;
 
   /**
+   * The collaboration config.
+   *
+   * @var \Drupal\Core\Config\Config
+   */
+  protected Config $config;
+
+  /**
    * Creates the text format element instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
@@ -58,6 +67,8 @@ class TextFormat {
    *   The editor storage handler.
    * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userDataProvider
    *   The user data storage.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -66,10 +77,12 @@ class TextFormat {
     protected EntityTypeManagerInterface $entityTypeManager,
     protected EditorStorageHandlerInterface $editorStorageHandler,
     protected UserDataProvider $userDataProvider,
+    ConfigFactoryInterface $config_factory
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
     $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
     $this->revisionStorage = $this->entityTypeManager->getStorage(RevisionInterface::ENTITY_TYPE_ID);
+    $this->config = $config_factory->getEditable('ckeditor5_premium_features_collaboration.settings');
   }
 
   /**
@@ -149,7 +162,6 @@ class TextFormat {
     $items[$id] = $element['#parents'];
     $form_state->set(static::STORAGE_KEY, $items);
 
-
     // Setup the revision history.
     $revisions = $this->revisionStorage->loadByEntity($entity);
 
@@ -157,10 +169,13 @@ class TextFormat {
       '#default_value' => $this->revisionStorage->serializeCollection($revisions),
     ] + $default_element_keys;
     $element['revision_history']['#attributes']['class'] = ['revision-history-data'];
+    $add_revision_on_submit = $this->config->get('add_revision_on_submit') ?? FALSE;
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['addRevisionOnSubmit'] = $add_revision_on_submit;
 
     // Add the container for the revision list.
     $element['revision_history_container'] = [
       '#type' => 'container',
+      '#weight' => -1,
       '#attributes' => [
         'class' => ['revision-history-container-data'],
         $id_attribute => $id,
