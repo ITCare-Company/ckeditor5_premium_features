@@ -169,7 +169,7 @@ class TextFormat {
       '#default_value' => $this->revisionStorage->serializeCollection($revisions),
     ] + $default_element_keys;
     $element['revision_history']['#attributes']['class'] = ['revision-history-data'];
-    $add_revision_on_submit = $this->config->get('add_revision_on_submit') ?? FALSE;
+    $add_revision_on_submit = $this->config->get('add_revision_on_submit') ?? TRUE;
     $element['#attached']['drupalSettings']['ckeditor5Premium']['addRevisionOnSubmit'] = $add_revision_on_submit;
 
     // Add the container for the revision list.
