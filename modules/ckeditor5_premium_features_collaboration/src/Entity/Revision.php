@@ -86,13 +86,16 @@ class Revision extends CollaborationEntityBase implements RevisionInterface {
       $id = 'initial';
     }
 
+    // Check if the revision is in "draft" state.
+    $is_draft = $this->getAttributes()['draft'] ?? FALSE;
+
     // Convert the revision to an array.
     $data = parent::toArray();
     unset($data['authorId']);
     $data = [
       'id' => $id,
       'name' => $this->getName() ?: '',
-      'creator' => $this->getAuthor()?->id(),
+      'creator' => $is_draft ? NULL : $this->getAuthor()?->id(),
       'createdAt' => gmdate('Y-m-d\TH:i:s.v\Z', $this->getCreatedTime()),
       'authors' => $this->getAuthors(),
       'diff_data' => $this->getDiffData(),

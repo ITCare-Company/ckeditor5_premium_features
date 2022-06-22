@@ -86,12 +86,9 @@ class RevisionStorage extends SqlContentEntityStorage implements
     $raw_data = Revision::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
-    // Determine the creator. Avoid injecting uid by JavaScript.
-    $creator_id = $data->get('creator') ? $this->user->id() : NULL;
-
     $object_data = [
       'id' => $data->get('id'),
-      'uid' => $creator_id,
+      'uid' => $this->user->id(),
       'entity_id' => $data->getInt('entity_id'),
       'created' => $data->getInt('created'),
     ];
@@ -105,6 +102,13 @@ class RevisionStorage extends SqlContentEntityStorage implements
       ->setDiffData($data->get('diff_data'))
       ->setPreviousVersion($data->get('previous_version'))
       ->setCurrentVersion($data->get('current_version'));
+
+    // Set the 'draft' attribute if the creator is empty.
+    if (!$data->get('creator')) {
+      $revision->setAttributes([
+        'draft' => TRUE,
+      ]);
+    }
 
     if (!$revision->access('update')) {
       throw new AccessException();
@@ -125,18 +129,21 @@ class RevisionStorage extends SqlContentEntityStorage implements
     $raw_data = Revision::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
-    // Determine the creator. Avoid injecting uid by JavaScript.
-    /** @var \Drupal\Core\Session\AccountProxyInterface $creator */
-    $creator = $data->get('creator') ? $this->user : NULL;
-
     $entity
       ->setName($data->get('name'))
       ->setAuthors($data->get('authors'))
       ->setDiffData($data->get('diff_data'))
       ->setPreviousVersion($data->get('previous_version'))
       ->setCurrentVersion($data->get('current_version'))
-      ->setAuthor($creator)
+      ->setAuthor($this->user)
       ->save();
+
+    // Set the 'draft' attribute if the creator is empty.
+    if (!$data->get('creator')) {
+      $entity->setAttributes([
+        'draft' => TRUE,
+      ]);
+    }
 
     return $entity;
   }
