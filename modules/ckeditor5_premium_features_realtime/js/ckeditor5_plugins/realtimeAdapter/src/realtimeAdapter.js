@@ -4,6 +4,6 @@ class RealtimeAdapter {
   }
 
   init() {
-  const trackChangesPlugin = this.editor.plugins.get( 'RealTimeCollaborativeEditing' );
+  const realtimePlugin = this.editor.plugins.get( 'RealTimeCollaborativeEditing' );
   }
  }

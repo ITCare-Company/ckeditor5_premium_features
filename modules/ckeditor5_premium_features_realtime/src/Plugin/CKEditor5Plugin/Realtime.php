@@ -26,12 +26,7 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
    * {@inheritdoc}
    */
   public function getElementsSubset(): array {
-    return [
-      '<comment-start name>',
-      '<comment-end name>',
-      '<suggestion-start name>',
-      '<suggestion-end name> ',
-    ];
+    return [];
   }
 
   /**
