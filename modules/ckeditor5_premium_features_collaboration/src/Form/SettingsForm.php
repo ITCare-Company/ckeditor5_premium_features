@@ -36,6 +36,18 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#default_value' => $config->get('sidebar') ?? 'auto',
     ];
 
+    $form['revision_history'] = [
+      '#type' => 'fieldset',
+      '#title' => t('Revision History'),
+    ];
+
+    $form['revision_history']['add_revision_on_submit'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Add revisions on form submit'),
+      '#default_value' => $config->get('add_revision_on_submit') ?? TRUE,
+      '#description' => t('If you leave this unchecked, new revisions will be saved only on demand.'),
+    ];
+
     return $form;
   }
 

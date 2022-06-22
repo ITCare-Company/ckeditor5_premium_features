@@ -5,13 +5,13 @@ services:
       - '@entity_type.manager'
       - '@ckeditor5_premium_features_collaboration.storage_handler.editor'
       - '@ckeditor5_premium_features_collaboration.data_provider.users'
+      - '@config.factory'
 
   ckeditor5_premium_features_collaboration.data_provider.users:
     class: Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider
     arguments:
       - '@current_user'
       - '@entity_type.manager'
-
 
   ckeditor5_premium_features_collaboration.storage_handler.editor:
     class: Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandler
