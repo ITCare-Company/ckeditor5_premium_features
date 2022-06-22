@@ -1,0 +1,7 @@
+ckeditor5.plugin.ckeditor5_premium_features_realtime__realtime:
+  type: mapping
+  label: 'Realtime'
+  mapping:
+    allowed_tags:
+      type: string
+      label: 'Allowed tags'
