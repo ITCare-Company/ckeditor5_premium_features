@@ -10,7 +10,7 @@ use Drupal\Core\Database\Database;
 /**
  * Change uid field to nullable.
  */
-function ckeditor5_premium_features_update_9000() {
+function ckeditor5_premium_features_update_9001() {
   $schema = Database::getConnection()->schema();
   $schema->changeField('ckeditor5_revision', 'uid', 'uid', [
     'not null' => FALSE,
