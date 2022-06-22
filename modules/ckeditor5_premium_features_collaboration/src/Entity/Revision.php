@@ -145,7 +145,7 @@ class Revision extends CollaborationEntityBase implements RevisionInterface {
    * {@inheritdoc}
    */
   public function setAuthors(array $ids): static {
-    $ids = array_map(fn ($id) => (int) $id, $ids);
+    $ids = array_map(fn ($id) => (string) $id, $ids);
     $ids = array_unique($ids);
 
     // @todo the list of ids should be sanitized first.
