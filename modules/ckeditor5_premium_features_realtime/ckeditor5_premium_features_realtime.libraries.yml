@@ -1,0 +1,11 @@
+admin.realtime:
+  css:
+    theme:
+      css/realtime.admin.css: { }
+
+realtime:
+  css:
+    theme:
+      css/realtime.css: { }
+  js:
+    js/build/realtimeAdapter.js: { minified: true }
