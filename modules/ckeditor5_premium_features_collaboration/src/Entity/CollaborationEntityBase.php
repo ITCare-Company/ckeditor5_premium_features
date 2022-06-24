@@ -31,7 +31,7 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('User'))
       ->setSetting('target_type', 'user')
-      ->setRequired(FALSE);
+      ->setRequired(TRUE);
 
     // We need to have two string (non-reference) fields,
     // because the entity id is not available before
