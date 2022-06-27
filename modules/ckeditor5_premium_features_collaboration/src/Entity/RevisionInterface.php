@@ -9,21 +9,25 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
  */
 interface RevisionInterface {
 
+  public const ENTITY_TYPE_ID = 'ckeditor5_revision';
+
   /**
    * Gets the revision name.
    *
-   * @return string
+   * @return string|null The name.
    *   The name.
    */
-  public function getName(): string;
+  public function getName(): ?string;
 
   /**
    * Sets the revision name.
    *
-   * @param string $name
+   * @param string|null $name
    *   The name.
+   *
+   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface
    */
-  public function setName(string $name): static;
+  public function setName(?string $name): static;
 
   /**
    * Gets the revision authors IDs.

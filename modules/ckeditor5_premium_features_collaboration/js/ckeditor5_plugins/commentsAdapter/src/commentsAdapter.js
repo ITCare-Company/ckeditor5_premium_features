@@ -1,4 +1,4 @@
-import CollaborationStorage from "../../collaborationStorage";
+import CollaborationStorage from "../../collaborationStorage/src/collaborationStorage";
 
 class CommentsAdapter {
   constructor( editor ) {
@@ -8,6 +8,10 @@ class CommentsAdapter {
 
   static get pluginName() {
     return 'CommentsAdapter'
+  }
+
+  static get requires() {
+    return [ 'CommentsRepository' ]
   }
 
   init() {
