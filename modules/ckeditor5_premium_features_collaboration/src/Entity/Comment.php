@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 
@@ -73,10 +74,7 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
   }
 
   /**
-   * Gets the thread ID.
-   *
-   * @return string
-   *   The ID of the comment thread.
+   * {@inheritdoc}
    */
   public function getThreadId(): string {
     return (string) $this->get('thread_id')->value;
@@ -90,25 +88,35 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
   }
 
   /**
-   * Gets the comment content.
-   *
-   * @return string|null
-   *   The content of the comment, defaults to null.
+   * {@inheritdoc}
    */
   public function getContent(): ?string {
     $field = $this->get('content');
 
-    return $field->isEmpty() ? NULL : (string) $field->value;
+    return $field->isEmpty() ? NULL : self::xssFilter((string) $field->value);
   }
 
   /**
    * {@inheritdoc}
    */
   public function setContent(string $content): static {
-    // @todo Add some sanitization if needed.
-    $this->set('content', $content);
+    $this->set('content', self::xssFilter($content));
 
     return $this;
+  }
+
+  /**
+   * Filter the entity content to avoid XSS vulnerabilities.
+   *
+   * @param string $content
+   *   The text to filter.
+   *
+   * @return string
+   *   Filtered text.
+   */
+  protected static function xssFilter(string $content): string {
+    $tags = array_merge(Xss::getHtmlTagList(), ['p']);
+    return Xss::filter($content, $tags);
   }
 
 }
