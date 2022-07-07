@@ -40,13 +40,11 @@ class ArticleController extends ControllerBase {
     $currentUser = $userRepository->getCurrentUser();
 
     $users = array_map(
-      function ($u) {
-        return [
-          'id' => (string) $u['id'],
-          'name' => $u['display_name'],
-          'avatar' => $u['avatar_url'],
-        ];
-      },
+      fn($u) => [
+        'id' => (string) $u['id'],
+        'name' => $u['display_name'],
+        'avatar' => $u['avatar_url'],
+      ],
       $userRepository->listUsers()
     );
 
