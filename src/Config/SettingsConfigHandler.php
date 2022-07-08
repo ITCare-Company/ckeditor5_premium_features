@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Config;
 
-use Drupal\ckeditor5_premium_features\Enum\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Url;
@@ -28,7 +27,7 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    *   The config factory service.
    */
   public function __construct(protected ConfigFactoryInterface $configFactory) {
-    $this->config = $this->configFactory->get(Config::SETTINGS->name());
+    $this->config = $this->configFactory->get('ckeditor5_premium_features.settings');
   }
 
   /**
