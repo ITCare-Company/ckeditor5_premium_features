@@ -1,4 +1,4 @@
-name: Export to PDF
+name: CKEditor 5 Export to PDF
 type: module
 description: "The CKEditor 5 editor plugin allowing export to PDF."
 package: CKEditor 5 Premium

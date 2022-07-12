@@ -1,4 +1,4 @@
-name: Export to Word
+name: CKEditor 5 Export to Word
 type: module
 description: "The CKEditor 5 editor plugin allowing export to Word."
 package: CKEditor 5 Premium
