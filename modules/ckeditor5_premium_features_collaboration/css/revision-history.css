@@ -10,7 +10,7 @@
     width: 100%;
 }
 
-.ck-editor__main .ck-content {
+.ck-editor__main .ck-content:not(.ck-comment__input *) {
   min-height: 200px;
 }
 
