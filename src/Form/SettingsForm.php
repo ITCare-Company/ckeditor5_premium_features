@@ -14,6 +14,21 @@ use Drupal\Core\Form\FormStateInterface;
 class SettingsForm extends ConfigFormBase {
 
   /**
+   * Required length of the Environment ID.
+   */
+  const ENVIRONMENT_ID_LENGTH = 20;
+
+  /**
+   * Required length of the API secret.
+   */
+  const API_SECRET_LENGTH = 60;
+
+  /**
+   * Required length of the License key.
+   */
+  const LICENSE_KEY_LENGTH = 60;
+
+  /**
    * {@inheritdoc}
    */
   public function getFormId(): string {
@@ -157,6 +172,7 @@ class SettingsForm extends ConfigFormBase {
     $access_key = $form_state->getValue('access_key', FALSE);
     $env = $form_state->getValue('env', FALSE);
     $auth_type = $form_state->getValue('auth_type');
+    $license_key = $form_state->getValue('license_key');
 
     $is_valid = TRUE;
 
@@ -172,6 +188,21 @@ class SettingsForm extends ConfigFormBase {
         'auth_type',
         $this->t('A combination of Environment ID/Access Key and Development token URL cannot be used together. Specify either the Environment ID/Access Key or the Development Token URL')
       );
+    }
+
+    // Below is the validation of credential fields value length.
+    $length_message = '@name length is invalid (@num characters required)';
+
+    if (!empty($license_key) && strlen($license_key) != self::LICENSE_KEY_LENGTH ) {
+      $form_state->setErrorByName('license_key', $this->t($length_message, ['@name' => 'License key', '@num' => self::LICENSE_KEY_LENGTH]));
+    }
+
+    if (!empty($env) && strlen($env) != self::ENVIRONMENT_ID_LENGTH ) {
+      $form_state->setErrorByName('env', $this->t($length_message, ['@name' => 'Environment ID', '@num' => self::ENVIRONMENT_ID_LENGTH]));
+    }
+
+    if (!empty($access_key) && strlen($access_key) != self::API_SECRET_LENGTH ) {
+      $form_state->setErrorByName('access_key', $this->t($length_message, ['@name' => 'Access key', '@num' => self::API_SECRET_LENGTH]));
     }
 
     parent::validateForm($form, $form_state);
