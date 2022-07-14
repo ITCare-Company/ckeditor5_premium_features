@@ -45,17 +45,27 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
    * {@inheritdoc}
    */
   public function isCkeditor5(array $element): bool {
-    $editor = $this->getEditorFromElement($element);
+    $editors = $this->getAllEditorsFromElement($element);
 
-    return $editor?->getEditor() === static::SUPPORTED_EDITOR_ID;
+    foreach ($editors as $editor) {
+      if ($editor?->getEditor() === static::SUPPORTED_EDITOR_ID) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
   /**
    * {@inheritdoc}
    */
   public function hasCollaborationFeaturesEnabled(array $element): bool {
-    $editor = $this->getEditorFromElement($element);
-    $toolbar_items = $editor->getSettings()['toolbar']['items'] ?? [];
+    $editors = $this->getAllEditorsFromElement($element);
+
+    $toolbar_items = [];
+    foreach ($editors as $editor) {
+      $toolbar_items = array_merge($toolbar_items, $editor->getSettings()['toolbar']['items'] ?? []);
+    }
 
     return (bool) array_intersect($toolbar_items, Collaboration::getToolbars());
   }
@@ -76,6 +86,24 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
     }
 
     return $this->editorStorage->load($format);
+  }
+
+  /**
+   * Gets all possible editor entities from the element format.
+   *
+   * @param array $element
+   *   The form element with the editor format defined.
+   *
+   * @return \Drupal\editor\EditorInterface[]|null
+   *   The editor entities array.
+   */
+  private function getAllEditorsFromElement(array $element): ?array {
+    $formats = $element['format']['format']['#options'] ?? [];
+    if (empty($formats)) {
+      return [];
+    }
+
+    return $this->editorStorage->loadMultiple(array_keys($formats));
   }
 
 }
