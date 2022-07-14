@@ -21,6 +21,7 @@ use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -217,7 +218,7 @@ class TextFormat {
   public function completeFormSubmit(array &$form, FormStateInterface $form_state): void {
     $entity = $form_state->getFormObject()->getEntity();
 
-    if (!$entity instanceof EntityInterface) {
+    if (!$entity instanceof FieldableEntityInterface) {
       // Do not process anything, the entity is missing.
       return;
     }
