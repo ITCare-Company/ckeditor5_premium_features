@@ -16,6 +16,10 @@ class RevisionHistoryAdapter {
 
   init() {
     // Initialize revision history settings.
+    if (typeof drupalSettings.ckeditor5Premium == "undefined") {
+      return;
+    }
+
     const addRevisionOnSubmit = drupalSettings.ckeditor5Premium.addRevisionOnSubmit ?? false;
     const revisionHistoryConfig = this.editor.config._config.revisionHistory;
     let revisionHistoryContainer = document.querySelector(this.storage.getSourceDataSelector('revisionHistoryContainer'));
