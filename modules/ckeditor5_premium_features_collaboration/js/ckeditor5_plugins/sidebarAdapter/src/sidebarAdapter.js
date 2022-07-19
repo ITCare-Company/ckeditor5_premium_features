@@ -33,8 +33,6 @@ class SidebarAdapter {
   init() {
     const annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
     const toolbar = this.editor.ui._toolbarConfig.items
-    // const class_wrapper = this.editor.sourceElement.id + '-ck-sidebar-wrapper .ck-sidebar-wrapper';
-    // const ck_sidebar_wrapper = document.querySelector('.' + class_wrapper);
     var self = this;
 
     if (!this.sidebar) {

@@ -11,10 +11,11 @@ class UserAdapter {
     if (typeof drupalSettings.ckeditor5Premium === "undefined" ) {
       return;
     }
+
     const usersPlugin = this.editor.plugins.get( 'Users' );
     const users = drupalSettings.ckeditor5Premium.users;
+
     for (const user in users) {
-      console.log(users[user]);
       usersPlugin.addUser(users[user]);
     }
 
