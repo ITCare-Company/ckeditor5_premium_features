@@ -4,9 +4,11 @@ class SidebarAdapter {
   constructor( editor ) {
     this.editor = editor;
     const id_sidebar = this.editor.sourceElement.id + '-ck-sidebar';
+    this.sidebar = document.querySelector('#' + id_sidebar);
+
     // TODO: Do we have some better way?
     this.editor.config._config.sidebar = {
-      container: document.querySelector('#' + id_sidebar),
+      container: this.sidebar,
     }
 
   }
@@ -20,35 +22,47 @@ class SidebarAdapter {
     return [ 'CommentsRepository' ]
   }
 
+  sidebarVisibilityModify(hide= false) {
+    if (hide) {
+      this.sidebar.classList.add('slider-off');
+    } else {
+      this.sidebar.classList.remove('slider-off');
+    }
+  }
+
   init() {
     const annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
     const toolbar = this.editor.ui._toolbarConfig.items
-    const class_wrapper = this.editor.sourceElement.id + '-ck-sidebar-wrapper .ck-sidebar-wrapper';
-    const ck_sidebar_wrapper = document.querySelector('.' + class_wrapper);
+    // const class_wrapper = this.editor.sourceElement.id + '-ck-sidebar-wrapper .ck-sidebar-wrapper';
+    // const ck_sidebar_wrapper = document.querySelector('.' + class_wrapper);
+    var self = this;
 
-    if (!ck_sidebar_wrapper) {
+    if (!this.sidebar) {
       return;
     }
 
     if (!toolbar.includes('trackChanges') && !toolbar.includes('comment')) {
-      ck_sidebar_wrapper.classList.add('slider-off');
+      this.sidebarVisibilityModify(true);
     }
     else {
-      ck_sidebar_wrapper.classList.remove('slider-off');
+      this.sidebarVisibilityModify(false);
     }
 
     const sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'auto';
     if (sidebarMode === 'auto') {
       window.addEventListener('resize', function (event) {
-        updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs);
+        updateCkeditorMode(self.sidebar, annotationsUIs);
       });
-      updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs)
+      updateCkeditorMode(self.sidebar, annotationsUIs)
     }
     else {
       annotationsUIs.switchTo(sidebarMode);
     }
   }
 
+  destroy() {
+    this.sidebarVisibilityModify(true);
+  }
 }
 
 /**
