@@ -24,7 +24,6 @@ class CommentsAdapter {
 
     // Load comments.
     const threads = JSON.parse(commentsRepositoryElement.value);
-
     for (const thread of threads) {
       commentsRepositoryPlugin.addCommentThread(thread);
     }
