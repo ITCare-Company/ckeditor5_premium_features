@@ -26,7 +26,7 @@ class SettingsForm extends ConfigFormBase {
   /**
    * Required length of the License key.
    */
-  const LICENSE_KEY_LENGTH = 60;
+  const LICENSE_KEY_MIN_LENGTH = 48;
 
   /**
    * {@inheritdoc}
@@ -192,9 +192,10 @@ class SettingsForm extends ConfigFormBase {
 
     // Below is the validation of credential fields value length.
     $length_message = '@name length is invalid (@num characters required)';
+    $min_length_message = '@name length is invalid (minimum @num characters required)';
 
-    if (!empty($license_key) && strlen($license_key) != self::LICENSE_KEY_LENGTH ) {
-      $form_state->setErrorByName('license_key', $this->t($length_message, ['@name' => 'License key', '@num' => self::LICENSE_KEY_LENGTH]));
+    if (!empty($license_key) && strlen($license_key) < self::LICENSE_KEY_MIN_LENGTH ) {
+      $form_state->setErrorByName('license_key', $this->t($min_length_message, ['@name' => 'License key', '@num' => self::LICENSE_KEY_MIN_LENGTH]));
     }
 
     if (!empty($env) && strlen($env) != self::ENVIRONMENT_ID_LENGTH ) {

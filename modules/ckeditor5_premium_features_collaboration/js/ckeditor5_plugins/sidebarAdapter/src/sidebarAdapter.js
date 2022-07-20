@@ -19,7 +19,7 @@ class SidebarAdapter {
 
   static get requires() {
     // AnnotationsUIs is part of the comments repository.
-    return [ 'CommentsRepository' ]
+    return [ 'CommentsRepository', 'AnnotationsUIs' ]
   }
 
   sidebarVisibilityModify(hide= false) {

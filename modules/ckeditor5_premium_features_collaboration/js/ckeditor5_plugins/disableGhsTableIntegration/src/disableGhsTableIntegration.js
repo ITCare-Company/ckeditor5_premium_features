@@ -3,6 +3,10 @@ class DisableGhsTableIntegration {
     this.editor = editor;
   }
 
+  static get requires() {
+    return [ 'DataFilter' ]
+  }
+
   init() {
     const editor = this.editor;
     const dataFilter = editor.plugins.get( 'DataFilter' );

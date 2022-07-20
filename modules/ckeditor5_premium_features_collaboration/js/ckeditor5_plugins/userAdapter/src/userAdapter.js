@@ -8,7 +8,7 @@ class UserAdapter {
   }
 
   init() {
-    if (typeof drupalSettings.ckeditor5Premium === "undefined" ) {
+    if (typeof drupalSettings.ckeditor5Premium === "undefined" || !this.editor.plugins.has('Users') ) {
       return;
     }
 

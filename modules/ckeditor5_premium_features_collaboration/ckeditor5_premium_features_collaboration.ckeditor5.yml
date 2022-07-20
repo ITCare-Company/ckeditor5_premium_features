@@ -12,7 +12,8 @@ ckeditor5_premium_features_collaboration__track_changes:
       trackChanges:
         label: Track changes
     elements: false
-    conditions: [ ]
+    conditions:
+      toolbarItem: trackChanges
 
 ckeditor5_premium_features_collaboration__comments:
   ckeditor5:
@@ -29,7 +30,8 @@ ckeditor5_premium_features_collaboration__comments:
       comment:
         label: Comment
     elements: false
-    conditions: [ ]
+    conditions:
+      toolbarItem: comment
 
 ckeditor5_premium_features_collaboration__revision_history:
   ckeditor5:
@@ -46,7 +48,8 @@ ckeditor5_premium_features_collaboration__revision_history:
       revisionHistory:
         label: Revision history
     elements: false
-    conditions: [ ]
+    conditions:
+      toolbarItem: revisionHistory
 
 
 ckeditor5_premium_features_collaboration__collaboration_integration:

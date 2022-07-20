@@ -154,6 +154,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
     $static_plugin_config['licenseKey'] = $this->settingsConfigHandler->getLicenseKey();
+    $static_plugin_config['comments']['editorConfig']['extraPlugins'] = [];
 
     return $static_plugin_config;
   }
