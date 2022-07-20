@@ -11,7 +11,7 @@ class RevisionHistoryAdapter {
   }
 
   static get requires() {
-    return [ 'RevisionHistory' ]
+    return [ 'RevisionHistory', 'RevisionTracker' ]
   }
 
   init() {
