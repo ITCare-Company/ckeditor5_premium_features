@@ -50,8 +50,8 @@ class SettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $form = parent::buildForm($form, $form_state);
 
-    $userInput = $form_state->getUserInput();
-    $auth_type = $userInput['auth_type'] ?? NULL;
+    $user_input = $form_state->getUserInput();
+    $auth_type = $user_input['auth_type'] ?? NULL;
 
     $form['configuration'] = [
       '#type' => 'details',
@@ -197,11 +197,11 @@ class SettingsForm extends ConfigFormBase {
     }
 
     if ($auth_type == 'key') {
-      if (!empty($env) && strlen($env) != self::ENVIRONMENT_ID_LENGTH ) {
+      if (!empty($env) && strlen($env) != self::ENVIRONMENT_ID_LENGTH) {
         $form_state->setErrorByName('env', $this->t($length_message, ['@name' => 'Environment ID', '@num' => self::ENVIRONMENT_ID_LENGTH]));
       }
 
-      if (!empty($access_key) && strlen($access_key) != self::API_SECRET_LENGTH ) {
+      if (!empty($access_key) && strlen($access_key) != self::API_SECRET_LENGTH) {
         $form_state->setErrorByName('access_key', $this->t($length_message, ['@name' => 'Access key', '@num' => self::API_SECRET_LENGTH]));
       }
     }
