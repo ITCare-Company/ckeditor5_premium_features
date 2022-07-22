@@ -11,10 +11,14 @@ class TrackChangesAdapter {
   }
 
   static get requires() {
-    return [ 'TrackChanges' ]
+    return [ 'TrackChanges', 'Comments', 'TrackChangesAdapter' ]
   }
 
   init() {
+    if (!this.editor.plugins.has('Comments') || !this.editor.plugins.has('TrackChanges')) {
+      return
+    }
+
     const trackChangesPlugin = this.editor.plugins.get( 'TrackChanges' );
     const trackChangesElement = document.querySelector(this.storage.getSourceDataSelector('trackChanges'));
 
