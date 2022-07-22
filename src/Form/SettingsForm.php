@@ -50,6 +50,9 @@ class SettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $form = parent::buildForm($form, $form_state);
 
+    $user_input = $form_state->getUserInput();
+    $auth_type = $user_input['auth_type'] ?? NULL;
+
     $form['configuration'] = [
       '#type' => 'details',
       '#title' => $this->t('Premium features configuration'),
@@ -85,6 +88,7 @@ class SettingsForm extends ConfigFormBase {
     $configuration['env'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Environment ID'),
+      '#required' => $auth_type == 'key',
       '#description' =>
         $this->t('The environment management panel can be found in <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
         . '<br>'
@@ -93,12 +97,16 @@ class SettingsForm extends ConfigFormBase {
         'visible' => [
           'select[name="auth_type"]' => ['value' => 'key'],
         ],
+        'required' => [
+          'select[name="auth_type"]' => ['value' => 'key'],
+        ],
       ],
     ];
 
     $configuration['access_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Access key'),
+      '#required' => $auth_type == 'key',
       '#description' =>
         $this->t('The access key to the environment can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
         . '<br>'
@@ -107,18 +115,25 @@ class SettingsForm extends ConfigFormBase {
         'visible' => [
           'select[name="auth_type"]' => ['value' => 'key'],
         ],
+        'required' => [
+          'select[name="auth_type"]' => ['value' => 'key'],
+        ],
       ],
     ];
 
     $configuration['dev_token_url'] = [
       '#type' => 'url',
       '#title' => $this->t('Development token URL'),
+      '#required' => $auth_type == 'dev_token',
       '#description' => $this->t('The development token URL should be used with care as it does not provide sufficient permission validation. It is highly recommended to specify Environment ID and Access Key instead.'),
       '#attributes' => [
         'placeholder' => 'https://',
       ],
       '#states' => [
         'visible' => [
+          'select[name="auth_type"]' => ['value' => 'dev_token'],
+        ],
+        'required' => [
           'select[name="auth_type"]' => ['value' => 'dev_token'],
         ],
       ],
@@ -168,27 +183,10 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
-    $dev_token_url = $form_state->getValue('dev_token_url', FALSE);
     $access_key = $form_state->getValue('access_key', FALSE);
     $env = $form_state->getValue('env', FALSE);
     $auth_type = $form_state->getValue('auth_type');
     $license_key = $form_state->getValue('license_key');
-
-    $is_valid = TRUE;
-
-    if ($auth_type === 'key' && $dev_token_url) {
-      $is_valid = FALSE;
-    }
-    elseif ($auth_type === 'dev_token' && ($access_key || $env)) {
-      $is_valid = FALSE;
-    }
-
-    if (!$is_valid) {
-      $form_state->setErrorByName(
-        'auth_type',
-        $this->t('A combination of Environment ID/Access Key and Development token URL cannot be used together. Specify either the Environment ID/Access Key or the Development Token URL')
-      );
-    }
 
     // Below is the validation of credential fields value length.
     $length_message = '@name length is invalid (@num characters required)';
@@ -198,12 +196,14 @@ class SettingsForm extends ConfigFormBase {
       $form_state->setErrorByName('license_key', $this->t($min_length_message, ['@name' => 'License key', '@num' => self::LICENSE_KEY_MIN_LENGTH]));
     }
 
-    if (!empty($env) && strlen($env) != self::ENVIRONMENT_ID_LENGTH ) {
-      $form_state->setErrorByName('env', $this->t($length_message, ['@name' => 'Environment ID', '@num' => self::ENVIRONMENT_ID_LENGTH]));
-    }
+    if ($auth_type == 'key') {
+      if (!empty($env) && strlen($env) != self::ENVIRONMENT_ID_LENGTH) {
+        $form_state->setErrorByName('env', $this->t($length_message, ['@name' => 'Environment ID', '@num' => self::ENVIRONMENT_ID_LENGTH]));
+      }
 
-    if (!empty($access_key) && strlen($access_key) != self::API_SECRET_LENGTH ) {
-      $form_state->setErrorByName('access_key', $this->t($length_message, ['@name' => 'Access key', '@num' => self::API_SECRET_LENGTH]));
+      if (!empty($access_key) && strlen($access_key) != self::API_SECRET_LENGTH) {
+        $form_state->setErrorByName('access_key', $this->t($length_message, ['@name' => 'Access key', '@num' => self::API_SECRET_LENGTH]));
+      }
     }
 
     parent::validateForm($form, $form_state);
