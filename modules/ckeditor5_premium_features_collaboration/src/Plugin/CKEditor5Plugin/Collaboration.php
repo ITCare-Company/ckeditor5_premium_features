@@ -112,7 +112,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
-    $toolbars = $this->getTolbars($form_state);
+    $toolbars = $this->getFormToolbars($form_state);
 
     if (in_array('trackChanges', $toolbars) === TRUE &&
       in_array('comment', $toolbars) === FALSE) {
@@ -128,7 +128,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
     /** @var \Drupal\Core\Form\FormState $complete_form_state */
     $complete_form_state = $form_state->getCompleteFormState();
 
-    $toolbars = $this->getTolbars($form_state);
+    $toolbars = $this->getFormToolbars($form_state);
 
     // Enable filter if any collaboration feature is enabled.
     $has_any_collaboration_feature = (bool) array_intersect($toolbars, static::getToolbars());
@@ -168,7 +168,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    * @return array
    *   A list of toolbar plugins.
    */
-  protected function getTolbars(FormStateInterface $form_state) {
+  protected function getFormToolbars(FormStateInterface $form_state) :array {
     $complete_form_state = $form_state->getCompleteFormState();
     $values = $complete_form_state->cleanValues()->getValues();
 
