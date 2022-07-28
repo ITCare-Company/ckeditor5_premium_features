@@ -48,6 +48,10 @@ class CloudServices extends CKEditor5PluginDefault implements ContainerFactoryPl
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
     $static_plugin_config['cloudServices']['tokenUrl'] = $this->settingsConfigHandler->getTokenUrl();
+    $static_plugin_config['cloudServices']['webSocketUrl'] = $this->settingsConfigHandler->getWebSocketUrl();
+    $static_plugin_config['collaboration']['channelId'] = '1234567890';
+   // ['ckeditor5Premiumrealtime']['channelId'] = '12345678910';
+    //$static_plugin_config['presenceList']['container'] = 'presence-list-container';
 
     return $static_plugin_config;
   }
