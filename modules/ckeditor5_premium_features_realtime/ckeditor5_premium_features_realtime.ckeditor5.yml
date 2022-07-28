@@ -1,14 +1,57 @@
 ckeditor5_premium_features_realtime__realtime:
   ckeditor5:
     plugins:
-      - realtime.Realtime
+      - realtimeAdapter.RealtimeAdapter
+      - realTimeCollaboration.PresenceList
   drupal:
     label: Realtime Collaboration
     library: ckeditor5_premium_features_realtime/realtime
     admin_library: ckeditor5_premium_features_realtime/admin.realtime
     class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
+    elements: false
+
+ckeditor5_premium_features_realtime__comment:
+  ckeditor5:
+    plugins:
+      - comments.Comments
+      - realTimeCollaboration.RealTimeCollaborativeComments
+  drupal:
+    label: RTComments
+    admin_library: ckeditor5_premium_features_realtime/admin.realtime
+    class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
     toolbar_items:
-      realtime:
-        label: Realtime Collaboration
+      comment:
+        label: RComment
+    elements: false
+    conditions: [ ]
+
+ckeditor5_premium_features_realtime__trackchanges:
+  ckeditor5:
+    plugins:
+      - trackChanges.TrackChanges
+      - realTimeCollaboration.RealTimeCollaborativeTrackChanges
+  drupal:
+    label: RTrackChanges
+    admin_library: ckeditor5_premium_features_realtime/admin.realtime
+    class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
+    toolbar_items:
+      trackChanges:
+        label: RTrackchanges
+    elements: false
+    conditions: [ ]
+
+ckeditor5_premium_features_realtime__revision_history:
+  ckeditor5:
+    plugins:
+      - revisionHistory.RevisionHistory
+      - realTimeCollaboration.RealTimeCollaborativeRevisionHistory
+  drupal:
+    label: rh
+    library: ckeditor5_premium_features_realtime/rtc-revision-history-integration
+    admin_library: ckeditor5_premium_features_realtime/admin.realtime
+    class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
+    toolbar_items:
+      revisionHistory:
+        label: rh
     elements: false
     conditions: [ ]

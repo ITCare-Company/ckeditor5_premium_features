@@ -16,7 +16,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormId(): string {
+  final public function getFormId(): string {
     return 'ckeditor5_premium_features_realtime.settings';
   }
 
@@ -24,9 +24,9 @@ class SettingsForm extends SharedBuildConfigFormBase {
    * {@inheritdoc}
    */
   public static function form(array $form, FormStateInterface $form_state, Config $config): array {
-    $form['presence_list'] = [
+    $form['sidebar'] = [
       '#type' => 'select',
-      '#title' => t('Annotations sidebar'),
+      '#title' => t('Annotation sidebar'),
       '#options' => [
         'auto' => t('Automatic'),
         'inline' => t('Use inline balloons'),
@@ -36,16 +36,10 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#default_value' => $config->get('sidebar') ?? 'auto',
     ];
 
-    $form['sidebar'] = [
-      '#type' => 'select',
-      '#title' => t('Annotations sidebar'),
-      '#options' => [
-        'auto' => t('Automatic'),
-        'inline' => t('Use inline balloons'),
-        'narrowSidebar' => t('Use narrow sidebar'),
-        'wideSidebar' => t('Use wide sidebar'),
-      ],
-      '#default_value' => $config->get('sidebar') ?? 'auto',
+    $form['presence_list'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Presence list'),
+      '#default_value' => $config->get('presence_list') ?? TRUE,
     ];
 
     return $form;

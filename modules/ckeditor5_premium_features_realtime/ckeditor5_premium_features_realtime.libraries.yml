@@ -9,3 +9,20 @@ realtime:
       css/realtime.css: { }
   js:
     js/build/realtimeAdapter.js: { minified: true }
+  dependencies:
+    - ckeditor5_premium_features_collaboration/ckeditor5-collaboration-dll
+    - ckeditor5_premium_features_collaboration/comments
+    - ckeditor5_premium_features_collaboration/track-changes
+    - ckeditor5_premium_features_realtime/rtc-revision-history-integration
+    - ckeditor5_premium_features_collaboration/revision-history
+    - ckeditor5_premium_features_collaboration/collaboration-integration
+
+rtc-revision-history-integration:
+  css:
+    theme:
+      css/sidebar.css: { }
+  js:
+    js/build/revisionHistoryAdapter.js: { minified: true }
+    js/build/sidebarAdapter.js: { minified: true }
+  dependencies:
+    - ckeditor5_premium_features_collaboration/ckeditor5-collaboration-dll

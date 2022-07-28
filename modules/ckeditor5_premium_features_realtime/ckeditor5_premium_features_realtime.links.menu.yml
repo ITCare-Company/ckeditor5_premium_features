@@ -1,0 +1,6 @@
+ckeditor5_premium_features_realtime.form.settings:
+  title: Real-time Collaboration
+  route_name: ckeditor5_premium_features_realtime.form.settings
+  parent: ckeditor5_premium_features.form.settings
+  description: 'Setup additional features for Realtime Collaboration'
+  weight: 25

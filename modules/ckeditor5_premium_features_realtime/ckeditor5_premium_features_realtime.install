@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * @file
+ * Contains CKEditor 5 Premium Features Realtime module install functions.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function ckeditor5_premium_features_realtime_requirements($phase) {
+  $requirements = [];
+
+  switch ($phase) {
+    // Called while the module is installed.
+    case 'install':
+      // Called during regular use of the website.
+    case 'runtime':
+      // Called while the update.php is being executed.
+    case 'update':
+      // Do not allow administrators to install the module if conflicting module
+      // is already installed.
+      //
+      // You can move this code to any other phase as well.
+      if (\Drupal::moduleHandler()->moduleExists('ARCH_ENEMY_OF_YOUR_MODULE')) {
+        $requirements[] = [
+          'title' => t('Name of your module'),
+          'value' => t('Arch enemy module'),
+          'description' => t('Explain that administrators need to uninstall the module before proceeding.'),
+          'severity' => REQUIREMENT_ERROR,
+        ];
+      }
+      break;
+  }
+
+  return $requirements;
+}

@@ -13,12 +13,12 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\editor\EditorInterface;
 
 /**
- * CKEditor 5 realtime plugin.
+ * CKEditor 5 comments plugin.
  *
  * @internal
  *   Plugin classes are internal.
  */
-class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElementsSubsetInterface {
+class Comment extends CKEditor5PluginDefault implements CKEditor5PluginElementsSubsetInterface {
 
   use CKEditor5PluginConfigurableTrait;
 
@@ -66,10 +66,13 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
    * {@inheritdoc}
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
-    $static_plugin_config['collaboration']['channelId'] = 'abc';
-    $static_plugin_config['revisionHistory']['editorContainer'] = 'sidebar';
-
+    $restrictions = HTMLRestrictions::fromString(implode(' ', $this->getElementsSubset()));
     return $static_plugin_config;
+    return [
+      'htmlSupport' => [
+        'allow' => $restrictions->toGeneralHtmlSupportConfig(),
+      ],
+    ];
   }
 
 }

@@ -16,3 +16,27 @@ ckeditor5.plugin.ckeditor5_premium_features_realtime__realtime:
     allowed_tags:
       type: string
       label: 'Allowed tags'
+
+ckeditor5.plugin.ckeditor5_premium_features_realtime__comment:
+  type: mapping
+  label: 'Realtime'
+  mapping:
+    allowed_tags:
+      type: string
+      label: 'Allowed tags'
+
+ckeditor5.plugin.ckeditor5_premium_features_realtime__trackchanges:
+  type: mapping
+  label: 'Realtime'
+  mapping:
+    allowed_tags:
+      type: string
+      label: 'Allowed tags'
+
+ckeditor5.plugin.ckeditor5_premium_features_realtime__revision_history:
+  type: mapping
+  label: 'Realtime'
+  mapping:
+    allowed_tags:
+      type: string
+      label: 'Allowed tags'
