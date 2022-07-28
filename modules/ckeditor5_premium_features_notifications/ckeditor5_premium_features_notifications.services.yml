@@ -1,12 +1,6 @@
 services:
   ckeditor5_premium_features_notifications.notification_sender:
-    class: Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat
+    class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender
     arguments:
       - '@database'
       - '@plugin.manager.mail'
-
-  ckeditor5_premium_features_notifications.collaboration_checker:
-    class: Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider
-    arguments:
-      - '@database'
-      - '@current_user'

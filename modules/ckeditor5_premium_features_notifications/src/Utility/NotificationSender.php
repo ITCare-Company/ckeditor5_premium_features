@@ -2,9 +2,12 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Mail\MailManagerInterface;
+
 class NotificationSender {
 
-  public function __construct(protected $dbConnection, protected $mailManager) { }
+  public function __construct(protected Connection $dbConnection, protected MailManagerInterface $mailManager) { }
 
   /**
    * Sends notification mail.
@@ -12,9 +15,9 @@ class NotificationSender {
    * @param array $recipientIds
    * @param array $parameters
    *
-   * @return bool
+   * @return bool|array
    */
-  public function sendNotification(array $recipientIds, array $parameters): bool {
+  public function sendNotification(array $recipientIds, array $parameters): bool|array {
     $mails = $this->getUserMails($recipientIds);
 
     if (empty($mails)) {

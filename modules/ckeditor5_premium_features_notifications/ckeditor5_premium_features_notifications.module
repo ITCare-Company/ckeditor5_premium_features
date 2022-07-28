@@ -11,19 +11,21 @@ use Drupal\ckeditor5_premium_features_notifications\Form\SettingsForm;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Utility\CollaborationChecker;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\user\Entity\User;
 
 /**
  * Implements hook_entity_update().
  */
-function ckeditor5_premium_features_notifications_entity_update(\Drupal\Core\Entity\EntityInterface $entity) {
+function ckeditor5_premium_features_notifications_entity_update(EntityInterface $entity) {
   if (!CollaborationChecker::hasCollaborationFeatures($entity)) {
     return;
   }
 
   /** @var Collaborators $collaboratorsService */
-  $collaboratorsService = \Drupal::service('');
-  $notificationService = \Drupal::service('');
+  $collaboratorsService = \Drupal::service('ckeditor5_premium_features_collaboration.collaborators');
+  /** @var NotificationSender $notificationService */
+  $notificationService = \Drupal::service('ckeditor5_premium_features_notifications.notification_sender');
 
   $currentUser = User::load(Drupal::currentUser()->id());
   $otherAuthorsList = $collaboratorsService->getCollaborators($entity, (int) $currentUser->id());
@@ -33,7 +35,7 @@ function ckeditor5_premium_features_notifications_entity_update(\Drupal\Core\Ent
     'user' => $currentUser,
   ];
 
-  NotificationSender::sendNotification($otherAuthorsList, $parameters);
+  $notificationService->sendNotification($otherAuthorsList, $parameters);
 }
 
 /**
@@ -52,6 +54,7 @@ function ckeditor5_premium_features_notifications_mail($key, &$message, $params)
       $message['from'] = \Drupal::config('system.site')->get('mail');
       $message['subject'] = $tokenService->replace($messageSubject, $params);
       $message['body'][] = $tokenService->replace($messageTemplate, $params);
+      $message['headers']['content-type'] = 'text/html';
       break;
   }
 }
