@@ -96,6 +96,20 @@ class SettingsForm extends ConfigFormBase {
       ],
     ];
 
+    $configuration['web_socket_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Web Socket URL'),
+      '#description' =>
+        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        . '<br>'
+        . $this->t('Required for Real-time collaboration.'),
+      '#states' => [
+        'visible' => [
+          'select[name="auth_type"]' => ['value' => 'key'],
+        ],
+      ],
+    ];
+
     $configuration['dev_token_url'] = [
       '#type' => 'url',
       '#title' => $this->t('Development token URL'),
