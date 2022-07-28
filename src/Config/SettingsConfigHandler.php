@@ -48,6 +48,13 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   /**
    * {@inheritdoc}
    */
+  public function getWebSocketUrl(): ?string {
+    return $this->config->get('web_socket_url');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getEnvironmentId(): ?string {
     return $this->config->get('env');
   }
