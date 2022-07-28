@@ -7,6 +7,9 @@ use Drupal\Core\Mail\MailManagerInterface;
 
 class NotificationSender {
 
+  const NOTIFICATION_OPT_OUT_FIELD_TABLE = 'user__field_ck5_premium_notifications';
+  const NOTIFICATION_OPT_OUT_FIELD_VALUE = 'field_ck5_premium_notifications_value';
+
   public function __construct(protected Connection $dbConnection, protected MailManagerInterface $mailManager) { }
 
   /**
@@ -47,9 +50,15 @@ class NotificationSender {
       return [];
     }
 
-    return $this->dbConnection->select('users_field_data', 'u')
-      ->fields('u', ['mail'])
-      ->condition('uid', $userIds, 'IN')
+    $userMailQuery = $this->dbConnection->select('users_field_data', 'u')
+      ->fields('u', ['mail']);
+
+    if ($this->dbConnection->schema()->tableExists(self::NOTIFICATION_OPT_OUT_FIELD_TABLE)) {
+      $userMailQuery->join(self::NOTIFICATION_OPT_OUT_FIELD_TABLE, 'n', 'u.uid = n.entity_id');
+      $userMailQuery->condition(self::NOTIFICATION_OPT_OUT_FIELD_VALUE, 1);
+    }
+
+    return $userMailQuery->condition('uid', $userIds, 'IN')
       ->execute()
       ->fetchCol();
   }
