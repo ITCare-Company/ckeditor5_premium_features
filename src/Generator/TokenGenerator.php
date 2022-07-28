@@ -41,6 +41,18 @@ class TokenGenerator implements TokenGeneratorInterface {
     $payload = [
       'aud' => $this->settingsConfigHandler->getEnvironmentId(),
       'iat' => time(),
+      'sub' => $this->account->getDisplayName(),
+      'user' => [
+        'email' => $this->account->getEmail(),
+        'name' => $this->account->getAccountName(),
+      ],
+      'auth' => [
+        'collaboration' => [
+          'abc' => [
+            'role' => 'writer',
+          ],
+        ],
+      ],
     ];
 
     return JWT::encode($payload, $this->settingsConfigHandler->getAccessKey(), static::ALGORITHM);
