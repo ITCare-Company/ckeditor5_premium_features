@@ -116,9 +116,13 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
     $raw_data = Suggestion::normalize($raw_data);
     $data = new ParameterBag($raw_data);
     $has_comments = $data->getBoolean('has_comments');
+    $suggestion_data = $data->get('data') ?? [];
+    $suggestion_attributes = $data->get('attributes') ?? [];
 
     $entity
       ->setCommentState($has_comments)
+      ->setData($suggestion_data)
+      ->setAttributes($suggestion_attributes)
       ->save();
 
     return $entity;
@@ -157,9 +161,9 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
 
     return [
       $object_data,
-      (string) $data->get('data'),
-      (array) $data->get('attributes'),
-      (string) $data->get('type'),
+      $data->get('data') ?? [],
+      $data->get('attributes') ?? [],
+      $data->get('type'),
     ];
   }
 

@@ -59,11 +59,15 @@ class UserDataProvider {
     $users = [];
     foreach ($entities as $entity) {
       $user = $entity->getAuthor();
-      $users[$user->id()] = $user;
+      if ($user) {
+        $users[$user->id()] = $user;
+      } else {
+        $users[$entity->get('uid')->target_id ] = NULL;
+      }
     }
 
     if (!array_key_exists($this->account->id(), $users)) {
-      $users[] = $this->userStorage->load($this->account->id());
+      $users[$this->account->id()] = $this->userStorage->load($this->account->id());
     }
 
     return $this->getData($users);
@@ -81,16 +85,20 @@ class UserDataProvider {
   protected function getData(array $users): array {
     $data = [];
 
-    foreach ($users as $user) {
-      if (!$user->access('view')) {
+    foreach ($users as $userId => $user) {
+      $data[$userId] = [
+        'id' => $userId . '',
+      ];
+
+      if (!$user) {
         continue;
       }
 
-      $data[$user->id()] = [
-        'id' => $user->id(),
-        'name' => $user->getDisplayName(),
-        'avatar' => $this->getUserPicture($user),
-      ];
+      $data[$user->id()]['name'] = $user->getDisplayName();
+
+      if ($user->access('view')) {
+        $data[$user->id()]['avatar'] = $this->getUserPicture($user);
+      }
     }
 
     return $data;

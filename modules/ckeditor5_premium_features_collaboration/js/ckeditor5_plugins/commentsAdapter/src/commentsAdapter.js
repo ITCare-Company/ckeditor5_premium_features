@@ -1,9 +1,18 @@
 import CollaborationStorage from "../../collaborationStorage/src/collaborationStorage";
 
+import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
+import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
+import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
+import List from '@ckeditor/ckeditor5-list/src/list';
+
 class CommentsAdapter {
   constructor( editor ) {
     this.editor = editor;
     this.storage = new CollaborationStorage(editor);
+
+    this.editor.config._config.comments.editorConfig = {
+      extraPlugins: [ Autoformat, Bold, Italic, List ]
+    }
   }
 
   static get pluginName() {
@@ -11,10 +20,14 @@ class CommentsAdapter {
   }
 
   static get requires() {
-    return [ 'CommentsRepository' ]
+    return [ 'CommentsRepository' ];
   }
 
   init() {
+    if (!this.editor.plugins.has('CommentsRepository')) {
+      return
+    }
+
     const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
     const commentsRepositoryElement = document.querySelector(this.storage.getSourceDataSelector('comments'));
 

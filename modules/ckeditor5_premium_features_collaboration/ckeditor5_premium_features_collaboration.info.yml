@@ -1,4 +1,4 @@
-name: Collaboration
+name: CKEditor 5 Collaboration
 type: module
 description: "Provides the functionalities shared between all premium collaboration features."
 package: CKEditor 5 Premium
