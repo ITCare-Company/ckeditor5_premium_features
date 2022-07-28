@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * @file
+ * Conatains CKEditor 5 Premium Features Notifications module functions.
+ */
+
+declare(strict_types=1);
+
+use Drupal\ckeditor5_premium_features_notifications\Form\SettingsForm;
+use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
+use Drupal\ckeditor5_premium_features_notifications\Utility\CollaborationChecker;
+use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
+use Drupal\user\Entity\User;
+
+/**
+ * Implements hook_entity_update().
+ */
+function ckeditor5_premium_features_notifications_entity_update(\Drupal\Core\Entity\EntityInterface $entity) {
+  if (!CollaborationChecker::hasCollaborationFeatures($entity)) {
+    return;
+  }
+
+  /** @var Collaborators $collaboratorsService */
+  $collaboratorsService = \Drupal::service('');
+  $notificationService = \Drupal::service('');
+
+  $currentUser = User::load(Drupal::currentUser()->id());
+  $otherAuthorsList = $collaboratorsService->getCollaborators($entity, (int) $currentUser->id());
+
+  $parameters = [
+    'node' => $entity,
+    'user' => $currentUser,
+  ];
+
+  NotificationSender::sendNotification($otherAuthorsList, $parameters);
+}
+
+/**
+ * Implements hook_mail().
+ */
+function ckeditor5_premium_features_notifications_mail($key, &$message, $params) {
+  $tokenService = Drupal::token();
+
+  $config = Drupal::config(SettingsForm::NOTIFICATION_CONFIG);
+
+  $messageSubject = $config->get('subject');
+  $messageTemplate = $config->get('message')['value'];
+
+  switch ($key) {
+    case 'content_updated':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = $tokenService->replace($messageSubject, $params);
+      $message['body'][] = $tokenService->replace($messageTemplate, $params);
+      break;
+  }
+}

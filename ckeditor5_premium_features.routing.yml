@@ -1,4 +1,13 @@
 ckeditor5_premium_features.form.settings:
+  path: '/admin/config/ckeditor5-premium-features'
+  defaults:
+    _title: 'CKEditor 5 Premium Features'
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+  requirements:
+    # TODO: It may be more granullar - TBD if there is a need for dedicated permission.
+    _permission: 'administer site configuration'
+
+ckeditor5_premium_features.form.settings_general:
   path: '/admin/config/ckeditor5-premium-features/settings'
   defaults:
     _title: 'CKEditor 5 Premium Features - Settings'

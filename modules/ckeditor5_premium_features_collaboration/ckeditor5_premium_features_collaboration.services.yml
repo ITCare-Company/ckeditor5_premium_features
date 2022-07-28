@@ -17,3 +17,8 @@ services:
     class: Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandler
     arguments:
       - '@entity_type.manager'
+
+  ckeditor5_premium_features_collaboration.collaborators:
+    class: Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators
+    arguments:
+      - '@database'

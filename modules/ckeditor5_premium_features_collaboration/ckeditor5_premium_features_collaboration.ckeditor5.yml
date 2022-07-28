@@ -62,5 +62,6 @@ ckeditor5_premium_features_collaboration__collaboration_integration:
   drupal:
     label: The load & save integration of collaboration tools.
     library: ckeditor5_premium_features_collaboration/collaboration-integration
+    class: Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\RevisionHistory
     elements: false
     conditions: [ ]
