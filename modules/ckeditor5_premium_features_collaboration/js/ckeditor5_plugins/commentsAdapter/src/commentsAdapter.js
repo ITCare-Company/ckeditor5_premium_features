@@ -24,6 +24,10 @@ class CommentsAdapter {
   }
 
   init() {
+    if (!this.editor.plugins.has('CommentsRepository')) {
+      return
+    }
+
     const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
     const commentsRepositoryElement = document.querySelector(this.storage.getSourceDataSelector('comments'));
 
