@@ -82,16 +82,8 @@ class TextFormat {
       ],
     ];
 
-    $default_element_keys = [
-      '#type' => 'textarea',
-      '#attributes' => [
-        // The admin theme may vary, so this is the safest solution.
-        'style' => 'display: none;',
-        $id_attribute => $id,
-      ],
-      '#theme_wrappers' => [],
-    ];
-    //$element['#attached']['drupalSettings']['ckeditor5Premiumrealtime']['channelId'] = '12345678910';
+
+    $element['#attached']['drupalSettings']['ckeditor5Premiumrealtime']['channelId'] = '12345678910';
 
     // Attach annotation sidebar.
     AnnotationSidebar::process($element, $form_state, $complete_form);

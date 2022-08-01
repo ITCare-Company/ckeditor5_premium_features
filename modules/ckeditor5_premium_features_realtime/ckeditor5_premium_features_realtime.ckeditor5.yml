@@ -16,12 +16,13 @@ ckeditor5_premium_features_realtime__comment:
       - comments.Comments
       - realTimeCollaboration.RealTimeCollaborativeComments
   drupal:
-    label: RTComments
-    admin_library: ckeditor5_premium_features_realtime/admin.realtime
+    label: Comments
+    library: ckeditor5_premium_features_realtime/realtime-comments
+    admin_library: ckeditor5_premium_features_realtime/admin.comments
     class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
     toolbar_items:
       comment:
-        label: RComment
+        label: Comments
     elements: false
     conditions: [ ]
 
@@ -31,12 +32,13 @@ ckeditor5_premium_features_realtime__trackchanges:
       - trackChanges.TrackChanges
       - realTimeCollaboration.RealTimeCollaborativeTrackChanges
   drupal:
-    label: RTrackChanges
-    admin_library: ckeditor5_premium_features_realtime/admin.realtime
+    label: Track Changes
+    library: ckeditor5_premium_features_realtime/realtime-track-changes
+    admin_library: ckeditor5_premium_features_realtime/admin.track-changes
     class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
     toolbar_items:
       trackChanges:
-        label: RTrackchanges
+        label: Track Changes
     elements: false
     conditions: [ ]
 
@@ -46,12 +48,12 @@ ckeditor5_premium_features_realtime__revision_history:
       - revisionHistory.RevisionHistory
       - realTimeCollaboration.RealTimeCollaborativeRevisionHistory
   drupal:
-    label: rh
-    library: ckeditor5_premium_features_realtime/rtc-revision-history-integration
-    admin_library: ckeditor5_premium_features_realtime/admin.realtime
+    label: Revision History
+    library: ckeditor5_premium_features_realtime/realtime-revision-history
+    admin_library: ckeditor5_premium_features_realtime/admin.revision-history
     class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
     toolbar_items:
       revisionHistory:
-        label: rh
+        label: Revision History
     elements: false
     conditions: [ ]

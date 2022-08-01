@@ -1,0 +1,7 @@
+.revision-history-container-data .ck.ck-revision-history-sidebar {
+  height: 300px;
+}
+
+.ck.ck-editor__main > .ck-editor__editable:not(.ck-focused) {
+  height: 270px;
+}
