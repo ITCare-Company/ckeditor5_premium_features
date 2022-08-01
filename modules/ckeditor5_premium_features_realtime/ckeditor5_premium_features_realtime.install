@@ -8,29 +8,14 @@
 /**
  * Implements hook_requirements().
  */
-function ckeditor5_premium_features_realtime_requirements($phase) {
+function ckeditor5_premium_features_realtime_requirements($phase): array {
   $requirements = [];
 
-  switch ($phase) {
-    // Called while the module is installed.
-    case 'install':
-      // Called during regular use of the website.
-    case 'runtime':
-      // Called while the update.php is being executed.
-    case 'update':
-      // Do not allow administrators to install the module if conflicting module
-      // is already installed.
-      //
-      // You can move this code to any other phase as well.
-      if (\Drupal::moduleHandler()->moduleExists('ARCH_ENEMY_OF_YOUR_MODULE')) {
-        $requirements[] = [
-          'title' => t('Name of your module'),
-          'value' => t('Arch enemy module'),
-          'description' => t('Explain that administrators need to uninstall the module before proceeding.'),
-          'severity' => REQUIREMENT_ERROR,
-        ];
-      }
-      break;
+  if (($phase === 'install') && \Drupal::moduleHandler()->moduleExists('ckeditor5_premium_features_collaboration')) {
+    $requirements[] = [
+      'description' => t('You cannot install both modules to collaborate.'),
+      'severity' => REQUIREMENT_ERROR,
+    ];
   }
 
   return $requirements;
