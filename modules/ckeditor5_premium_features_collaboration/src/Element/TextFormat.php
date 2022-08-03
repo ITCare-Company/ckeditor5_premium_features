@@ -104,11 +104,6 @@ class TextFormat {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-    if (!$this->editorStorageHandler->isCkeditor5($element)) {
-      // Don't process if this is not a CKEditor5.
-      return $element;
-    }
-
     if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element)) {
       // Don't process as the editor does not have
       // any collaboration features enabled.

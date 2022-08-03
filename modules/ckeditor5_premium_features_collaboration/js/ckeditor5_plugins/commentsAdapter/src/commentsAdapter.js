@@ -10,9 +10,16 @@ class CommentsAdapter {
     this.editor = editor;
     this.storage = new CollaborationStorage(editor);
 
-    this.editor.config._config.comments.editorConfig = {
-      extraPlugins: [ Autoformat, Bold, Italic, List ]
-    }
+    this.editor.plugins._availablePlugins.set('Autoformat', Autoformat);
+    this.editor.plugins._availablePlugins.set('Bold', Bold);
+    this.editor.plugins._availablePlugins.set('Italic', Italic);
+    this.editor.plugins._availablePlugins.set('List', List);
+
+    const extraCommentsPlugins = Array.from(this.editor.plugins._availablePlugins.values()).filter(
+        plugin => [ 'Bold', 'Italic', 'List', 'Autoformat' ].includes( plugin.pluginName ),
+    );
+
+    this.editor.config._config.comments.editorConfig.extraPlugins.push(...extraCommentsPlugins);
   }
 
   static get pluginName() {

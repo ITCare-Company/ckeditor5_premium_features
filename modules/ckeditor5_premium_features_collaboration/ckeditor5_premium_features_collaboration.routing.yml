@@ -22,4 +22,11 @@ ckeditor5_premium_features_collaboration.comments.update:
   requirements:
     _access: 'TRUE'
 
-
+ckeditor5_premium_features_collaboration.annotations:
+  path: '/ck5/api/annotations'
+  defaults:
+    _controller: 'Drupal\ckeditor5_premium_features_collaboration\Controller\MentionAutocompleteController::annotation'
+  methods:  [GET]
+  requirements:
+    _permission: 'mention users'
+    _format: json

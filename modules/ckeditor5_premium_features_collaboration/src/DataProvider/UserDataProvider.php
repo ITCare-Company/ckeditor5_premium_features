@@ -74,6 +74,49 @@ class UserDataProvider {
   }
 
   /**
+   * Returns users matching specified query with privilege to be mentioned in annotations.
+   *
+   * @param string $query
+   *   Username query phrase.
+   * @param int $users_limit
+   *   Maximum number of users to return.
+   */
+  public function getPrivilegedEditors(string $query, int $users_limit = 10): array {
+    $offset = 0;
+    $query_limit = 100;
+    $matched_users = [];
+    $matching_users_count = $this->userStorage->getQuery()
+      ->accessCheck(TRUE)
+      ->condition('name', $query, 'CONTAINS')
+      ->condition('status', 1)
+      ->count()->execute();
+
+    do {
+      $user_ids = $this->userStorage->getQuery()
+        ->accessCheck(TRUE)
+        ->condition('name', $query, 'CONTAINS')
+        ->condition('status', 1)
+        ->range($offset, $query_limit)
+        ->execute();
+
+      /** @var UserInterface[] $users */
+      $users = $this->userStorage->loadMultiple($user_ids);
+
+      foreach ($users as $user_to_check) {
+        if (count($matched_users) >= $users_limit) {
+          break;
+        }
+
+        if ($user_to_check->hasPermission('to be mentioned')) {
+          $matched_users[] = $user_to_check;
+        }
+      }
+    } while ($offset + $query_limit < $matching_users_count && count($matched_users) < $users_limit);
+
+    return $matched_users;
+  }
+
+  /**
    * Gets the normalized users data.
    *
    * @param array|\Drupal\user\UserInterface[] $users
