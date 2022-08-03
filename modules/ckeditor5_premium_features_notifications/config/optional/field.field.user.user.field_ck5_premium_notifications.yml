@@ -1,0 +1,23 @@
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_ck5_premium_notifications
+  module:
+    - user
+    - ckeditor5_premium_features_notifications
+id: user.user.field_ck5_premium_notifications
+field_name: field_ck5_premium_notifications
+entity_type: user
+bundle: user
+label: 'CKeditor5 Premium Features - notification enabled'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean
