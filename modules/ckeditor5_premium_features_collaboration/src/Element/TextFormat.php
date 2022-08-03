@@ -19,6 +19,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -114,11 +115,13 @@ class TextFormat {
       return $element;
     }
 
-    $entity = $form_state->getFormObject()->getEntity();
-    if (!$entity instanceof EntityInterface) {
+    $form_object = $form_state->getFormObject();
+    if (!$form_object instanceof EntityFormInterface || !$form_object->getEntity() instanceof EntityInterface) {
       // Do not process anything, the entity is missing.
       return $element;
     }
+
+    $entity = $form_object->getEntity();
 
     // Attach annotation sidebar.
     AnnotationSidebar::process($element, $form_state, $complete_form);

@@ -1,0 +1,6 @@
+services:
+  ckeditor5_premium_features_notifications.notification_sender:
+    class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender
+    arguments:
+      - '@database'
+      - '@plugin.manager.mail'
