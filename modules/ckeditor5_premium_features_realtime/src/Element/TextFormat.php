@@ -82,8 +82,7 @@ class TextFormat {
       ],
     ];
 
-
-    $element['#attached']['drupalSettings']['ckeditor5Premiumrealtime']['channelId'] = '12345678910';
+    $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $node->id();
 
     // Attach annotation sidebar.
     AnnotationSidebar::process($element, $form_state, $complete_form);

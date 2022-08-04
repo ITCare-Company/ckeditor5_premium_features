@@ -1,14 +1,12 @@
-import CollaborationStorage from "../../collaborationStorage/src/collaborationStorage";
+
 
 class SidebarAdapter {
   constructor( editor ) {
     this.editor = editor;
     const id_sidebar = this.editor.sourceElement.id + '-ck-sidebar';
-    this.sidebar = document.querySelector('#' + id_sidebar);
-
     // TODO: Do we have some better way?
     this.editor.config._config.sidebar = {
-      container: this.sidebar,
+      container: document.querySelector('#' + id_sidebar),
     }
 
   }
@@ -19,48 +17,39 @@ class SidebarAdapter {
 
   static get requires() {
     // AnnotationsUIs is part of the comments repository.
-    return [ 'CommentsRepository', 'AnnotationsUIs' ]
-  }
-
-  sidebarVisibilityModify(hide= false) {
-    if (hide) {
-      this.sidebar.classList.add('slider-off');
-    } else {
-      this.sidebar.classList.remove('slider-off');
-    }
+    return [ 'CommentsRepository' ]
   }
 
   init() {
     const annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
     const toolbar = this.editor.ui._toolbarConfig.items
-    var self = this;
+    const class_wrapper = this.editor.sourceElement.id + '-ck-sidebar-wrapper .ck-sidebar-wrapper';
+    const ck_sidebar_wrapper = document.querySelector('.' + class_wrapper);
 
-    if (!this.sidebar) {
+    if (!ck_sidebar_wrapper) {
       return;
     }
 
     if (!toolbar.includes('trackChanges') && !toolbar.includes('comment')) {
-      this.sidebarVisibilityModify(true);
+      ck_sidebar_wrapper.classList.add('slider-off');
     }
     else {
-      this.sidebarVisibilityModify(false);
+      ck_sidebar_wrapper.classList.remove('slider-off');
     }
 
     const sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'auto';
+
     if (sidebarMode === 'auto') {
       window.addEventListener('resize', function (event) {
-        updateCkeditorMode(self.sidebar, annotationsUIs);
+        updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs);
       });
-      updateCkeditorMode(self.sidebar, annotationsUIs)
+      updateCkeditorMode(ck_sidebar_wrapper, annotationsUIs)
     }
     else {
       annotationsUIs.switchTo(sidebarMode);
     }
   }
 
-  destroy() {
-    this.sidebarVisibilityModify(true);
-  }
 }
 
 /**

@@ -36,7 +36,6 @@ function ckeditor5_premium_features_realtime_library_info_build(): array {
   }
 
   return $definitions;
-
 }
 
 /**

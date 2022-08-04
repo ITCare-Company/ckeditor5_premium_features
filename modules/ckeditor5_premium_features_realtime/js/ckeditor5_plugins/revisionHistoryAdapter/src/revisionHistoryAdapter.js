@@ -1,4 +1,3 @@
-import CollaborationStorage from "../../collaborationStorage/src/collaborationStorage";
 
 class RevisionHistoryAdapter {
   constructor( editor ) {
