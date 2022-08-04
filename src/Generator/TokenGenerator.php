@@ -48,7 +48,7 @@ class TokenGenerator implements TokenGeneratorInterface {
       ],
       'auth' => [
         'collaboration' => [
-          'abc' => [
+          '*' => [
             'role' => 'writer',
           ],
         ],
