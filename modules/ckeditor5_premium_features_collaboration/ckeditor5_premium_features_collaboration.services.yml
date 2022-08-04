@@ -7,6 +7,14 @@ services:
       - '@ckeditor5_premium_features_collaboration.data_provider.users'
       - '@config.factory'
 
+  ckeditor5_premium_features_collaboration.element.mentions_integration:
+    class: Drupal\ckeditor5_premium_features_collaboration\Element\MentionsIntegration
+    arguments:
+      - '@ckeditor5_premium_features_collaboration.storage_handler.editor'
+      - '@ckeditor5_premium_features_collaboration.data_provider.users'
+      - '@config.factory'
+      - '@current_user'
+
   ckeditor5_premium_features_collaboration.data_provider.users:
     class: Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider
     arguments:
