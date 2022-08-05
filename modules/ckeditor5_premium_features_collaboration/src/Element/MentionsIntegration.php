@@ -78,7 +78,7 @@ class MentionsIntegration {
 
     $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['minCharacter'] = $this->config->get('mention_min_character') ?? 1;
     $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['dropdownLimit'] = $this->config->get('mention_dropdown_limit') ?? 4;
-    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['marker'] = $this->config->get('mention_marker') ?? 4;
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['marker'] = $this->config->get('mention_marker') ?? '#';
 
     return $element;
   }
