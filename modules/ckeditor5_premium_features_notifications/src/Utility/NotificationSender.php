@@ -27,10 +27,15 @@ class NotificationSender {
       return FALSE;
     }
 
+    $mainMail = array_pop($mails);
+    if (count($mails) > 0) {
+      $parameters['cc'] = $mails;
+    }
+
     return $this->mailManager->mail(
       'ckeditor5_premium_features_notifications',
       'content_updated',
-      implode(', ', $mails),
+      $mainMail,
       NULL,
       $parameters,
       NULL,

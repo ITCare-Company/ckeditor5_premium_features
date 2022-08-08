@@ -30,7 +30,11 @@ ckeditor5_premium_features_collaboration__comments:
     toolbar_items:
       comment:
         label: Comment
-    elements: false
+    elements:
+      - '<comment-start name>'
+      - '<comment-end name>'
+      - '<suggestion-start name>'
+      - '<suggestion-end name>'
     conditions:
       toolbarItem: comment
 
@@ -73,6 +77,9 @@ ckeditor5_premium_features_collaboration__mention_integration:
   drupal:
     label: The load & save integration of collaboration tools.
     library: ckeditor5_premium_features_collaboration/mention-integration
-    elements: false
+    class: Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\MentionsIntegration
+    elements:
+      - <span>
+      - <span data-mention class="mention">
     conditions:
       plugins: [ckeditor5_premium_features_collaboration__collaboration_integration]
