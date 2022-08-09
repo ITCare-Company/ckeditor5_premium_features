@@ -4,6 +4,7 @@ class MentionsIntegration {
 
     if (typeof this.editor.plugins._availablePlugins == 'undefined' ||
       !this.editor.plugins._availablePlugins.has('Mention') ||
+      typeof drupalSettings.ckeditor5Premium == 'undefined' ||
       typeof drupalSettings.ckeditor5Premium.mentions == "undefined") {
       return;
     }
@@ -39,7 +40,8 @@ class MentionsIntegration {
    * @returns {Promise<unknown>}
    */
   getFeedItems(queryText) {
-    if (typeof drupalSettings.ckeditor5Premium.mentions == "undefined") {
+    if (typeof drupalSettings.ckeditor5Premium == "undefined" ||
+      typeof drupalSettings.ckeditor5Premium.mentions == "undefined") {
       return;
     }
 

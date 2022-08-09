@@ -54,9 +54,13 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    */
   public function getElementsSubset(): array {
     return [
+      '<comment-start>',
       '<comment-start name>',
+      '<comment-end>',
       '<comment-end name>',
+      '<suggestion-start>',
       '<suggestion-start name>',
+      '<suggestion-end>',
       '<suggestion-end name>',
     ];
   }
