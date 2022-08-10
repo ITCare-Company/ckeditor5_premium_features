@@ -30,7 +30,7 @@ class RevisionHistoryAdapter {
     revisionHistoryConfig.viewerContainer = revisionHistoryContainer;
     revisionHistoryConfig.viewerEditorElement = revisionHistoryContainer.querySelector('.revision-viewer-editor');
     revisionHistoryConfig.viewerSidebarContainer = revisionHistoryContainer.querySelector('.revision-viewer-sidebar');
-    revisionHistoryConfig.editorContainer = document.querySelector('.ck-editor-sidebar-wrapper');
+    revisionHistoryConfig.editorContainer = revisionHistoryContainer.parentNode.querySelector('.ck-editor-sidebar-wrapper');
 
     // Initialize plugin.
     const revisionHistoryPlugin = this.editor.plugins.get('RevisionHistory');
