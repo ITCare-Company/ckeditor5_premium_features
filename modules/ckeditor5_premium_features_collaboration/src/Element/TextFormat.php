@@ -123,7 +123,7 @@ class TextFormat {
 
     $this->addSubmitCallback($complete_form);
 
-    $id = $this->getElementId();
+    $id = $this->getElementId($element['#id']);
     $id_attribute = 'data-' . static::STORAGE_KEY . '-element-id';
 
     $default_element_keys = [
@@ -137,7 +137,7 @@ class TextFormat {
     ];
 
     // Setup the suggestions.
-    $suggestions = $this->suggestionStorage->loadByEntity($entity);
+    $suggestions = $this->suggestionStorage->loadByEntity($entity, $id);
 
     $element['value']['#attributes'][$id_attribute] = $id;
     $element['track_changes'] = [
@@ -146,7 +146,7 @@ class TextFormat {
     $element['track_changes']['#attributes']['class'] = ['track-changes-data'];
 
     // Setup the comments.
-    $comments = $this->commentsStorage->loadByEntity($entity);
+    $comments = $this->commentsStorage->loadByEntity($entity, $id);
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface[] $users_data */
     $users_data = array_merge($comments, $suggestions);
@@ -162,7 +162,7 @@ class TextFormat {
     $form_state->set(static::STORAGE_KEY, $items);
 
     // Setup the revision history.
-    $revisions = $this->revisionStorage->loadByEntity($entity);
+    $revisions = $this->revisionStorage->loadByEntity($entity, $id);
 
     $element['revision_history'] = [
       '#default_value' => $this->revisionStorage->serializeCollection($revisions),
@@ -228,11 +228,11 @@ class TextFormat {
       'revision_history' => $this->revisionStorage,
     ];
 
-    foreach ($items as $item_parents) {
+    foreach ($items as $item_key => $item_parents) {
       foreach ($features as $key => $storage) {
         $source = $form_state->getValue([...$item_parents, $key]);
         $source_data = (array) json_decode($source, TRUE);
-        $this->doStorageOperations($source_data, $storage, $entity);
+        $this->doStorageOperations($source_data, $storage, $entity, $item_key);
       }
     }
   }
@@ -291,6 +291,13 @@ class TextFormat {
     foreach ($keys as $key) {
       if (NestedArray::keyExists($form, $key)) {
         $callbacks = NestedArray::getValue($form, $key) ?? [];
+
+        // Let's make sure that callback is set only once.
+        foreach ($callbacks as $test_callback) {
+          if (is_array($test_callback) && in_array('onCompleteFormSubmit', $test_callback)) {
+            return;
+          }
+        }
         $callbacks[] = $submit_callback;
         NestedArray::setValue($form, $key, $callbacks);
       }
@@ -306,8 +313,10 @@ class TextFormat {
    *   The related type storage.
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity related to the text format item.
+   * @param string $item_key
+   *   String with the key used to determine the form element field.
    */
-  private function doStorageOperations(array $markup_data, object $storage, EntityInterface $entity): void {
+  private function doStorageOperations(array $markup_data, object $storage, EntityInterface $entity, string $item_key): void {
     if ($storage instanceof StorageDataNormalizationAwareInterface) {
       $markup_data = $storage->normalize($markup_data);
     }
@@ -315,12 +324,14 @@ class TextFormat {
       if ($storage instanceof StorageIdSpecificationAwareInterface) {
         if ($storage->isCommonId($element_data['id'])) {
           $element_data['id'] = sprintf(
-            '%s_%s',
+            '%s_%s_%s',
             $element_data['id'],
-            str_replace('-', '', $entity->uuid())
+            str_replace('-', '', $entity->uuid()),
+            str_replace('-', '', $item_key)
           );
         }
       }
+      $element_data['item_key'] = $item_key;
 
       $data_entity = $storage->load($element_data['id']);
       if ($data_entity instanceof EntityInterface) {
@@ -337,11 +348,14 @@ class TextFormat {
   /**
    * Gets the element unique HTML ID.
    *
+   * @param string $elementId
+   *   Form element ID.
+   *
    * @return string
    *   The ID.
    */
-  private function getElementId(): string {
-    $id = 'id-' . Crypt::randomBytesBase64(8);
+  private function getElementId(string $elementId): string {
+    $id = 'id-' . hash('crc32', $elementId);
 
     return Html::getId($id);
   }

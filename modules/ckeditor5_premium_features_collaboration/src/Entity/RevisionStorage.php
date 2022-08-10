@@ -92,8 +92,11 @@ class RevisionStorage extends SqlContentEntityStorage implements
       'entity_id' => $data->getInt('entity_id'),
       'created' => $data->getInt('created'),
     ];
+    $attributes = [
+      'key' => $raw_data['item_key'],
+    ];
 
-    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface $revision */
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Revision $revision */
     $revision = $this->create($object_data);
     $revision
       ->setEntityTypeTargetId($data->get('entity_type', ''))
@@ -105,10 +108,9 @@ class RevisionStorage extends SqlContentEntityStorage implements
 
     // Set the 'draft' attribute if the creator is empty.
     if (!$data->get('creator')) {
-      $revision->setAttributes([
-        'draft' => TRUE,
-      ]);
+      $attributes['draft'] = TRUE;
     }
+    $revision->setAttributes($attributes);
 
     if (!$revision->access('update')) {
       throw new AccessException();

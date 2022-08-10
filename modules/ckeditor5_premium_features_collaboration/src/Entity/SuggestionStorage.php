@@ -88,7 +88,9 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
       $type,
     ] = call_user_func([__CLASS__, $callback], $object_data, $source);
 
-    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion */
+    $attributes['key'] = $raw_data['item_key'];
+
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion $suggestion */
     $suggestion = $this->create($object_data);
     $suggestion
       ->setEntityTypeTargetId($data->get('entity_type', ''))
