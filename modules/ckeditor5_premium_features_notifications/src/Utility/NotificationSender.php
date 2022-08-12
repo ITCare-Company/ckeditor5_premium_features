@@ -2,15 +2,18 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager;
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Mail\MailManagerInterface;
 
 class NotificationSender {
 
   const NOTIFICATION_OPT_OUT_FIELD_TABLE = 'user__field_ck5_premium_notifications';
   const NOTIFICATION_OPT_OUT_FIELD_VALUE = 'field_ck5_premium_notifications_value';
 
-  public function __construct(protected Connection $dbConnection, protected MailManagerInterface $mailManager) { }
+  public function __construct(protected Connection $dbConnection,
+                              protected NotificationSenderPluginManager $senderPluginManager,
+                              protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager) { }
 
   /**
    * Sends notification mail.
@@ -20,50 +23,46 @@ class NotificationSender {
    *
    * @return bool|array
    */
-  public function sendNotification(array $recipientIds, array $parameters): bool|array {
-    $mails = $this->getUserMails($recipientIds);
+  public function sendNotification(string $messageType, array $recipientIds, array $parameters): bool|array {
+    $recipientIds = $this->filterRecipients($recipientIds);
 
-    if (empty($mails)) {
+    if (empty($recipientIds)) {
       return FALSE;
     }
 
-    $mainMail = array_pop($mails);
-    if (count($mails) > 0) {
-      $parameters['cc'] = $mails;
-    }
+    // TODO: add configuration to select messge factory plugin id.
+    /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory */
+    $messageFactory = $this->messageFactoryPluginManager->createInstance('ck5_notifications_message');
 
-    return $this->mailManager->mail(
-      'ckeditor5_premium_features_notifications',
-      'content_updated',
-      $mainMail,
-      NULL,
-      $parameters,
-      NULL,
-      TRUE
-    );
+    $message = $messageFactory->getMessage($messageType, $parameters);
+
+    // TODO: add configuration to select sender plugin id.
+    /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface $sender */
+    $sender = $this->senderPluginManager->createInstance('ck5_notifications_email');
+
+    return $sender->send($message, $recipientIds);
   }
 
   /**
-   * Returns a list of user emails.
+   * Returns a list of user ids with notification consent.
    *
    * @param array $userIds
    *
    * @return array
    */
-  protected function getUserMails(array $userIds): array {
+  protected function filterRecipients(array $userIds): array {
     if (empty($userIds)) {
       return [];
     }
 
-    $userMailQuery = $this->dbConnection->select('users_field_data', 'u')
-      ->fields('u', ['mail']);
-
-    if ($this->dbConnection->schema()->tableExists(self::NOTIFICATION_OPT_OUT_FIELD_TABLE)) {
-      $userMailQuery->join(self::NOTIFICATION_OPT_OUT_FIELD_TABLE, 'n', 'u.uid = n.entity_id');
-      $userMailQuery->condition(self::NOTIFICATION_OPT_OUT_FIELD_VALUE, 1);
+    if (!$this->dbConnection->schema()->tableExists(self::NOTIFICATION_OPT_OUT_FIELD_TABLE)) {
+      return $userIds;
     }
 
-    return $userMailQuery->condition('uid', $userIds, 'IN')
+    return $this->dbConnection->select(self::NOTIFICATION_OPT_OUT_FIELD_TABLE, 'n')
+      ->fields('n', ['entity_id'])
+      ->condition('entity_id', $userIds, 'IN')
+      ->condition(self::NOTIFICATION_OPT_OUT_FIELD_VALUE, 1)
       ->execute()
       ->fetchCol();
   }

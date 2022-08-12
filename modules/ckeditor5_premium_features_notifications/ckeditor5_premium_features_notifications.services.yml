@@ -3,4 +3,13 @@ services:
     class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender
     arguments:
       - '@database'
-      - '@plugin.manager.mail'
+      - '@plugin.manager.notification_sender'
+      - '@plugin.manager.notification_message_factory'
+
+  plugin.manager.notification_message_factory:
+    class: Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager
+    arguments: ['@module_handler', '@cache.discovery']
+
+  plugin.manager.notification_sender:
+    class: Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager
+    arguments: ['@module_handler', '@cache.discovery']
