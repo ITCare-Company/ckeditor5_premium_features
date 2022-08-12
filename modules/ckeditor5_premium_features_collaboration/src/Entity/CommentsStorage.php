@@ -104,8 +104,11 @@ class CommentsStorage extends SqlContentEntityStorage implements CollaborationEn
       'uid' => $this->user->id(),
       'entity_id' => $data->getInt('entity_id'),
     ];
+    $attributes = [
+      'key' => $raw_data['item_key'],
+    ];
 
-    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface $comment */
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment */
     $comment = $this->create($object_data);
     $comment->setEntityTypeTargetId($data->get('entity_type', ''))
       ->setThreadId($data->get('thread_id'))
@@ -114,6 +117,8 @@ class CommentsStorage extends SqlContentEntityStorage implements CollaborationEn
     if (!$comment->access('update')) {
       throw new AccessException();
     }
+
+    $comment->setAttributes($attributes);
 
     $comment->save();
 
