@@ -24,9 +24,13 @@ class DomSuggestion {
    * @return string
    *   The suggestion type.
    */
-  public function getType(): string {
+  public function getType(): string|NULL {
     $value = $this->isStartTag() || $this->isEndTag()
       ? $this->getNameAttributeValue() : ($this->getStartAttributeValue() ?? $this->getEndAttributeValue());
+
+    if (!$value) {
+      return NULL;
+    }
 
     [$type, $id, $uid] = explode(':', $value);
 
@@ -36,31 +40,43 @@ class DomSuggestion {
   /**
    * Gets the name attribute value.
    *
-   * @return string
-   *   The attribute value.
+   * @return string|null
+   *   The attribute value or NULL if an error occur.
    */
-  public function getNameAttributeValue(): string {
-    return $this->element->getAttribute('name');
+  public function getNameAttributeValue(): string|NULL {
+    try {
+      return $this->element->getAttribute('name');
+    } catch (\Error $e) {
+      return NULL;
+    }
   }
 
   /**
    * Gets the data attribute value of the suggestion end.
    *
-   * @return string
-   *   The attribute value.
+   * @return string|null
+   *   The attribute value or NULL if an error occur.
    */
-  public function getEndAttributeValue(): string {
-    return $this->element->getAttribute('data-suggestion-end-after');
+  public function getEndAttributeValue(): string|NULL {
+    try {
+      return $this->element->getAttribute('data-suggestion-end-after');
+    } catch (\Error $e) {
+      return NULL;
+    }
   }
 
   /**
    * Gets the data attribute value of the suggestion start.
    *
-   * @return string
-   *   The attribute value.
+   * @return string|null
+   *   The attribute value or NULL if an error occur.
    */
-  public function getStartAttributeValue(): string {
-    return $this->element->getAttribute('data-suggestion-start-before');
+  public function getStartAttributeValue(): string|NULL {
+    try {
+      return $this->element->getAttribute('data-suggestion-start-before');
+    } catch (\Error $e) {
+      return NULL;
+    }
   }
 
   /**
@@ -70,7 +86,11 @@ class DomSuggestion {
    *   True if end tag, false otherwise.
    */
   public function isEndTag(): bool {
-    return $this->element->nodeName === 'suggestion-end';
+    try {
+      return $this->element->nodeName === 'suggestion-end';
+    } catch (\Error $e) {
+      return FALSE;
+    }
   }
 
   /**
@@ -80,7 +100,11 @@ class DomSuggestion {
    *   True if start tag, false otherwise.
    */
   public function isStartTag(): bool {
-    return $this->element->nodeName === 'suggestion-start';
+    try {
+      return $this->element->nodeName === 'suggestion-start';
+    } catch (\Error $e) {
+      return FALSE;
+    }
   }
 
   /**

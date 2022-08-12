@@ -111,7 +111,9 @@ class FilterCollaboration extends FilterBase {
           $this->removeUntilEnd($suggestion, $dom_suggestion->getNameAttributeValue());
         }
         else {
-          $suggestion->remove();
+          try {
+            $suggestion->remove();
+          } catch (\Error $e) { }
         }
       }
     }
