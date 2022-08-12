@@ -4,7 +4,12 @@ class SidebarAdapter {
   constructor( editor ) {
     this.editor = editor;
     const id_sidebar = this.editor.sourceElement.id + '-ck-sidebar';
-    this.sidebar = document.querySelector('#' + id_sidebar);
+    let sidebar_wrapper = document.querySelector('#' + id_sidebar);
+
+    if (typeof sidebar_wrapper == 'undefined' || !sidebar_wrapper) {
+      return;
+    }
+    this.sidebar = sidebar_wrapper;
 
     // TODO: Do we have some better way?
     this.editor.config._config.sidebar = {
@@ -23,6 +28,9 @@ class SidebarAdapter {
   }
 
   sidebarVisibilityModify(hide= false) {
+    if (!this.sidebar || typeof this.sidebar == 'undefined') {
+      return;
+    }
     if (hide) {
       this.sidebar.classList.add('slider-off');
     } else {
@@ -35,7 +43,7 @@ class SidebarAdapter {
     const toolbar = this.editor.ui._toolbarConfig.items
     var self = this;
 
-    if (!this.sidebar) {
+    if (!this.sidebar || typeof this.sidebar == 'undefined') {
       return;
     }
 
@@ -74,6 +82,9 @@ class SidebarAdapter {
  *   AnnotationsUIs Plugin.
  */
 function setCkEditorSidebarMode(newMode, ck_sidebar_wrapper, annotationsUIs) {
+  if (!ck_sidebar_wrapper || typeof ck_sidebar_wrapper == 'undefined') {
+    return;
+  }
   ck_sidebar_wrapper.classList.remove('inline');
   ck_sidebar_wrapper.classList.remove('narrowSidebar');
   ck_sidebar_wrapper.classList.remove('wideSidebar');
