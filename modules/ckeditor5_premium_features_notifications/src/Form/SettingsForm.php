@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_notifications\Form;
 
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormBase;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides the configuration form of the "Export to Word" feature.
@@ -13,6 +18,23 @@ use Drupal\Core\Form\FormStateInterface;
 class SettingsForm extends SharedBuildConfigFormBase {
 
   const NOTIFICATION_CONFIG = 'ckeditor5_premium_features_notifications.settings';
+
+  public function __construct(ConfigFactoryInterface  $configFactory,
+                              protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager,
+                              protected NotificationSenderPluginManager $senderPluginManager) {
+    parent::__construct($configFactory);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('plugin.manager.notification_message_factory'),
+      $container->get('plugin.manager.notification_sender'),
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -30,25 +52,29 @@ class SettingsForm extends SharedBuildConfigFormBase {
 
     $config = $this->config($this->getFormId());
 
+    // Collect plugins information;
+    $messageFactoryDefinitions = $this->messageFactoryPluginManager->getDefinitions();
+    $senderDefinitions = $this->senderPluginManager->getDefinitions();
 
-    $form['subject'] = [
-      '#type' => 'textfield',
-      '#title' => t('Subject'),
-      '#description' => t('Subject of the email that will be sent to users.'),
-      '#default_value' => $config->get('subject'),
+    $form['message_factory_plugin'] = [
+      '#type' => 'select',
+      '#title' => 'Message content factory',
+      '#description' => 'Choose plugin responsible for providing notification messages templates.',
+      '#options' => array_map(function($value) { return $value['label'];}, $messageFactoryDefinitions),
+      '#default_value' => $config->get('message_factory_plugin'),
+    ];
+    $form['sender_plugin'] = [
+      '#type' => 'select',
+      '#title' => 'Message sender',
+      '#description' => 'Choose plugin responsible for sending notification messages.',
+      '#options' => array_map(function($value) { return $value['label'];}, $senderDefinitions),
+      '#default_value' => $config->get('sender_plugin'),
     ];
 
-    $messageConfig = $config->get('message');
-    $form['message'] = [
-      '#type' => 'text_format',
-      '#title' => t('Message body'),
-      '#description' => t('Body of the message sent to the users that collaborated on the updated node.'),
-      '#default_value' => $messageConfig['value'] ?? '',
-      '#format' => $messageConfig['test_format'] ?? 'full_html',
-    ];
+    $form = $this->addNotificationMessagesTabs($form, $form_state);
 
     $form['additional_info'] = [
-      '#markup' => 'The Message field supports tokens that will be dynamically replaced by corresponding values.
+      '#markup' => 'The "Message body" fields supports tokens that will be dynamically replaced by corresponding values.
       Currently supported tokens relate to Node and User entities, for example [node:title], [node:url], [user:name].<br/>
       For more, please check the below two sample lists:',
       'list' => [
@@ -63,6 +89,46 @@ class SettingsForm extends SharedBuildConfigFormBase {
         ]
       ],
     ];
+
+    return $form;
+  }
+
+  /**
+   * Adds from elements for configuring message templates.
+   */
+  protected function addNotificationMessagesTabs($form) {
+    $config = $this->config($this->getFormId());
+    $form['verticaltabs'] = [
+      '#type' => 'vertical_tabs',
+      '#title' => $this->t('Message types configuration'),
+    ];
+
+    foreach (NotificationMessageFactoryDefault::getSupportedMessageTypes() as $messageType => $messageTitle) {
+      $groupKey = $messageType . '__tab';
+      // Create a grouping element using a fieldset.
+      $form[$groupKey] = [
+        '#type' => 'details',
+        '#title' => $this->t($messageTitle),
+        '#group' => 'verticaltabs',
+      ];
+
+      $form[$groupKey][$messageType . '__subject'] = [
+        '#type' => 'textfield',
+        '#title' => t('Subject'),
+        '#description' => t('Subject of the email that will be sent to users.'),
+        '#default_value' => $config->get($messageType . '__subject'),
+      ];
+
+      $messageConfig = $config->get($messageType . '__message');
+      $form[$groupKey][$messageType . '__message'] = [
+        '#type' => 'text_format',
+        '#title' => t('Message body'),
+        '#description' => t('Body of the message sent to the users that collaborated on the updated node.'),
+        '#default_value' => $messageConfig['value'] ?? '',
+        '#format' => $messageConfig['test_format'] ?? 'full_html',
+      ];
+
+    }
 
     return $form;
   }

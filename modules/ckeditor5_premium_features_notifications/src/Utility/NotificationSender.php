@@ -2,18 +2,27 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
+use Drupal\ckeditor5_premium_features_notifications\Form\SettingsForm;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Database\Connection;
 
 class NotificationSender {
+
+  protected $notificationConfig;
 
   const NOTIFICATION_OPT_OUT_FIELD_TABLE = 'user__field_ck5_premium_notifications';
   const NOTIFICATION_OPT_OUT_FIELD_VALUE = 'field_ck5_premium_notifications_value';
 
   public function __construct(protected Connection $dbConnection,
+                              ConfigFactoryInterface $configFactory,
                               protected NotificationSenderPluginManager $senderPluginManager,
-                              protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager) { }
+                              protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager) {
+    $this->notificationConfig = $configFactory->get(SettingsForm::NOTIFICATION_CONFIG);
+  }
 
   /**
    * Sends notification mail.
@@ -30,15 +39,19 @@ class NotificationSender {
       return FALSE;
     }
 
-    // TODO: add configuration to select messge factory plugin id.
     /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory */
-    $messageFactory = $this->messageFactoryPluginManager->createInstance('ck5_notifications_message');
+    $messageFactory = $this->getMessageFatoryPlugin();
+    if (!$messageFactory) {
+      return FALSE;
+    }
+
+    /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface $sender */
+    $sender = $this->getMessageSenderPlugin();
+    if (!$sender) {
+      return FALSE;
+    }
 
     $message = $messageFactory->getMessage($messageType, $parameters);
-
-    // TODO: add configuration to select sender plugin id.
-    /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface $sender */
-    $sender = $this->senderPluginManager->createInstance('ck5_notifications_email');
 
     return $sender->send($message, $recipientIds);
   }
@@ -66,4 +79,29 @@ class NotificationSender {
       ->execute()
       ->fetchCol();
   }
+
+  /**
+   * Returns notification message factory plugin instance.
+   */
+  protected function getMessageFatoryPlugin(): NotificationMessageFactoryInterface|NULL {
+    $pluginId = $this->notificationConfig->get('message_factory_plugin');
+    if (!$this->messageFactoryPluginManager->hasDefinition($pluginId)) {
+      return NULL;
+    }
+
+    return $this->messageFactoryPluginManager->createInstance($pluginId);
+  }
+
+  /**
+   * Returns notification sender plugin instance.
+   */
+  protected function getMessageSenderPlugin(): NotificationSenderInterface|NULL {
+    $pluginId = $this->notificationConfig->get('sender_plugin');
+    if (!$this->senderPluginManager->hasDefinition($pluginId)) {
+      return NULL;
+    }
+
+    return $this->senderPluginManager->createInstance($pluginId);
+  }
+
 }

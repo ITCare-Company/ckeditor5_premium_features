@@ -47,15 +47,11 @@ function ckeditor5_premium_features_notifications_entity_update(EntityInterface 
  * Implements hook_mail().
  */
 function ckeditor5_premium_features_notifications_mail($key, &$message, $params) {
-  if (!in_array($key, NotificationMessageFactoryDefault::getSupportedMessageTypes())) {
+  if (!NotificationMessageFactoryDefault::isMessageTypeSupported($key)) {
     return;
   }
 
-  switch ($key) {
-    case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT:
-      $message['subject'] = $params['subject'];
-      $message['body'] = $params['body'];
-      $message['headers'] += $params['headers'];
-      break;
-  }
+  $message['subject'] = $params['subject'];
+  $message['body'] = $params['body'];
+  $message['headers'] += $params['headers'];
 }

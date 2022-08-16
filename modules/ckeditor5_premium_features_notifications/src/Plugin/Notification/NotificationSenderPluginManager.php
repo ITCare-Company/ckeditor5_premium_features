@@ -18,6 +18,7 @@ use Drupal\Core\Plugin\Factory\ContainerFactory;
  *   MACHINE_NAME:
  *     label: STRING
  *     description: STRING
+ *     class: STRING
  * @endcode
  *
  * @see \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderDefault
@@ -30,14 +31,8 @@ class NotificationSenderPluginManager extends DefaultPluginManager {
    * {@inheritdoc}
    */
   protected $defaults = [
-    // The notification_sender id. Set by the plugin system based on the top-level YAML key.
-    'id' => '',
-    // The notification_sender label.
-    'label' => '',
     // The notification_sender description.
     'description' => '',
-    // Default plugin class.
-    'class' => 'Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderDefault',
   ];
 
   /**

@@ -3,6 +3,7 @@ services:
     class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender
     arguments:
       - '@database'
+      - '@config.factory'
       - '@plugin.manager.notification_sender'
       - '@plugin.manager.notification_message_factory'
 

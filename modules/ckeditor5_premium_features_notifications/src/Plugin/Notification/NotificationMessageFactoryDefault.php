@@ -26,6 +26,9 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
     $this->config = $configFactory->get(SettingsForm::NOTIFICATION_CONFIG);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static($configuration,
       $plugin_id,
@@ -43,20 +46,16 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
     return (string) $this->pluginDefinition['label'];
   }
 
-  public function getMessage(string $messageType, array $parameters): NotificationMessageInterface {
-    switch ($messageType) {
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT:
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT:
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY:
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY:
-      default:
-        $subjectTemplate = $this->config->get('subject');
-        $bodyTemplate = $this->config->get('message')['value'];
+  /**
+   * {@inheritdoc}
+   */
+  public function getMessage(string $messageType, array $parameters): NotificationMessageInterface|NULL {
+    if (!self::isMessageTypeSupported($messageType)) {
+      return NULL;
     }
 
-    $subject = $this->tokenService->replace($subjectTemplate, $parameters);
-    $body = $this->tokenService->replace($bodyTemplate, $parameters);
+    $subject = $this->tokenService->replace($this->getMessageSubject($messageType), $parameters);
+    $body = $this->tokenService->replace($this->getMessageBody($messageType), $parameters);
 
     return new NotificationMessage($messageType, $subject, $body);
   }
@@ -66,13 +65,34 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
    */
   public static function getSupportedMessageTypes() :array {
     return [
-      self::CKEDITOR5_MESSAGE_DEFAULT,
-      self::CKEDITOR5_MESSAGE_MENTION_COMMENT,
-      self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT,
-      self::CKEDITOR5_MESSAGE_THREAD_REPLY,
-      self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY,
-      self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS,
+      self::CKEDITOR5_MESSAGE_DEFAULT => 'Default (to be removed)',
+      self::CKEDITOR5_MESSAGE_MENTION_COMMENT => 'Mentioned in a comment',
+      self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT => 'Mentioned in a document',
+      self::CKEDITOR5_MESSAGE_THREAD_REPLY => 'Reply in a thread',
+      self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY => 'Reply to a suggestion',
+      self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => 'Suggestion status change',
     ];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function isMessageTypeSupported($messageType): bool {
+    $supportedTypes = self::getSupportedMessageTypes();
+    return isset($supportedTypes[$messageType]);
+  }
+
+  /**
+   * Returns subject template for specified message type.
+   */
+  protected function getMessageSubject($messageType): string {
+    return $this->config->get($messageType . '__subject');
+  }
+
+  /**
+   * Returns body template for specified message type.
+   */
+  protected function getMessageBody($messageType): string {
+    return $this->config->get($messageType . '__message')['value'];
+  }
 }
