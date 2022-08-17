@@ -40,7 +40,7 @@ class NotificationSender {
     }
 
     /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory */
-    $messageFactory = $this->getMessageFatoryPlugin();
+    $messageFactory = $this->getMessageFactoryPlugin();
     if (!$messageFactory) {
       return FALSE;
     }
@@ -83,7 +83,7 @@ class NotificationSender {
   /**
    * Returns notification message factory plugin instance.
    */
-  protected function getMessageFatoryPlugin(): NotificationMessageFactoryInterface|NULL {
+  protected function getMessageFactoryPlugin(): NotificationMessageFactoryInterface|NULL {
     $pluginId = $this->notificationConfig->get('message_factory_plugin');
     if (!$this->messageFactoryPluginManager->hasDefinition($pluginId)) {
       return NULL;
