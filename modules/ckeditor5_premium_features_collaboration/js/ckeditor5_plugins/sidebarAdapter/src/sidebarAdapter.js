@@ -60,6 +60,15 @@ class SidebarAdapter {
         updateCkeditorMode(self.sidebar, annotationsUIs);
       });
       updateCkeditorMode(self.sidebar, annotationsUIs)
+      var toggle = document.getElementById("ck-sidebar-auto-toggle");
+      toggle.addEventListener('click', function (event) {
+        if (self.sidebar.classList.contains('narrowSidebar')) {
+          setCkEditorSidebarMode('wideSidebar', self.sidebar, annotationsUIs);
+        }
+        else {
+          setCkEditorSidebarMode('narrowSidebar', self.sidebar, annotationsUIs);
+        }
+      });
     }
     else {
       annotationsUIs.switchTo(sidebarMode);
