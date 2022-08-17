@@ -92,9 +92,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
       'entity_id' => $data->getInt('entity_id'),
       'created' => $data->getInt('created'),
     ];
-    $attributes = [
-      'key' => $raw_data['item_key'],
-    ];
+    $attributes = $this->getCommonAttribute($raw_data);
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Revision $revision */
     $revision = $this->create($object_data);

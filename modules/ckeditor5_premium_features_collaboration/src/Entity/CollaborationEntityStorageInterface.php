@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\Core\Entity\ContentEntityInterface;
+
 /**
  * Defines the collaboration entities storage methods.
  */
@@ -33,4 +35,5 @@ interface CollaborationEntityStorageInterface {
    */
   public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface;
 
+  public function processSourceData(array $source_data, ContentEntityInterface $entity, string $item_key): array;
 }

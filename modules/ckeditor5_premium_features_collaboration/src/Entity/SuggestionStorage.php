@@ -130,6 +130,10 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
     return $entity;
   }
 
+  public function getSuggestionEntityIds(array $source_data): array {
+    return array_map(function($value) { return $value['id']; }, $source_data);
+  }
+
   /**
    * Loads the original suggestion if present in the data.
    *

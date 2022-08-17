@@ -5,20 +5,18 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationSuggestionDependingStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\StorageDataNormalizationAwareInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Entity\StorageIdSpecificationAwareInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
-use Drupal\Component\Utility\Crypt;
+use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Config\Config;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -54,13 +52,6 @@ class TextFormat {
   protected RevisionStorage $revisionStorage;
 
   /**
-   * The collaboration config.
-   *
-   * @var \Drupal\Core\Config\Config
-   */
-  protected Config $config;
-
-  /**
    * Creates the text format element instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
@@ -69,8 +60,6 @@ class TextFormat {
    *   The editor storage handler.
    * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userDataProvider
    *   The user data storage.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -79,12 +68,11 @@ class TextFormat {
     protected EntityTypeManagerInterface $entityTypeManager,
     protected EditorStorageHandlerInterface $editorStorageHandler,
     protected UserDataProvider $userDataProvider,
-    ConfigFactoryInterface $config_factory
+    protected CollaborationSettings $collaborationSettings,
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
     $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
     $this->revisionStorage = $this->entityTypeManager->getStorage(RevisionInterface::ENTITY_TYPE_ID);
-    $this->config = $config_factory->getEditable('ckeditor5_premium_features_collaboration.settings');
   }
 
   /**
@@ -130,7 +118,7 @@ class TextFormat {
       '#type' => 'textarea',
       '#attributes' => [
         // The admin theme may vary, so this is the safest solution.
-        'style' => 'display: none;',
+//        'style' => 'display: none;',
         $id_attribute => $id,
       ],
       '#theme_wrappers' => [],
@@ -168,7 +156,7 @@ class TextFormat {
       '#default_value' => $this->revisionStorage->serializeCollection($revisions),
     ] + $default_element_keys;
     $element['revision_history']['#attributes']['class'] = ['revision-history-data'];
-    $add_revision_on_submit = $this->config->get('add_revision_on_submit') ?? TRUE;
+    $add_revision_on_submit = $this->collaborationSettings->isRevisionHistoryOnSubmit(); //->get('add_revision_on_submit') ?? TRUE;
     $element['#attached']['drupalSettings']['ckeditor5Premium']['addRevisionOnSubmit'] = $add_revision_on_submit;
 
     // Add the container for the revision list.
@@ -229,10 +217,16 @@ class TextFormat {
     ];
 
     foreach ($items as $item_key => $item_parents) {
+      $suggestion_source_data = $this->getFormElementSourceData($form_state, $item_parents, 'track_changes');
+      $suggestion_ids = $this->suggestionStorage->getSuggestionEntityIDs($suggestion_source_data);
+
       foreach ($features as $key => $storage) {
-        $source = $form_state->getValue([...$item_parents, $key]);
-        $source_data = (array) json_decode($source, TRUE);
-        $this->doStorageOperations($source_data, $storage, $entity, $item_key);
+        $source_data = $this->getFormElementSourceData($form_state, $item_parents, $key);
+        if ($storage instanceof CollaborationSuggestionDependingStorageInterface) {
+          $storage->setSuggestionIds($suggestion_ids);
+        }
+        $entities_data = $storage->processSourceData($source_data, $entity, $item_key);
+        $this->doStorageOperations($entities_data, $storage);
       }
     }
   }
@@ -307,44 +301,29 @@ class TextFormat {
   /**
    * Execute the storage commands based on the given markup data.
    *
-   * @param array $markup_data
-   *   The data stored in the markup.
+   * @param array $entities_data
+   *   The entities data collected from markup.
    * @param object $storage
    *   The related type storage.
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity related to the text format item.
-   * @param string $item_key
-   *   String with the key used to determine the form element field.
    */
-  private function doStorageOperations(array $markup_data, object $storage, EntityInterface $entity, string $item_key): void {
-    if ($storage instanceof StorageDataNormalizationAwareInterface) {
-      $markup_data = $storage->normalize($markup_data);
-    }
-    foreach ($markup_data as $element_data) {
-      if ($storage instanceof StorageIdSpecificationAwareInterface) {
-        if ($storage->isCommonId($element_data['id'])) {
-          $element_data['id'] = sprintf(
-            '%s_%s_%s',
-            $element_data['id'],
-            str_replace('-', '', $entity->uuid()),
-            str_replace('-', '', $item_key)
-          );
-        }
-      }
-      $element_data['item_key'] = $item_key;
+  private function doStorageOperations(array $entities_data, object $storage): void {
+    foreach ($entities_data as $element_data) {
 
       $data_entity = $storage->load($element_data['id']);
       if ($data_entity instanceof EntityInterface) {
         $storage->update($data_entity, $element_data);
       }
       else {
-        $element_data['entity_type'] = $entity->getEntityTypeId();
-        $element_data['entity_id'] = $entity->id();
         $storage->add($element_data);
       }
     }
   }
 
+  private function getFormElementSourceData(FormStateInterface $form_state, $item_parents, $key) {
+
+    $source = $form_state->getValue([...$item_parents, $key]);
+    return (array) json_decode($source, TRUE);
+  }
   /**
    * Gets the element unique HTML ID.
    *

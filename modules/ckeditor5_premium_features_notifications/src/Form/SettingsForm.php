@@ -59,14 +59,14 @@ class SettingsForm extends SharedBuildConfigFormBase {
     $form['message_factory_plugin'] = [
       '#type' => 'select',
       '#title' => 'Message content factory',
-      '#description' => 'Choose plugin responsible for providing notification messages templates.',
+      '#description' => $this->t('Choose plugin responsible for providing notification messages templates.'),
       '#options' => array_map(function($value) { return $value['label'];}, $messageFactoryDefinitions),
       '#default_value' => $config->get('message_factory_plugin'),
     ];
     $form['sender_plugin'] = [
       '#type' => 'select',
       '#title' => 'Message sender',
-      '#description' => 'Choose plugin responsible for sending notification messages.',
+      '#description' => $this->t('Choose plugin responsible for sending notification messages.'),
       '#options' => array_map(function($value) { return $value['label'];}, $senderDefinitions),
       '#default_value' => $config->get('sender_plugin'),
     ];
@@ -114,16 +114,16 @@ class SettingsForm extends SharedBuildConfigFormBase {
 
       $form[$groupKey][$messageType . '__subject'] = [
         '#type' => 'textfield',
-        '#title' => t('Subject'),
-        '#description' => t('Subject of the email that will be sent to users.'),
+        '#title' => $this->t('Subject'),
+        '#description' => $this->t('Subject of the email that will be sent to users.'),
         '#default_value' => $config->get($messageType . '__subject'),
       ];
 
       $messageConfig = $config->get($messageType . '__message');
       $form[$groupKey][$messageType . '__message'] = [
         '#type' => 'text_format',
-        '#title' => t('Message body'),
-        '#description' => t('Body of the message sent to the users that collaborated on the updated node.'),
+        '#title' => $this->t('Message body'),
+        '#description' => $this->t('Body of the message sent to the users that collaborated on the updated node.'),
         '#default_value' => $messageConfig['value'] ?? '',
         '#format' => $messageConfig['test_format'] ?? 'full_html',
       ];

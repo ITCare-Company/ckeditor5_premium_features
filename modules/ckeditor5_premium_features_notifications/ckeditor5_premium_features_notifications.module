@@ -7,11 +7,10 @@
 
 declare(strict_types=1);
 
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
-use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Utility\CollaborationChecker;
-use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\user\Entity\User;
 
@@ -23,9 +22,9 @@ function ckeditor5_premium_features_notifications_entity_update(EntityInterface 
     return;
   }
 
-  /** @var Collaborators $collaboratorsService */
+  /** @var Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators $collaboratorsService */
   $collaboratorsService = \Drupal::service('ckeditor5_premium_features_collaboration.collaborators');
-  /** @var NotificationSender $notificationService */
+  /** @var Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationService */
   $notificationService = \Drupal::service('ckeditor5_premium_features_notifications.notification_sender');
 
   $currentUser = User::load(Drupal::currentUser()->id());
@@ -39,6 +38,41 @@ function ckeditor5_premium_features_notifications_entity_update(EntityInterface 
   $notificationService->sendNotification(
     NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT,
     $otherAuthorsList,
+    $parameters
+  );
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function ckeditor5_premium_features_notifications_entity_insert(EntityInterface $entity) {
+  if (!$entity instanceof CommentInterface || !$entity->isReply()) {
+    return;
+  }
+
+  /** @var Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators $collaboratorsService */
+  $collaboratorsService = \Drupal::service('ckeditor5_premium_features_collaboration.collaborators');
+  $participants = $collaboratorsService->getParticipators($entity);
+
+  if (empty($participants)) {
+    return [];
+  }
+
+  $currentUser = User::load(Drupal::currentUser()->id());
+  $node = \Drupal::entityTypeManager()
+    ->getStorage($entity->getEntityTypeTargetId())
+    ->load($entity->getEntityId());
+
+  $parameters = [
+    'node' => $node,
+    'user' => $currentUser,
+  ];
+
+  /** @var Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationService */
+  $notificationService = \Drupal::service('ckeditor5_premium_features_notifications.notification_sender');
+  $notificationService->sendNotification(
+    NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY,
+    $participants,
     $parameters
   );
 }

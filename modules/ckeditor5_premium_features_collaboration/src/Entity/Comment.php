@@ -99,10 +99,35 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
   /**
    * {@inheritdoc}
    */
+  public function getContentPlain(): string|null {
+    $content = $this->getContent();
+    if (empty($content)) {
+      return NULL;
+    }
+
+    return str_replace(chr(0xC2).chr(0xA0), ' ', html_entity_decode(strip_tags($content)));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function setContent(string $content): static {
     $this->set('content', self::xssFilter($content));
 
     return $this;
+  }
+
+  public function setIsReply(bool $is_reply) {
+    $attributes = $this->getAttributes();
+    $attributes['is_reply'] = $is_reply;
+
+    $this->setAttributes($attributes);
+  }
+
+  public function isReply(): bool {
+    $attributes = $this->getAttributes();
+
+    return !empty($attributes['is_reply']);
   }
 
   /**

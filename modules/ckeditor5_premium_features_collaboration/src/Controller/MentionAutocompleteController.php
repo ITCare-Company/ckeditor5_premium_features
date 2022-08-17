@@ -9,6 +9,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class MentionAutocompleteController extends ControllerBase {
 
@@ -16,7 +17,8 @@ class MentionAutocompleteController extends ControllerBase {
 
   public function __construct(
     protected UserDataProvider $userProvider,
-    protected $configFactory
+    protected $configFactory,
+    protected RequestStack $requestStack
   ) {
     $this->mentionsConfig =  $this->configFactory->get('ckeditor5_premium_features_collaboration.settings');
   }
@@ -27,7 +29,8 @@ class MentionAutocompleteController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('ckeditor5_premium_features_collaboration.data_provider.users'),
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('request_stack')
     );
   }
 
@@ -38,7 +41,7 @@ class MentionAutocompleteController extends ControllerBase {
    * @throws \Drupal\Core\Entity\EntityMalformedException
    */
   public function annotation() {
-    $args = \Drupal::request()->query;
+    $args = $this->requestStack->getCurrentRequest()->query;
 
     if (empty($args->get('query')) ) {
       return new JsonResponse([]);

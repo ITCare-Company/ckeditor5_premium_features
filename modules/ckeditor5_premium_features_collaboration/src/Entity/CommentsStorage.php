@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
 use Drupal\Core\Access\AccessException;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -14,8 +15,14 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 /**
  * Provides the storage class for the Comments entity.
  */
-class CommentsStorage extends SqlContentEntityStorage implements CollaborationEntityStorageInterface, StorageDataNormalizationAwareInterface, EditorDataStorageProviderInterface {
+class CommentsStorage extends SqlContentEntityStorage implements
+  CollaborationEntityStorageInterface,
+  EditorDataStorageProviderInterface,
+  CollaborationSuggestionDependingStorageInterface {
+
   use CollaborationEntityStorageTrait;
+
+  protected $suggestion_ids;
 
   /**
    * Creates the storage instance.
@@ -92,6 +99,28 @@ class CommentsStorage extends SqlContentEntityStorage implements CollaborationEn
     return $normalized;
   }
 
+  public function processSourceData(array $source_data, ContentEntityInterface $entity, string $item_key): array {
+    $entity_list = [];
+
+    foreach ($source_data as $thread_data) {
+      $thread_id = $thread_data['threadId'];
+
+      foreach ($thread_data['comments'] as $position => $element_data) {
+
+        $element_data['position'] = $position;
+        $element_data['thread_id'] = $thread_id;
+        $element_data['id'] = $element_data['commentId'];
+        $element_data['is_reply'] = $position > 0 || $this->hasSuggestionId($thread_id);
+
+        $element_data = array_merge($element_data, $this->getCommonData($entity, $item_key));
+
+        $entity_list[] = $element_data;
+      }
+    }
+
+    return $entity_list;
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -106,13 +135,16 @@ class CommentsStorage extends SqlContentEntityStorage implements CollaborationEn
     ];
     $attributes = [
       'key' => $raw_data['item_key'],
+      'position' => $raw_data['position'],
+      'is_reply' => $raw_data['is_reply'],
     ];
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment */
     $comment = $this->create($object_data);
     $comment->setEntityTypeTargetId($data->get('entity_type', ''))
       ->setThreadId($data->get('thread_id'))
-      ->setContent($data->get('content'));
+      ->setContent($data->get('content'))
+      ->setIsReply($raw_data['is_reply']);
 
     if (!$comment->access('update')) {
       throw new AccessException();
@@ -142,6 +174,14 @@ class CommentsStorage extends SqlContentEntityStorage implements CollaborationEn
       ->save();
 
     return $entity;
+  }
+
+  public function setSuggestionIds(array $suggestion_ids): void {
+    $this->suggestion_ids = $suggestion_ids;
+  }
+
+  public function hasSuggestionId(string $suggestion_id): bool {
+    return in_array($suggestion_id, $this->suggestion_ids);
   }
 
 }

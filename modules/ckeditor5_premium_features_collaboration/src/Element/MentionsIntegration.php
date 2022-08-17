@@ -6,8 +6,7 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
-use Drupal\Core\Config\Config;
-use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -19,32 +18,21 @@ use Drupal\Core\Session\AccountProxyInterface;
 class MentionsIntegration {
 
   /**
-   * The collaboration config.
-   *
-   * @var \Drupal\Core\Config\Config
-   */
-  protected Config $config;
-
-  /**
    * Creates the mentions integration element instance.
    *
    * @param \Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface $editorStorageHandler
    *   The editor storage handler.
    * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userDataProvider
    *   The user data storage.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
-   *   The config factory.
    * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
    *   Current user.
    */
   public function __construct(
     protected EditorStorageHandlerInterface $editorStorageHandler,
-    protected UserDataProvider              $userDataProvider,
-    ConfigFactoryInterface                  $configFactory,
-    protected AccountProxyInterface         $currentUser,
-  ) {
-    $this->config = $configFactory->get('ckeditor5_premium_features_collaboration.settings');
-  }
+    protected UserDataProvider $userDataProvider,
+    protected AccountProxyInterface $currentUser,
+    protected CollaborationSettings $collaborationSettings,
+  ) { }
 
   /**
    * Process the text_format form element.
@@ -76,9 +64,9 @@ class MentionsIntegration {
       return $element;
     }
 
-    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['minCharacter'] = $this->config->get('mention_min_character') ?? 1;
-    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['dropdownLimit'] = $this->config->get('mention_dropdown_limit') ?? 4;
-    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['marker'] = $this->config->get('mention_marker') ?? '#';
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['minCharacter'] = $this->collaborationSettings->getMentionMinimalCharactersCount();
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['dropdownLimit'] = $this->collaborationSettings->getMentionAutocompleteListLength();
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['marker'] = $this->collaborationSettings->getMentionsMarker();
 
     return $element;
   }
