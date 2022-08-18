@@ -60,6 +60,8 @@ class TextFormat {
    *   The editor storage handler.
    * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userDataProvider
    *   The user data storage.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaborationSettings
+   *   Collaboration settings helper.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -118,7 +120,7 @@ class TextFormat {
       '#type' => 'textarea',
       '#attributes' => [
         // The admin theme may vary, so this is the safest solution.
-//        'style' => 'display: none;',
+        'style' => 'display: none;',
         $id_attribute => $id,
       ],
       '#theme_wrappers' => [],
@@ -156,7 +158,7 @@ class TextFormat {
       '#default_value' => $this->revisionStorage->serializeCollection($revisions),
     ] + $default_element_keys;
     $element['revision_history']['#attributes']['class'] = ['revision-history-data'];
-    $add_revision_on_submit = $this->collaborationSettings->isRevisionHistoryOnSubmit(); //->get('add_revision_on_submit') ?? TRUE;
+    $add_revision_on_submit = $this->collaborationSettings->isRevisionHistoryOnSubmit();
     $element['#attached']['drupalSettings']['ckeditor5Premium']['addRevisionOnSubmit'] = $add_revision_on_submit;
 
     // Add the container for the revision list.
@@ -319,11 +321,21 @@ class TextFormat {
     }
   }
 
-  private function getFormElementSourceData(FormStateInterface $form_state, $item_parents, $key) {
-
+  /**
+   * Returns the form element source value array.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object.
+   * @param $item_parents
+   *   Form item parents.
+   * @param $key
+   *   Type of the data stored.
+   */
+  private function getFormElementSourceData(FormStateInterface $form_state, $item_parents, $key): array {
     $source = $form_state->getValue([...$item_parents, $key]);
     return (array) json_decode($source, TRUE);
   }
+
   /**
    * Gets the element unique HTML ID.
    *

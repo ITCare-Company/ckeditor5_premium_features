@@ -6,6 +6,7 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Controller;
 
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,8 +14,16 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class MentionAutocompleteController extends ControllerBase {
 
-  protected $mentionsConfig;
+  /**
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
+  protected ImmutableConfig $mentionsConfig;
 
+  /**
+   * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userProvider
+   * @param $configFactory
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   */
   public function __construct(
     protected UserDataProvider $userProvider,
     protected $configFactory,

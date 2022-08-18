@@ -99,6 +99,9 @@ class CommentsStorage extends SqlContentEntityStorage implements
     return $normalized;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function processSourceData(array $source_data, ContentEntityInterface $entity, string $item_key): array {
     $entity_list = [];
 
@@ -176,10 +179,16 @@ class CommentsStorage extends SqlContentEntityStorage implements
     return $entity;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function setSuggestionIds(array $suggestion_ids): void {
     $this->suggestion_ids = $suggestion_ids;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function hasSuggestionId(string $suggestion_id): bool {
     return in_array($suggestion_id, $this->suggestion_ids);
   }

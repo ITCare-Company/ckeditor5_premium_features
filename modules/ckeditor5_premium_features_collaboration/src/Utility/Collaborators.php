@@ -14,17 +14,20 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Render\Element\Html;
 
+/**
+ * Class for collecting collaborators data.
+ */
 class Collaborators {
 
   /**
-   * The suggestion storage.
+   * The "suggestion" storage.
    *
    * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage
    */
   protected SuggestionStorage $suggestionStorage;
 
   /**
-   * The comments storage.
+   * The "comments" storage.
    *
    * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage
    */
@@ -32,7 +35,11 @@ class Collaborators {
 
   /**
    * @param \Drupal\Core\Database\Connection $connection
-   *   Database connection.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaborationSettings
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function __construct(protected Connection $connection,
                               protected EntityTypeManagerInterface $entityTypeManager,
@@ -65,6 +72,15 @@ class Collaborators {
     return array_unique(array_merge($suggestionAuthors, $revisionAuthors, $commentAuthors));
   }
 
+  /**
+   * Returns comment thread participators IDs.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $comment
+   *   Comment to be checked.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
   public function getParticipators(CollaborationEntityInterface $comment): array {
     $collaboratorIds = [];
 
@@ -142,6 +158,12 @@ class Collaborators {
     return $firstComment->isReply();
   }
 
+  /**
+   * Returns a list of users names mentioned in the comment.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface $comment
+   *   Comment object.
+   */
   protected function getCommentMentions(CommentInterface $comment): array{
     $marker = $this->collaborationSettings->getMentionsMarker();
     $minCharCount = $this->collaborationSettings->getMentionMinimalCharactersCount();
@@ -157,6 +179,15 @@ class Collaborators {
     return [];
   }
 
+  /**
+   * Returns a list of IDs for specified usernames.
+   *
+   * @param array $userNames
+   *   List of usernames.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
   protected function getUserIdsByNames(array $userNames): array {
     return $this->entityTypeManager->getStorage('user')
       ->getQuery()

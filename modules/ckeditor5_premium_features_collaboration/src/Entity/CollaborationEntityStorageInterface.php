@@ -35,5 +35,15 @@ interface CollaborationEntityStorageInterface {
    */
   public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface;
 
+  /**
+   * Returns a list of collaboration entities attributes generated from collaboration source array.
+   *
+   * @param array $source_data
+   *   Collaboration source array.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   Related entity.
+   * @param string $item_key
+   *   Related entity field key.
+   */
   public function processSourceData(array $source_data, ContentEntityInterface $entity, string $item_key): array;
 }

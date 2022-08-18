@@ -42,13 +42,15 @@ trait CollaborationEntityStorageTrait {
     });
   }
 
-  public function getCommonAttribute($raw_data) {
-    return [
-      'key' => $raw_data['item_key'],
-    ];
-  }
-
-  public function getCommonData(ContentEntityInterface $entity, string $item_key) {
+  /**
+   * Returns an array with common attributes for collaboration entities.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   Related entity.
+   * @param string $item_key
+   *   Related entity field key.
+   */
+  public function getCommonData(ContentEntityInterface $entity, string $item_key): array {
     return [
       'item_key' => $item_key,
       'entity_type' => $entity->getEntityTypeId(),
@@ -56,6 +58,9 @@ trait CollaborationEntityStorageTrait {
     ];
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function processSourceData(array $source_data, ContentEntityInterface $entity, string $item_key): array {
     $entity_list = [];
     foreach ($source_data as $element_data) {

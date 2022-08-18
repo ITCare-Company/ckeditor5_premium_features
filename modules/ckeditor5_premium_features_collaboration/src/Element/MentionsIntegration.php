@@ -26,6 +26,8 @@ class MentionsIntegration {
    *   The user data storage.
    * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
    *   Current user.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaborationSettings
+   *   Collaboration settings helper.
    */
   public function __construct(
     protected EditorStorageHandlerInterface $editorStorageHandler,
