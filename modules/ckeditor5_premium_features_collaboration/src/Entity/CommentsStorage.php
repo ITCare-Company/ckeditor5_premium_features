@@ -22,7 +22,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
 
   use CollaborationEntityStorageTrait;
 
-  protected $suggestion_ids;
+  protected array $suggestion_ids;
 
   /**
    * Creates the storage instance.
@@ -30,7 +30,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
    * @param \Drupal\Core\Session\AccountProxyInterface $user
    *   THe current user object.
    * @param mixed ...$parent_arguments
-   *   The parent paramters.
+   *   The parent parameters.
    */
   public function __construct(
     protected AccountProxyInterface $user,

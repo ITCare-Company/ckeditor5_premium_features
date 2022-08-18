@@ -117,13 +117,19 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
     return $this;
   }
 
-  public function setIsReply(bool $is_reply) {
+  /**
+   * {@inheritdoc}
+   */
+  public function setIsReply(bool $is_reply): void {
     $attributes = $this->getAttributes();
     $attributes['is_reply'] = $is_reply;
 
     $this->setAttributes($attributes);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function isReply(): bool {
     $attributes = $this->getAttributes();
 

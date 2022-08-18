@@ -54,8 +54,16 @@ interface CommentInterface {
    */
   public function setContent(string $content): static;
 
+  /**
+   * Gets the is_reply attribute value.
+   */
   public function isReply(): bool;
 
-  public function setIsReply(bool $is_reply);
+  /**
+   * Sets the is_reply attribute value.
+   *
+   * @param bool $is_reply
+   */
+  public function setIsReply(bool $is_reply): void;
 
 }
