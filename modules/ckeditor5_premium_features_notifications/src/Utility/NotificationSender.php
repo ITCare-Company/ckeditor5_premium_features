@@ -2,15 +2,27 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
+use Drupal\ckeditor5_premium_features_notifications\Form\SettingsForm;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Mail\MailManagerInterface;
 
 class NotificationSender {
+
+  protected $notificationConfig;
 
   const NOTIFICATION_OPT_OUT_FIELD_TABLE = 'user__field_ck5_premium_notifications';
   const NOTIFICATION_OPT_OUT_FIELD_VALUE = 'field_ck5_premium_notifications_value';
 
-  public function __construct(protected Connection $dbConnection, protected MailManagerInterface $mailManager) { }
+  public function __construct(protected Connection $dbConnection,
+                              ConfigFactoryInterface $configFactory,
+                              protected NotificationSenderPluginManager $senderPluginManager,
+                              protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager) {
+    $this->notificationConfig = $configFactory->get(SettingsForm::NOTIFICATION_CONFIG);
+  }
 
   /**
    * Sends notification mail.
@@ -20,51 +32,76 @@ class NotificationSender {
    *
    * @return bool|array
    */
-  public function sendNotification(array $recipientIds, array $parameters): bool|array {
-    $mails = $this->getUserMails($recipientIds);
+  public function sendNotification(string $messageType, array $recipientIds, array $parameters): bool|array {
+    $recipientIds = $this->filterRecipients($recipientIds);
 
-    if (empty($mails)) {
+    if (empty($recipientIds)) {
       return FALSE;
     }
 
-    $mainMail = array_pop($mails);
-    if (count($mails) > 0) {
-      $parameters['cc'] = $mails;
+    /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory */
+    $messageFactory = $this->getMessageFactoryPlugin();
+    if (!$messageFactory) {
+      return FALSE;
     }
 
-    return $this->mailManager->mail(
-      'ckeditor5_premium_features_notifications',
-      'content_updated',
-      $mainMail,
-      NULL,
-      $parameters,
-      NULL,
-      TRUE
-    );
+    /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface $sender */
+    $sender = $this->getMessageSenderPlugin();
+    if (!$sender) {
+      return FALSE;
+    }
+
+    $message = $messageFactory->getMessage($messageType, $parameters);
+
+    return $sender->send($message, $recipientIds);
   }
 
   /**
-   * Returns a list of user emails.
+   * Returns a list of user ids with notification consent.
    *
    * @param array $userIds
    *
    * @return array
    */
-  protected function getUserMails(array $userIds): array {
+  protected function filterRecipients(array $userIds): array {
     if (empty($userIds)) {
       return [];
     }
 
-    $userMailQuery = $this->dbConnection->select('users_field_data', 'u')
-      ->fields('u', ['mail']);
-
-    if ($this->dbConnection->schema()->tableExists(self::NOTIFICATION_OPT_OUT_FIELD_TABLE)) {
-      $userMailQuery->join(self::NOTIFICATION_OPT_OUT_FIELD_TABLE, 'n', 'u.uid = n.entity_id');
-      $userMailQuery->condition(self::NOTIFICATION_OPT_OUT_FIELD_VALUE, 1);
+    if (!$this->dbConnection->schema()->tableExists(self::NOTIFICATION_OPT_OUT_FIELD_TABLE)) {
+      return $userIds;
     }
 
-    return $userMailQuery->condition('uid', $userIds, 'IN')
+    return $this->dbConnection->select(self::NOTIFICATION_OPT_OUT_FIELD_TABLE, 'n')
+      ->fields('n', ['entity_id'])
+      ->condition('entity_id', $userIds, 'IN')
+      ->condition(self::NOTIFICATION_OPT_OUT_FIELD_VALUE, 1)
       ->execute()
       ->fetchCol();
   }
+
+  /**
+   * Returns notification message factory plugin instance.
+   */
+  protected function getMessageFactoryPlugin(): NotificationMessageFactoryInterface|NULL {
+    $pluginId = $this->notificationConfig->get('message_factory_plugin');
+    if (!$this->messageFactoryPluginManager->hasDefinition($pluginId)) {
+      return NULL;
+    }
+
+    return $this->messageFactoryPluginManager->createInstance($pluginId);
+  }
+
+  /**
+   * Returns notification sender plugin instance.
+   */
+  protected function getMessageSenderPlugin(): NotificationSenderInterface|NULL {
+    $pluginId = $this->notificationConfig->get('sender_plugin');
+    if (!$this->senderPluginManager->hasDefinition($pluginId)) {
+      return NULL;
+    }
+
+    return $this->senderPluginManager->createInstance($pluginId);
+  }
+
 }
