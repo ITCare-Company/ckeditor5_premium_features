@@ -66,4 +66,8 @@ interface CommentInterface {
    */
   public function setIsReply(bool $is_reply): void;
 
+  /**
+   * Returns position attribute.
+   */
+  public function getPosition(): int;
 }
