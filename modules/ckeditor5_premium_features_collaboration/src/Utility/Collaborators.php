@@ -3,6 +3,7 @@
 namespace Drupal\ckeditor5_premium_features_collaboration\Utility;
 
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\Comment;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
@@ -77,17 +78,15 @@ class Collaborators {
    *
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $comment
    *   Comment to be checked.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function getParticipators(CollaborationEntityInterface $comment): array {
+    $commentsInThread = $this->getCommentsThread($comment->getThreadId());
+
+    if (empty($commentsInThread)) {
+      return [];
+    }
+
     $collaboratorIds = [];
-
-    $commentsInThread = $this->commentsStorage->loadByProperties([
-      'thread_id' => $comment->getThreadId(),
-    ]);
-
     $mentionedUsers = [];
 
     /** @var CollaborationEntityInterface $threadComment */
@@ -109,17 +108,54 @@ class Collaborators {
       $collaboratorIds = array_merge($collaboratorIds, $this->getUserIdsByNames($mentionedUsers));
     }
 
-    if ($this->isSuggestionThread($commentsInThread)) {
-      /** @var CollaborationEntityInterface $suggestion */
+    $collaboratorIds = array_diff($collaboratorIds, [$comment->getAuthorId()]);
+
+    return array_unique($collaboratorIds);
+  }
+
+  /**
+   * Checks if the comment is a reply to a suggestion and returns the suggestion author ID.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment
+   *   Comment to be checked.
+   *
+   * @return int|NULL
+   *   Returns author ID or NULL if no suggestion matches the comment.
+   */
+  public function getThreadSuggestionAuthor(Comment $comment): int|NULL {
+    // get thread
+    $commentsInThread = $this->getCommentsThread($comment->getThreadId());
+
+    if (!$this->isSuggestionThread($commentsInThread)) {
+      return NULL;
+    }
+
+    /** @var CollaborationEntityInterface $suggestion */
+    try {
       $suggestion = $this->suggestionStorage->load($comment->getThreadId());
 
       if ($suggestion->getAuthorId() != $comment->getAuthorId()) {
-        $collaboratorIds[] = $suggestion->getAuthorId();
+        return $suggestion->getAuthorId();
       }
-    }
+    } catch (\Exception $e) {}
 
+    return NULL;
+  }
 
-    return array_unique($collaboratorIds);
+  /**
+   * Returns a list of comments matched by the thread ID.
+   *
+   * @param string $threadId
+   *   ID of th thread.
+   */
+  protected function getCommentsThread(string $threadId): array {
+    try {
+      return $this->commentsStorage->loadByProperties([
+        'thread_id' => $threadId,
+      ]);
+    } catch (\Exception $e) { }
+
+    return [];
   }
 
   /**
@@ -154,8 +190,14 @@ class Collaborators {
    * @param CommentInterface[] $comments
    */
   protected function isSuggestionThread(array $comments): bool {
-    $firstComment = reset($comments);
-    return $firstComment->isReply();
+    /** @var Comment $threadComment */
+    foreach ($comments as $threadComment) {
+      if ($threadComment->getPosition() == 0 && $threadComment->isReply()) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
   /**
@@ -184,15 +226,16 @@ class Collaborators {
    *
    * @param array $userNames
    *   List of usernames.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   protected function getUserIdsByNames(array $userNames): array {
-    return $this->entityTypeManager->getStorage('user')
-      ->getQuery()
-      ->accessCheck(TRUE)
-      ->condition('name', $userNames, 'IN')
-      ->execute();
+    try {
+      return $this->entityTypeManager->getStorage('user')
+        ->getQuery()
+        ->accessCheck(TRUE)
+        ->condition('name', $userNames, 'IN')
+        ->execute();
+    } catch (\Exception $e) {
+      return [];
+    }
   }
 }

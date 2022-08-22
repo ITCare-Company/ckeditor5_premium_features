@@ -137,6 +137,15 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getPosition(): int {
+    $attributes = $this->getAttributes();
+
+    return $attributes['position'] ?? -1;
+  }
+
+  /**
    * Filter the entity content to avoid XSS vulnerabilities.
    *
    * @param string $content

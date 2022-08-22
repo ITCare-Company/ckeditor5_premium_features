@@ -52,29 +52,43 @@ function ckeditor5_premium_features_notifications_entity_insert(EntityInterface 
 
   /** @var Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators $collaboratorsService */
   $collaboratorsService = \Drupal::service('ckeditor5_premium_features_collaboration.collaborators');
-  $participants = $collaboratorsService->getParticipators($entity);
-
-  if (empty($participants)) {
-    return [];
-  }
-
-  $currentUser = User::load(Drupal::currentUser()->id());
-  $node = \Drupal::entityTypeManager()
-    ->getStorage($entity->getEntityTypeTargetId())
-    ->load($entity->getEntityId());
-
-  $parameters = [
-    'node' => $node,
-    'user' => $currentUser,
-  ];
-
   /** @var Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationService */
   $notificationService = \Drupal::service('ckeditor5_premium_features_notifications.notification_sender');
-  $notificationService->sendNotification(
-    NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY,
-    $participants,
-    $parameters
-  );
+
+  $participators = $collaboratorsService->getParticipators($entity);
+  $threadSuggestionAuthor = $collaboratorsService->getThreadSuggestionAuthor($entity);
+  $parameters = [];
+
+  $participators = array_diff($participators, [$threadSuggestionAuthor]);
+
+  if (!empty($participators) || !empty($threadSuggestionAuthor)) {
+    $currentUser = User::load(Drupal::currentUser()->id());
+    $node = \Drupal::entityTypeManager()
+      ->getStorage($entity->getEntityTypeTargetId())
+      ->load($entity->getEntityId());
+
+    $parameters = [
+      'node' => $node,
+      'user' => $currentUser,
+    ];
+  }
+  if (!empty($participators)) {
+    // Send notification to users participated in a thread.
+    $notificationService->sendNotification(
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY,
+      $participators,
+      $parameters
+    );
+  }
+
+  if ($threadSuggestionAuthor > 0) {
+    // Send notification to the suggestion author.
+    $notificationService->sendNotification(
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY,
+      [$threadSuggestionAuthor],
+      $parameters
+    );
+  }
 }
 
 /**
