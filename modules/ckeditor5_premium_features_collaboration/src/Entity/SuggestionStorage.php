@@ -131,6 +131,16 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
   }
 
   /**
+   * Returns the list of IDs present in the source data array.
+   *
+   * @param array $source_data
+   *   Collaboration source data.
+   */
+  public function getSuggestionEntityIds(array $source_data): array {
+    return array_map(function($value) { return $value['id']; }, $source_data);
+  }
+
+  /**
    * Loads the original suggestion if present in the data.
    *
    * @param \Symfony\Component\HttpFoundation\ParameterBag $data

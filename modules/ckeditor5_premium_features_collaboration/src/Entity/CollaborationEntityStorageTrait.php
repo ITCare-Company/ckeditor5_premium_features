@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
@@ -39,6 +40,47 @@ trait CollaborationEntityStorageTrait {
       $attributes = $item->getAttributes();
       return $item->access('view') && ($item_key_filter == NULL || $attributes['key'] == $item_key_filter);
     });
+  }
+
+  /**
+   * Returns an array with common attributes for collaboration entities.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   Related entity.
+   * @param string $item_key
+   *   Related entity field key.
+   */
+  public function getCommonData(ContentEntityInterface $entity, string $item_key): array {
+    return [
+      'item_key' => $item_key,
+      'entity_type' => $entity->getEntityTypeId(),
+      'entity_id' => $entity->id(),
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function processSourceData(array $source_data, ContentEntityInterface $entity, string $item_key): array {
+    $entity_list = [];
+    foreach ($source_data as $element_data) {
+      if ($this instanceof StorageIdSpecificationAwareInterface) {
+        if ($this->isCommonId($element_data['id'])) {
+          $element_data['id'] = sprintf(
+            '%s_%s_%s',
+            $element_data['id'],
+            str_replace('-', '', $entity->uuid()),
+            str_replace('-', '', $item_key)
+          );
+        }
+      }
+
+      $element_data = array_merge($element_data, $this->getCommonData($entity, $item_key));
+
+      $entity_list[] = $element_data;
+    }
+
+    return $entity_list;
   }
 
 }
