@@ -138,10 +138,6 @@ class TextFormat {
     // Setup the comments.
     $comments = $this->commentsStorage->loadByEntity($entity, $id);
 
-    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface[] $users_data */
-    $users_data = array_merge($comments, $suggestions);
-    $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $this->userDataProvider->getFromEntities($users_data);
-
     $element['comments'] = [
       '#default_value' => $this->commentsStorage->serializeCollection($comments),
     ] + $default_element_keys;
@@ -160,6 +156,10 @@ class TextFormat {
     $element['revision_history']['#attributes']['class'] = ['revision-history-data'];
     $add_revision_on_submit = $this->collaborationSettings->isRevisionHistoryOnSubmit();
     $element['#attached']['drupalSettings']['ckeditor5Premium']['addRevisionOnSubmit'] = $add_revision_on_submit;
+
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface[] $users_data */
+    $users_data = array_merge($comments, $suggestions, $revisions);
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $this->userDataProvider->getFromEntities($users_data);
 
     // Add the container for the revision list.
     $element['revision_history_container'] = [

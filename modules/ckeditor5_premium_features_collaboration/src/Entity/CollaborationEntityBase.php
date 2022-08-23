@@ -7,6 +7,7 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -145,6 +146,18 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
    */
   public function getEntityId(): string {
     return (string) $this->get('entity_id')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function getReferencedEntity(): EntityInterface {
+    return $this->entityTypeManager()
+      ->getStorage($this->getEntityTypeTargetId())
+      ->load($this->getEntityId());
   }
 
   /**

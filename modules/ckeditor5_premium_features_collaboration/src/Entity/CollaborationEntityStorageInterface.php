@@ -17,10 +17,10 @@ interface CollaborationEntityStorageInterface {
    * @param array $raw_data
    *   The raw data to be used in the creation.
    *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface
-   *   The created entity.
+   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface|NULL
+   *   The created entity or NULL if not added.
    */
-  public function add(array $raw_data): CollaborationEntityInterface;
+  public function add(array $raw_data): CollaborationEntityInterface|NULL;
 
   /**
    * Updates the CKEDitor5 collaboration entity.
@@ -30,10 +30,10 @@ interface CollaborationEntityStorageInterface {
    * @param array $raw_data
    *   The raw data to be updated.
    *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface
-   *   The created entity.
+   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface|NULL
+   *   The created entity or NULL if deleted.
    */
-  public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface;
+  public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface|NULL;
 
   /**
    * Returns a list of collaboration entities attributes generated from collaboration source array.

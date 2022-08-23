@@ -82,7 +82,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
   /**
    * {@inheritdoc}
    */
-  public function add(array $raw_data): CollaborationEntityInterface {
+  public function add(array $raw_data): CollaborationEntityInterface|NULL {
     $raw_data = Revision::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
@@ -123,7 +123,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
   /**
    * {@inheritdoc}
    */
-  public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface {
+  public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface|NULL {
     if (!$entity->access('update')) {
       throw new AccessException();
     }
