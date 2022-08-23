@@ -7,6 +7,9 @@ use Drupal\Component\EventDispatcher\Event;
 use Drupal\Core\Session\AccountInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
+/**
+ * Suggestion event class.
+ */
 class SuggestionEvent extends Event {
 
   use TranslatorTrait;
@@ -14,47 +17,66 @@ class SuggestionEvent extends Event {
   const SUGGESTION_ACCEPT = 'ck5_collaboration_suggestion_accept';
   const SUGGESTION_DISCARD = 'ck5_collaboration_suggestion_discard';
 
+  /**
+   *  Suggestion event constructor.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
+   *   Event suggestion.
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   Event account.
+   * @param string $eventType
+   *   Type of event.
+   */
   public function __construct(protected SuggestionInterface $suggestion,
                               protected AccountInterface $account,
                               protected string $eventType) { }
 
   /**
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface
+   * Returns event suggetion entity.
    */
   public function getSuggestion(): SuggestionInterface {
     return $this->suggestion;
   }
 
   /**
+   * Sets event suggestion.
+   *
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
+   *   Event suggestion.
    */
   public function setSuggestion(SuggestionInterface $suggestion): void {
     $this->suggestion = $suggestion;
   }
 
   /**
-   * @return \Drupal\Core\Session\AccountInterface
+   * Returns event account.
    */
   public function getAccount(): AccountInterface {
     return $this->account;
   }
 
   /**
+   * Sets event account.
+   *
    * @param \Drupal\Core\Session\AccountInterface $account
+   *   User account.
    */
   public function setAccount(AccountInterface $account): void {
     $this->account = $account;
   }
 
   /**
-   * @return string
+   * Returns event type.
    */
   public function getEventType(): string {
     return $this->eventType;
   }
 
   /**
+   * Sets event type.
+   *
    * @param string $eventType
+   *   Type of the event.
    */
   public function setEventType(string $eventType): void {
     $this->eventType = $eventType;
