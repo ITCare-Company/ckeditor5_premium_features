@@ -20,22 +20,46 @@ class NotificationSettings {
     $this->notificationSettings = $configFactory->get(SettingsForm::NOTIFICATION_CONFIG);
   }
 
+  /**
+   * Returns message subject for specified notification type.
+   *
+   * @param $messageType
+   *   Type of message.
+   */
   public function getMessageSubject($messageType): string {
     return $this->notificationSettings->get($messageType . '__subject');
   }
 
+  /**
+   * Returns message body for specified notification type.
+   *
+   * @param $messageType
+   *   Type of message.
+   */
   public function getMessageBody($messageType): string {
     return $this->notificationSettings->get($messageType . '__message')['value'];
   }
 
+  /**
+   * Returns TRUE if specified message type is enabled.
+   *
+   * @param $messageType
+   *   Type of message.
+   */
   public function isMessageEnabled($messageType): bool {
     return (bool) $this->notificationSettings->get($messageType . '__enabled');
   }
 
+  /**
+   * Returns selected message factory plugin ID.
+   */
   public function getMessageFactoryPluginId(): string {
     return $this->notificationSettings->get('message_factory_plugin');
   }
 
+  /**
+   * Returns selected message sender plugin ID.
+   */
   public function getSenderPluginId(): string {
     return $this->notificationSettings->get('sender_plugin');
   }
