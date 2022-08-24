@@ -113,7 +113,9 @@ class FilterCollaboration extends FilterBase {
         else {
           try {
             $suggestion->remove();
-          } catch (\Error $e) { }
+          }
+          catch (\Error $e) {
+          }
         }
       }
     }

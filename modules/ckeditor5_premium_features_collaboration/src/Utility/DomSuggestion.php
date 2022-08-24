@@ -46,7 +46,8 @@ class DomSuggestion {
   public function getNameAttributeValue(): string|NULL {
     try {
       return $this->element->getAttribute('name');
-    } catch (\Error $e) {
+    }
+    catch (\Error $e) {
       return NULL;
     }
   }
@@ -60,7 +61,8 @@ class DomSuggestion {
   public function getEndAttributeValue(): string|NULL {
     try {
       return $this->element->getAttribute('data-suggestion-end-after');
-    } catch (\Error $e) {
+    }
+    catch (\Error $e) {
       return NULL;
     }
   }
@@ -74,7 +76,8 @@ class DomSuggestion {
   public function getStartAttributeValue(): string|NULL {
     try {
       return $this->element->getAttribute('data-suggestion-start-before');
-    } catch (\Error $e) {
+    }
+    catch (\Error $e) {
       return NULL;
     }
   }
@@ -88,7 +91,8 @@ class DomSuggestion {
   public function isEndTag(): bool {
     try {
       return $this->element->nodeName === 'suggestion-end';
-    } catch (\Error $e) {
+    }
+    catch (\Error $e) {
       return FALSE;
     }
   }
@@ -102,7 +106,8 @@ class DomSuggestion {
   public function isStartTag(): bool {
     try {
       return $this->element->nodeName === 'suggestion-start';
-    } catch (\Error $e) {
+    }
+    catch (\Error $e) {
       return FALSE;
     }
   }

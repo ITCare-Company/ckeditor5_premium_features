@@ -38,7 +38,6 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#default_value' => $config->get('sidebar') ?? 'auto',
     ];
 
-
     $form['mentions'] = [
       '#type' => 'fieldset',
       '#title' => t('Mentions/Annotations'),

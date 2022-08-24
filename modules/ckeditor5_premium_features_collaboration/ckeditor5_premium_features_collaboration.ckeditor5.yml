@@ -77,7 +77,6 @@ ckeditor5_premium_features_collaboration__mention_integration:
   drupal:
     label: The load & save integration of collaboration tools.
     library: ckeditor5_premium_features_collaboration/mention-integration
-    class: Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\MentionsIntegration
     elements:
       - <span>
       - <span data-mention class="mention">

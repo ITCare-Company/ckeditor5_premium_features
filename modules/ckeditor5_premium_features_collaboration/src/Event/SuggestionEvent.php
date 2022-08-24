@@ -18,7 +18,7 @@ class SuggestionEvent extends Event {
   const SUGGESTION_DISCARD = 'ck5_collaboration_suggestion_discard';
 
   /**
-   *  Suggestion event constructor.
+   * Suggestion event constructor.
    *
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
    *   Event suggestion.
@@ -29,7 +29,7 @@ class SuggestionEvent extends Event {
    */
   public function __construct(protected SuggestionInterface $suggestion,
                               protected AccountInterface $account,
-                              protected string $eventType) { }
+                              protected string $eventType) {}
 
   /**
    * Returns event suggetion entity.
@@ -102,4 +102,5 @@ class SuggestionEvent extends Event {
 
     return $supportedTypes[$eventType];
   }
+
 }

@@ -5,7 +5,6 @@ namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Plugin\PluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -81,4 +80,5 @@ class NotificationSenderMail extends NotificationSenderBase implements Container
       ->execute()
       ->fetchCol();
   }
+
 }

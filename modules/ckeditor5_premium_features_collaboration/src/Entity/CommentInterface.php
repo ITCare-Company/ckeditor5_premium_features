@@ -70,4 +70,5 @@ interface CommentInterface {
    * Returns position attribute.
    */
   public function getPosition(): int;
+
 }

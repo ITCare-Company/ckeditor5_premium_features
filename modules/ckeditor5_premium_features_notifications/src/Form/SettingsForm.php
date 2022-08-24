@@ -6,6 +6,7 @@ namespace Drupal\ckeditor5_premium_features_notifications\Form;
 
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormBase;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -19,7 +20,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
 
   const NOTIFICATION_CONFIG = 'ckeditor5_premium_features_notifications.settings';
 
-  public function __construct(ConfigFactoryInterface  $configFactory,
+  public function __construct(ConfigFactoryInterface $configFactory,
                               protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager,
                               protected NotificationSenderPluginManager $senderPluginManager) {
     parent::__construct($configFactory);
@@ -52,7 +53,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
 
     $config = $this->config($this->getFormId());
 
-    // Collect plugins information;
+    // Collect plugins information.
     $messageFactoryDefinitions = $this->messageFactoryPluginManager->getDefinitions();
     $senderDefinitions = $this->senderPluginManager->getDefinitions();
 
@@ -60,14 +61,18 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#type' => 'select',
       '#title' => 'Message content factory',
       '#description' => $this->t('Choose plugin responsible for providing notification messages templates.'),
-      '#options' => array_map(function($value) { return $value['label'];}, $messageFactoryDefinitions),
+      '#options' => array_map(function ($value) {
+        return $value['label'];
+      }, $messageFactoryDefinitions),
       '#default_value' => $config->get('message_factory_plugin'),
     ];
     $form['sender_plugin'] = [
       '#type' => 'select',
       '#title' => 'Message sender',
       '#description' => $this->t('Choose plugin responsible for sending notification messages.'),
-      '#options' => array_map(function($value) { return $value['label'];}, $senderDefinitions),
+      '#options' => array_map(function ($value) {
+        return $value['label'];
+      }, $senderDefinitions),
       '#default_value' => $config->get('sender_plugin'),
     ];
 
@@ -86,7 +91,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
           [
             '#markup' => '<a href="https://www.drupal.org/node/390482#drupal7tokenslist-token-user">User tokens</a>',
           ],
-        ]
+        ],
       ],
     ];
 
@@ -112,12 +117,32 @@ class SettingsForm extends SharedBuildConfigFormBase {
         '#group' => 'verticaltabs',
       ];
 
+      $form[$groupKey][$messageType . '__enabled'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Enable'),
+        '#description' => $this->t('Decide if your system should support this type of notification.'),
+        '#default_value' => $config->get($messageType . '__enabled'),
+      ];
+
+      $visibility = [
+        '#states' => [
+          'visible' => [
+            ':input[name="' . $messageType . '__enabled"]' => ['checked' => TRUE],
+            'and',
+            ':input[name="message_factory_plugin"]' => ['value' => 'ck5_notifications_message'],
+          ],
+          'required' => [
+            'input[name="' . $messageType . '__enabled"]' => ['checked' => TRUE],
+          ],
+        ],
+      ];
+
       $form[$groupKey][$messageType . '__subject'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Subject'),
         '#description' => $this->t('Subject of the email that will be sent to users.'),
         '#default_value' => $config->get($messageType . '__subject'),
-      ];
+      ] + $visibility;
 
       $messageConfig = $config->get($messageType . '__message');
       $form[$groupKey][$messageType . '__message'] = [
@@ -126,11 +151,44 @@ class SettingsForm extends SharedBuildConfigFormBase {
         '#description' => $this->t('Body of the message sent to the users that collaborated on the updated node.'),
         '#default_value' => $messageConfig['value'] ?? '',
         '#format' => $messageConfig['test_format'] ?? 'full_html',
-      ];
+      ] + $visibility;
 
+      $form[$groupKey][$messageType . '__additional_help'] = $this->getNotificationAdditionalInstruction($messageType) + $visibility;
     }
 
     return $form;
+  }
+
+  /**
+   * Returns additional description specific for passed message type.
+   *
+   * @param $messageType
+   *   Type of message.
+   *
+   * @return array
+   *   Render array with additional info.
+   */
+  protected function getNotificationAdditionalInstruction($messageType): array {
+    return match ($messageType) {
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => [
+        '#type' => 'container',
+        'intro' => [
+          '#markup' => 'In this notification, you can use additional tokens with suggestion status:',
+        ],
+        'list' => [
+          '#theme' => 'item_list',
+          '#items' => [
+            [
+              '#markup' => '[suggestion:status] - replaced by system event key.',
+            ],
+            [
+              '#markup' => '[suggestion:status-label] - replaced by translatable event user friendly label.',
+            ],
+          ],
+        ],
+      ],
+      default => [],
+    };
   }
 
 }

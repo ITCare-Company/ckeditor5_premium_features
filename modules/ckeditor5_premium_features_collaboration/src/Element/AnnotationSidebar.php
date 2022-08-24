@@ -46,7 +46,7 @@ class AnnotationSidebar {
         ],
       ],
     ];
-    // TODO: Change to better solution.
+    // @todo Change to better solution.
     $class_wrapper = $element['#id'] . '-value-ck-sidebar-wrapper';
     $sidebar_html = \Drupal::service('renderer')->render($sidebar);
     $element['value']['#prefix'] = "<div class='ck-editor-sidebar-wrapper $class_wrapper'>";

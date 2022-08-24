@@ -9,4 +9,5 @@ interface NotificationMessageInterface {
   public function getMessageTitle(): string;
 
   public function getMessageBody() :array;
+
 }

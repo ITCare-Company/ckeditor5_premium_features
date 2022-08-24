@@ -28,7 +28,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
    *   The parent paramters.
    */
   public function __construct(
-    protected AccountProxyInterface         $user,
+    protected AccountProxyInterface $user,
     protected ContainerAwareEventDispatcher $event_dispatcher,
                                             ...$parent_arguments
   ) {
@@ -154,7 +154,9 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
    *   Collaboration source data.
    */
   public function getSuggestionEntityIds(array $source_data): array {
-    return array_map(function($value) { return $value['id']; }, $source_data);
+    return array_map(function ($value) {
+      return $value['id'];
+    }, $source_data);
   }
 
   /**
@@ -235,6 +237,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
       case 'accept':
         $event_type = SuggestionEvent::SUGGESTION_ACCEPT;
         break;
+
       case 'discard':
         $event_type = SuggestionEvent::SUGGESTION_DISCARD;
         break;
@@ -249,4 +252,5 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
       $event_type
     );
   }
+
 }

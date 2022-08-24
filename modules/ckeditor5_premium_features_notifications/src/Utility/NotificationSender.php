@@ -2,27 +2,22 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
-use Drupal\ckeditor5_premium_features_notifications\Form\SettingsForm;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Database\Connection;
 
 class NotificationSender {
-
-  protected $notificationConfig;
 
   const NOTIFICATION_OPT_OUT_FIELD_TABLE = 'user__field_ck5_premium_notifications';
   const NOTIFICATION_OPT_OUT_FIELD_VALUE = 'field_ck5_premium_notifications_value';
 
   public function __construct(protected Connection $dbConnection,
-                              ConfigFactoryInterface $configFactory,
+                              protected NotificationSettings $notificationSettings,
                               protected NotificationSenderPluginManager $senderPluginManager,
-                              protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager) {
-    $this->notificationConfig = $configFactory->get(SettingsForm::NOTIFICATION_CONFIG);
-  }
+                              protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager
+  ) {}
 
   /**
    * Sends notification mail.
@@ -33,6 +28,10 @@ class NotificationSender {
    * @return bool|array
    */
   public function sendNotification(string $messageType, array $recipientIds, array $parameters): bool|array {
+    if (!$this->notificationSettings->isMessageEnabled($messageType)) {
+      return FALSE;
+    }
+
     $recipientIds = $this->filterRecipients($recipientIds);
 
     if (empty($recipientIds)) {
@@ -40,7 +39,7 @@ class NotificationSender {
     }
 
     /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory */
-    $messageFactory = $this->getMessageFatoryPlugin();
+    $messageFactory = $this->getMessageFactoryPlugin();
     if (!$messageFactory) {
       return FALSE;
     }
@@ -83,8 +82,8 @@ class NotificationSender {
   /**
    * Returns notification message factory plugin instance.
    */
-  protected function getMessageFatoryPlugin(): NotificationMessageFactoryInterface|NULL {
-    $pluginId = $this->notificationConfig->get('message_factory_plugin');
+  protected function getMessageFactoryPlugin(): NotificationMessageFactoryInterface|NULL {
+    $pluginId = $this->notificationSettings->getMessageFactoryPluginId();
     if (!$this->messageFactoryPluginManager->hasDefinition($pluginId)) {
       return NULL;
     }
@@ -96,7 +95,7 @@ class NotificationSender {
    * Returns notification sender plugin instance.
    */
   protected function getMessageSenderPlugin(): NotificationSenderInterface|NULL {
-    $pluginId = $this->notificationConfig->get('sender_plugin');
+    $pluginId = $this->notificationSettings->getSenderPluginId();
     if (!$this->senderPluginManager->hasDefinition($pluginId)) {
       return NULL;
     }
