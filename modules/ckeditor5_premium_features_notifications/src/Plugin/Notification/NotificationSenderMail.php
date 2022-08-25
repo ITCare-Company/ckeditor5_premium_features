@@ -12,9 +12,23 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class NotificationSenderMail extends NotificationSenderBase implements ContainerFactoryPluginInterface {
 
-  protected $dbConnection;
-  protected $mailManager;
+  /**
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected Connection $dbConnection;
 
+  /**
+   * @var \Drupal\Core\Mail\MailManagerInterface
+   */
+  protected MailManagerInterface $mailManager;
+
+  /**
+   * @param array $configuration
+   * @param $plugin_id
+   * @param $plugin_definition
+   * @param \Drupal\Core\Database\Connection $dbConnection
+   * @param \Drupal\Core\Mail\MailManagerInterface $mailManager
+   */
   public function __construct(array $configuration,
                               $plugin_id,
                               $plugin_definition,
@@ -26,6 +40,9 @@ class NotificationSenderMail extends NotificationSenderBase implements Container
     $this->mailManager = $mailManager;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static($configuration,
       $plugin_id,
@@ -35,6 +52,9 @@ class NotificationSenderMail extends NotificationSenderBase implements Container
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function send(NotificationMessageInterface $message, array $userIds): bool|array {
     $mails = $this->getUserMails($userIds);
 

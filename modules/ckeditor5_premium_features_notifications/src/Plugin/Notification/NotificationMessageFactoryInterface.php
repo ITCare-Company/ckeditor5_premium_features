@@ -30,13 +30,13 @@ interface NotificationMessageFactoryInterface {
    *
    * @return \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageInterface|NULL
    */
-  public function getMessage(string $messageType, array $parameters) : NotificationMessageInterface|NULL;
+  public function getMessage(string $messageType, array $parameters): NotificationMessageInterface|NULL;
 
   /**
    * Checks if passed message type is supported by the plugin.
    *
-   * @param $messageType
+   * @param string $messageType
+   *   Type of the message.
    */
-  public static function isMessageTypeSupported($messageType): bool;
-
+  public static function isMessageTypeSupported(string $messageType): bool;
 }

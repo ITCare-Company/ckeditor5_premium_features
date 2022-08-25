@@ -46,7 +46,20 @@ class AnnotationSidebar {
         ],
       ],
     ];
-    // @todo Change to better solution.
+    if ($sidebar_mode === 'auto') {
+      $sidebar['ck_sidebar']['button'] = [
+        '#type' => 'html_tag',
+        '#value' => '',
+        '#tag' => 'a',
+        '#attributes' => [
+          'class' => ['ck-sidebar-auto-toggle', $sidebar_mode],
+          'id' => [
+            'ck-sidebar-auto-toggle',
+          ],
+        ],
+      ];
+    }
+    // TODO: Change to better solution.
     $class_wrapper = $element['#id'] . '-value-ck-sidebar-wrapper';
     $sidebar_html = \Drupal::service('renderer')->render($sidebar);
     $element['value']['#prefix'] = "<div class='ck-editor-sidebar-wrapper $class_wrapper'>";

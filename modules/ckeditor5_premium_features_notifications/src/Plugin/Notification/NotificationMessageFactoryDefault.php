@@ -56,9 +56,9 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
   }
 
   /**
-   * Returns list of supported message types.
+   * Returns list of supported message types with their labels.
    */
-  public static function getSupportedMessageTypes() :array {
+  public static function getSupportedMessageTypes(): array {
     return [
       self::CKEDITOR5_MESSAGE_DEFAULT => 'Default (to be removed)',
       self::CKEDITOR5_MESSAGE_MENTION_COMMENT => 'Mentioned in a comment',
@@ -72,7 +72,7 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
   /**
    * {@inheritdoc}
    */
-  public static function isMessageTypeSupported($messageType): bool {
+  public static function isMessageTypeSupported(string $messageType): bool {
     $supportedTypes = self::getSupportedMessageTypes();
     return isset($supportedTypes[$messageType]);
   }
