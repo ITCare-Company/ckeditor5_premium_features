@@ -52,6 +52,9 @@ class TrackChangesAdapter {
     var suggestions = plugin.getSuggestions({skipNotAttached: false});
 
     for (let i in suggestions) {
+      if (suggestions[i].head != null && (suggestions[i].next != null || suggestions[i].previous != null) ) {
+        suggestions[i].setAttribute('head', suggestions[i].head.id);
+      }
       if (this.trackedSuggestion.has(suggestions[i].id)) {
         continue;
       }
