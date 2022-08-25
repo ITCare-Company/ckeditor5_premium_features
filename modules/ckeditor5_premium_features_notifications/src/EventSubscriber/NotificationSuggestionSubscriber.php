@@ -57,6 +57,10 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
       return;
     }
 
+    if ($event->getSuggestion()->isInChain() && !$event->getSuggestion()->isHeadOfChain()) {
+      return;
+    }
+
     try {
       $parameters = [
         'node' => $event->getSuggestion()->getReferencedEntity(),

@@ -190,10 +190,15 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
       'uid' => $this->user->id(),
     ] + $current_data;
 
+    $attributes = $data->get('attributes');
+    if (!empty($attributes['head'])) {
+      $object_data['chain_id'] = $attributes['head'];
+    }
+
     return [
       $object_data,
       $data->get('data') ?? [],
-      $data->get('attributes') ?? [],
+      $attributes ?? [],
       $data->get('type'),
     ];
   }

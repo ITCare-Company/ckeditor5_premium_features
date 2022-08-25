@@ -61,8 +61,38 @@ interface SuggestionInterface extends ContentEntityInterface {
    * Gets the has_comments flag value.
    *
    * @return bool
-   *   TRUE if has comments, FALSE otherwise.
+   *   TRUE if it has comments, FALSE otherwise.
    */
   public function hasComments(): bool;
 
+  /**
+   * Returns chain_id value.
+   */
+  public function getChainId(): string;
+
+  /**
+   * Sets chain_id value.
+   *
+   * @param string $chain_id
+   *   Chain ID.
+   */
+  public function setChainId(string $chain_id): static;
+
+  /**
+   * Checks if the entity is part of the suggestion chain.
+   */
+  public function isInChain(): bool;
+
+  /**
+   * Checks if the entity is head of suggestion chain.
+   */
+  public function isHeadOfChain(): bool;
+
+  /**
+   * Returns a list of chained suggestions.
+   *
+   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface[]
+   *   List of suggestions matching the same chain_id.
+   */
+  public function getChain(): array;
 }

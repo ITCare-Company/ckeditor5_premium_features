@@ -24,21 +24,21 @@ class CollaborationSettings {
    * Returns mentions marker config.
    */
   public function getMentionsMarker(): string {
-    return $this->collaborationSettings->get('mention_marker');
+    return $this->collaborationSettings->get('mention_marker') ?? '#';
   }
 
   /**
    * Returns mentions minimal character count config.
    */
   public function getMentionMinimalCharactersCount(): int {
-    return (int) $this->collaborationSettings->get('mention_min_character');
+    return (int) $this->collaborationSettings->get('mention_min_character') ?? 1;
   }
 
   /**
    * Returns mentions autocomplete list length config.
    */
   public function getMentionAutocompleteListLength(): int {
-    return (int) $this->collaborationSettings->get('mention_min_character');
+    return (int) $this->collaborationSettings->get('mention_min_character') ?? 5;
   }
 
   /**
