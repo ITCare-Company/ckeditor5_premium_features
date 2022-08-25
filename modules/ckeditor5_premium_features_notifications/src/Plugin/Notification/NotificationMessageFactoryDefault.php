@@ -4,6 +4,7 @@ namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
 use Drupal\ckeditor5_premium_features_notifications\Form\SettingsForm;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\Core\Utility\Token;
@@ -14,7 +15,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class NotificationMessageFactoryDefault extends PluginBase implements NotificationMessageFactoryInterface, ContainerFactoryPluginInterface {
 
-  protected $config;
+  /**
+   * Notification config.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
+  protected ImmutableConfig $config;
 
   public function __construct(array $configuration,
                               $pluginId,
@@ -61,9 +67,9 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
   }
 
   /**
-   * Returns list of supported message types.
+   * Returns list of supported message types with their labels.
    */
-  public static function getSupportedMessageTypes() :array {
+  public static function getSupportedMessageTypes(): array {
     return [
       self::CKEDITOR5_MESSAGE_DEFAULT => 'Default (to be removed)',
       self::CKEDITOR5_MESSAGE_MENTION_COMMENT => 'Mentioned in a comment',
@@ -77,22 +83,28 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
   /**
    * {@inheritdoc}
    */
-  public static function isMessageTypeSupported($messageType): bool {
+  public static function isMessageTypeSupported(string $messageType): bool {
     $supportedTypes = self::getSupportedMessageTypes();
     return isset($supportedTypes[$messageType]);
   }
 
   /**
    * Returns subject template for specified message type.
+   *
+   * @param string $messageType
+   *   Type of message.
    */
-  protected function getMessageSubject($messageType): string {
+  protected function getMessageSubject(string $messageType): string {
     return $this->config->get($messageType . '__subject');
   }
 
   /**
    * Returns body template for specified message type.
+   *
+   * @param string $messageType
+   *   Type of message.
    */
-  protected function getMessageBody($messageType): string {
+  protected function getMessageBody(string $messageType): string {
     return $this->config->get($messageType . '__message')['value'];
   }
 }
