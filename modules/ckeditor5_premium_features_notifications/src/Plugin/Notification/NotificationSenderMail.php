@@ -100,4 +100,5 @@ class NotificationSenderMail extends NotificationSenderBase implements Container
       ->execute()
       ->fetchCol();
   }
+
 }

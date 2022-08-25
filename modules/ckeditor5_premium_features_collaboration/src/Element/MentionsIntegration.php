@@ -34,7 +34,7 @@ class MentionsIntegration {
     protected UserDataProvider $userDataProvider,
     protected AccountProxyInterface $currentUser,
     protected CollaborationSettings $collaborationSettings,
-  ) { }
+  ) {}
 
   /**
    * Process the text_format form element.
@@ -94,4 +94,5 @@ class MentionsIntegration {
     $service = \Drupal::service('ckeditor5_premium_features_collaboration.element.mentions_integration');
     return $service->processElement($element, $form_state, $complete_form);
   }
+
 }

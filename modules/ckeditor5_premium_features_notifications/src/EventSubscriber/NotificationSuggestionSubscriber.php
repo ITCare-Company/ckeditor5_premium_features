@@ -67,7 +67,8 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
         'user' => $event->getAccount(),
         'suggestion' => $event,
       ];
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       $this->loggerChannel->error("Suggestion notification error: @error <br /> <br /><pre>@trace</pre>", [
         '@error' => $e->getMessage(),
         '@trace' => $e->getTraceAsString(),

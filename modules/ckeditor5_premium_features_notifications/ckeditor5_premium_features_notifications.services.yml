@@ -3,7 +3,7 @@ services:
     class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender
     arguments:
       - '@database'
-      - '@config.factory'
+      - '@ckeditor5_premium_features_notifications.notification_settings'
       - '@plugin.manager.notification_sender'
       - '@plugin.manager.notification_message_factory'
 
@@ -22,3 +22,8 @@ services:
       - '@logger.factory'
     tags:
       - { name: 'event_subscriber' }
+
+  ckeditor5_premium_features_notifications.notification_settings:
+    class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings
+    arguments:
+      - '@config.factory'

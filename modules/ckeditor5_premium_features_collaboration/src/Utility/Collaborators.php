@@ -9,11 +9,9 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Render\Element\Html;
 
 /**
  * Class for collecting collaborators data.
@@ -89,7 +87,7 @@ class Collaborators {
     $collaboratorIds = [];
     $mentionedUsers = [];
 
-    /** @var CollaborationEntityInterface $threadComment */
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $threadComment */
     foreach ($commentsInThread as $threadComment) {
       if ($threadComment->id() == $comment->id()) {
         continue;
@@ -119,25 +117,27 @@ class Collaborators {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment
    *   Comment to be checked.
    *
-   * @return int|NULL
+   * @return int|null
    *   Returns author ID or NULL if no suggestion matches the comment.
    */
   public function getThreadSuggestionAuthor(Comment $comment): int|NULL {
-    // get thread
+    // Get thread.
     $commentsInThread = $this->getCommentsThread($comment->getThreadId());
 
     if (!$this->isSuggestionThread($commentsInThread)) {
       return NULL;
     }
 
-    /** @var CollaborationEntityInterface $suggestion */
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $suggestion */
     try {
       $suggestion = $this->suggestionStorage->load($comment->getThreadId());
 
       if ($suggestion->getAuthorId() != $comment->getAuthorId()) {
         return $suggestion->getAuthorId();
       }
-    } catch (\Exception $e) {}
+    }
+    catch (\Exception $e) {
+    }
 
     return NULL;
   }
@@ -153,7 +153,9 @@ class Collaborators {
       return $this->commentsStorage->loadByProperties([
         'thread_id' => $threadId,
       ]);
-    } catch (\Exception $e) { }
+    }
+    catch (\Exception $e) {
+    }
 
     return [];
   }
@@ -187,10 +189,10 @@ class Collaborators {
   }
 
   /**
-   * @param CommentInterface[] $comments
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface[] $comments
    */
   protected function isSuggestionThread(array $comments): bool {
-    /** @var Comment $threadComment */
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $threadComment */
     foreach ($comments as $threadComment) {
       if ($threadComment->getPosition() == 0 && $threadComment->isReply()) {
         return TRUE;
@@ -206,13 +208,13 @@ class Collaborators {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface $comment
    *   Comment object.
    */
-  protected function getCommentMentions(CommentInterface $comment): array{
+  protected function getCommentMentions(CommentInterface $comment): array {
     $marker = $this->collaborationSettings->getMentionsMarker();
     $minCharCount = $this->collaborationSettings->getMentionMinimalCharactersCount();
 
     $commentBody = $comment->getContentPlain();
 
-    $regexp = '/(^|\s)' . $marker . '([^\s' . $marker . ']{' . $minCharCount. ',})/';
+    $regexp = '/(^|\s)' . $marker . '([^\s' . $marker . ']{' . $minCharCount . ',})/';
 
     if (preg_match_all($regexp, $commentBody, $matches)) {
       return $matches[2];
@@ -234,8 +236,10 @@ class Collaborators {
         ->accessCheck(TRUE)
         ->condition('name', $userNames, 'IN')
         ->execute();
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       return [];
     }
   }
+
 }

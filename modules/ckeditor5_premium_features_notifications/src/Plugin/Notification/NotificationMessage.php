@@ -19,7 +19,7 @@ class NotificationMessage implements NotificationMessageInterface {
     protected string $type,
     protected string $subject,
     protected string $body,
-  ) { }
+  ) {}
 
   /**
    * {@inheritdoc}

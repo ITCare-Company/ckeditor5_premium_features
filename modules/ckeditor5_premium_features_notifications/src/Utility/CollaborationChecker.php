@@ -10,7 +10,7 @@ class CollaborationChecker {
   const FIELD_TYPES_SUPPORTING_CKEDITOR = [
     'text_with_summary',
     'text',
-    'text_long'
+    'text_long',
   ];
 
   /**

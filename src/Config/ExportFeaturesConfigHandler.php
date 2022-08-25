@@ -17,7 +17,7 @@ class ExportFeaturesConfigHandler implements ExportFeaturesConfigHandlerInterfac
    *
    * @var \Drupal\Core\Config\ImmutableConfig|null
    */
-  protected ?ImmutableConfig $config = null;
+  protected ?ImmutableConfig $config = NULL;
 
   /**
    * Constructs the handler.

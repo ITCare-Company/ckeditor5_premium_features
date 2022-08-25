@@ -32,7 +32,7 @@ services:
       - '@database'
       - '@entity_type.manager'
       - '@ckeditor5_premium_features_collaboration.collaboration_settings'
-      -
+
   ckeditor5_premium_features_collaboration.collaboration_settings:
     class: Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings
     arguments:

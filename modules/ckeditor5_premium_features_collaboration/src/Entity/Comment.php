@@ -105,7 +105,7 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
       return NULL;
     }
 
-    return str_replace(chr(0xC2).chr(0xA0), ' ', html_entity_decode(strip_tags($content)));
+    return str_replace(chr(0xC2) . chr(0xA0), ' ', html_entity_decode(strip_tags($content)));
   }
 
   /**

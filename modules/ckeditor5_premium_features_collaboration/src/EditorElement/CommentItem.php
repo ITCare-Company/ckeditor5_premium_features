@@ -23,7 +23,7 @@ class CommentItem {
    *   The HTML element data.
    */
   public function __construct(string $data) {
-    [$this->threadId,] = explode(':', $data);
+    [$this->threadId] = explode(':', $data);
   }
 
   /**

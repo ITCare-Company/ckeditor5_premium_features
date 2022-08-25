@@ -2,9 +2,7 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
-use Drupal\ckeditor5_premium_features_notifications\Form\SettingsForm;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Config\ImmutableConfig;
+use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\Core\Utility\Token;
@@ -15,21 +13,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class NotificationMessageFactoryDefault extends PluginBase implements NotificationMessageFactoryInterface, ContainerFactoryPluginInterface {
 
-  /**
-   * Notification config.
-   *
-   * @var \Drupal\Core\Config\ImmutableConfig
-   */
-  protected ImmutableConfig $config;
-
   public function __construct(array $configuration,
                               $pluginId,
                               $pluginDefinition,
-                              ConfigFactoryInterface $configFactory,
+                              protected NotificationSettings $notificationSettings,
                               protected Token $tokenService) {
     parent::__construct($configuration, $pluginId, $pluginDefinition);
-
-    $this->config = $configFactory->get(SettingsForm::NOTIFICATION_CONFIG);
   }
 
   /**
@@ -39,7 +28,7 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
     return new static($configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('config.factory'),
+      $container->get('ckeditor5_premium_features_notifications.notification_settings'),
       $container->get('token'),
     );
   }
@@ -60,8 +49,8 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
       return NULL;
     }
 
-    $subject = $this->tokenService->replace($this->getMessageSubject($messageType), $parameters);
-    $body = $this->tokenService->replace($this->getMessageBody($messageType), $parameters);
+    $subject = $this->tokenService->replace($this->notificationSettings->getMessageSubject($messageType), $parameters);
+    $body = $this->tokenService->replace($this->notificationSettings->getMessageBody($messageType), $parameters);
 
     return new NotificationMessage($messageType, $subject, $body);
   }
@@ -88,23 +77,4 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
     return isset($supportedTypes[$messageType]);
   }
 
-  /**
-   * Returns subject template for specified message type.
-   *
-   * @param string $messageType
-   *   Type of message.
-   */
-  protected function getMessageSubject(string $messageType): string {
-    return $this->config->get($messageType . '__subject');
-  }
-
-  /**
-   * Returns body template for specified message type.
-   *
-   * @param string $messageType
-   *   Type of message.
-   */
-  protected function getMessageBody(string $messageType): string {
-    return $this->config->get($messageType . '__message')['value'];
-  }
 }
