@@ -8,11 +8,13 @@
 declare(strict_types=1);
 
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
 use Drupal\ckeditor5_premium_features_notifications\Utility\CollaborationChecker;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\user\Entity\User;
+use Drupal\Core\Render\BubbleableMetadata;
 
 /**
  * Implements hook_entity_update().
@@ -102,4 +104,30 @@ function ckeditor5_premium_features_notifications_mail($key, &$message, $params)
   $message['subject'] = $params['subject'];
   $message['body'] = $params['body'];
   $message['headers'] += $params['headers'];
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleableMetadata) {
+  if ($type != 'suggestion' || !isset($data['suggestion']) || !$data['suggestion'] instanceof SuggestionEvent) {
+    return [];
+  }
+
+  /** @var \Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent $suggestion */
+  $suggestion = $data['suggestion'];
+
+  $replacements = [];
+  foreach ($tokens as $name => $original) {
+    switch ($name) {
+      case 'status':
+        $replacements[$original] = $suggestion->getEventType();
+        break;
+      case 'status-label':
+        $replacements[$original] = t(SuggestionEvent::getEventLabel($suggestion->getEventType()));
+        break;
+    }
+  }
+
+  return $replacements;
 }

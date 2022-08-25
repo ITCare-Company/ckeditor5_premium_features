@@ -14,3 +14,11 @@ services:
   plugin.manager.notification_sender:
     class: Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager
     arguments: ['@module_handler', '@cache.discovery']
+
+  ckeditor5_premium_features_notifications.event.subscriber.suggestion_status:
+    class: '\Drupal\ckeditor5_premium_features_notifications\EventSubscriber\NotificationSuggestionSubscriber'
+    arguments:
+      - '@ckeditor5_premium_features_notifications.notification_sender'
+      - '@logger.factory'
+    tags:
+      - { name: 'event_subscriber' }
