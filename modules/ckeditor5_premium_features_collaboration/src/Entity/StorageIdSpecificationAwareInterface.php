@@ -22,4 +22,5 @@ interface StorageIdSpecificationAwareInterface {
    *   Returns TRUE if the ID is common.
    */
   public function isCommonId(string $id): bool;
+
 }

@@ -82,7 +82,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
   /**
    * {@inheritdoc}
    */
-  public function add(array $raw_data): CollaborationEntityInterface {
+  public function add(array $raw_data): CollaborationEntityInterface|NULL {
     $raw_data = Revision::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
@@ -92,8 +92,11 @@ class RevisionStorage extends SqlContentEntityStorage implements
       'entity_id' => $data->getInt('entity_id'),
       'created' => $data->getInt('created'),
     ];
+    $attributes = [
+      'key' => $raw_data['item_key'],
+    ];
 
-    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface $revision */
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Revision $revision */
     $revision = $this->create($object_data);
     $revision
       ->setEntityTypeTargetId($data->get('entity_type', ''))
@@ -105,10 +108,9 @@ class RevisionStorage extends SqlContentEntityStorage implements
 
     // Set the 'draft' attribute if the creator is empty.
     if (!$data->get('creator')) {
-      $revision->setAttributes([
-        'draft' => TRUE,
-      ]);
+      $attributes['draft'] = TRUE;
     }
+    $revision->setAttributes($attributes);
 
     if (!$revision->access('update')) {
       throw new AccessException();
@@ -121,7 +123,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
   /**
    * {@inheritdoc}
    */
-  public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface {
+  public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface|NULL {
     if (!$entity->access('update')) {
       throw new AccessException();
     }
@@ -135,7 +137,8 @@ class RevisionStorage extends SqlContentEntityStorage implements
       ->setDiffData($data->get('diff_data'))
       ->setPreviousVersion($data->get('previous_version'))
       ->setCurrentVersion($data->get('current_version'))
-      ->setAuthor($this->user)
+      // When updating, we should avoid  overwriting the author id.
+    //      ->setAuthor($this->user)
       ->save();
 
     // Set the 'draft' attribute if the creator is empty.

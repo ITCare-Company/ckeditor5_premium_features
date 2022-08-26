@@ -14,14 +14,14 @@ class SuggestionItem {
    *
    * @var string|null
    */
-  private ?string $type = null;
+  private ?string $type = NULL;
 
   /**
    * The suggestion ID.
    *
    * @var string|null
    */
-  private ?string $suggestionId = null;
+  private ?string $suggestionId = NULL;
 
   /**
    * The suggestion user.

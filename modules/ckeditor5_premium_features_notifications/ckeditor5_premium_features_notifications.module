@@ -1,0 +1,133 @@
+<?php
+
+/**
+ * @file
+ * Conatains CKEditor 5 Premium Features Notifications module functions.
+ */
+
+declare(strict_types=1);
+
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
+use Drupal\ckeditor5_premium_features_notifications\Utility\CollaborationChecker;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\user\Entity\User;
+use Drupal\Core\Render\BubbleableMetadata;
+
+/**
+ * Implements hook_entity_update().
+ */
+function ckeditor5_premium_features_notifications_entity_update(EntityInterface $entity) {
+  if (!CollaborationChecker::hasCollaborationFeatures($entity)) {
+    return;
+  }
+
+  /** @var Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators $collaboratorsService */
+  $collaboratorsService = \Drupal::service('ckeditor5_premium_features_collaboration.collaborators');
+  /** @var Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationService */
+  $notificationService = \Drupal::service('ckeditor5_premium_features_notifications.notification_sender');
+
+  $currentUser = User::load(Drupal::currentUser()->id());
+  $otherAuthorsList = $collaboratorsService->getCollaborators($entity, (int) $currentUser->id());
+
+  $parameters = [
+    'node' => $entity,
+    'user' => $currentUser,
+  ];
+
+  $notificationService->sendNotification(
+    NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT,
+    $otherAuthorsList,
+    $parameters
+  );
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function ckeditor5_premium_features_notifications_entity_insert(EntityInterface $entity) {
+  if (!$entity instanceof CommentInterface || !$entity->isReply()) {
+    return;
+  }
+
+  /** @var Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators $collaboratorsService */
+  $collaboratorsService = \Drupal::service('ckeditor5_premium_features_collaboration.collaborators');
+  /** @var Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationService */
+  $notificationService = \Drupal::service('ckeditor5_premium_features_notifications.notification_sender');
+
+  $participators = $collaboratorsService->getParticipators($entity);
+  $threadSuggestionAuthor = $collaboratorsService->getThreadSuggestionAuthor($entity);
+  $parameters = [];
+
+  $participators = array_diff($participators, [$threadSuggestionAuthor]);
+
+  if (!empty($participators) || !empty($threadSuggestionAuthor)) {
+    $currentUser = User::load(Drupal::currentUser()->id());
+    $node = \Drupal::entityTypeManager()
+      ->getStorage($entity->getEntityTypeTargetId())
+      ->load($entity->getEntityId());
+
+    $parameters = [
+      'node' => $node,
+      'user' => $currentUser,
+    ];
+  }
+  if (!empty($participators)) {
+    // Send notification to users participated in a thread.
+    $notificationService->sendNotification(
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY,
+      $participators,
+      $parameters
+    );
+  }
+
+  if ($threadSuggestionAuthor > 0) {
+    // Send notification to the suggestion author.
+    $notificationService->sendNotification(
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY,
+      [$threadSuggestionAuthor],
+      $parameters
+    );
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function ckeditor5_premium_features_notifications_mail($key, &$message, $params) {
+  if (!NotificationMessageFactoryDefault::isMessageTypeSupported($key)) {
+    return;
+  }
+
+  $message['subject'] = $params['subject'];
+  $message['body'] = $params['body'];
+  $message['headers'] += $params['headers'];
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleableMetadata) {
+  if ($type != 'suggestion' || !isset($data['suggestion']) || !$data['suggestion'] instanceof SuggestionEvent) {
+    return [];
+  }
+
+  /** @var \Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent $suggestion */
+  $suggestion = $data['suggestion'];
+
+  $replacements = [];
+  foreach ($tokens as $name => $original) {
+    switch ($name) {
+      case 'status':
+        $replacements[$original] = $suggestion->getEventType();
+        break;
+      case 'status-label':
+        $replacements[$original] = t(SuggestionEvent::getEventLabel($suggestion->getEventType()));
+        break;
+    }
+  }
+
+  return $replacements;
+}

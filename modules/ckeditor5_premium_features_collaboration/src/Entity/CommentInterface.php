@@ -37,6 +37,13 @@ interface CommentInterface {
   public function getContent(): ?string;
 
   /**
+   * Returns content without HTML markup.
+   *
+   * @return string|null
+   */
+  public function getContentPlain(): string|null;
+
+  /**
    * Sets the comment content.
    *
    * @param string $content
@@ -46,5 +53,22 @@ interface CommentInterface {
    *   The current object.
    */
   public function setContent(string $content): static;
+
+  /**
+   * Gets the is_reply attribute value.
+   */
+  public function isReply(): bool;
+
+  /**
+   * Sets the is_reply attribute value.
+   *
+   * @param bool $is_reply
+   */
+  public function setIsReply(bool $is_reply): void;
+
+  /**
+   * Returns position attribute.
+   */
+  public function getPosition(): int;
 
 }

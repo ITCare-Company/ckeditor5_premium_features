@@ -1,0 +1,29 @@
+services:
+  ckeditor5_premium_features_notifications.notification_sender:
+    class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender
+    arguments:
+      - '@database'
+      - '@ckeditor5_premium_features_notifications.notification_settings'
+      - '@plugin.manager.notification_sender'
+      - '@plugin.manager.notification_message_factory'
+
+  plugin.manager.notification_message_factory:
+    class: Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager
+    arguments: ['@module_handler', '@cache.discovery']
+
+  plugin.manager.notification_sender:
+    class: Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager
+    arguments: ['@module_handler', '@cache.discovery']
+
+  ckeditor5_premium_features_notifications.event.subscriber.suggestion_status:
+    class: '\Drupal\ckeditor5_premium_features_notifications\EventSubscriber\NotificationSuggestionSubscriber'
+    arguments:
+      - '@ckeditor5_premium_features_notifications.notification_sender'
+      - '@logger.factory'
+    tags:
+      - { name: 'event_subscriber' }
+
+  ckeditor5_premium_features_notifications.notification_settings:
+    class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings
+    arguments:
+      - '@config.factory'

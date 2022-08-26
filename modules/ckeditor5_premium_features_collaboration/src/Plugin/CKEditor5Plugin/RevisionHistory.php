@@ -51,4 +51,5 @@ class RevisionHistory extends CKEditor5PluginDefault implements ContainerFactory
 
     return $static_plugin_config;
   }
+
 }

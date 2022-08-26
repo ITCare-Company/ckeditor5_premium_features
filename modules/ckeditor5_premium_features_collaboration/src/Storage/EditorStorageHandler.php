@@ -60,6 +60,11 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
    * {@inheritdoc}
    */
   public function hasCollaborationFeaturesEnabled(array $element): bool {
+    if (!$this->isCkeditor5($element)) {
+      // Don't process if this is not a CKEditor5.
+      return FALSE;
+    }
+
     $editors = $this->getAllEditorsFromElement($element);
 
     $toolbar_items = [];

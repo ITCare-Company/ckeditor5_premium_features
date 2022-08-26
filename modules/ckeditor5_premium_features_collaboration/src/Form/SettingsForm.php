@@ -13,11 +13,13 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class SettingsForm extends SharedBuildConfigFormBase {
 
+  const COLLABORATION_SETTINGS_ID = 'ckeditor5_premium_features_collaboration.settings';
+
   /**
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return 'ckeditor5_premium_features_collaboration.settings';
+    return self::COLLABORATION_SETTINGS_ID;
   }
 
   /**
@@ -34,6 +36,33 @@ class SettingsForm extends SharedBuildConfigFormBase {
         'wideSidebar' => t('Use wide sidebar'),
       ],
       '#default_value' => $config->get('sidebar') ?? 'auto',
+    ];
+
+    $form['mentions'] = [
+      '#type' => 'fieldset',
+      '#title' => t('Mentions/Annotations'),
+    ];
+
+    $form['mentions']['mention_min_character'] = [
+      '#type' => 'number',
+      '#title' => t('Minimal mention character.'),
+      '#min' => 1,
+      '#default_value' => $config->get('mention_min_character') ?? 1,
+      '#description' => t('Set the number of letters after which the autocomplete panel will show up.'),
+    ];
+    $form['mentions']['mention_dropdown_limit'] = [
+      '#type' => 'number',
+      '#title' => t('Autocomplete list limit.'),
+      '#min' => 1,
+      '#default_value' => $config->get('mention_dropdown_limit') ?? 4,
+      '#description' => t('The number of items displayed in the autocomplete list.'),
+    ];
+    $form['mentions']['mention_marker'] = [
+      '#type' => 'textfield',
+      '#title' => t('Annotation triggering character.'),
+      '#min' => 1,
+      '#default_value' => $config->get('mention_marker') ?? '#',
+      '#description' => t('The character which triggers autocompletion for mention. It must be a single character.'),
     ];
 
     $form['revision_history'] = [
