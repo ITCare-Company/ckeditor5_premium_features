@@ -2,19 +2,23 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
+use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
+use Drupal\comment\Entity\Comment;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Suggestion notification subscriber class.
+ * Comment notification subscriber class.
  */
-class NotificationSuggestionSubscriber implements EventSubscriberInterface {
+class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
 
   /**
    * Logger.
@@ -33,6 +37,7 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
    */
   public function __construct(
     protected NotificationSender $notificationSender,
+    protected Collaborators $collaboratorsService,
     LoggerChannelFactory $channelFactory,
   ) {
     $this->loggerChannel = $channelFactory->get('notifications');
@@ -43,8 +48,7 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents(): array {
     return [
-      CollaborationEventBase::SUGGESTION_ACCEPT => 'suggestionStatusChange',
-      CollaborationEventBase::SUGGESTION_DISCARD => 'suggestionStatusChange',
+      CollaborationEventBase::DOCUMENT_UPDATED => 'documentUpdated',
     ];
   }
 
@@ -54,27 +58,18 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
    *   Suggestion event object.
    */
-  public function suggestionStatusChange(CollaborationEventBase $event): void {
+  public function documentUpdated(CollaborationEventBase $event): void {
     $collaborationEntity = $event->getRelatedEntity();
-    if (!$collaborationEntity instanceof Suggestion) {
+
+    $otherAuthorsList = $this->collaboratorsService->getCollaborators($collaborationEntity, $event->getAccount()->id());
+
+    if (empty($otherAuthorsList)) {
       return;
     }
-
-    if ($collaborationEntity->getAuthorId() == $event->getAccount()->id()) {
-      return;
-    }
-
-    if ($collaborationEntity->isInChain() && !$collaborationEntity->isHeadOfChain()) {
-      return;
-    }
-
-    $recipients = [
-      $collaborationEntity->getAuthorId(),
-    ];
 
     $this->notificationSender->sendNotification(
-      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS,
-      $recipients,
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT,
+      $otherAuthorsList,
       $event
     );
   }

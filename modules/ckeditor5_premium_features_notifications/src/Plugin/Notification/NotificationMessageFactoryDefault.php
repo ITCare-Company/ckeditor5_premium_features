@@ -2,6 +2,7 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
@@ -36,7 +37,7 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
   /**
    * {@inheritdoc}
    */
-  public function label() {
+  public function label(): string {
     // The title from YAML file discovery may be a TranslatableMarkup object.
     return (string) $this->pluginDefinition['label'];
   }
@@ -44,15 +45,27 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
   /**
    * {@inheritdoc}
    */
-  public function getMessage(string $messageType, array $parameters): NotificationMessageInterface|NULL {
+  public function getMessage(string $messageType, CollaborationEventBase $event): NotificationMessageInterface|NULL {
     if (!self::isMessageTypeSupported($messageType)) {
+      return NULL;
+    }
+
+    try {
+      $parameters = $this->getMessageParameters($messageType, $event);
+    }
+    catch (\Exception) {
       return NULL;
     }
 
     $subject = $this->tokenService->replace($this->notificationSettings->getMessageSubject($messageType), $parameters);
     $body = $this->tokenService->replace($this->notificationSettings->getMessageBody($messageType), $parameters);
 
-    return new NotificationMessage($messageType, $subject, $body);
+    return new NotificationMessage(
+      $messageType,
+      $subject,
+      $body,
+      $event
+    );
   }
 
   /**
@@ -75,6 +88,39 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
   public static function isMessageTypeSupported(string $messageType): bool {
     $supportedTypes = self::getSupportedMessageTypes();
     return isset($supportedTypes[$messageType]);
+  }
+
+  /**
+   * @param string $messageType
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   *
+   * @return array
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  protected function getMessageParameters(string $messageType, CollaborationEventBase $event): array {
+    $parameters = [
+      'user' => $event->getAccount(),
+    ];
+
+    if ($messageType == self::CKEDITOR5_MESSAGE_DEFAULT) {
+      $parameters[$event->getRelatedEntity()->getEntityTypeId()] = $event->getRelatedEntity();
+    }
+
+    switch ($messageType) {
+      case self::CKEDITOR5_MESSAGE_THREAD_REPLY:
+      case self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY:
+        /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase $collaborationEntity */
+        $collaborationEntity = $event->getRelatedEntity();
+        $parameters[$collaborationEntity->getEntityTypeTargetId()] = $collaborationEntity->getReferencedEntity();
+        break;
+    }
+
+    if ($messageType == self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY) {
+      $parameters['suggestion'] = $event;
+    }
+
+    return $parameters;
   }
 
 }

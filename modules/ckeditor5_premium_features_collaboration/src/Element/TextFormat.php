@@ -7,7 +7,7 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationSuggestionDependingStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\MessageStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
@@ -39,9 +39,9 @@ class TextFormat {
   /**
    * The comments storage.
    *
-   * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage
+   * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\MessageStorage
    */
-  protected CommentsStorage $commentsStorage;
+  protected MessageStorage $commentsStorage;
 
   /**
    * The revision storage.

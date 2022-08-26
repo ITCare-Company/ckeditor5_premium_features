@@ -2,9 +2,10 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
-use Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\Message;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
+use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
 use Drupal\Core\Logger\LoggerChannelFactory;
@@ -12,9 +13,9 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Suggestion notification subscriber class.
+ * Comment notification subscriber class.
  */
-class NotificationSuggestionSubscriber implements EventSubscriberInterface {
+class NotificationCommentSubscriber implements EventSubscriberInterface {
 
   /**
    * Logger.
@@ -33,6 +34,7 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
    */
   public function __construct(
     protected NotificationSender $notificationSender,
+    protected Collaborators $collaboratorsService,
     LoggerChannelFactory $channelFactory,
   ) {
     $this->loggerChannel = $channelFactory->get('notifications');
@@ -43,8 +45,7 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents(): array {
     return [
-      CollaborationEventBase::SUGGESTION_ACCEPT => 'suggestionStatusChange',
-      CollaborationEventBase::SUGGESTION_DISCARD => 'suggestionStatusChange',
+      CollaborationEventBase::COMMENT_ADDED => 'commentAdded',
     ];
   }
 
@@ -54,29 +55,34 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
    *   Suggestion event object.
    */
-  public function suggestionStatusChange(CollaborationEventBase $event): void {
+  public function commentAdded(CollaborationEventBase $event): void {
     $collaborationEntity = $event->getRelatedEntity();
-    if (!$collaborationEntity instanceof Suggestion) {
+    if (!$collaborationEntity instanceof Message || !$collaborationEntity->isReply()) {
       return;
     }
 
-    if ($collaborationEntity->getAuthorId() == $event->getAccount()->id()) {
-      return;
+    $participators = $this->collaboratorsService->getParticipators($collaborationEntity);
+    $threadSuggestionAuthor = $this->collaboratorsService->getThreadSuggestionAuthor($collaborationEntity);
+
+    $participators = array_diff($participators, [$threadSuggestionAuthor]);
+
+    if (!empty($participators)) {
+      // Send notification to users participated in a thread.
+      $this->notificationSender->sendNotification(
+        NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY,
+        $participators,
+        $event
+      );
     }
 
-    if ($collaborationEntity->isInChain() && !$collaborationEntity->isHeadOfChain()) {
-      return;
+    if ($threadSuggestionAuthor > 0) {
+      // Send notification to the suggestion author.
+      $this->notificationSender->sendNotification(
+        NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY,
+        [$threadSuggestionAuthor],
+        $event
+      );
     }
-
-    $recipients = [
-      $collaborationEntity->getAuthorId(),
-    ];
-
-    $this->notificationSender->sendNotification(
-      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS,
-      $recipients,
-      $event
-    );
   }
 
 }

@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Plugin for sending notifications through mail.
  */
-class NotificationSenderMail extends NotificationSenderBase implements ContainerFactoryPluginInterface {
+class NotificationSenderMailInstant extends NotificationSenderBase implements ContainerFactoryPluginInterface {
 
   /**
    * @var \Drupal\Core\Database\Connection

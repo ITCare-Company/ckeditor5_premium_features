@@ -2,50 +2,71 @@
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Event;
 
-use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase;
 use Drupal\Component\EventDispatcher\Event;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Session\AccountInterface;
+use DrupalCodeGenerator\Command\Entity\ContentEntity;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
 /**
  * Suggestion event class.
  */
-class SuggestionEvent extends Event {
+class CollaborationEventBase extends Event {
 
   use TranslatorTrait;
 
+  const DOCUMENT_UPDATED = 'ck5_collaboration_document_updated';
+  const COMMENT_ADDED = 'ck5_collaboration_comment_added';
   const SUGGESTION_ACCEPT = 'ck5_collaboration_suggestion_accept';
   const SUGGESTION_DISCARD = 'ck5_collaboration_suggestion_discard';
 
   /**
-   * Suggestion event constructor.
+   * Collaboration event constructor.
    *
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
-   *   Event suggestion.
+   * @param ContentEntityBase $relatedEntity
+   *   Event entity.
    * @param \Drupal\Core\Session\AccountInterface $account
    *   Event account.
    * @param string $eventType
    *   Type of event.
    */
-  public function __construct(protected SuggestionInterface $suggestion,
+  public function __construct(protected ContentEntityBase $relatedEntity,
                               protected AccountInterface $account,
                               protected string $eventType) {}
 
   /**
-   * Returns event suggetion entity.
+   * Returns event related entity.
    */
-  public function getSuggestion(): SuggestionInterface {
-    return $this->suggestion;
+  public function getRelatedEntity(): ContentEntityBase {
+    return $this->relatedEntity;
   }
 
   /**
-   * Sets event suggestion.
-   *
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
-   *   Event suggestion.
+   * @param \Drupal\Core\Entity\ContentEntityBase $relatedEntity
    */
-  public function setSuggestion(SuggestionInterface $suggestion): void {
-    $this->suggestion = $suggestion;
+  public function setRelatedEntity(ContentEntityBase $relatedEntity): void {
+    $this->relatedEntity = $relatedEntity;
+  }
+
+  /**
+   * Returns related document. It can be the same as getRelatedEntity result for some events.
+   *
+   * @return \Drupal\Core\Entity\ContentEntityBase|NULL
+   */
+  public function getRelatedDocument(): ContentEntityBase|NULL {
+    $relatedEntity = $this->getRelatedEntity();
+
+    if (!$relatedEntity instanceof CollaborationEntityBase) {
+      return $relatedEntity;
+    }
+
+    try {
+      return $relatedEntity->getReferencedEntity();
+    }
+    catch (\Exception) { }
+
+    return NULL;
   }
 
   /**

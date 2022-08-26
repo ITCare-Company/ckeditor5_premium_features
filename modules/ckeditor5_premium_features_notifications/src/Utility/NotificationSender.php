@@ -2,6 +2,7 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface;
@@ -27,7 +28,7 @@ class NotificationSender {
    *
    * @return bool|array
    */
-  public function sendNotification(string $messageType, array $recipientIds, array $parameters): bool|array {
+  public function sendNotification(string $messageType, array $recipientIds, CollaborationEventBase $event): bool|array {
     if (!$this->notificationSettings->isMessageEnabled($messageType)) {
       return FALSE;
     }
@@ -50,7 +51,10 @@ class NotificationSender {
       return FALSE;
     }
 
-    $message = $messageFactory->getMessage($messageType, $parameters);
+    $message = $messageFactory->getMessage($messageType, $event);
+    if (empty($message)) {
+      return FALSE;
+    }
 
     return $sender->send($message, $recipientIds);
   }
