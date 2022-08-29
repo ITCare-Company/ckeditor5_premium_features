@@ -82,7 +82,7 @@ class TextFormat {
       ],
     ];
 
-    $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $node->id();
+    $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $this->getChannelId($node->uuid());
 
     // Attach annotation sidebar.
     AnnotationSidebar::process($element, $form_state, $complete_form);
@@ -152,4 +152,16 @@ class TextFormat {
     return Html::getId($id);
   }
 
+  /**
+   * Generate unique channel ID value.
+   *
+   * @param String $uuid
+   *   The node uuid.
+   *
+   * @return string
+   *   The channelID.
+   */
+  private function getChannelId(String $uuid): string {
+    return Crypt::hashBase64($uuid);
+  }
 }
