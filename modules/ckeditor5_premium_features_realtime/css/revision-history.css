@@ -2,6 +2,6 @@
   height: 300px;
 }
 
-.ck.ck-editor__main > .ck-editor__editable:not(.ck-focused) {
+.ck.ck-editor__main > .ck-editor__editable {
   height: 270px;
 }
