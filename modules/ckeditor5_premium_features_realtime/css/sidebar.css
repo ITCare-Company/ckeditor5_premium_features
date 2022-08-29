@@ -12,7 +12,7 @@
   width: 100%;
 }
 .ck-editor-sidebar-wrapper .ck-content:not(.ck-comment__input *) {
-  min-height: 120px;
+  min-height: 200px;
   padding-bottom: 120px;
 }
 .ck-sidebar-wrapper.slider-off {
@@ -47,10 +47,6 @@
   flex-wrap: nowrap;
   position: relative;
   width: 100%;
-}
-
-.ck-editor__main .ck-content {
-  min-height: 200px;
 }
 
 .revision-history-container-data > .editor-container > .ck-editor {
