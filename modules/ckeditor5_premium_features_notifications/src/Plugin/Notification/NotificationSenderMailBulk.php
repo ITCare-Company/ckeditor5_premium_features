@@ -19,7 +19,8 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
    * @param array $configuration
    * @param $plugin_id
    * @param $plugin_definition
-   * @param \Drupal\Core\State\StateInterface $state
+   * @param EntityTypeManagerInterface $entityTypeManager
+   *
    */
   public function __construct(array $configuration,
                               $plugin_id,
@@ -44,16 +45,29 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
    */
   public function send(NotificationMessageInterface $message, array $userIds): bool|array {
     $documentId = $message->getSourceEvent()->getRelatedDocument()->id();
+    $documentType = $message->getSourceEvent()->getRelatedDocument()->getEntityTypeId();
     $type = $message->getType();
 
     /** @var \Drupal\ckeditor5_premium_features_notifications\Entity\MessageStorage $messageQueueStorage */
     $messageQueueStorage = $this->entityTypeManager->getStorage(Message::ENTITY_TYPE_ID);
 
     foreach ($userIds as $userId) {
+      /** @var Message $messageQueueEntity */
       $messageQueueEntity = $messageQueueStorage->getMessageForUserAndDocument($userId, $documentId);
+      if (!$messageQueueEntity) {
+        $messageQueueEntity = $messageQueueStorage->createMessage($userId, $documentId, $documentType);
 
-      // dopisz do kolejki danego usear:
-//      $messageQueueEntity->appendMessageItem(...)
+        if (!$messageQueueEntity) {
+          continue;
+        }
+        $messageQueueEntity->save();
+      }
+      $messageQueueEntity->appendItem(
+        $message->getSourceEvent()->getRelatedEntity()->getEntityTypeId(),
+        $message->getSourceEvent()->getRelatedEntity()->id(),
+        $message->getType(),
+        $message->getSourceEvent()->getEventType(),
+      );
     }
 
     return TRUE;

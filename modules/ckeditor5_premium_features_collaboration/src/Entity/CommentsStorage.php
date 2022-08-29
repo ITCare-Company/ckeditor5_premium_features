@@ -132,7 +132,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
    * {@inheritdoc}
    */
   public function add(array $raw_data): CollaborationEntityInterface|NULL {
-    $raw_data = Message::normalize($raw_data);
+    $raw_data = Comment::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
     $object_data = [
@@ -146,7 +146,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
       'is_reply' => $raw_data['is_reply'],
     ];
 
-    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Message $comment */
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment */
     $comment = $this->create($object_data);
     $comment->setEntityTypeTargetId($data->get('entity_type', ''))
       ->setThreadId($data->get('thread_id'))
@@ -177,7 +177,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
       throw new AccessException();
     }
 
-    $raw_data = Message::normalize($raw_data);
+    $raw_data = Comment::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
     $entity

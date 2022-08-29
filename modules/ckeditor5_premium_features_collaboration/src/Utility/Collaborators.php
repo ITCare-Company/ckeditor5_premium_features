@@ -3,9 +3,9 @@
 namespace Drupal\ckeditor5_premium_features_collaboration\Utility;
 
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Entity\Message;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\Comment;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Entity\MessageStorage;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
@@ -28,9 +28,9 @@ class Collaborators {
   /**
    * The "comments" storage.
    *
-   * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\MessageStorage
+   * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage
    */
-  protected MessageStorage $commentsStorage;
+  protected CommentsStorage $commentsStorage;
 
   /**
    * @param \Drupal\Core\Database\Connection $connection
@@ -114,13 +114,13 @@ class Collaborators {
   /**
    * Checks if the comment is a reply to a suggestion and returns the suggestion author ID.
    *
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\Message $comment
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment
    *   Comment to be checked.
    *
    * @return int|null
    *   Returns author ID or NULL if no suggestion matches the comment.
    */
-  public function getThreadSuggestionAuthor(Message $comment): int|NULL {
+  public function getThreadSuggestionAuthor(Comment $comment): int|NULL {
     // Get thread.
     $commentsInThread = $this->getCommentsThread($comment->getThreadId());
 
@@ -192,7 +192,7 @@ class Collaborators {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface[] $comments
    */
   protected function isSuggestionThread(array $comments): bool {
-    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Message $threadComment */
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $threadComment */
     foreach ($comments as $threadComment) {
       if ($threadComment->getPosition() == 0 && $threadComment->isReply()) {
         return TRUE;

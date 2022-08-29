@@ -103,23 +103,12 @@ class MessageStorage extends SqlContentEntityStorage {
 //    return $comment;
   }
 
-//  /**
-//   * {@inheritdoc}
-//   */
-//  public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface|NULL {
-//    if (!$entity->access('update')) {
-//      throw new AccessException();
-//    }
-//
-//    $raw_data = Message::normalize($raw_data);
-//    $data = new ParameterBag($raw_data);
-//
-//    $entity
-//      ->setThreadId($data->get('thread_id'))
-//      ->setContent($data->get('content'))
-//      ->save();
-//
-//    return $entity;
-//  }
+  public function createMessage($userID, $entityId, $entityType) {
+    return parent::create([
+      'uid' => $userID,
+      'entity_type' => $entityType,
+      'entity_id' => $entityId
+    ]);
+  }
 
 }
