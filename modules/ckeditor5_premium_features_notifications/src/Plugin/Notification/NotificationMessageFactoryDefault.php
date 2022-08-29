@@ -116,7 +116,7 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
         break;
     }
 
-    if ($messageType == self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY) {
+    if ($messageType == self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS) {
       $parameters['suggestion'] = $event;
     }
 

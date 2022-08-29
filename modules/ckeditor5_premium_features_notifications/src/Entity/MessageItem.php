@@ -17,13 +17,9 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *      "id" = "id",
  *      "message_id" = "message_id",
  *   },
- *   handlers = {
- *   }
  * )
  */
-class MessageItem extends ContentEntityBase {
-
-  public const ENTITY_TYPE_ID = 'ckeditor5_message_item';
+class MessageItem extends ContentEntityBase implements MessageItemInterface {
 
   /**
    * {@inheritdoc}
@@ -42,28 +38,24 @@ class MessageItem extends ContentEntityBase {
       ->setRequired(TRUE);
 
     $fields['entity_type'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Entity type'))
+      ->setLabel(t(' Item entity type'))
       ->setRequired(TRUE)
       ->setSetting('machine_name', TRUE)
       ->setDescription(t('The target entity type.'));
 
     $fields['entity_id'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Entity ID'))
+      ->setLabel(t('Item entity ID'))
       ->setDescription(t('The Entity ID.'));
 
     $fields['message_type'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Entity type'))
-//      ->setRequired(TRUE)
-//      ->setDescription(t('The target entity type.'))
-    ;
+      ->setLabel(t('Message type'))
+      ->setRequired(TRUE)
+      ->setDescription(t('The message type.'));
 
     $fields['event_type'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Entity type'))
-//      ->setRequired(TRUE)
-//      ->setDescription(t('The target entity type.'))
-    ;
-
-    // @todo: add additional fields with references to required entities - to be able to render data for a user
+      ->setLabel(t('Message item event type.'))
+      ->setRequired(TRUE)
+      ->setDescription(t('The message event type.'));
 
     return $fields;
   }

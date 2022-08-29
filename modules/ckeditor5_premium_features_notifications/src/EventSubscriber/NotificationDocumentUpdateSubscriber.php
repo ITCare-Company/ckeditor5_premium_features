@@ -2,30 +2,17 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
-use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase;
-use Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
-use Drupal\comment\Entity\Comment;
-use Drupal\Core\Entity\ContentEntityBase;
-use Drupal\Core\Logger\LoggerChannelFactory;
-use Drupal\Core\Logger\LoggerChannelInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Comment notification subscriber class.
  */
 class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
-
-  /**
-   * Logger.
-   *
-   * @var \Drupal\Core\Logger\LoggerChannelInterface|\Drupal\Core\Logger\LoggerChannel
-   */
-  protected LoggerChannelInterface $loggerChannel;
 
   /**
    * Constructor.
@@ -38,10 +25,7 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
   public function __construct(
     protected NotificationSender $notificationSender,
     protected Collaborators $collaboratorsService,
-    LoggerChannelFactory $channelFactory,
-  ) {
-    $this->loggerChannel = $channelFactory->get('notifications');
-  }
+  ) { }
 
   /**
    * {@inheritdoc}

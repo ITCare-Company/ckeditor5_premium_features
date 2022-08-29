@@ -25,7 +25,7 @@ class MessageStorageSchema extends SqlContentEntityStorageSchema {
 
       $schema[$data_table]['indexes'] += [
         'message__sent' => ['sent', 'updated'],
-        'message__user' => ['uid', 'sent'],
+        'message__user' => ['uid', 'entity_type', 'entity_id', 'sent'],
       ];
     }
 

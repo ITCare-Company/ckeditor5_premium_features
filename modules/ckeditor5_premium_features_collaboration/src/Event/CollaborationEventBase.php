@@ -43,6 +43,8 @@ class CollaborationEventBase extends Event {
   }
 
   /**
+   * Sets related entity property.
+   *
    * @param \Drupal\Core\Entity\ContentEntityBase $relatedEntity
    */
   public function setRelatedEntity(ContentEntityBase $relatedEntity): void {

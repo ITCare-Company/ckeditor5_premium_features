@@ -7,8 +7,6 @@ use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
 use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
-use Drupal\Core\Logger\LoggerChannelFactory;
-use Drupal\Core\Logger\LoggerChannelInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -17,26 +15,14 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class NotificationSuggestionSubscriber implements EventSubscriberInterface {
 
   /**
-   * Logger.
-   *
-   * @var \Drupal\Core\Logger\LoggerChannelInterface|\Drupal\Core\Logger\LoggerChannel
-   */
-  protected LoggerChannelInterface $loggerChannel;
-
-  /**
    * Constructor.
    *
    * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationSender
    *   Notification sender service.
-   * @param \Drupal\Core\Logger\LoggerChannelFactory $channelFactory
-   *   Logger factory.
    */
   public function __construct(
-    protected NotificationSender $notificationSender,
-    LoggerChannelFactory $channelFactory,
-  ) {
-    $this->loggerChannel = $channelFactory->get('notifications');
-  }
+    protected NotificationSender $notificationSender
+  ) {}
 
   /**
    * {@inheritdoc}

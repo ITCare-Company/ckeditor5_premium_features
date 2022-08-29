@@ -28,9 +28,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   }
  * )
  */
-class Message extends ContentEntityBase {
-
-  public const ENTITY_TYPE_ID = 'ckeditor5_message';
+class Message extends ContentEntityBase implements MessageInterface {
 
   /**
    * {@inheritdoc}
@@ -67,8 +65,7 @@ class Message extends ContentEntityBase {
     $fields['updated'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setRequired(TRUE)
-      ->setDescription(t('The time that the message was created.'))
-      ->setDefaultValueCallback(static::class . '::getRequestTime')
+      ->setDescription(t('The time that the message was changed.'))
       ->setStorageRequired(TRUE);
 
     $fields['sent'] = BaseFieldDefinition::create('boolean')
@@ -81,22 +78,18 @@ class Message extends ContentEntityBase {
   }
 
   /**
-   * @param $itemType
-   * @param $itemId
-   * @param $messageType
-   * @param $eventType
+   * {@inheritdoc}
    *
-   * @return int
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function appendItem($itemType, $itemId, $messageType, $eventType): int {
+  public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType): int {
     $saveResult = $this->entityTypeManager()->getStorage(MessageItem::ENTITY_TYPE_ID)
       ->create([
         'message_id' => $this->id(),
-        'entity_type' => $itemType,
-        'entity_id' => $itemId,
+        'entity_type' => $itemEntityType,
+        'entity_id' => $itemEntityId,
         'message_type' => $messageType,
         'event_type' => $eventType,
       ])->save();
@@ -107,15 +100,6 @@ class Message extends ContentEntityBase {
     }
 
     return $saveResult;
-  }
-
-  /**
-   * Returns current request timestamp.
-   *
-   * @return int
-   */
-  public static function getRequestTime(): int {
-    return \Drupal::time()->getRequestTime();
   }
 
 }
