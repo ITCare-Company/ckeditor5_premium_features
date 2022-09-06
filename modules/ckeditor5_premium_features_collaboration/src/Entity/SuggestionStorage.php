@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
 use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Access\AccessException;
@@ -240,11 +241,11 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
   protected function dispatchSuggestionStateEvent(SuggestionInterface $suggestion, string $suggestion_status): void {
     switch ($suggestion_status) {
       case 'accept':
-        $event_type = SuggestionEvent::SUGGESTION_ACCEPT;
+        $event_type = CollaborationEventBase::SUGGESTION_ACCEPT;
         break;
 
       case 'discard':
-        $event_type = SuggestionEvent::SUGGESTION_DISCARD;
+        $event_type = CollaborationEventBase::SUGGESTION_DISCARD;
         break;
     }
 
@@ -253,7 +254,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
     }
 
     $this->event_dispatcher->dispatch(
-      new SuggestionEvent($suggestion, $this->user, $event_type),
+      new CollaborationEventBase($suggestion, $this->user, $event_type),
       $event_type
     );
   }

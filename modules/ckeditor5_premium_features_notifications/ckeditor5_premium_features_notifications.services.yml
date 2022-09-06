@@ -19,7 +19,22 @@ services:
     class: '\Drupal\ckeditor5_premium_features_notifications\EventSubscriber\NotificationSuggestionSubscriber'
     arguments:
       - '@ckeditor5_premium_features_notifications.notification_sender'
-      - '@logger.factory'
+    tags:
+      - { name: 'event_subscriber' }
+
+  ckeditor5_premium_features_notifications.event.subscriber.comment_added:
+    class: '\Drupal\ckeditor5_premium_features_notifications\EventSubscriber\NotificationCommentSubscriber'
+    arguments:
+      - '@ckeditor5_premium_features_notifications.notification_sender'
+      - '@ckeditor5_premium_features_collaboration.collaborators'
+    tags:
+      - { name: 'event_subscriber' }
+
+  ckeditor5_premium_features_notifications.event.subscriber.document_update:
+    class: '\Drupal\ckeditor5_premium_features_notifications\EventSubscriber\NotificationDocumentUpdateSubscriber'
+    arguments:
+      - '@ckeditor5_premium_features_notifications.notification_sender'
+      - '@ckeditor5_premium_features_collaboration.collaborators'
     tags:
       - { name: 'event_subscriber' }
 

@@ -2,6 +2,8 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+
 /**
  * Used for storing basic information about notification message.
  */
@@ -19,6 +21,7 @@ class NotificationMessage implements NotificationMessageInterface {
     protected string $type,
     protected string $subject,
     protected string $body,
+    protected CollaborationEventBase $sourceEvent
   ) {}
 
   /**
@@ -40,6 +43,13 @@ class NotificationMessage implements NotificationMessageInterface {
    */
   public function getType(): string {
     return $this->type;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSourceEvent(): CollaborationEventBase {
+    return $this->sourceEvent;
   }
 
 }

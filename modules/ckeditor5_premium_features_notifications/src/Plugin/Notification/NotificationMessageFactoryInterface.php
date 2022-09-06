@@ -2,6 +2,8 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+
 /**
  * Interface for notification_message plugins.
  */
@@ -20,17 +22,19 @@ interface NotificationMessageFactoryInterface {
    * @return string
    *   The translated title.
    */
-  public function label();
+  public function label(): string;
 
   /**
    * Returns message object suitable for specified type.
    *
    * @param string $messageType
    *   Type of the message.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   *   Collaboration event object.
    *
    * @return \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageInterface|NULL
    */
-  public function getMessage(string $messageType, array $parameters): NotificationMessageInterface|NULL;
+  public function getMessage(string $messageType, CollaborationEventBase $event): NotificationMessageInterface|NULL;
 
   /**
    * Checks if passed message type is supported by the plugin.

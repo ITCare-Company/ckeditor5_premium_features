@@ -12,6 +12,10 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Element\MentionsIntegration;
 use Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat;
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features_notifications\Utility\CollaborationChecker;
+use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
+use Drupal\user\Entity\User;
 
 /**
  * Implements hook_library_info_build().
@@ -73,4 +77,24 @@ function ckeditor5_premium_features_collaboration_element_info_alter(array &$inf
     $info['text_format']['#process'][] = [TextFormat::class, 'process'];
     $info['text_format']['#process'][] = [MentionsIntegration::class, 'process'];
   }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function ckeditor5_premium_features_collaboration_entity_update(EntityInterface $entity) {
+  if (!CollaborationChecker::hasCollaborationFeatures($entity)) {
+    return;
+  }
+
+  /** @var ContainerAwareEventDispatcher $eventDispatcher */
+  $eventDispatcher = \Drupal::service('event_dispatcher');
+  $eventDispatcher->dispatch(
+    new CollaborationEventBase(
+      $entity,
+      User::load(Drupal::currentUser()->id()),
+      CollaborationEventBase::DOCUMENT_UPDATED
+    ),
+    CollaborationEventBase::DOCUMENT_UPDATED
+  );
 }

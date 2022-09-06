@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Access\AccessException;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -34,6 +36,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
    */
   public function __construct(
     protected AccountProxyInterface $user,
+    protected ContainerAwareEventDispatcher $event_dispatcher,
     ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
@@ -45,6 +48,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
     return new static(
       $container->get('current_user'),
+      $container->get('event_dispatcher'),
       $entity_type,
       $container->get('database'),
       $container->get('entity_field.manager'),
@@ -156,6 +160,11 @@ class CommentsStorage extends SqlContentEntityStorage implements
     $comment->setAttributes($attributes);
 
     $comment->save();
+
+    $this->event_dispatcher->dispatch(
+      new CollaborationEventBase($comment, $this->user, CollaborationEventBase::COMMENT_ADDED),
+      CollaborationEventBase::COMMENT_ADDED
+    );
 
     return $comment;
   }
