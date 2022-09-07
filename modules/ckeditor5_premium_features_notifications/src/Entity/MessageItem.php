@@ -57,6 +57,10 @@ class MessageItem extends ContentEntityBase implements MessageItemInterface {
       ->setRequired(TRUE)
       ->setDescription(t('The message event type.'));
 
+    $fields['message_content'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Message item event type.'))
+      ->setDescription(t('The message content.'));
+
     return $fields;
   }
 

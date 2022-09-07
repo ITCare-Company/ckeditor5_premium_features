@@ -6,6 +6,7 @@
 */
 
 use Drupal\Core\Database\Database;
+use Drupal\Core\Field\BaseFieldDefinition;
 
 /**
  * Change uid field to nullable.
@@ -18,3 +19,14 @@ function ckeditor5_premium_features_update_9001() {
     'unsigned' => TRUE,
   ]);
 }
+
+function ckeditor5_premium_features_update_9003() {
+
+     $storage_definition = BaseFieldDefinition::create('string_long')
+                                 ->setLabel(t('Message item event type.'))
+                                 ->setDescription(t('The message content.'));
+
+       \Drupal::entityDefinitionUpdateManager()
+         ->installFieldStorageDefinition('message_content', 'ckeditor5_message_item', 'ckeditor5_message_item', $storage_definition);
+}
+

@@ -208,7 +208,7 @@ class Collaborators {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface $comment
    *   Comment object.
    */
-  protected function getCommentMentions(CommentInterface $comment): array {
+  public function getCommentMentions(CommentInterface $comment): array {
     $marker = $this->collaborationSettings->getMentionsMarker();
     $minCharCount = $this->collaborationSettings->getMentionMinimalCharactersCount();
 
@@ -229,7 +229,7 @@ class Collaborators {
    * @param array $userNames
    *   List of usernames.
    */
-  protected function getUserIdsByNames(array $userNames): array {
+  public function getUserIdsByNames(array $userNames): array {
     try {
       return $this->entityTypeManager->getStorage('user')
         ->getQuery()

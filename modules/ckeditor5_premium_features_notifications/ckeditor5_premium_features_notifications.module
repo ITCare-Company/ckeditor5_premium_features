@@ -7,7 +7,9 @@
 
 declare(strict_types=1);
 
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features_notifications\Entity\Message;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
 use Drupal\Core\Render\BubbleableMetadata;
 
@@ -51,4 +53,104 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
   }
 
   return $replacements;
+}
+
+/**
+ * Implements hook_cron().
+ */
+function ckeditor5_premium_features_notifications_cron()
+{
+
+  $storage = \Drupal::entityTypeManager()->getStorage(Message::ENTITY_TYPE_ID);
+  $nids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('sent', 0)
+    ->sort('created', 'ASC')
+    ->range(0, 1)
+    ->execute();
+
+  if ($nids) {
+    $nodes = \Drupal::entityTypeManager()->getStorage(Message::ENTITY_TYPE_ID)->loadMultiple($nids);
+    $frst_node = reset($nodes);
+  }
+
+
+
+  $messageItems = $frst_node->getItems(4); //message entity id
+  $thread = [];
+  $body = '';
+  foreach ($messageItems as $messageItem) {
+    $entityId = $messageItem->get('entity_id')->getString();
+    switch ($messageItem->get('message_type')->getString()) {
+      case 'ckeditor5_message_thread_reply':
+
+        $comment = \Drupal::entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID)->loadByProperties(
+          [
+            'id' => $entityId,
+          ]
+        );
+        $comment = reset($comment);
+        $comments = \Drupal::entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID)->loadByProperties(
+          [
+            'thread_id' => $comment->getThreadId(),
+          ]
+        );
+
+        foreach ($comments as $singleComment) {
+          $thread[$singleComment->getPosition()] = $singleComment->getContent();
+        }
+        ksort($thread);
+
+        foreach ($thread as $tmess) {
+          $body .= $tmess . "\n";
+        }
+        $body .= '-------------------------------------';
+        break;
+
+      case 'ckeditor5_message_suggestion_reply' :
+        $comment = \Drupal::entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID)->loadByProperties(
+          [
+            'id' => $entityId,
+          ]
+        );
+        $comment = reset($comment);
+        $suggestion = \Drupal::entityTypeManager()->getStorage(SuggestionInterface::Interface::ENTITY_TYPE_ID)->loadByProperties(
+          [
+            'id' => $comment->getThreadId(),
+          ]
+        );
+        $suggestion = reset($suggestion);
+        $body .= $suggestion->getContent();
+        $comments = \Drupal::entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID)->loadByProperties(
+          [
+            'thread_id' => $comment->getThreadId(),
+          ]
+        );
+
+        foreach ($comments as $singleComment) {
+          $thread[$singleComment->getPosition()] = $singleComment->getContent();
+        }
+        ksort($thread);
+
+        foreach ($thread as $tmess) {
+          $body .= $tmess . "\n";
+        }
+        $body .= '-------------------------------------';
+
+        break;
+
+      case 'ckeditor5_message_suggestion_status' :
+        break;
+
+    }
+  }
+
+
+
+  $mailManager = \Drupal::service("plugin.manager.mail");
+  $params["context"]["subject"] = "Test mail subject.";
+  $params["context"]["message"] = $body;
+  $to = "your-email-address@example.com"; //Email needs to be sent
+  $result = $mailManager->mail("system", "mail", $to, 'pl', $params);
+  \Drupal::messenger()->addMessage('Cron task done');
 }

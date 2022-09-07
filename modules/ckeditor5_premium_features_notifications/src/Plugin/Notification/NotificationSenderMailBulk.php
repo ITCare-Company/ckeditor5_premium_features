@@ -57,7 +57,10 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
   public function send(NotificationMessageInterface $message, array $userIds): bool|array {
     $documentId = $message->getSourceEvent()->getRelatedDocument()->id();
     $documentType = $message->getSourceEvent()->getRelatedDocument()->getEntityTypeId();
-
+    $document = $message->getSourceEvent()->getRelatedDocument();
+    if (isset($document->original)) {
+      $ory = $document->original->get('body')->getValue()[0]['value'];
+    }
     try {
 
       /** @var \Drupal\ckeditor5_premium_features_notifications\Entity\MessageStorage $messageQueueStorage */
@@ -79,6 +82,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
           $message->getSourceEvent()->getRelatedEntity()->id(),
           $message->getType(),
           $message->getSourceEvent()->getEventType(),
+          $ory
         );
       }
 

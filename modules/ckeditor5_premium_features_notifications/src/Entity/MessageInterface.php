@@ -26,5 +26,7 @@ interface MessageInterface {
    * @return int
    *   Either SAVED_NEW or SAVED_UPDATED, depending on the operation performed
    */
-  public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType): int;
+  public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType, $messageContent): int;
+
+  public function getItems($id);
 }
