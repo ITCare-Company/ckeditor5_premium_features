@@ -141,10 +141,10 @@ class CommentsStorage extends SqlContentEntityStorage implements
       'entity_id' => $data->getInt('entity_id'),
     ];
     $attributes = [
-      'key' => $raw_data['item_key'],
-      'position' => $raw_data['position'],
-      'is_reply' => $raw_data['is_reply'],
-    ];
+      'key' => $data->get('key'),
+      'position' => $data->get('position'),
+      'is_reply' => $data->get('is_reply'),
+    ] + $data->get('attributes') ?? [];
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment */
     $comment = $this->create($object_data);
@@ -179,10 +179,12 @@ class CommentsStorage extends SqlContentEntityStorage implements
 
     $raw_data = Comment::normalize($raw_data);
     $data = new ParameterBag($raw_data);
+    $attributes = $data->get('attributes') ?? [];
 
     $entity
       ->setThreadId($data->get('thread_id'))
       ->setContent($data->get('content'))
+      ->setAttributes($attributes)
       ->save();
 
     return $entity;

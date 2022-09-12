@@ -52,7 +52,7 @@ trait CollaborationEntityStorageTrait {
    */
   public function getCommonData(ContentEntityInterface $entity, string $item_key): array {
     return [
-      'item_key' => $item_key,
+      'key' => $item_key,
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
     ];
