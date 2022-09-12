@@ -60,6 +60,7 @@ class TrackChangesAdapter {
       }
       if (suggestions[i].isInContent == false) {
         // Here we have a case of suggestion that was accepted/rejected before storing in DB.
+        this.editor.model.document.fire('trackchanges:change:data');
         continue;
       }
 

@@ -155,6 +155,7 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
    *   Filtered text.
    */
   protected static function xssFilter(string $content): string {
+//    $tags = array_merge(Xss::getHtmlTagList(), ['p', 'suggestion-start', 'suggestion-end', 'comment-start', 'comment-end']);
     $tags = array_merge(Xss::getHtmlTagList(), ['p']);
     return Xss::filter($content, $tags);
   }
