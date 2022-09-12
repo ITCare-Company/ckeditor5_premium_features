@@ -8,7 +8,6 @@ class SidebarAdapter {
     this.editor.config._config.sidebar = {
       container: document.querySelector('#' + id_sidebar),
     }
-
   }
 
   static get pluginName() {

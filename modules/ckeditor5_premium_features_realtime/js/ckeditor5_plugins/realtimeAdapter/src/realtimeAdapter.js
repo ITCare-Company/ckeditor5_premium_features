@@ -48,7 +48,7 @@ class RealtimeAdapter {
     const ck_sidebar_wrapper = document.querySelector('.' + class_wrapper);
 
     ck_sidebar_wrapper.classList.add('wideSidebar');
-   }
+  }
 }
 
 export default RealtimeAdapter;
