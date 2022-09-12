@@ -223,6 +223,20 @@ class Collaborators {
     return [];
   }
 
+  public function getBodyMentions(String $body): array {
+    $marker = $this->collaborationSettings->getMentionsMarker();
+    $minCharCount = $this->collaborationSettings->getMentionMinimalCharactersCount();
+
+    $body = preg_replace('/<[^>]*>/', " ", $body);
+    $regexp = '/(^|\s)' . $marker . '([^\s' . $marker . ']{' . $minCharCount . ',})/';
+
+    if (preg_match_all($regexp, $body, $matches)) {
+      return $matches[2];
+    }
+
+    return [];
+  }
+
   /**
    * Returns a list of IDs for specified usernames.
    *

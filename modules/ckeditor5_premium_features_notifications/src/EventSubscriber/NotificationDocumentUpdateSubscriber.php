@@ -44,7 +44,16 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
    */
   public function documentUpdated(CollaborationEventBase $event): void {
     $collaborationEntity = $event->getRelatedEntity();
-
+    $body = $collaborationEntity->get('body')->getValue()[0]['value'];
+    $mentions = $this->collaboratorsService->getBodyMentions($body);
+    if (!empty($mentions)) {
+      $users = $this->collaboratorsService->getUserIdsByNames($mentions);
+      $this->notificationSender->sendNotification(
+        NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT,
+        $users,
+        $event
+      );
+    }
     $otherAuthorsList = $this->collaboratorsService->getCollaborators($collaborationEntity, $event->getAccount()->id());
 
     if (empty($otherAuthorsList)) {

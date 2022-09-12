@@ -103,8 +103,8 @@ class Message extends ContentEntityBase implements MessageInterface {
     return $saveResult;
   }
 
-  public function getItems($id) {
-  $result = $this->entityTypeManager()->getStorage(MessageItem::ENTITY_TYPE_ID)->loadByProperties(['message_id' => $id]);
+  public function getItems() {
+  $result = $this->entityTypeManager()->getStorage(MessageItem::ENTITY_TYPE_ID)->loadByProperties(['message_id' => $this->id()]);
 
   return $result;
   }

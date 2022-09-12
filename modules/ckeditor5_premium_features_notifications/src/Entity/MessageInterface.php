@@ -28,5 +28,5 @@ interface MessageInterface {
    */
   public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType, $messageContent): int;
 
-  public function getItems($id);
+  public function getItems();
 }

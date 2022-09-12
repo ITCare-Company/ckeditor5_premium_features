@@ -58,9 +58,9 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
     $documentId = $message->getSourceEvent()->getRelatedDocument()->id();
     $documentType = $message->getSourceEvent()->getRelatedDocument()->getEntityTypeId();
     $document = $message->getSourceEvent()->getRelatedDocument();
-    if (isset($document->original)) {
-      $ory = $document->original->get('body')->getValue()[0]['value'];
-    }
+
+    $ory = $document->get('body')->getValue()[0]['value'];
+
     try {
 
       /** @var \Drupal\ckeditor5_premium_features_notifications\Entity\MessageStorage $messageQueueStorage */
