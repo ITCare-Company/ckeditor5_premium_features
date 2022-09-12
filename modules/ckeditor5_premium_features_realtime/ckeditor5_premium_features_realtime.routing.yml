@@ -5,6 +5,3 @@ ckeditor5_premium_features_realtime.form.settings:
     _form: 'Drupal\ckeditor5_premium_features_realtime\Form\SettingsForm'
   requirements:
     _permission: 'administer site configuration'
-
-
-

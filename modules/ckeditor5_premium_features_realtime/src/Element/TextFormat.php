@@ -135,7 +135,7 @@ class TextFormat {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-    /** @var \Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat $service */
+    /** @var \Drupal\ckeditor5_premium_features_realtime\Element\TextFormat $service */
     $service = \Drupal::service('ckeditor5_premium_features_realtime.element.text_format');
     return $service->processElement($element, $form_state, $complete_form);
   }

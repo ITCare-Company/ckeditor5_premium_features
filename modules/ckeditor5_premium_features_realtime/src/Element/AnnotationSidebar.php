@@ -29,7 +29,7 @@ class AnnotationSidebar {
    */
   public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array {
     $sidebar_mode = \Drupal::service('config.factory')
-      ->getEditable('ckeditor5_premium_features_collaboration.settings')
+      ->getEditable('ckeditor5_premium_features_realtime.settings')
       ->get('sidebar') ?? 'auto';
 
     $sidebar['ck_sidebar_type'] = [
