@@ -3,7 +3,6 @@
 namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
-use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
@@ -19,8 +18,8 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
    *
    * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationSender
    *   Notification sender service.
-   * @param \Drupal\Core\Logger\LoggerChannelFactory $channelFactory
-   *   Logger factory.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators $collaboratorsService
+   *   Collaborators service.
    */
   public function __construct(
     protected NotificationSender $notificationSender,

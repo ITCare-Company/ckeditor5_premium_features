@@ -132,11 +132,8 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
     $suggestion_data = $data->get('data') ?? [];
     $suggestion_attributes = $data->get('attributes') ?? [];
 
-    if (!empty($suggestion_attributes['status'])) {
+    if (!empty($suggestion_attributes['status']) && $suggestion_attributes['status'] != $entity->getStatus()) {
       $this->dispatchSuggestionStateEvent($entity, $suggestion_attributes['status']);
-      $entity->delete();
-
-      return NULL;
     }
 
     $entity
@@ -240,11 +237,11 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
    */
   protected function dispatchSuggestionStateEvent(SuggestionInterface $suggestion, string $suggestion_status): void {
     switch ($suggestion_status) {
-      case 'accept':
+      case SuggestionInterface::SUGGESTION_ACCEPTED:
         $event_type = CollaborationEventBase::SUGGESTION_ACCEPT;
         break;
 
-      case 'discard':
+      case SuggestionInterface::SUGGESTION_REJECTED:
         $event_type = CollaborationEventBase::SUGGESTION_DISCARD;
         break;
     }
