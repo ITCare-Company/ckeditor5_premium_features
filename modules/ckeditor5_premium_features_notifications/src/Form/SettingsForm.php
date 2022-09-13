@@ -153,8 +153,9 @@ class SettingsForm extends SharedBuildConfigFormBase {
         '#format' => $messageConfig['test_format'] ?? 'full_html',
       ] + $visibility;
 
-      $form[$groupKey][$messageType . '__additional_help'] = $this->getNotificationAdditionalInstruction($messageType) + $visibility;
-    }
+      if ($additional = $this->getNotificationAdditionalInstruction($messageType)) {
+        $form[$groupKey][$messageType . '__additional_help'] = $additional + $visibility;
+      }
 
     return $form;
   }
