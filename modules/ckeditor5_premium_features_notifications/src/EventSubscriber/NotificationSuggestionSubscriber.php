@@ -4,7 +4,6 @@ namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
 use Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
-use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

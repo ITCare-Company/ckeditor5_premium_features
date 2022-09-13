@@ -56,10 +56,14 @@ class TrackChangesAdapter {
         suggestions[i].setAttribute('head', suggestions[i].head.id);
       }
       if (this.trackedSuggestion.has(suggestions[i].id)) {
+        if (suggestions[i].isInContent == true) {
+          suggestions[i].removeAttribute('status');
+        }
         continue;
       }
       if (suggestions[i].isInContent == false) {
         // Here we have a case of suggestion that was accepted/rejected before storing in DB.
+        this.editor.model.document.fire('trackchanges:change:data');
         continue;
       }
 
@@ -75,7 +79,12 @@ class TrackChangesAdapter {
 
     var suggestionStatusUpdate = function (event) {
       let suggestionTracked = self.trackedSuggestion.get(event.source.id);
-      if (typeof suggestionTracked.attributes.key == "undefined") {
+
+      if (typeof suggestionTracked == "undefined") {
+        return;
+      }
+      if (typeof suggestionTracked.attributes == "undefined" ||
+        typeof suggestionTracked.attributes.key == "undefined") {
         self.trackedSuggestion.delete(event.source.id);
         return;
       }

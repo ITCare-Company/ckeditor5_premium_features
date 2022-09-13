@@ -3,9 +3,7 @@
 namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
 use Drupal\ckeditor5_premium_features_collaboration\Entity\Comment;
-use Drupal\ckeditor5_premium_features_collaboration\Entity\Message;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
-use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;

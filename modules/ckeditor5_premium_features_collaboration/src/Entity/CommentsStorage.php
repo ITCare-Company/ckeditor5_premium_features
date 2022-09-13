@@ -8,8 +8,10 @@ use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
 use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Access\AccessException;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
+use Drupal\Core\Logger\LoggerChannelTrait;
 use Drupal\Core\Session\AccountProxyInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -23,6 +25,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
     CollaborationSuggestionDependingStorageInterface {
 
   use CollaborationEntityStorageTrait;
+  use LoggerChannelTrait;
 
   protected array $suggestion_ids;
 
@@ -109,6 +112,8 @@ class CommentsStorage extends SqlContentEntityStorage implements
   public function processSourceData(array $source_data, ContentEntityInterface $entity, string $item_key): array {
     $entity_list = [];
 
+    $stored_comments = $this->loadByEntity($entity);
+
     foreach ($source_data as $thread_data) {
       $thread_id = $thread_data['threadId'];
 
@@ -122,6 +127,20 @@ class CommentsStorage extends SqlContentEntityStorage implements
         $element_data = array_merge($element_data, $this->getCommonData($entity, $item_key));
 
         $entity_list[] = $element_data;
+
+        // This way, in a result, we'll have a list of Comment entities that we are storing, but were deleted by the user.
+        unset($stored_comments[$element_data['commentId']]);
+      }
+    }
+
+    if (!empty($stored_comments)) {
+      try {
+        $this->delete($stored_comments);
+      } catch (EntityStorageException $e) {
+        $this->getLogger('collaboration')->error("Comment storage error while deleting old entities: @error <br /> <br /><pre>@trace</pre>", [
+          '@error' => $e->getMessage(),
+          '@trace' => $e->getTraceAsString(),
+        ]);
       }
     }
 
@@ -141,10 +160,10 @@ class CommentsStorage extends SqlContentEntityStorage implements
       'entity_id' => $data->getInt('entity_id'),
     ];
     $attributes = [
-      'key' => $raw_data['item_key'],
-      'position' => $raw_data['position'],
-      'is_reply' => $raw_data['is_reply'],
-    ];
+      'key' => $data->get('key'),
+      'position' => $data->get('position'),
+      'is_reply' => $data->get('is_reply'),
+    ] + $data->get('attributes') ?? [];
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment */
     $comment = $this->create($object_data);
@@ -179,10 +198,12 @@ class CommentsStorage extends SqlContentEntityStorage implements
 
     $raw_data = Comment::normalize($raw_data);
     $data = new ParameterBag($raw_data);
+    $attributes = $data->get('attributes') ?? [];
 
     $entity
       ->setThreadId($data->get('thread_id'))
       ->setContent($data->get('content'))
+      ->setAttributes($attributes)
       ->save();
 
     return $entity;

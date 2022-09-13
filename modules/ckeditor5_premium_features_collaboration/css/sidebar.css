@@ -38,14 +38,14 @@
 }
 .ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
   position: absolute;
-  margin: 20px 18px;
+  margin: 0px 18px;
 }
 .ck-sidebar-wrapper a.ck-sidebar-auto-toggle:hover {
   text-decoration: none;
 }
 .ck-sidebar-wrapper.narrowSidebar a.ck-sidebar-auto-toggle::after,
 .ck-sidebar-wrapper.wideSidebar a.ck-sidebar-auto-toggle::after {
-  font-size: 45px;
+  font-size: 26px;
   color: var(--ck-color-toolbar-border)
 }
 .ck-sidebar-wrapper.narrowSidebar a.ck-sidebar-auto-toggle::after {
