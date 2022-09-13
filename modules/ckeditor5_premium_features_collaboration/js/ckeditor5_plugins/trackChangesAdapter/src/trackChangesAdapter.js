@@ -56,6 +56,9 @@ class TrackChangesAdapter {
         suggestions[i].setAttribute('head', suggestions[i].head.id);
       }
       if (this.trackedSuggestion.has(suggestions[i].id)) {
+        if (suggestions[i].isInContent == true) {
+          suggestions[i].removeAttribute('status');
+        }
         continue;
       }
       if (suggestions[i].isInContent == false) {
@@ -76,7 +79,12 @@ class TrackChangesAdapter {
 
     var suggestionStatusUpdate = function (event) {
       let suggestionTracked = self.trackedSuggestion.get(event.source.id);
-      if (typeof suggestionTracked.attributes.key == "undefined") {
+
+      if (typeof suggestionTracked == "undefined") {
+        return;
+      }
+      if (typeof suggestionTracked.attributes == "undefined" ||
+        typeof suggestionTracked.attributes.key == "undefined") {
         self.trackedSuggestion.delete(event.source.id);
         return;
       }

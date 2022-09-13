@@ -165,4 +165,12 @@ class Suggestion extends CollaborationEntityBase implements SuggestionInterface 
       ]);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getStatus(): string|NULL {
+    $attributes = $this->getAttributes();
+
+    return $attributes['status'] ?? NULL;
+  }
 }
