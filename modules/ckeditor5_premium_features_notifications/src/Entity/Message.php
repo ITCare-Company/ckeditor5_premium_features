@@ -8,6 +8,7 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\user\UserInterface;
 
 /**
  * Defines the CKEditor5 Premium features "Message" entity.
@@ -107,6 +108,13 @@ class Message extends ContentEntityBase implements MessageInterface {
   $result = $this->entityTypeManager()->getStorage(MessageItem::ENTITY_TYPE_ID)->loadByProperties(['message_id' => $this->id()]);
 
   return $result;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUser(): ?UserInterface {
+    return $this->get('uid')->entity;
   }
 
 }

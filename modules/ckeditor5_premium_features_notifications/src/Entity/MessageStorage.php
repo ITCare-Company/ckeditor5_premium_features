@@ -74,4 +74,28 @@ class MessageStorage extends SqlContentEntityStorage {
 
     return reset($result);
   }
+
+  /**
+   * Get oldest unsent messages.
+   *
+   * @param int $range
+   *   Max quantity of getting messages.
+   * @return array
+   *   Array of message entities.
+   */
+  public function getOldestMessages(int $range):array {
+    $nids = $this->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('sent', 0)
+      ->sort('created', 'ASC')
+      ->range(0, $range)
+      ->execute();
+
+    if ($nids) {
+      return $this->loadMultiple($nids);
+    }
+
+    return [];
+  }
+
 }

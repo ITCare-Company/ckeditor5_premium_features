@@ -139,7 +139,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
 
     if (!empty($suggestion_attributes['status'])) {
       $this->dispatchSuggestionStateEvent($entity, $suggestion_attributes['status']);
-      $entity->delete();
+      //$entity->delete();
 
       return NULL;
     }

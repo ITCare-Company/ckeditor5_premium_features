@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_notifications\Entity;
 
+use Drupal\user\UserInterface;
+
 /**
  * Provides the interface for the CKEditor5 "Message" entity.
  */
@@ -29,4 +31,6 @@ interface MessageInterface {
   public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType, $messageContent): int;
 
   public function getItems();
+
+  public function getUser(): ?UserInterface;
 }

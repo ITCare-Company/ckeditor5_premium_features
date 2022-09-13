@@ -202,4 +202,45 @@ class CommentsStorage extends SqlContentEntityStorage implements
     return in_array($suggestion_id, $this->suggestion_ids);
   }
 
+  public function getCommentById($id):Comment|NULL {
+    $result = $this->loadByProperties([
+      'id' =>$id,
+    ]);
+
+    if (empty($result)) {
+      return NULL;
+    }
+
+    return reset($result);
+  }
+
+  /**
+   * @param $id
+   *   Id of comment.
+   * @return array
+   */
+  public function getCommentTree($id):array {
+    $comment = \Drupal::entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID)->loadByProperties(
+      [
+        'id' => $id,
+      ]
+    );
+    $comment = reset($comment);
+    $comments = \Drupal::entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID)->loadByProperties(
+      [
+        'thread_id' => $comment->getThreadId(),
+      ]
+    );
+
+    foreach ($comments as $singleComment) {
+      $thread[$singleComment->getPosition()] = $singleComment->id();
+    }
+    ksort($thread);
+
+    if ($thread) {
+      return $thread;
+    }
+    return [];
+  }
+
 }

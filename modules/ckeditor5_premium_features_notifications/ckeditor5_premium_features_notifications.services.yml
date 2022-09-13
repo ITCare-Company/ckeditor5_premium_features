@@ -42,3 +42,10 @@ services:
     class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings
     arguments:
       - '@config.factory'
+
+  ckeditor5_premium_features_notifications.bulk_message_sender:
+    class: Drupal\ckeditor5_premium_features_notifications\Utility\BulkMessageSender
+    arguments:
+      - '@entity_type.manager'
+      - '@plugin.manager.mail'
+      - '@renderer'
