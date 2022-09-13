@@ -60,7 +60,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
     $form['message_factory_plugin'] = [
       '#type' => 'select',
       '#title' => 'Message content factory',
-      '#description' => $this->t('Choose plugin responsible for providing notification messages templates.'),
+      '#description' => $this->t('Choose the plugin responsible for providing the notification messages templates.'),
       '#options' => array_map(function ($value) {
         return $value['label'];
       }, $messageFactoryDefinitions),
@@ -69,7 +69,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
     $form['sender_plugin'] = [
       '#type' => 'select',
       '#title' => 'Message sender',
-      '#description' => $this->t('Choose plugin responsible for sending notification messages.'),
+      '#description' => $this->t('Choose the plugin responsible for sending the notification messages.'),
       '#options' => array_map(function ($value) {
         return $value['label'];
       }, $senderDefinitions),
@@ -79,9 +79,9 @@ class SettingsForm extends SharedBuildConfigFormBase {
     $form = $this->addNotificationMessagesTabs($form, $form_state);
 
     $form['additional_info'] = [
-      '#markup' => 'The "Message body" fields supports tokens that will be dynamically replaced by corresponding values.
+      '#markup' => 'The "Message body" field supports tokens that will be dynamically replaced by corresponding values.
       Currently supported tokens relate to Node and User entities, for example [node:title], [node:url], [user:name].<br/>
-      For more, please check the below two sample lists:',
+      For more entities, please check the two sample lists below:',
       'list' => [
         '#theme' => 'item_list',
         '#items' => [
@@ -120,7 +120,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
       $form[$groupKey][$messageType . '__enabled'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Enable'),
-        '#description' => $this->t('Decide if your system should support this type of notification.'),
+        '#description' => $this->t('Decide whether your system should support this type of notification.'),
         '#default_value' => $config->get($messageType . '__enabled'),
       ];
 
@@ -153,9 +153,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
         '#format' => $messageConfig['test_format'] ?? 'full_html',
       ] + $visibility;
 
-      if ($additional = $this->getNotificationAdditionalInstruction($messageType)) {
-        $form[$groupKey][$messageType . '__additional_help'] = $additional + $visibility;
-      }
+      $form[$groupKey][$messageType . '__additional_help'] = $this->getNotificationAdditionalInstruction($messageType) + $visibility;
     }
 
     return $form;

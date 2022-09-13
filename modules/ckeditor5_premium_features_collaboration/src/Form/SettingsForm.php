@@ -55,14 +55,14 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#title' => t('Autocomplete list limit.'),
       '#min' => 1,
       '#default_value' => $config->get('mention_dropdown_limit') ?? 4,
-      '#description' => t('The number of items displayed in the autocomplete list.'),
+      '#description' => t('Set the number of items displayed in the autocomplete list.'),
     ];
     $form['mentions']['mention_marker'] = [
       '#type' => 'textfield',
       '#title' => t('Annotation triggering character.'),
       '#min' => 1,
       '#default_value' => $config->get('mention_marker') ?? '#',
-      '#description' => t('The character which triggers autocompletion for mention. It must be a single character.'),
+      '#description' => t('Set the character which triggers autocompletion for mentions. It must be a single character.'),
     ];
 
     $form['revision_history'] = [
@@ -74,7 +74,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#type' => 'checkbox',
       '#title' => t('Add revisions on form submit'),
       '#default_value' => $config->get('add_revision_on_submit') ?? TRUE,
-      '#description' => t('If you leave this unchecked, new revisions will be saved only on demand.'),
+      '#description' => t('If you leave this unchecked, new revisions will only be saved on demand.'),
     ];
 
     return $form;
