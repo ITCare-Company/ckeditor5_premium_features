@@ -156,6 +156,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
       if ($additional = $this->getNotificationAdditionalInstruction($messageType)) {
         $form[$groupKey][$messageType . '__additional_help'] = $additional + $visibility;
       }
+    }
 
     return $form;
   }
