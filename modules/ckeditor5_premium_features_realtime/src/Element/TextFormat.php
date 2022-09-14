@@ -40,7 +40,7 @@ class TextFormat {
     protected EntityTypeManagerInterface $entityTypeManager,
     ConfigFactoryInterface               $config_factory
   ) {
-    $this->config = $config_factory->getEditable('ckeditor5_premium_features_realitme.settings');
+    $this->config = $config_factory->getEditable('ckeditor5_premium_features_realtime.settings');
   }
 
   /**
@@ -83,7 +83,7 @@ class TextFormat {
     ];
 
     $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $this->getChannelId($node->uuid() . $element["#id"]);
-
+    $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->config->get('presence_list_collapse_at') ?? 8;
     // Attach annotation sidebar.
     AnnotationSidebar::process($element, $form_state, $complete_form);
 

@@ -33,7 +33,7 @@ class RealtimeAdapter {
     if (!presenceListConfig.container) {
       presenceListConfig.container = document.querySelector(el);
     }
-    presenceListConfig.collapseAt = 8;
+    presenceListConfig.collapseAt = drupalSettings.presenceListCollapseAt;
     revisionHistoryConfig.viewerContainer = document.querySelector( '.revision-history-container-data' ),
 
     revisionHistoryConfig.viewerEditorElement = document.querySelector('.revision-viewer-editor');

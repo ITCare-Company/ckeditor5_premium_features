@@ -3,5 +3,5 @@
 }
 
 .ck.ck-editor__main > .ck-editor__editable {
-  height: 270px;
+  min-height: 270px;
 }

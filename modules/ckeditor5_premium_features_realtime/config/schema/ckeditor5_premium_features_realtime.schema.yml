@@ -5,6 +5,9 @@ ckeditor5.plugin.ckeditor5_premium_features_realtime.settings:
     presence_list:
       type: string
       label: 'User presence list'
+    presence_list_collapse_at:
+      type: int
+      label: 'User presence list collapse at'
     sidebar:
       type: string
       label: 'Annotations sidebar'
