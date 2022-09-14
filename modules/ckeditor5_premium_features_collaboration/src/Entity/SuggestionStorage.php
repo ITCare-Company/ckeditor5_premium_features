@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
 use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Access\AccessException;
@@ -98,7 +99,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
       $type,
     ] = call_user_func([__CLASS__, $callback], $object_data, $source);
 
-    $attributes['key'] = $raw_data['item_key'];
+    $attributes['key'] = $data->get('key');
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion $suggestion */
     $suggestion = $this->create($object_data);
@@ -131,11 +132,8 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
     $suggestion_data = $data->get('data') ?? [];
     $suggestion_attributes = $data->get('attributes') ?? [];
 
-    if (!empty($suggestion_attributes['status'])) {
+    if (!empty($suggestion_attributes['status']) && $suggestion_attributes['status'] != $entity->getStatus()) {
       $this->dispatchSuggestionStateEvent($entity, $suggestion_attributes['status']);
-      $entity->delete();
-
-      return NULL;
     }
 
     $entity
@@ -239,12 +237,12 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
    */
   protected function dispatchSuggestionStateEvent(SuggestionInterface $suggestion, string $suggestion_status): void {
     switch ($suggestion_status) {
-      case 'accept':
-        $event_type = SuggestionEvent::SUGGESTION_ACCEPT;
+      case SuggestionInterface::SUGGESTION_ACCEPTED:
+        $event_type = CollaborationEventBase::SUGGESTION_ACCEPT;
         break;
 
-      case 'discard':
-        $event_type = SuggestionEvent::SUGGESTION_DISCARD;
+      case SuggestionInterface::SUGGESTION_REJECTED:
+        $event_type = CollaborationEventBase::SUGGESTION_DISCARD;
         break;
     }
 
@@ -253,7 +251,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
     }
 
     $this->event_dispatcher->dispatch(
-      new SuggestionEvent($suggestion, $this->user, $event_type),
+      new CollaborationEventBase($suggestion, $this->user, $event_type),
       $event_type
     );
   }

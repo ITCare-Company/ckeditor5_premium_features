@@ -12,6 +12,8 @@ use Drupal\Core\Entity\ContentEntityInterface;
 interface SuggestionInterface extends ContentEntityInterface {
 
   public const ENTITY_TYPE_ID = 'ckeditor5_suggestion';
+  public const SUGGESTION_REJECTED = 'discard';
+  public const SUGGESTION_ACCEPTED = 'accept';
 
   /**
    * Gets the suggestion type.
@@ -95,4 +97,13 @@ interface SuggestionInterface extends ContentEntityInterface {
    *   List of suggestions matching the same chain_id.
    */
   public function getChain(): array;
+
+  /**
+   * Returns suggestion status if was approved or rejected, otherwise NULL if only created.
+   *
+   * @return string|NULL
+   *   One of: SuggestionInterface::SUGGESTION_REJECTED,
+   * SuggestionInterface::SUGGESTION_ACCEPTED or NULL.
+   */
+  public function getStatus(): string|NULL;
 }
