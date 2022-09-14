@@ -82,7 +82,7 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
     ];
 
     $this->notificationSender->sendNotification(
-      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS,
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED,
       $recipients,
       $event
     );

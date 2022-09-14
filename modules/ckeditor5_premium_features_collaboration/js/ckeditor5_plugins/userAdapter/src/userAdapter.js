@@ -1,6 +1,10 @@
+import CollaborationStorage
+  from "../../collaborationStorage/src/collaborationStorage";
+
 class UserAdapter {
   constructor( editor ) {
     this.editor = editor;
+    this.storage = new CollaborationStorage(editor);
   }
 
   static get pluginName() {
@@ -8,6 +12,10 @@ class UserAdapter {
   }
 
   init() {
+    if (this.storage.isCollaborationDisabled()) {
+      // return;
+    }
+
     if (typeof drupalSettings.ckeditor5Premium === "undefined" || !this.editor.plugins.has('Users') ) {
       return;
     }

@@ -44,6 +44,10 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
    */
   public function commentAdded(CollaborationEventBase $event): void {
     $collaborationEntity = $event->getRelatedEntity();
+    if (!$collaborationEntity instanceof Comment) {
+      return;
+    }
+
     $mentions = $this->collaboratorsService->getCommentMentions($collaborationEntity);
     if (!empty($mentions)) {
       $users = $this->collaboratorsService->getUserIdsByNames($mentions);
@@ -53,14 +57,30 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
         $event
       );
     }
-    if (!$collaborationEntity instanceof Comment || !$collaborationEntity->isReply()) {
-      return;
-    }
 
     $participators = $this->collaboratorsService->getParticipators($collaborationEntity);
     $threadSuggestionAuthor = $this->collaboratorsService->getThreadSuggestionAuthor($collaborationEntity);
-
     $participators = array_diff($participators, [$threadSuggestionAuthor]);
+
+    if (!$collaborationEntity->isReply()) {
+      /** @var \Drupal\Core\Entity\ContentEntityInterface $ent */
+      $ent = $collaborationEntity->getReferencedEntity();
+
+      $authors = [];
+      if (method_exists($ent, 'getOwner')) {
+        $authors[] = $ent->getOwner()->id();
+      }
+      elseif ($ent->hasField('uid')) {
+        $authors[] = $ent->get('uid')->getString();
+      }
+
+      // Send notification to the document author.
+      $this->notificationSender->sendNotification(
+        NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_COMMENT_ADDED,
+        array_merge($participators, $authors),
+        $event
+      );
+    }
 
     if (!empty($participators)) {
       // Send notification to users participated in a thread.

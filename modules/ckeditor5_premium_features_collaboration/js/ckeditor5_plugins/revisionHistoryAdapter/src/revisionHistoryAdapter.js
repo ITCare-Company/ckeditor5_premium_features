@@ -15,6 +15,10 @@ class RevisionHistoryAdapter {
   }
 
   init() {
+    if (this.storage.isRevisionDisabled()) {
+      return;
+    }
+
     // Initialize revision history settings.
     if (typeof drupalSettings.ckeditor5Premium == "undefined") {
       return;
@@ -36,6 +40,10 @@ class RevisionHistoryAdapter {
     const revisionHistoryPlugin = this.editor.plugins.get('RevisionHistory');
     const revisionTrackerPlugin = this.editor.plugins.get('RevisionTracker');
     const revisionHistoryElement = document.querySelector(this.storage.getSourceDataSelector('revisionHistory'));
+
+    // if (!revisionHistoryElement || revisionHistoryElement.value == '') {
+    //   return
+    // }
 
     // Load revisions.
     const revisions = JSON.parse(revisionHistoryElement.value);

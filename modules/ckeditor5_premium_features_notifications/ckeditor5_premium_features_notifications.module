@@ -9,7 +9,10 @@ declare(strict_types=1);
 
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
+use Drupal\ckeditor5_premium_features_notifications\Utility\CollaborationChecker;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\user\Entity\User;
 
 /**
  * Implements hook_mail().
@@ -59,4 +62,24 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
 function ckeditor5_premium_features_notifications_cron() {
   $bulkMessageSender = \Drupal::service('ckeditor5_premium_features_notifications.bulk_message_sender');
   $bulkMessageSender->sendBulkMails();
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function ckeditor5_premium_features_notifications_entity_update(EntityInterface $entity) {
+  if (!CollaborationChecker::hasCollaborationFeatures($entity)) {
+    return;
+  }
+
+  /** @var ContainerAwareEventDispatcher $eventDispatcher */
+  $eventDispatcher = \Drupal::service('event_dispatcher');
+  $eventDispatcher->dispatch(
+    new CollaborationEventBase(
+      $entity,
+      User::load(Drupal::currentUser()->id()),
+      CollaborationEventBase::DOCUMENT_UPDATED
+    ),
+    CollaborationEventBase::DOCUMENT_UPDATED
+  );
 }

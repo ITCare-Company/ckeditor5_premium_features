@@ -31,6 +31,10 @@ class CommentsAdapter {
   }
 
   init() {
+    if (this.storage.processCollaborationCommandDisabled("addCommentThread")) {
+      return;
+    }
+
     if (!this.editor.plugins.has('CommentsRepository')) {
       return
     }
@@ -38,7 +42,7 @@ class CommentsAdapter {
     const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
     const commentsRepositoryElement = document.querySelector(this.storage.getSourceDataSelector('comments'));
 
-    if (!commentsRepositoryElement) {
+    if (!commentsRepositoryElement || commentsRepositoryElement.value == '') {
       return;
     }
 

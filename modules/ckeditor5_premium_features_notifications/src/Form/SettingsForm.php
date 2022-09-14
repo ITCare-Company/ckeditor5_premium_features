@@ -127,11 +127,6 @@ class SettingsForm extends SharedBuildConfigFormBase {
       $visibility = [
         '#states' => [
           'visible' => [
-            ':input[name="' . $messageType . '__enabled"]' => ['checked' => TRUE],
-            'and',
-            ':input[name="message_factory_plugin"]' => ['value' => 'ck5_notifications_message'],
-          ],
-          'required' => [
             'input[name="' . $messageType . '__enabled"]' => ['checked' => TRUE],
           ],
         ],
