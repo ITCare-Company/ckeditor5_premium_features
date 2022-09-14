@@ -15,6 +15,7 @@ ckeditor5_premium_features_realtime__comment:
     plugins:
       - comments.Comments
       - realTimeCollaboration.RealTimeCollaborativeComments
+      - sidebarAdapter.SidebarAdapter
   drupal:
     label: Comments
     library: ckeditor5_premium_features_realtime/realtime-comments

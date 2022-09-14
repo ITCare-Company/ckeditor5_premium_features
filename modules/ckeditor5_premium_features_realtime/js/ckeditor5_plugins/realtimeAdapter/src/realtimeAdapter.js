@@ -8,10 +8,8 @@ class RealtimeAdapter {
          container: document.querySelector('#' + id_sidebar),
        }
 
-       const editorId = this.editor.sourceElement.id;
-
        this.editor.config._config.collaboration = {
-         channelId: drupalSettings.ckeditor5ChannelId + editorId,
+         channelId: drupalSettings.ckeditor5ChannelId,
        }
   }
 
@@ -32,7 +30,9 @@ class RealtimeAdapter {
     const revisionHistoryConfig = this.editor.config._config.revisionHistory;
 
     const el = '#' + editorId + '-presence-list-container'
-    presenceListConfig.container = document.querySelector( el );
+    if (!presenceListConfig.container) {
+      presenceListConfig.container = document.querySelector(el);
+    }
     presenceListConfig.collapseAt = 8;
     revisionHistoryConfig.viewerContainer = document.querySelector( '.revision-history-container-data' ),
 
@@ -40,14 +40,6 @@ class RealtimeAdapter {
     revisionHistoryConfig.viewerSidebarContainer = document.querySelector('.revision-viewer-sidebar');
     revisionHistoryConfig.editorContainer = document.querySelector('.ck-editor-sidebar-wrapper');
 
-
-    const annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
-    annotationsUIs.switchTo('wideSidebar');
-    let cont = document.querySelector('.revision-viewer-sidebar');
-    const class_wrapper = this.editor.sourceElement.id + '-ck-sidebar-wrapper .ck-sidebar-wrapper';
-    const ck_sidebar_wrapper = document.querySelector('.' + class_wrapper);
-
-    ck_sidebar_wrapper.classList.add('wideSidebar');
   }
 }
 
