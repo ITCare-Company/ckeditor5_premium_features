@@ -7,13 +7,9 @@
 
 declare(strict_types=1);
 
-use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
-use Drupal\ckeditor5_premium_features_notifications\Entity\Message;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
 use Drupal\Core\Render\BubbleableMetadata;
-use Drupal\user\Entity\User;
 
 /**
  * Implements hook_mail().

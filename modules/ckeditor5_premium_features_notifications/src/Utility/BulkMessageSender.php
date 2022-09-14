@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
@@ -12,7 +14,7 @@ use Drupal\ckeditor5_premium_features_notifications\Entity\MessageInterface;
 use Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Mail\MailManagerInterface;
-use Drupal\Core\Render\Element\Url;
+use Drupal\Core\Render\Markup;
 use Drupal\node\Entity\Node;
 use Drupal\user\Entity\User;
 use Drupal\Core\Render\RendererInterface;
@@ -120,17 +122,19 @@ class BulkMessageSender {
     if ($begin) {
       $end = strpos($content, $endTag);
       $context = substr($content, $begin, $end - $begin);
+
+      return [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => [
+          'class' => 'thread-reply-context',
+        ],
+        'child' => [
+          '#markup' => $context,
+        ],
+      ];
     }
-    return [
-      '#type' => 'html_tag',
-      '#tag' => 'div',
-      '#attributes' => [
-        'class' => 'thread-reply-context',
-      ],
-      'child' => [
-        '#markup' => $context,
-      ],
-    ];
+    return [];
   }
 
   /**
@@ -187,13 +191,7 @@ class BulkMessageSender {
         case 'ckeditor5_message_suggestion_reply' :
           $comment = $this->commentsStorage->load($entityId);
           $suggestion = $this->suggestionStorage->load($comment->getThreadId());
-          $context = \Drupal::entityTypeManager()->getStorage(MessageItemInterface::ENTITY_TYPE_ID)->loadByProperties(
-            [
-              'entity_id' => $entityId,
-              'event_type' => 'ck5_collaboration_suggestion_added',
-            ]
-          );
-          $context = reset($context);
+          $context = $messageItem->get('message_content')->getString();
           $startTag = '<suggestion-start name="insertion:' . $entityId;
           $endTag = '<suggestion-end name="insertion:' . $entityId;
           $body[$messageItem->Id()]['context'] = $this->getContext($context, $startTag, $endTag);
@@ -202,20 +200,27 @@ class BulkMessageSender {
           break;
 
         case 'ckeditor5_message_suggestion_status' :
+          $suggestion = $this->suggestionStorage->load($entityId);
           if ($messageItem->get('event_type')->getString() == 'ck5_collaboration_comment_added') {
             break;
           }
-          $context = \Drupal::entityTypeManager()->getStorage(\Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface::ENTITY_TYPE_ID)->loadByProperties(
+          $context = $this->entityTypeManager->getStorage(\Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface::ENTITY_TYPE_ID)->loadByProperties(
             [
               'entity_id' => $entityId,
               'event_type' => 'ck5_collaboration_suggestion_added',
             ]
           );
           $context = reset($context);
-          $startTag = '<suggestion-start name="insertion:' . $entityId;
-          $endTag = '<suggestion-end name="insertion:' . $entityId;
+          $suggestionType = $suggestion->getType();
+          $context = $context->get('message_content')->getString();
+          $startTag = '<suggestion-start name="' . $suggestionType .':' . $entityId;
+          $endTag = '<suggestion-end name="' . $suggestionType .':' . $entityId;
           $body[$messageItem->Id()]['context'] = $this->getContext($context, $startTag, $endTag);
-          $body[$messageItem->Id()][] = $this->prepareThreadReply($entityId);
+          if ($suggestion->hasComments()) {
+            $comment = $this->commentsStorage->loadByProperties(['thread_id' => $entityId]);
+            $comment = reset($comment);
+            $body[$messageItem->Id()][] = $this->prepareThreadReply($comment->id());
+          }
           break;
 
         case 'ckeditor5_message_mention_document' :
@@ -228,7 +233,7 @@ class BulkMessageSender {
       $messageItem->delete();
     }
 
-    return $this->renderer->render($body);;
+    return (String)$this->renderer->renderPlain($body);
   }
 
   /**

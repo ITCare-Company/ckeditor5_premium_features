@@ -241,13 +241,8 @@ class CommentsStorage extends SqlContentEntityStorage implements
    * @return array
    */
   public function getCommentTree($id):array {
-    $comment = \Drupal::entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID)->loadByProperties(
-      [
-        'id' => $id,
-      ]
-    );
-    $comment = reset($comment);
-    $comments = \Drupal::entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID)->loadByProperties(
+    $comment = $this->load($id);
+    $comments = $this->loadByProperties(
       [
         'thread_id' => $comment->getThreadId(),
       ]
