@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Contains CKEditor 5 Premium Features Collaboration module install functions.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function ckeditor5_premium_features_collaboration_requirements($phase): array {
+  $requirements = [];
+
+  if (($phase === 'install') && \Drupal::moduleHandler()->moduleExists('ckeditor5_premium_features_realtime')) {
+    $requirements[] = [
+      'description' => t('You cannot install both modules to collaborate.'),
+      'severity' => REQUIREMENT_ERROR,
+    ];
+  }
+
+  return $requirements;
+}

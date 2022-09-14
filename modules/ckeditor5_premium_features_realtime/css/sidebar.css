@@ -1,0 +1,60 @@
+.ck-editor-sidebar-wrapper {
+  display: flex;
+}
+.ck-editor-sidebar-wrapper .form-item__label {
+  margin: 0;
+  line-height: 27px;
+}
+.ck-editor-sidebar-wrapper .form-item {
+  margin: 0;
+  flex: 0 1 auto;
+  min-width: 0;
+  width: 100%;
+}
+.ck-editor-sidebar-wrapper .ck-content:not(.ck-comment__input *) {
+  min-height: 200px;
+  padding-bottom: 120px;
+}
+.ck-sidebar-wrapper.slider-off {
+  display: none;
+}
+.ck-sidebar-wrapper.wideSidebar,
+.ck-sidebar-wrapper.narrowSidebar {
+  background: var(--ck-color-toolbar-background);
+  border: 1px solid var(--ck-color-toolbar-border);
+  border-left: 0;
+  overflow: hidden;
+  margin: 1.7em 0 0 0;
+}
+#block-bartik-content .ck-sidebar-wrapper.wideSidebar {
+  margin: 1.35em 0 0 0;
+}
+.ck-sidebar-wrapper.narrowSidebar {
+  min-width: 65px;
+}
+.ck-sidebar-wrapper.wideSidebar {
+  min-width: 300px;
+  padding: 0 10px;
+  overflow-y: scroll;
+}
+.revision-viewer-container-data {
+  display: none;
+}
+
+.editor-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  position: relative;
+  width: 100%;
+}
+
+.revision-history-container-data > .editor-container > .ck-editor {
+  width: 75%;
+}
+
+.ck-revision-history-sidebar__timeline {
+  height: 285px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}

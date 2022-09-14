@@ -1,0 +1,45 @@
+ckeditor5.plugin.ckeditor5_premium_features_realtime.settings:
+  type: config_object
+  label: 'CKEditor 5 Realtime Collaboration settings'
+  mapping:
+    presence_list:
+      type: string
+      label: 'User presence list'
+    presence_list_collapse_at:
+      type: int
+      label: 'User presence list collapse at'
+    sidebar:
+      type: string
+      label: 'Annotations sidebar'
+
+ckeditor5.plugin.ckeditor5_premium_features_realtime__realtime:
+  type: mapping
+  label: 'Realtime'
+  mapping:
+    allowed_tags:
+      type: string
+      label: 'Allowed tags'
+
+ckeditor5.plugin.ckeditor5_premium_features_realtime__comment:
+  type: mapping
+  label: 'Realtime'
+  mapping:
+    allowed_tags:
+      type: string
+      label: 'Allowed tags'
+
+ckeditor5.plugin.ckeditor5_premium_features_realtime__trackchanges:
+  type: mapping
+  label: 'Realtime'
+  mapping:
+    allowed_tags:
+      type: string
+      label: 'Allowed tags'
+
+ckeditor5.plugin.ckeditor5_premium_features_realtime__revision_history:
+  type: mapping
+  label: 'Realtime'
+  mapping:
+    allowed_tags:
+      type: string
+      label: 'Allowed tags'

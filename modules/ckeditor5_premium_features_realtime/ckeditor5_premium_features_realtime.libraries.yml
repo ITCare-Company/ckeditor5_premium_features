@@ -1,0 +1,46 @@
+admin.revision-history:
+  css:
+    theme:
+      css/revision-history.admin.css: { }
+
+admin.track-changes:
+  css:
+    theme:
+      css/track-changes.admin.css: { }
+
+admin.comments:
+  css:
+    theme:
+      css/comments.admin.css: { }
+
+realtime:
+  css:
+    theme:
+      css/realtime.css: { }
+  js:
+    js/build/realtimeAdapter.js: { minified: true }
+  dependencies:
+    - ckeditor5_premium_features_realtime/ckeditor5-collaboration-dll
+
+realtime-revision-history:
+  css:
+    theme:
+      css/sidebar.css: { }
+      css/revision-history.css: { }
+  js:
+    js/build/revisionHistoryAdapter.js: { minified: true }
+    js/build/sidebarAdapter.js: { minified: true }
+  dependencies:
+    - ckeditor5_premium_features_realtime/ckeditor5-collaboration-dll
+    - ckeditor5_premium_features_realtime/revision-history
+
+realtime-comments:
+  css:
+    theme:
+      css/comments.css: { }
+  dependencies:
+  - ckeditor5_premium_features_realtime/comments
+
+realtime-track-changes:
+  dependencies:
+    - ckeditor5_premium_features_realtime/track-changes

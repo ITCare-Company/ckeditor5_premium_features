@@ -26,6 +26,14 @@ interface SettingsConfigHandlerInterface {
   public function getAccessKey(): ?string;
 
   /**
+   * Getter for the web socket url.
+   *
+   * @return string|null
+   *   The web socket url if defined, null otherwise.
+   */
+  public function getWebSocketUrl(): ?string;
+
+  /**
    * Getter for the env id.
    *
    * @return string|null
