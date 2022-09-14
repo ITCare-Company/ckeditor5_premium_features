@@ -61,20 +61,6 @@ class MessageStorage extends SqlContentEntityStorage {
     ]);
   }
 
-  public function getMessages() {
-    $result = $this->loadByProperties([
-      'uid' => $userId,
-      'entity_id' => $documentId,
-      'entity_type' => $documentType,
-    ]);
-
-    if (empty($result)) {
-      return NULL;
-    }
-
-    return reset($result);
-  }
-
   /**
    * Get oldest unsent messages.
    *
