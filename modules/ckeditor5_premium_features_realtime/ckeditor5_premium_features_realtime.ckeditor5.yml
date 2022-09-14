@@ -1,0 +1,59 @@
+ckeditor5_premium_features_realtime__realtime:
+  ckeditor5:
+    plugins:
+      - realtimeAdapter.RealtimeAdapter
+      - realTimeCollaboration.PresenceList
+  drupal:
+    label: Realtime Collaboration
+    library: ckeditor5_premium_features_realtime/realtime
+    class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
+    elements: false
+
+ckeditor5_premium_features_realtime__comment:
+  ckeditor5:
+    plugins:
+      - comments.Comments
+      - realTimeCollaboration.RealTimeCollaborativeComments
+      - sidebarAdapter.SidebarAdapter
+  drupal:
+    label: Comments
+    library: ckeditor5_premium_features_realtime/realtime-comments
+    admin_library: ckeditor5_premium_features_realtime/admin.comments
+    class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
+    toolbar_items:
+      comment:
+        label: Comments
+    elements: false
+    conditions: [ ]
+
+ckeditor5_premium_features_realtime__trackchanges:
+  ckeditor5:
+    plugins:
+      - trackChanges.TrackChanges
+      - realTimeCollaboration.RealTimeCollaborativeTrackChanges
+  drupal:
+    label: Track Changes
+    library: ckeditor5_premium_features_realtime/realtime-track-changes
+    admin_library: ckeditor5_premium_features_realtime/admin.track-changes
+    class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
+    toolbar_items:
+      trackChanges:
+        label: Track Changes
+    elements: false
+    conditions: [ ]
+
+ckeditor5_premium_features_realtime__revision_history:
+  ckeditor5:
+    plugins:
+      - revisionHistory.RevisionHistory
+      - realTimeCollaboration.RealTimeCollaborativeRevisionHistory
+  drupal:
+    label: Revision History
+    library: ckeditor5_premium_features_realtime/realtime-revision-history
+    admin_library: ckeditor5_premium_features_realtime/admin.revision-history
+    class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
+    toolbar_items:
+      revisionHistory:
+        label: Revision History
+    elements: false
+    conditions: [ ]
