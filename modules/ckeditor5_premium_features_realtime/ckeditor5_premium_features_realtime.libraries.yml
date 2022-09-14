@@ -1,8 +1,3 @@
-admin.realtime:
-  css:
-    theme:
-      css/realtime.admin.css: { }
-
 admin.revision-history:
   css:
     theme:
@@ -47,8 +42,5 @@ realtime-comments:
   - ckeditor5_premium_features_realtime/comments
 
 realtime-track-changes:
-  css:
-    theme:
-      css/track-changes.css: { }
   dependencies:
     - ckeditor5_premium_features_realtime/track-changes

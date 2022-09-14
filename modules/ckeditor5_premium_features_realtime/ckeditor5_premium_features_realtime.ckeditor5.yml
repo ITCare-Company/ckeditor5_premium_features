@@ -6,7 +6,6 @@ ckeditor5_premium_features_realtime__realtime:
   drupal:
     label: Realtime Collaboration
     library: ckeditor5_premium_features_realtime/realtime
-    admin_library: ckeditor5_premium_features_realtime/admin.realtime
     class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
     elements: false
 
