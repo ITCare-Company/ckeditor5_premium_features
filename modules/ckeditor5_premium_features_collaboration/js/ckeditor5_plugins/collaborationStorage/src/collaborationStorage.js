@@ -4,7 +4,16 @@ class CollaborationStorage {
     this.elementId = this.editor.sourceElement.dataset.ckeditor5PremiumElementId;
   }
 
-  processCollaborationCommandDisabled(commandName) {
+  /**
+   * Checks if collaboration is set to be disabled and blocks the specified command (button).
+   *
+   * @param commandName
+   *   Command name (related to a button)
+   *
+   * @returns {boolean}
+   *   TRUE if command was blocked, FALSE otherwise.
+   */
+  processCollaborationCommandDisable(commandName) {
     if (!this.isCollaborationDisabled()) {
       return false;
     }
@@ -20,7 +29,13 @@ class CollaborationStorage {
     return true;
   }
 
-  isRevisionDisabled() {
+  /**
+   * Checks if collaboration is set to be disabled and blocks the revision history feature (button).
+   *
+   * @returns {boolean}
+   *   TRUE if feature was blocked, FALSE otherwise.
+   */
+  processRevisionDisable() {
     if (!this.isCollaborationDisabled()) {
       return false;
     }
@@ -33,6 +48,12 @@ class CollaborationStorage {
     return true;
   }
 
+  /**
+   * Checks if collaboration is set to be disabled.
+   *
+   * @returns {boolean}
+   *   TRUE if conditions for blocking collaboration are met, FALSE otherwise.
+   */
   isCollaborationDisabled() {
     return typeof drupalSettings.ckeditor5Premium != 'undefined' &&
       typeof drupalSettings.ckeditor5Premium.disableCollaboration != "undefined" &&

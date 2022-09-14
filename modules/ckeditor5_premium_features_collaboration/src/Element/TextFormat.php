@@ -16,7 +16,6 @@ use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandler
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -213,12 +212,8 @@ class TextFormat {
       // Do not process anything, the entity is missing.
       return;
     }
-    $entity = $form_object->getEntity();
 
-    if (!$entity instanceof FieldableEntityInterface) {
-      // Do not process anything, the entity is missing.
-      return;
-    }
+    $entity = $form_object->getEntity();
 
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
     $features = [
@@ -367,6 +362,6 @@ class TextFormat {
    *   Form object from the $form_state object.
    */
   private function isFormTypeSupported(FormInterface $form_object): bool {
-    return $form_object instanceof EntityFormInterface && $form_object->getEntity() instanceof ContentEntityInterface;
+    return $form_object instanceof EntityFormInterface && $form_object->getEntity() instanceof FieldableEntityInterface;
   }
 }

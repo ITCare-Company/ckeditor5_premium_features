@@ -15,7 +15,7 @@ class RevisionHistoryAdapter {
   }
 
   init() {
-    if (this.storage.isRevisionDisabled()) {
+    if (this.storage.processRevisionDisable()) {
       return;
     }
 
@@ -40,10 +40,6 @@ class RevisionHistoryAdapter {
     const revisionHistoryPlugin = this.editor.plugins.get('RevisionHistory');
     const revisionTrackerPlugin = this.editor.plugins.get('RevisionTracker');
     const revisionHistoryElement = document.querySelector(this.storage.getSourceDataSelector('revisionHistory'));
-
-    // if (!revisionHistoryElement || revisionHistoryElement.value == '') {
-    //   return
-    // }
 
     // Load revisions.
     const revisions = JSON.parse(revisionHistoryElement.value);

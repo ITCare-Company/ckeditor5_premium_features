@@ -21,7 +21,7 @@ class TrackChangesAdapter {
       return
     }
 
-    if (this.storage.processCollaborationCommandDisabled("trackChanges")) {
+    if (this.storage.processCollaborationCommandDisable("trackChanges")) {
       return;
     }
 

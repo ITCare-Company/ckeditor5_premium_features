@@ -31,7 +31,7 @@ class CommentsAdapter {
   }
 
   init() {
-    if (this.storage.processCollaborationCommandDisabled("addCommentThread")) {
+    if (this.storage.processCollaborationCommandDisable("addCommentThread")) {
       return;
     }
 
