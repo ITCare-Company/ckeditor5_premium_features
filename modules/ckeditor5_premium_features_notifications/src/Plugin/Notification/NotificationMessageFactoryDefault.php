@@ -110,9 +110,15 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
     switch ($messageType) {
       case self::CKEDITOR5_MESSAGE_THREAD_REPLY:
       case self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY:
+      case self::CKEDITOR5_MESSAGE_MENTION_COMMENT:
         /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase $collaborationEntity */
         $collaborationEntity = $event->getRelatedEntity();
         $parameters[$collaborationEntity->getEntityTypeTargetId()] = $collaborationEntity->getReferencedEntity();
+        break;
+
+      case self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT:
+        $node = $event->getRelatedEntity();
+        $parameters[$node->getEntityTypeId()] = $node;
         break;
     }
 

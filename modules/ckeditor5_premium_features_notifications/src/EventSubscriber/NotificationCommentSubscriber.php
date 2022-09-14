@@ -44,6 +44,15 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
    */
   public function commentAdded(CollaborationEventBase $event): void {
     $collaborationEntity = $event->getRelatedEntity();
+    $mentions = $this->collaboratorsService->getCommentMentions($collaborationEntity);
+    if (!empty($mentions)) {
+      $users = $this->collaboratorsService->getUserIdsByNames($mentions);
+      $this->notificationSender->sendNotification(
+        NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT,
+        $users,
+        $event
+      );
+    }
     if (!$collaborationEntity instanceof Comment || !$collaborationEntity->isReply()) {
       return;
     }

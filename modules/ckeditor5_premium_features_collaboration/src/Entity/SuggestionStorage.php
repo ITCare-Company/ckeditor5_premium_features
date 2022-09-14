@@ -115,6 +115,11 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
 
     $suggestion->save();
 
+    $this->event_dispatcher->dispatch(
+      new CollaborationEventBase($suggestion, $this->user, CollaborationEventBase::SUGGESTION_ADDED),
+      CollaborationEventBase::SUGGESTION_ADDED
+    );
+
     return $suggestion;
   }
 

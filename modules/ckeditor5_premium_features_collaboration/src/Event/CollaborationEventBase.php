@@ -20,6 +20,7 @@ class CollaborationEventBase extends Event {
   const COMMENT_ADDED = 'ck5_collaboration_comment_added';
   const SUGGESTION_ACCEPT = 'ck5_collaboration_suggestion_accept';
   const SUGGESTION_DISCARD = 'ck5_collaboration_suggestion_discard';
+  const SUGGESTION_ADDED = 'ck5_collaboration_suggestion_added';
 
   /**
    * Collaboration event constructor.

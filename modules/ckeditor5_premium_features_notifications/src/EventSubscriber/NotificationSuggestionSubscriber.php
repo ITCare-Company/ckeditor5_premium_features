@@ -30,6 +30,7 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
     return [
       CollaborationEventBase::SUGGESTION_ACCEPT => 'suggestionStatusChange',
       CollaborationEventBase::SUGGESTION_DISCARD => 'suggestionStatusChange',
+      CollaborationEventBase::SUGGESTION_ADDED => 'suggestionAdd',
     ];
   }
 
@@ -50,6 +51,29 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
     }
 
     if ($collaborationEntity->isInChain() && !$collaborationEntity->isHeadOfChain()) {
+      return;
+    }
+
+    $recipients = [
+      $collaborationEntity->getAuthorId(),
+    ];
+
+    $this->notificationSender->sendNotification(
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS,
+      $recipients,
+      $event
+    );
+  }
+
+  /**
+   * Sends notifications.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   *   Suggestion event object.
+   */
+  public function suggestionAdd(CollaborationEventBase $event): void {
+    $collaborationEntity = $event->getRelatedEntity();
+    if (!$collaborationEntity instanceof Suggestion) {
       return;
     }
 

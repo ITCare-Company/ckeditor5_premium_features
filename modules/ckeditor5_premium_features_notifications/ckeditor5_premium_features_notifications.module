@@ -52,3 +52,11 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
 
   return $replacements;
 }
+
+/**
+ * Implements hook_cron().
+ */
+function ckeditor5_premium_features_notifications_cron() {
+  $bulkMessageSender = \Drupal::service('ckeditor5_premium_features_notifications.bulk_message_sender');
+  $bulkMessageSender->sendBulkMails();
+}

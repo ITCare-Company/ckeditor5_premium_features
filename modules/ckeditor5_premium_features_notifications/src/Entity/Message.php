@@ -8,6 +8,7 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\user\UserInterface;
 
 /**
  * Defines the CKEditor5 Premium features "Message" entity.
@@ -84,7 +85,7 @@ class Message extends ContentEntityBase implements MessageInterface {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType): int {
+  public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType, $messageContent): int {
     $saveResult = $this->entityTypeManager()->getStorage(MessageItem::ENTITY_TYPE_ID)
       ->create([
         'message_id' => $this->id(),
@@ -92,6 +93,7 @@ class Message extends ContentEntityBase implements MessageInterface {
         'entity_id' => $itemEntityId,
         'message_type' => $messageType,
         'event_type' => $eventType,
+        'message_content' => $messageContent,
       ])->save();
 
     if ($saveResult == SAVED_NEW || $saveResult == SAVED_UPDATED) {
@@ -100,6 +102,19 @@ class Message extends ContentEntityBase implements MessageInterface {
     }
 
     return $saveResult;
+  }
+
+  public function getItems() {
+  $result = $this->entityTypeManager()->getStorage(MessageItem::ENTITY_TYPE_ID)->loadByProperties(['message_id' => $this->id()]);
+
+  return $result;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUser(): ?UserInterface {
+    return $this->get('uid')->entity;
   }
 
 }
