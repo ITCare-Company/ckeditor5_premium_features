@@ -34,7 +34,7 @@
 }
 .ck-sidebar-wrapper.wideSidebar {
   min-width: 300px;
-  padding: 0 10px;
+  padding: 10px 10px;
   overflow-y: scroll;
 }
 .revision-viewer-container-data {
@@ -57,4 +57,32 @@
   height: 285px;
   overflow-x: hidden;
   overflow-y: scroll;
+}
+
+.ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
+  position: absolute;
+  margin: 0;
+}
+
+.ck-sidebar-wrapper.narrowSidebar a.ck-sidebar-auto-toggle {
+  margin: 15px 18px;
+}
+
+.ck-sidebar-wrapper a.ck-sidebar-auto-toggle:hover {
+  text-decoration: none;
+  cursor:pointer
+}
+
+.ck-sidebar-wrapper.narrowSidebar a.ck-sidebar-auto-toggle::after,
+.ck-sidebar-wrapper.wideSidebar a.ck-sidebar-auto-toggle::after {
+  font-size: 35px;
+  color: var(--ck-color-toolbar-border)
+}
+
+.ck-sidebar-wrapper.narrowSidebar a.ck-sidebar-auto-toggle::after {
+  content: '«';
+}
+
+.ck-sidebar-wrapper.wideSidebar a.ck-sidebar-auto-toggle::after {
+  content: '»';
 }
