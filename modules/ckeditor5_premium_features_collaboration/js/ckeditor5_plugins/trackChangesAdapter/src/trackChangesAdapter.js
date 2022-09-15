@@ -38,7 +38,6 @@ class TrackChangesAdapter {
 
     // Observe data change and update the data fields.
     this.editor.model.document.on( 'change:data', () => {
-      console.log('changed');
       this.updateStorage(trackChangesPlugin, trackChangesElement);
     });
 
