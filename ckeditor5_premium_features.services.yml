@@ -24,3 +24,6 @@ services:
     class: \Drupal\ckeditor5_premium_features\Utility\CssStyleProvider
     arguments:
       - '@theme.manager'
+
+  ckeditor5_premium_features.plugin_helper:
+    class: \Drupal\ckeditor5_premium_features\Utility\PluginHelper

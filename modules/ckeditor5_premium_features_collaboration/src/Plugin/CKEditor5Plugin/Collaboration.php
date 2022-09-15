@@ -8,6 +8,7 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
+use Drupal\ckeditor5_premium_features\Utility\PluginHelper;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -29,11 +30,14 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    *
    * @param \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $settingsConfigHandler
    *   The settings configuration handler.
+   * @param \Drupal\ckeditor5_premium_features\Utility\PluginHelper $pluginHelper
+   *   Plugin helper service.
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    */
   public function __construct(
     protected SettingsConfigHandlerInterface $settingsConfigHandler,
+    protected PluginHelper $pluginHelper,
     ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
@@ -45,6 +49,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
   public static function create(ContainerInterface $container, ...$parent_arguments): static {
     return new static(
       $container->get('ckeditor5_premium_features.config_handler.settings'),
+      $container->get('ckeditor5_premium_features.plugin_helper'),
       ...$parent_arguments
     );
   }
