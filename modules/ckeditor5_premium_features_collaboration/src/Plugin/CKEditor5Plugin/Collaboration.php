@@ -121,7 +121,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
-    $toolbars = $this->getFormToolbars($form_state);
+    $toolbars = $this->pluginHelper->getFormToolbars($form_state);
 
     if (in_array('trackChanges', $toolbars) === TRUE &&
       in_array('comment', $toolbars) === FALSE) {
@@ -137,7 +137,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
     /** @var \Drupal\Core\Form\FormState $complete_form_state */
     $complete_form_state = $form_state->getCompleteFormState();
 
-    $toolbars = $this->getFormToolbars($form_state);
+    $toolbars = $this->pluginHelper->getFormToolbars($form_state);
 
     // Enable filter if any collaboration feature is enabled.
     $has_any_collaboration_feature = (bool) array_intersect($toolbars, static::getToolbars());
@@ -166,29 +166,6 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
     $static_plugin_config['comments']['editorConfig']['extraPlugins'] = [];
 
     return $static_plugin_config;
-  }
-
-  /**
-   * Returns an array of enabled toolbar plugins names.
-   *
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   Processed form state object.
-   *
-   * @return array
-   *   A list of toolbar plugins.
-   */
-  protected function getFormToolbars(FormStateInterface $form_state) :array {
-    $complete_form_state = $form_state->getCompleteFormState();
-    $values = $complete_form_state->cleanValues()->getValues();
-
-    $toolbars_raw = (string) NestedArray::getValue($values, [
-      'editor',
-      'settings',
-      'toolbar',
-      'items',
-    ]);
-
-    return (array) json_decode($toolbars_raw);
   }
 
 }
