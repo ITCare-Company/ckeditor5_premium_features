@@ -46,6 +46,7 @@ ckeditor5_premium_features_realtime__revision_history:
   ckeditor5:
     plugins:
       - revisionHistory.RevisionHistory
+      - revisionHistoryAdapter.RevisionHistoryAdapter
       - realTimeCollaboration.RealTimeCollaborativeRevisionHistory
   drupal:
     label: Revision History
