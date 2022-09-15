@@ -48,6 +48,12 @@ class TrackChangesAdapter {
     this.editor.model.document.on( 'comments:change:data', () => {
       this.updateStorage(trackChangesPlugin, trackChangesElement);
     });
+
+    // Hook to form submit.
+    const form = this.editor.sourceElement.closest('form');
+    form.addEventListener("submit", (e) => {
+      this.updateStorage(trackChangesPlugin, trackChangesElement);
+    });
   }
 
   updateStorage(plugin, storageElement) {
