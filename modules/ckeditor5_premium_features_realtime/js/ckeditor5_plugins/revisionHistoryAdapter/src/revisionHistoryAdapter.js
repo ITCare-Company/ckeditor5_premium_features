@@ -14,9 +14,7 @@ class RevisionHistoryAdapter {
   }
 
   init() {
-
     const revisionHistoryConfig = this.editor.config._config.revisionHistory;
-    const addRevisionOnSubmit = true;
 
     revisionHistoryConfig.viewerContainer = document.querySelector('.revision-history-container-data'),
     revisionHistoryConfig.viewerEditorElement = document.querySelector('.revision-viewer-editor');
@@ -28,15 +26,13 @@ class RevisionHistoryAdapter {
     // Hook to form submit.
     const form = this.editor.sourceElement.closest('form');
     form.addEventListener("submit", (e) => {
-      this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin, addRevisionOnSubmit)
+      this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin)
     });
   }
 
-  async updateStorage(plugin, tracker, addRevisionOnSubmit) {
+  async updateStorage(plugin, tracker) {
     await tracker.update();
-    if (addRevisionOnSubmit) {
-      await tracker.saveRevision({name: 'Entity save'});
-    }
+    await tracker.saveRevision({name: 'Entity save'});
   }
 }
 
