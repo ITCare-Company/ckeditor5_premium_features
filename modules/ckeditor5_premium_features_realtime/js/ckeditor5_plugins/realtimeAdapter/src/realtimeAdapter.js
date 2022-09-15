@@ -26,8 +26,6 @@ class RealtimeAdapter {
     const presenceListPlugin = this.editor.plugins.get('PresenceList');
     const editorId = this.editor.sourceElement.id;
     const presenceListConfig = this.editor.config._config.presenceList;
-    const collaborationConfig = this.editor.config._config.collaboration;
-    const revisionHistoryConfig = this.editor.config._config.revisionHistory;
 
     const el = '#' + editorId + '-presence-list-container'
     if (!presenceListConfig.container) {
@@ -36,10 +34,6 @@ class RealtimeAdapter {
     if (!presenceListConfig.collapseAt) {
       presenceListConfig.collapseAt = drupalSettings.presenceListCollapseAt;
     }
-    revisionHistoryConfig.viewerContainer = document.querySelector('.revision-history-container-data'),
-    revisionHistoryConfig.viewerEditorElement = document.querySelector('.revision-viewer-editor');
-    revisionHistoryConfig.viewerSidebarContainer = document.querySelector('.revision-viewer-sidebar');
-    revisionHistoryConfig.editorContainer = document.querySelector('.ck-editor-sidebar-wrapper');
   }
 }
 
