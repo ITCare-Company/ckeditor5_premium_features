@@ -12,14 +12,21 @@ use Drupal\ckeditor5_premium_features_notifications\Entity\Message;
 use Drupal\ckeditor5_premium_features_notifications\Entity\MessageStorage;
 use Drupal\ckeditor5_premium_features_notifications\Entity\MessageInterface;
 use Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderMailBulk;
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Core\Render\Markup;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\node\Entity\Node;
 use Drupal\user\Entity\User;
 use Drupal\Core\Render\RendererInterface;
 
 class BulkMessageSender {
+
+  use StringTranslationTrait;
 
   /**
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -166,74 +173,201 @@ class BulkMessageSender {
    */
   public function prepareContent(Message $message): String {
     $messageItems = $message->getItems(); //message entity id
-    $thread = [];
     $body = [];
+
     foreach ($messageItems as $messageItem) {
-      $entityId = $messageItem->get('entity_id')->getString();
-      $messageType = $messageItem->get('message_type')->getString();
+      $entityId = $messageItem->getRelatedEntityId();
+      $messageType = $messageItem->getType();
+      $title = NULL;
+
+      /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $relatedEntity */
+      $relatedEntity = $messageItem->getRelatedEntity();
       switch ($messageType) {
-        case 'ckeditor5_message_thread_reply':
-        case 'ckeditor5_message_mention_comment':
 
-          $context = $messageItem->get('message_content')->getString();
-          $comment = $this->commentsStorage->load($entityId);
-          if ($messageType == 'ckeditor5_message_mention_comment') {
-            $body[$messageItem->Id()]['headline'] = $this->getThreadMentionHeadline($comment);
+        case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_COMMENT_ADDED:
+        case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY:
+          $threadID = $relatedEntity->getThreadId();
+          $context = $messageItem->getMessageContent();
+
+          $query="//comment-start[contains(@name,'$threadID')]";
+
+          $body[$messageItem->id()] = [
+            '#theme' => 'notification_context',
+            '#context' => [],
+            '#title' => 'Comment added',
+          ];
+
+          foreach ($this->getHighlightedContext($context, $query) as $markup) {
+            $fixedMarkup = str_replace('</comment-start>', '', $markup);
+            $fixedMarkup = str_replace('<comment-end', '<span', $fixedMarkup);
+            $fixedMarkup = str_replace('</comment-end>', '</comment-start>', $fixedMarkup);
+
+            $body[$messageItem->id()]['#context'][] = [
+              '#markup' =>  $fixedMarkup,
+              '#allowed_tags' => array_merge(Xss::getAdminTagList(), [
+                'comment-start',
+                'comment-end',
+              ]),
+            ];
           }
-          $threadId = $comment->get('thread_id')->getString();
-          $startTag = 'comment-start name="' . $threadId;
-          $endTag = 'comment-end name="' . $threadId;
-          $body[$messageItem->Id()]['context'] = $this->getContext($context, $startTag, $endTag);
-          $body[$messageItem->Id()][] = $this->prepareThreadReply($entityId);
+
+          $body[$messageItem->id()]['#thread'] = $this->renderThread($messageItem);
 
           break;
 
-        case 'ckeditor5_message_suggestion_reply' :
-          $comment = $this->commentsStorage->load($entityId);
-          $suggestion = $this->suggestionStorage->load($comment->getThreadId());
-          $context = $messageItem->get('message_content')->getString();
-          $startTag = '<suggestion-start name="insertion:' . $entityId;
-          $endTag = '<suggestion-end name="insertion:' . $entityId;
-          $body[$messageItem->Id()]['context'] = $this->getContext($context, $startTag, $endTag);
-          $body[$messageItem->Id()][] = $this->prepareThreadReply($entityId);
+
+        case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:
+          $relatedSuggestion = $relatedEntity;
+          $title = $title ?? 'Suggestion status update: ' . $relatedSuggestion->getAttributes()['status'];
+
+        case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY:
+          /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion $suggestion */
+          $relatedSuggestion = $relatedSuggestion ?? $this->suggestionStorage->load($relatedEntity->getThreadId());
+          $title = $title ?? 'Suggestion reply';
+
+        case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED:
+          $suggestionChain = $relatedSuggestion ? $relatedSuggestion->getChain() : $relatedEntity->getChain();
+          $context = $messageItem->getMessageContent();
+
+          $queryOrParts = [];
+          /** @var SuggestionInterface $suggestion */
+          foreach ($suggestionChain as $suggestion) {
+            $chainSuggestionId = $suggestion->id();
+            $queryOrParts[] = "contains(@name,'$chainSuggestionId')";
+          }
+          $query='//suggestion-start[' . implode(' or ', $queryOrParts) . ']';
+
+          $body[$messageItem->id()] = [
+            '#theme' => 'notification_context',
+            '#context' => [],
+            '#title' => $title ?? 'Suggestion added',
+          ];
+
+          foreach ($this->getHighlightedContext($context, $query) as $markup) {
+            $fixedMarkup = str_replace('</suggestion-start>', '', $markup);
+            $fixedMarkup = str_replace('<suggestion-end', '<span', $fixedMarkup);
+            $fixedMarkup = str_replace('</suggestion-end>', '</suggestion-start>', $fixedMarkup);
+
+            $body[$messageItem->id()]['#context'][] = [
+              '#markup' =>  $fixedMarkup,
+              '#allowed_tags' => array_merge(Xss::getAdminTagList(), [
+                'suggestion-start',
+                'suggestion-end',
+              ]),
+            ];
+          }
+
+          $body[$messageItem->id()]['#thread'] = $this->renderThread($messageItem);
 
           break;
 
-        case 'ckeditor5_message_suggestion_status' :
-          $suggestion = $this->suggestionStorage->load($entityId);
-          if ($messageItem->get('event_type')->getString() == 'ck5_collaboration_comment_added') {
-            break;
+        case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:
+//          $suggestion = $this->suggestionStorage->load($entityId);
+//          if ($messageItem->get('event_type')->getString() == 'ck5_collaboration_comment_added') {
+//            break;
+//          }
+//          $context = $this->entityTypeManager->getStorage(\Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface::ENTITY_TYPE_ID)->loadByProperties(
+//            [
+//              'entity_id' => $entityId,
+//              'event_type' => 'ck5_collaboration_suggestion_added',
+//            ]
+//          );
+//          $context = reset($context);
+//          $suggestionType = $suggestion->getType();
+//          $context = $context->get('message_content')->getString();
+//          $startTag = '<suggestion-start name="' . $suggestionType .':' . $entityId;
+//          $endTag = '<suggestion-end name="' . $suggestionType .':' . $entityId;
+//          $body[$messageItem->Id()]['context'] = $this->getContext($context, $startTag, $endTag);
+//          if ($suggestion->hasComments()) {
+//            $comment = $this->commentsStorage->loadByProperties(['thread_id' => $entityId]);
+//            $comment = reset($comment);
+//            $body[$messageItem->Id()][] = $this->prepareThreadReply($comment->id());
+//          }
+//          break;
+
+        case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT:
+          $threadID = $relatedEntity->getThreadId();
+          $context = $messageItem->getMessageContent();
+
+          $query="//comment-start[contains(@name,'$threadID')]";
+
+          $body[$messageItem->id()] = [
+            '#theme' => 'notification_context',
+            '#context' => [],
+            '#title' => 'Comment mention',
+          ];
+
+          foreach ($this->getHighlightedContext($context, $query) as $markup) {
+            $fixedMarkup = str_replace('</comment-start>', '', $markup);
+            $fixedMarkup = str_replace('<comment-end', '<span', $fixedMarkup);
+            $fixedMarkup = str_replace('</comment-end>', '</comment-start>', $fixedMarkup);
+
+            $body[$messageItem->id()]['#context'][] = [
+              '#markup' =>  $fixedMarkup,
+              '#allowed_tags' => array_merge(Xss::getAdminTagList(), [
+                'comment-start',
+                'comment-end',
+              ]),
+            ];
           }
-          $context = $this->entityTypeManager->getStorage(\Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface::ENTITY_TYPE_ID)->loadByProperties(
-            [
-              'entity_id' => $entityId,
-              'event_type' => 'ck5_collaboration_suggestion_added',
-            ]
-          );
-          $context = reset($context);
-          $suggestionType = $suggestion->getType();
-          $context = $context->get('message_content')->getString();
-          $startTag = '<suggestion-start name="' . $suggestionType .':' . $entityId;
-          $endTag = '<suggestion-end name="' . $suggestionType .':' . $entityId;
-          $body[$messageItem->Id()]['context'] = $this->getContext($context, $startTag, $endTag);
-          if ($suggestion->hasComments()) {
-            $comment = $this->commentsStorage->loadByProperties(['thread_id' => $entityId]);
-            $comment = reset($comment);
-            $body[$messageItem->Id()][] = $this->prepareThreadReply($comment->id());
-          }
+
+          $body[$messageItem->id()]['#thread'] = [
+              '#theme' => 'notification_thread_comment',
+              '#comment' => $relatedEntity,
+          ];
+
           break;
 
-        case 'ckeditor5_message_mention_document' :
-          $node = Node::load($messageItem->get('entity_id')->getString());
-          $body[$messageItem->id()] = "You are mentioned in document: <a href=\"ckeditor5.localhost/node/" . $node->id() ."/edit\">" . $node->getTitle() . "</a>" . "\n";
+        case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT:
+          $context = $messageItem->getMessageContent();
+          $userName = $message->getUser()->getAccountName();
+          $mentionMarker = '#' . $userName;
+          $query = "//span[@data-mention=\"$mentionMarker\"]";
+
+          $body[$messageItem->id()] = [
+            '#theme' => 'notification_context',
+            '#context' => [],
+            '#title' => 'Document mention',
+          ];
+
+          foreach ($this->getHighlightedContext($context, $query) as $markup) {
+            $body[$messageItem->id()]['#context'][] = [
+              '#markup' => $markup,
+            ];
+          }
 
           break;
       }
 
-      $messageItem->delete();
+//      $messageItem->delete();
     }
 
-    return (String)$this->renderer->renderPlain($body);
+    $messageOuterWrapper = [
+      '#theme' => 'notification_message',
+      '#title' => 'Document "'  . $message->getTitle() . '" recent activities',
+      '#items' => $body,
+    ];
+
+    return (String)$this->renderer->renderPlain($messageOuterWrapper);
+  }
+
+  protected function getHighlightedContext($context, $query, $untilQuery = NULL): array {
+    $document = Html::load($context);
+
+    $contextParts = [];
+
+    $xpath = new \DOMXPath( $document);
+    $matchingElements = $xpath->query($query);
+    if (!empty($matchingElements)) {
+      /** @var \DOMElement $element */
+      foreach ($matchingElements as $element) {
+        $element->setAttribute('class', $element->getAttribute('class') . ' highlight-item');
+
+        $contextParts[] = $element->ownerDocument->saveXML($element->parentNode);
+      }
+    }
+
+    return $contextParts;
   }
 
   /**
@@ -243,14 +377,18 @@ class BulkMessageSender {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function sendBulkMails() {
-  $messages = $this->messageStorage->getOldestMessages(10);
-  $title = 'Title of message';
+    $messages = $this->messageStorage->getOldestMessages(10);
+
     foreach ($messages as $message) {
       $user = $message->getUser();
       $body = $this->prepareContent($message);
-      $this->sendMail($title, $body, $user);
-      $message->set('sent', 1);
-      $message->save();
+
+      if (!empty($body)) {
+        $this->sendMail($message->getTitle(), [$body], $user);
+      }
+
+//      $message->set('sent', 1);
+//      $message->save();
     }
   }
 
@@ -265,11 +403,30 @@ class BulkMessageSender {
    *
    * @return void
    */
-  private function sendMail(String $title,String $body, User $user): void {
+  private function sendMail(string $title, array $body, User $user): void {
 
-    $params["context"]["subject"] = $title;
-    $params["context"]["message"] = $body;
+    $params["subject"] = $title;
+    $params["body"] = $body;
 
-    $this->mailManager->mail("system", "mail", $user->getEmail(), 'pl', $params);
+    $this->mailManager->mail(
+      "ckeditor5_premium_features_notifications",
+      NotificationSenderMailBulk::BULK_MAIL_TYPE,
+      $user->getEmail(),
+      NULL,
+      $params
+    );
+  }
+
+  protected function renderThread(MessageItemInterface $messageItem): array {
+    $result = [];
+    /** @var CommentInterface $threadItem */
+    foreach ($messageItem->getThread() as $threadItem) {
+      $result[] = [
+        '#theme' => 'notification_thread_comment',
+        '#comment' => $threadItem,
+      ];
+    }
+
+    return $result;
   }
 }

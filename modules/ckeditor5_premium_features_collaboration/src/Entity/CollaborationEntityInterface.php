@@ -123,4 +123,10 @@ interface CollaborationEntityInterface {
    */
   public function setAttributes(array|string $data): static;
 
+  /**
+   * Returns key attribute value.
+   *
+   * @return string|null
+   */
+  public function getKey(): string|null;
 }

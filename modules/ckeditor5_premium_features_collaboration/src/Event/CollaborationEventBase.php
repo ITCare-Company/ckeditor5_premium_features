@@ -2,6 +2,7 @@
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Event;
 
+use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase;
 use Drupal\Component\EventDispatcher\Event;
 use Drupal\Core\Entity\ContentEntityBase;
@@ -21,6 +22,8 @@ class CollaborationEventBase extends Event {
   const SUGGESTION_ACCEPT = 'ck5_collaboration_suggestion_accept';
   const SUGGESTION_DISCARD = 'ck5_collaboration_suggestion_discard';
   const SUGGESTION_ADDED = 'ck5_collaboration_suggestion_added';
+
+  protected $relatedDocumentKey = NULL;
 
   /**
    * Collaboration event constructor.
@@ -53,7 +56,8 @@ class CollaborationEventBase extends Event {
   }
 
   /**
-   * Returns related document. It can be the same as getRelatedEntity result for some events.
+   * Returns related document. It can be the same as getRelatedEntity result
+   * for some events.
    *
    * @return \Drupal\Core\Entity\ContentEntityBase|NULL
    */
@@ -70,6 +74,62 @@ class CollaborationEventBase extends Event {
     catch (\Exception) { }
 
     return NULL;
+  }
+
+  public function getRelatedDocumentFieldId(): string|null {
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $entity */
+    $relatedEntity = $this->getRelatedEntity();
+
+    if (!$relatedEntity instanceof CollaborationEntityBase) {
+      return NULL;
+    }
+
+    return $relatedEntity->getKey();
+  }
+
+  public function getRelatedDocumentContent() {
+    $relatedDocument = $this->getRelatedDocument();
+    $fieldId = $this->relatedDocumentKey ?? $this->getRelatedDocumentFieldId();
+
+    if (!$fieldId) {
+      return;
+    }
+
+    $fields = $relatedDocument->getFields();
+
+    foreach ($fields as $fieldName => $field) {
+      $values = $relatedDocument->get($fieldName)->getValue();
+      foreach ($values as $delta => $val) {
+        $id = CKeditorFieldKeyHelper::getElementId('edit-' . $fieldName . '-' . $delta);
+        if ($fieldId == $id) {
+          return $val['value'];
+        }
+      }
+    }
+
+    return NULL;
+  }
+
+  public function setRelatedDocumentKey($key) {
+    $this->relatedDocumentKey = $key;
+  }
+
+  public function getRelatedDocumentAuthors($filterEventAuthor = true): array {
+    $relatedDocument = $this->getRelatedDocument();
+
+    $authors = [];
+    if (method_exists($relatedDocument, 'getOwner')) {
+      $authors[] = $relatedDocument->getOwner()->id();
+    }
+    elseif ($relatedDocument->hasField('uid')) {
+      $authors[] = $relatedDocument->get('uid')->getString();
+    }
+
+    if ($filterEventAuthor) {
+      $authors = array_diff($authors, [$this->getAccount()->id()]);
+    }
+
+    return $authors;
   }
 
   /**

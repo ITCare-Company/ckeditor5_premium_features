@@ -7,6 +7,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
+use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -21,10 +22,13 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
    *   Notification sender service.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators $collaboratorsService
    *   Collaborators utility service.
+   * @param \Drupal\Core\Session\AccountInterface $currentUser
+   *   Current user.
    */
   public function __construct(
     protected NotificationSender $notificationSender,
-    protected Collaborators $collaboratorsService
+    protected Collaborators $collaboratorsService,
+    protected AccountInterface $currentUser,
   ) { }
 
   /**
@@ -63,21 +67,17 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     $participators = array_diff($participators, [$threadSuggestionAuthor]);
 
     if (!$collaborationEntity->isReply()) {
-      /** @var \Drupal\Core\Entity\ContentEntityInterface $ent */
-      $ent = $collaborationEntity->getReferencedEntity();
+      $authors = $event->getRelatedDocumentAuthors();
+      $replyRecipients = array_merge($participators, $authors);
 
-      $authors = [];
-      if (method_exists($ent, 'getOwner')) {
-        $authors[] = $ent->getOwner()->id();
-      }
-      elseif ($ent->hasField('uid')) {
-        $authors[] = $ent->get('uid')->getString();
+      if (empty($replyRecipients)) {
+        return;
       }
 
       // Send notification to the document author.
       $this->notificationSender->sendNotification(
         NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_COMMENT_ADDED,
-        array_merge($participators, $authors),
+        $replyRecipients,
         $event
       );
     }

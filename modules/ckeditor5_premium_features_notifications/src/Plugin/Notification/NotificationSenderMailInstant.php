@@ -66,7 +66,6 @@ class NotificationSenderMailInstant extends NotificationSenderBase implements Co
     if (count($mails) > 0) {
       $parameters['headers']['cc'] = implode(',', $mails);
     }
-    $parameters['headers']['content-type'] = 'text/html';
 
     $parameters['subject'] = $message->getMessageTitle();
     $parameters['body'] = $message->getMessageBody();

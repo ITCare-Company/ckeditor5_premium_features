@@ -1,8 +1,9 @@
 name: CKEditor 5 Notifications
 type: module
 description: "The CKEditor 5 editor plugin adding notifications feature."
-package: CKEditor 5 Premium
+package: CKEditor 5 Premium (Experimental)
 core_version_requirement: '>=9.2'
+lifecycle: experimental
 dependencies:
   - ckeditor5_premium_features:ckeditor5_premium_features
   - ckeditor5_premium_features:ckeditor5_premium_features_collaboration

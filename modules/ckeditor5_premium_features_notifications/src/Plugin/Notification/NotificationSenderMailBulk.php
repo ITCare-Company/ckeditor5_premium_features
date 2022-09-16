@@ -2,10 +2,9 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
+use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
 use Drupal\ckeditor5_premium_features_notifications\Entity\Message;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Logger\LoggerChannelFactory;
-use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -14,29 +13,21 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class NotificationSenderMailBulk extends NotificationSenderBase implements ContainerFactoryPluginInterface {
 
-  /**
-   * Logger channel.
-   *
-   * @var \Drupal\Core\Logger\LoggerChannelInterface
-   */
-  protected LoggerChannelInterface $loggerChannel;
+  use CKeditorPremiumLoggerChannelTrait;
+
+  const BULK_MAIL_TYPE = 'ckeditor5_premium_features_notifications_bulk';
 
   /**
    * {@inheritdoc }
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager.
-   * @param \Drupal\Core\Logger\LoggerChannelFactory $channelFactory
-   *   Logger factory.
    */
   public function __construct(array $configuration,
                               $plugin_id,
                               $plugin_definition,
-                              protected EntityTypeManagerInterface $entityTypeManager,
-                              LoggerChannelFactory $channelFactory) {
+                              protected EntityTypeManagerInterface $entityTypeManager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-
-    $this->loggerChannel = $channelFactory->get('notifications');
   }
 
   /**
@@ -46,8 +37,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
     return new static($configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager'),
-      $container->get('logger.factory')
+      $container->get('entity_type.manager')
     );
   }
 
@@ -59,7 +49,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
     $documentType = $message->getSourceEvent()->getRelatedDocument()->getEntityTypeId();
     $document = $message->getSourceEvent()->getRelatedDocument();
 
-    $ory = $document->get('body')->getValue()[0]['value'];
+    $documentContent = $message->getSourceEvent()->getRelatedDocumentContent();
 
     try {
 
@@ -82,14 +72,14 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
           $message->getSourceEvent()->getRelatedEntity()->id(),
           $message->getType(),
           $message->getSourceEvent()->getEventType(),
-          $ory
+          $documentContent
         );
       }
 
       return TRUE;
     }
     catch (\Exception $e) {
-      $this->loggerChannel->error("Suggestion notification sending error: @error <br /> <br /><pre>@trace</pre>", [
+      $this->error("Suggestion notification sending error: @error <br /> <br /><pre>@trace</pre>", [
         '@error' => $e->getMessage(),
         '@trace' => $e->getTraceAsString(),
       ]);

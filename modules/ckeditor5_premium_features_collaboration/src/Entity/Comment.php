@@ -159,4 +159,19 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
     return Xss::filter($content, $tags);
   }
 
+  public function getThread(): array {
+    return $this->entityTypeManager()->getStorage(self::ENTITY_TYPE_ID)->loadByProperties([
+      'entity_type' => $this->getEntityTypeTargetId(),
+      'entity_id' => $this->getEntityId(),
+      'thread_id' => $this->getThreadId(),
+    ]);
+  }
+
+  public function isSuggestionReply(): bool {
+    $parentSuggestion = $this->entityTypeManager()
+      ->getStorage(SuggestionInterface::ENTITY_TYPE_ID)
+      ->load($this->getThreadId());
+
+    return !empty($parentSuggestion);
+  }
 }
