@@ -83,7 +83,7 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
     $toolbars = $this->pluginHelper->getFormToolbars($form_state);
 
     if (in_array('sourceEditing', $toolbars)) {
-      $form_state->setErrorByName('editor', t('Source editing can`t be enabled when Realtime Collaboration module is used'));
+      $form_state->setErrorByName('editor', $this->t('Source editing can`t be enabled when Realtime Collaboration module is used'));
     }
   }
 
