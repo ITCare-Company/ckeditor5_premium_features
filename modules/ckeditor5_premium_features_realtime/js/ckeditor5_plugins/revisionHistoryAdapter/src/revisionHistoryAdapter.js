@@ -1,8 +1,8 @@
 
+
 class RevisionHistoryAdapter {
   constructor( editor ) {
     this.editor = editor;
-    this.storage = new CollaborationStorage(editor);
   }
 
   static get pluginName() {
@@ -10,54 +10,29 @@ class RevisionHistoryAdapter {
   }
 
   static get requires() {
-    return [ 'RevisionHistory', 'RevisionTracker' ]
+    return ['RevisionTracker']
   }
 
   init() {
-    // Initialize revision history settings.
-    if (typeof drupalSettings.ckeditor5Premium == "undefined") {
-      return;
-    }
-
-    const addRevisionOnSubmit = drupalSettings.ckeditor5Premium.addRevisionOnSubmit ?? false;
     const revisionHistoryConfig = this.editor.config._config.revisionHistory;
-    let revisionHistoryContainer = document.querySelector(this.storage.getSourceDataSelector('revisionHistoryContainer'));
-    if (revisionHistoryContainer === null) {
-      revisionHistoryContainer = revisionHistoryConfig.viewerEditorElement.parentNode;
-    }
 
-    revisionHistoryConfig.viewerContainer = revisionHistoryContainer;
-    revisionHistoryConfig.viewerEditorElement = revisionHistoryContainer.querySelector('.revision-viewer-editor');
-    revisionHistoryConfig.viewerSidebarContainer = revisionHistoryContainer.querySelector('.revision-viewer-sidebar');
+    revisionHistoryConfig.viewerContainer = document.querySelector('.revision-history-container-data'),
+    revisionHistoryConfig.viewerEditorElement = document.querySelector('.revision-viewer-editor');
+    revisionHistoryConfig.viewerSidebarContainer = document.querySelector('.revision-viewer-sidebar');
     revisionHistoryConfig.editorContainer = document.querySelector('.ck-editor-sidebar-wrapper');
-    console.log(revisionHistoryConfig.viewerContainer);
-
     // Initialize plugin.
-    const revisionHistoryPlugin = this.editor.plugins.get('RevisionHistory');
     const revisionTrackerPlugin = this.editor.plugins.get('RevisionTracker');
-    const revisionHistoryElement = document.querySelector(this.storage.getSourceDataSelector('revisionHistory'));
-
-    // Load revisions.
-    const revisions = JSON.parse(revisionHistoryElement.value);
-    for (const revision of revisions) {
-      revisionHistoryPlugin.addRevisionData(revision);
-    }
 
     // Hook to form submit.
     const form = this.editor.sourceElement.closest('form');
     form.addEventListener("submit", (e) => {
-      this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin, revisionHistoryElement, addRevisionOnSubmit)
+      this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin)
     });
   }
 
-  async updateStorage(plugin, tracker, storageElement, addRevisionOnSubmit) {
+  async updateStorage(plugin, tracker) {
     await tracker.update();
-    if (addRevisionOnSubmit) {
-      await tracker.saveRevision({name: 'Entity save'});
-    }
-    storageElement.value = JSON.stringify(plugin.getRevisions({
-      toJSON: true
-    }));
+    await tracker.saveRevision({name: 'Entity save'});
   }
 }
 
