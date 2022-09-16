@@ -73,12 +73,14 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
    */
   public static function getSupportedMessageTypes(): array {
     return [
-      self::CKEDITOR5_MESSAGE_DEFAULT => 'Default (to be removed)',
+      self::CKEDITOR5_MESSAGE_DEFAULT => 'Default (any update made)',
       self::CKEDITOR5_MESSAGE_MENTION_COMMENT => 'Mentioned in a comment',
       self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT => 'Mentioned in a document',
+      self::CKEDITOR5_MESSAGE_COMMENT_ADDED => 'New comment added',
       self::CKEDITOR5_MESSAGE_THREAD_REPLY => 'Reply in a thread',
       self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY => 'Reply to a suggestion',
       self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => 'Suggestion status change',
+      self::CKEDITOR5_MESSAGE_SUGGESTION_ADDED => 'New Suggestion added',
     ];
   }
 
@@ -108,6 +110,9 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
     }
 
     switch ($messageType) {
+      case self::CKEDITOR5_MESSAGE_COMMENT_ADDED:
+      case self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:
+      case self::CKEDITOR5_MESSAGE_SUGGESTION_ADDED:
       case self::CKEDITOR5_MESSAGE_THREAD_REPLY:
       case self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY:
       case self::CKEDITOR5_MESSAGE_MENTION_COMMENT:
@@ -117,8 +122,8 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
         break;
 
       case self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT:
-        $node = $event->getRelatedEntity();
-        $parameters[$node->getEntityTypeId()] = $node;
+        $collaboratedEntity = $event->getRelatedEntity();
+        $parameters[$collaboratedEntity->getEntityTypeId()] = $collaboratedEntity;
         break;
     }
 

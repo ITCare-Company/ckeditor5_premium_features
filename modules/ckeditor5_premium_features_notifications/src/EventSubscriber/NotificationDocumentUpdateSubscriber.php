@@ -6,6 +6,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
+use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -20,10 +21,13 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
    *   Notification sender service.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators $collaboratorsService
    *   Collaborators service.
+   * @param \Drupal\Core\Session\AccountInterface $currentUser
+   *   Current user.
    */
   public function __construct(
     protected NotificationSender $notificationSender,
     protected Collaborators $collaboratorsService,
+    protected AccountInterface $currentUser,
   ) { }
 
   /**
@@ -47,11 +51,14 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
     $mentions = $this->collaboratorsService->getBodyMentions($body);
     if (!empty($mentions)) {
       $users = $this->collaboratorsService->getUserIdsByNames($mentions);
-      $this->notificationSender->sendNotification(
-        NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT,
-        $users,
-        $event
-      );
+      $users = array_diff($users, [$this->currentUser->id()]);
+      if (!empty($users)) {
+        $this->notificationSender->sendNotification(
+          NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT,
+          $users,
+          $event
+        );
+      }
     }
     $otherAuthorsList = $this->collaboratorsService->getCollaborators($collaborationEntity, $event->getAccount()->id());
 

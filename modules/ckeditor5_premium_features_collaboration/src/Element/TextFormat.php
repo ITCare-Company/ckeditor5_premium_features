@@ -20,6 +20,7 @@ use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -100,12 +101,15 @@ class TextFormat {
     }
 
     $form_object = $form_state->getFormObject();
-    if (!$form_object instanceof EntityFormInterface || !$form_object->getEntity() instanceof EntityInterface) {
-      // Do not process anything, the entity is missing.
-      return $element;
-    }
+    $entity = NULL;
 
-    $entity = $form_object->getEntity();
+    if ($this->isFormTypeSupported($form_object)) {
+      $entity = $form_object->getEntity();
+    } else {
+      // We still need to process in order to stop our integration from
+      // throwing exceptions in console, but we'll block editor toolbar buttons.
+      $element['#attached']['drupalSettings']['ckeditor5Premium']['disableCollaboration'] = TRUE;
+    }
 
     // Attach annotation sidebar.
     AnnotationSidebar::process($element, $form_state, $complete_form);
@@ -126,7 +130,7 @@ class TextFormat {
     ];
 
     // Setup the suggestions.
-    $suggestions = $this->suggestionStorage->loadByEntity($entity, $id);
+    $suggestions = $entity ? $this->suggestionStorage->loadByEntity($entity, $id) : [];
 
     $element['value']['#attributes'][$id_attribute] = $id;
     $element['track_changes'] = [
@@ -135,7 +139,7 @@ class TextFormat {
     $element['track_changes']['#attributes']['class'] = ['track-changes-data'];
 
     // Setup the comments.
-    $comments = $this->commentsStorage->loadByEntity($entity, $id);
+    $comments = $entity ? $this->commentsStorage->loadByEntity($entity, $id)  : [];
 
     $element['comments'] = [
       '#default_value' => $this->commentsStorage->serializeCollection($comments),
@@ -147,7 +151,7 @@ class TextFormat {
     $form_state->set(static::STORAGE_KEY, $items);
 
     // Setup the revision history.
-    $revisions = $this->revisionStorage->loadByEntity($entity, $id);
+    $revisions = $entity ? $this->revisionStorage->loadByEntity($entity, $id)  : [];
 
     $element['revision_history'] = [
       '#default_value' => $this->revisionStorage->serializeCollection($revisions),
@@ -203,12 +207,13 @@ class TextFormat {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function completeFormSubmit(array &$form, FormStateInterface $form_state): void {
-    $entity = $form_state->getFormObject()->getEntity();
-
-    if (!$entity instanceof FieldableEntityInterface) {
+    $form_object = $form_state->getFormObject();
+    if (!$this->isFormTypeSupported($form_object)) {
       // Do not process anything, the entity is missing.
       return;
     }
+
+    $entity = $form_object->getEntity();
 
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
     $features = [
@@ -350,4 +355,13 @@ class TextFormat {
     return Html::getId($id);
   }
 
+  /**
+   * Checks if the passed form object is supported.
+   *
+   * @param \Drupal\Core\Form\FormInterface $form_object
+   *   Form object from the $form_state object.
+   */
+  private function isFormTypeSupported(FormInterface $form_object): bool {
+    return $form_object instanceof EntityFormInterface && $form_object->getEntity() instanceof FieldableEntityInterface;
+  }
 }

@@ -15,6 +15,10 @@ class RevisionHistoryAdapter {
   }
 
   init() {
+    if (this.storage.processRevisionDisable()) {
+      return;
+    }
+
     // Initialize revision history settings.
     if (typeof drupalSettings.ckeditor5Premium == "undefined") {
       return;

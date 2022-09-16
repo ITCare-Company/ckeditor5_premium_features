@@ -21,11 +21,15 @@ class TrackChangesAdapter {
       return
     }
 
+    if (this.storage.processCollaborationCommandDisable("trackChanges")) {
+      return;
+    }
+
     const trackChangesPlugin = this.editor.plugins.get( 'TrackChanges' );
     const trackChangesElement = document.querySelector(this.storage.getSourceDataSelector('trackChanges'));
 
-    if (!trackChangesElement) {
-      return;
+    if (!trackChangesElement || trackChangesElement.value == '') {
+      return
     }
     this.trackedSuggestion = new Map();
 

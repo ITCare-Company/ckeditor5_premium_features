@@ -35,6 +35,7 @@ services:
     arguments:
       - '@ckeditor5_premium_features_notifications.notification_sender'
       - '@ckeditor5_premium_features_collaboration.collaborators'
+      - '@current_user'
     tags:
       - { name: 'event_subscriber' }
 

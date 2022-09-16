@@ -26,7 +26,7 @@ trait CollaborationEntityStorageTrait {
    *   The entities matching the given entity.
    */
   public function loadByEntity(EntityInterface $entity, $item_key_filter = NULL): array {
-    if (!$entity->id()) {
+    if (!$entity || !$entity->id()) {
       return [];
     }
 
