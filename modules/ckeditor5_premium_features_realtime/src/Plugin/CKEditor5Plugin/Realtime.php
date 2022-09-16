@@ -5,12 +5,14 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin;
 
-use Drupal\ckeditor5\HTMLRestrictions;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
+use Drupal\ckeditor5_premium_features\Utility\PluginHelper;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\editor\EditorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * CKEditor 5 realtime plugin.
@@ -18,9 +20,33 @@ use Drupal\editor\EditorInterface;
  * @internal
  *   Plugin classes are internal.
  */
-class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElementsSubsetInterface {
+class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElementsSubsetInterface, ContainerFactoryPluginInterface {
 
   use CKEditor5PluginConfigurableTrait;
+
+  /**
+   * Creates the Realtime collaboration plugin instance.
+   *
+   * @param \Drupal\ckeditor5_premium_features\Utility\PluginHelper $pluginHelper
+   *   Plugin helper service.
+   * @param mixed ...$parent_arguments
+   *   The parent plugin arguments.
+   */
+  public function __construct(
+    protected PluginHelper $pluginHelper, ...$parent_arguments
+  ) {
+    parent::__construct(...$parent_arguments);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, ...$parent_arguments): static {
+    return new static(
+      $container->get('ckeditor5_premium_features.plugin_helper'),
+      ...$parent_arguments
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -54,6 +80,11 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
+    $toolbars = $this->pluginHelper->getFormToolbars($form_state);
+
+    if (in_array('sourceEditing', $toolbars)) {
+      $form_state->setErrorByName('editor', $this->t('Source editing can`t be enabled when Realtime Collaboration module is used'));
+    }
   }
 
   /**

@@ -8,7 +8,7 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
-use Drupal\Component\Utility\NestedArray;
+use Drupal\ckeditor5_premium_features\Utility\PluginHelper;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
@@ -29,11 +29,14 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    *
    * @param \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $settingsConfigHandler
    *   The settings configuration handler.
+   * @param \Drupal\ckeditor5_premium_features\Utility\PluginHelper $pluginHelper
+   *   Plugin helper service.
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    */
   public function __construct(
     protected SettingsConfigHandlerInterface $settingsConfigHandler,
+    protected PluginHelper $pluginHelper,
     ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
@@ -45,6 +48,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
   public static function create(ContainerInterface $container, ...$parent_arguments): static {
     return new static(
       $container->get('ckeditor5_premium_features.config_handler.settings'),
+      $container->get('ckeditor5_premium_features.plugin_helper'),
       ...$parent_arguments
     );
   }
@@ -116,7 +120,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
-    $toolbars = $this->getFormToolbars($form_state);
+    $toolbars = $this->pluginHelper->getFormToolbars($form_state);
 
     if (in_array('trackChanges', $toolbars) === TRUE &&
       in_array('comment', $toolbars) === FALSE) {
@@ -132,7 +136,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
     /** @var \Drupal\Core\Form\FormState $complete_form_state */
     $complete_form_state = $form_state->getCompleteFormState();
 
-    $toolbars = $this->getFormToolbars($form_state);
+    $toolbars = $this->pluginHelper->getFormToolbars($form_state);
 
     // Enable filter if any collaboration feature is enabled.
     $has_any_collaboration_feature = (bool) array_intersect($toolbars, static::getToolbars());
@@ -161,29 +165,6 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
     $static_plugin_config['comments']['editorConfig']['extraPlugins'] = [];
 
     return $static_plugin_config;
-  }
-
-  /**
-   * Returns an array of enabled toolbar plugins names.
-   *
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   Processed form state object.
-   *
-   * @return array
-   *   A list of toolbar plugins.
-   */
-  protected function getFormToolbars(FormStateInterface $form_state) :array {
-    $complete_form_state = $form_state->getCompleteFormState();
-    $values = $complete_form_state->cleanValues()->getValues();
-
-    $toolbars_raw = (string) NestedArray::getValue($values, [
-      'editor',
-      'settings',
-      'toolbar',
-      'items',
-    ]);
-
-    return (array) json_decode($toolbars_raw);
   }
 
 }
