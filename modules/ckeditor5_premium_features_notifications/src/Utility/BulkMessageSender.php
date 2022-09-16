@@ -261,7 +261,7 @@ class BulkMessageSender {
 
           break;
 
-        case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:
+//        case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:
 //          $suggestion = $this->suggestionStorage->load($entityId);
 //          if ($messageItem->get('event_type')->getString() == 'ck5_collaboration_comment_added') {
 //            break;
@@ -339,7 +339,7 @@ class BulkMessageSender {
           break;
       }
 
-//      $messageItem->delete();
+      $messageItem->delete();
     }
 
     $messageOuterWrapper = [
@@ -387,8 +387,8 @@ class BulkMessageSender {
         $this->sendMail($message->getTitle(), [$body], $user);
       }
 
-//      $message->set('sent', 1);
-//      $message->save();
+      $message->set('sent', 1);
+      $message->save();
     }
   }
 
