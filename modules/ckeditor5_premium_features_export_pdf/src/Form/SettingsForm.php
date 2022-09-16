@@ -57,7 +57,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
       $options['margin_' . $margin] = [
         '#type' => 'textfield',
         '#title' => t("Margin $margin"),
-        '#default_value' => $config->get($options_key . '.margin_' . $margin),
+        '#default_value' => $config->get($options_key . '.margin_' . $margin) ?? '1',
       ];
     }
 
