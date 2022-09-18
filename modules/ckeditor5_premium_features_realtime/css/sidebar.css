@@ -35,7 +35,7 @@
 .ck-sidebar-wrapper.wideSidebar {
   min-width: 300px;
   padding: 10px 10px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 .revision-viewer-container-data {
   display: none;
@@ -56,7 +56,7 @@
 .ck-revision-history-sidebar__timeline {
   height: 285px;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
