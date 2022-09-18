@@ -1,6 +1,6 @@
-name: CKEditor 5 Collaboration
+name: CKEditor 5 Non-realtime Collaboration
 type: module
-description: "Provides the functionalities shared between all premium collaboration features."
+description: "Provides Track Changes, Comments and Revision History features. WARNING: Do not enable it together with CKEditor 5 Realtime Collaboration."
 package: CKEditor 5 Premium
 core_version_requirement: ^9.2 || ^10.0
 configure: ckeditor5_premium_features_collaboration.form.settings
