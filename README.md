@@ -9,6 +9,8 @@ STATUS 🚧
 ---------
 The module is currently under development. You are free to try it out and experiment. Have questions about the status, roadmap or would you like to use it in your project? Contact us: https://ckeditor.com/contact/
 
+Reporting issues: https://www.drupal.org/project/issues/ckeditor5_premium_features
+
 INTRODUCTION
 -----------
 CKEditor 5 Premium features are a module for Drupal 9/10 that will provide a set of collaborative solutions and the ability to export your content to popular portable and cross-platform formats.
