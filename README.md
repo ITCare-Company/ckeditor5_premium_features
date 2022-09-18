@@ -35,7 +35,7 @@ REQUIREMENTS
 ------------
 **PHP** >= 8.1
 
-**Drupal** >= 9.2 || 10
+**Drupal** >= 9.4 || 10
 
 CONFIGURATION
 -------------
