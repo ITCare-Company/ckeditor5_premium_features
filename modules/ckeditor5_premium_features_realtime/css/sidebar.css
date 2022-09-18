@@ -65,7 +65,7 @@
 }
 
 .ck-sidebar-wrapper.narrowSidebar a.ck-sidebar-auto-toggle {
-  margin: 15px 18px;
+  margin: 0px 18px;
 }
 
 .ck-sidebar-wrapper a.ck-sidebar-auto-toggle:hover {
@@ -75,7 +75,7 @@
 
 .ck-sidebar-wrapper.narrowSidebar a.ck-sidebar-auto-toggle::after,
 .ck-sidebar-wrapper.wideSidebar a.ck-sidebar-auto-toggle::after {
-  font-size: 35px;
+  font-size: 26px;
   color: var(--ck-color-toolbar-border)
 }
 
