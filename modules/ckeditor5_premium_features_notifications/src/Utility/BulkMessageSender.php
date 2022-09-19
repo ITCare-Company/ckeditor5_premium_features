@@ -261,30 +261,6 @@ class BulkMessageSender {
 
           break;
 
-//        case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:
-//          $suggestion = $this->suggestionStorage->load($entityId);
-//          if ($messageItem->get('event_type')->getString() == 'ck5_collaboration_comment_added') {
-//            break;
-//          }
-//          $context = $this->entityTypeManager->getStorage(\Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface::ENTITY_TYPE_ID)->loadByProperties(
-//            [
-//              'entity_id' => $entityId,
-//              'event_type' => 'ck5_collaboration_suggestion_added',
-//            ]
-//          );
-//          $context = reset($context);
-//          $suggestionType = $suggestion->getType();
-//          $context = $context->get('message_content')->getString();
-//          $startTag = '<suggestion-start name="' . $suggestionType .':' . $entityId;
-//          $endTag = '<suggestion-end name="' . $suggestionType .':' . $entityId;
-//          $body[$messageItem->Id()]['context'] = $this->getContext($context, $startTag, $endTag);
-//          if ($suggestion->hasComments()) {
-//            $comment = $this->commentsStorage->loadByProperties(['thread_id' => $entityId]);
-//            $comment = reset($comment);
-//            $body[$messageItem->Id()][] = $this->prepareThreadReply($comment->id());
-//          }
-//          break;
-
         case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT:
           $threadID = $relatedEntity->getThreadId();
           $context = $messageItem->getMessageContent();
@@ -351,7 +327,17 @@ class BulkMessageSender {
     return (String)$this->renderer->renderPlain($messageOuterWrapper);
   }
 
-  protected function getHighlightedContext($context, $query, $untilQuery = NULL): array {
+  /**
+   * Returns matching HTML elements list with addition class used for highlighting matched element.
+   *
+   * @param $context
+   *   Source HTML content.
+   * @param $query
+   *   XPATH query that will be used for selecting matching HTML part.
+   *
+   * @return array
+   */
+  protected function getHighlightedContext($context, $query): array {
     $document = Html::load($context);
 
     $contextParts = [];
@@ -417,6 +403,13 @@ class BulkMessageSender {
     );
   }
 
+  /**
+   * Renders message item related thread.
+   *
+   * @param \Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface $messageItem
+   *
+   * @return array
+   */
   protected function renderThread(MessageItemInterface $messageItem): array {
     $result = [];
     /** @var CommentInterface $threadItem */

@@ -7,7 +7,6 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBa
 use Drupal\Component\EventDispatcher\Event;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Session\AccountInterface;
-use DrupalCodeGenerator\Command\Entity\ContentEntity;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
 /**
@@ -23,7 +22,12 @@ class CollaborationEventBase extends Event {
   const SUGGESTION_DISCARD = 'ck5_collaboration_suggestion_discard';
   const SUGGESTION_ADDED = 'ck5_collaboration_suggestion_added';
 
-  protected $relatedDocumentKey = NULL;
+  /**
+   * Key property that describes the related field ID.
+   *
+   * @var string
+   */
+  protected string $relatedDocumentKey;
 
   /**
    * Collaboration event constructor.
@@ -76,8 +80,10 @@ class CollaborationEventBase extends Event {
     return NULL;
   }
 
+  /**
+   * Returns "key" attribute from the related collaboration entity or NULL if not found.
+   */
   public function getRelatedDocumentFieldId(): string|null {
-    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $entity */
     $relatedEntity = $this->getRelatedEntity();
 
     if (!$relatedEntity instanceof CollaborationEntityBase) {
@@ -87,12 +93,15 @@ class CollaborationEventBase extends Event {
     return $relatedEntity->getKey();
   }
 
-  public function getRelatedDocumentContent() {
+  /**
+   * Returns content of the proper field from related content entity.
+   */
+  public function getRelatedDocumentContent(): string|NULL {
     $relatedDocument = $this->getRelatedDocument();
     $fieldId = $this->relatedDocumentKey ?? $this->getRelatedDocumentFieldId();
 
     if (!$fieldId) {
-      return;
+      return NULL;
     }
 
     $fields = $relatedDocument->getFields();
@@ -110,11 +119,20 @@ class CollaborationEventBase extends Event {
     return NULL;
   }
 
-  public function setRelatedDocumentKey($key) {
+  /**
+   * Setter for the related document "key" property.
+   */
+  public function setRelatedDocumentKey(string $key): void {
     $this->relatedDocumentKey = $key;
   }
 
-  public function getRelatedDocumentAuthors($filterEventAuthor = true): array {
+  /**
+   * Returns authors of the related content entity.
+   *
+   * @param bool $filterEventAuthor
+   *   Flag if the current user should be filtered out of the list of users.
+   */
+  public function getRelatedDocumentAuthors(bool $filterEventAuthor = true): array {
     $relatedDocument = $this->getRelatedDocument();
 
     $authors = [];

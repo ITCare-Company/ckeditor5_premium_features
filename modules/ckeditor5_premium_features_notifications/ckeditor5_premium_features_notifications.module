@@ -77,26 +77,6 @@ function ckeditor5_premium_features_notifications_cron() {
   $bulkMessageSender->sendBulkMails();
 }
 
-///**
-// * Implements hook_entity_update().
-// */
-//function ckeditor5_premium_features_notifications_entity_update(EntityInterface $entity) {
-//  if (!CollaborationChecker::hasCollaborationFeatures($entity)) {
-//    return;
-//  }
-//
-////  /** @var ContainerAwareEventDispatcher $eventDispatcher */
-////  $eventDispatcher = \Drupal::service('event_dispatcher');
-////  $eventDispatcher->dispatch(
-////    new CollaborationEventBase(
-////      $entity,
-////      User::load(Drupal::currentUser()->id()),
-////      CollaborationEventBase::DOCUMENT_UPDATED
-////    ),
-////    CollaborationEventBase::DOCUMENT_UPDATED
-////  );
-//}
-
 /**
  * Implements hook_theme().
  */

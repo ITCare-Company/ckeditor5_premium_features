@@ -360,7 +360,15 @@ class TextFormat {
     return $form_object instanceof EntityFormInterface && $form_object->getEntity() instanceof FieldableEntityInterface;
   }
 
-  protected function dispatchDocumentUpdateEvent($entity, $key) {
+  /**
+   * Dispatches document update event for specified field.
+   *
+   * @param FieldableEntityInterface $entity
+   *   Source entity
+   * @param string $key
+   *   Key value for source field.
+   */
+  protected function dispatchDocumentUpdateEvent(FieldableEntityInterface $entity, string $key): void {
     $event = new CollaborationEventBase(
       $entity,
       User::load($this->currentUser->id()),

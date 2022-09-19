@@ -129,4 +129,13 @@ interface CollaborationEntityInterface {
    * @return string|null
    */
   public function getKey(): string|null;
+
+  /**
+   * Returns formatted date  of creation.
+   *
+   * @param string $format
+   *   Format name.
+   */
+  public function getCreatedDate(string $format = 'medium'): string;
+
 }

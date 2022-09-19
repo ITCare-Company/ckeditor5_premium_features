@@ -69,26 +69,44 @@ class MessageItem extends ContentEntityBase implements MessageItemInterface {
     return $fields;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getType(): string {
     return $this->get('message_type')->getString();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getMessageContent(): string {
     return $this->get('message_content')->getString();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getEventType(): string {
     return $this->get('event_type')->getString();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getRelatedEntityId(): string {
     return $this->get('entity_id')->getString();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getRelatedEntityType(): string {
     return $this->get('entity_type')->getString();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getRelatedEntity(): EntityInterface|null {
     try {
       return $this->entityTypeManager()
@@ -99,21 +117,23 @@ class MessageItem extends ContentEntityBase implements MessageItemInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getThread(): array {
-
     switch ($this->getRelatedEntityType()) {
       case CommentInterface::ENTITY_TYPE_ID:
         /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment */
         $comment = $this->getRelatedEntity();
         return $comment->getThread();
 
-        break;
-
       case SuggestionInterface::ENTITY_TYPE_ID:
         /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion $suggestion */
         $suggestion = $this->getRelatedEntity();
         return $suggestion->getThread();
-        break;
     }
+
+    return [];
   }
+
 }

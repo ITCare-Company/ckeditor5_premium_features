@@ -182,6 +182,9 @@ class Suggestion extends CollaborationEntityBase implements SuggestionInterface 
     return $attributes['status'] ?? NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getThread(): array {
     return $this->entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID)->loadByProperties([
       'entity_type' => $this->getEntityTypeTargetId(),

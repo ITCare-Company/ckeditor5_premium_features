@@ -29,10 +29,8 @@ use Drupal\user\UserInterface;
  *      "entity_id" = "entity_id",
  *   },
  *   handlers = {
- *     "storage" =
- *   "Drupal\ckeditor5_premium_features_notifications\Entity\MessageStorage",
- *     "storage_schema" =
- *   "Drupal\ckeditor5_premium_features_notifications\Entity\MessageStorageSchema",
+ *     "storage" = "Drupal\ckeditor5_premium_features_notifications\Entity\MessageStorage",
+ *     "storage_schema" = "Drupal\ckeditor5_premium_features_notifications\Entity\MessageStorageSchema",
  *   }
  * )
  */
@@ -115,9 +113,7 @@ class Message extends ContentEntityBase implements MessageInterface {
   }
 
   /**
-   * Returns related message items.
-   *
-   * @return \Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface[]
+   * {@inheritdoc}
    */
   public function getItems(): array {
     try {
@@ -172,6 +168,9 @@ class Message extends ContentEntityBase implements MessageInterface {
     return $this->get('uid')->entity;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getTitle(): string {
     $entityId = $this->get('entity_id')->getString();
     $entityType = $this->get('entity_type')->getString();
