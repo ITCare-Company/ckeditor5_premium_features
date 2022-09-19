@@ -19,9 +19,8 @@ function ckeditor5_premium_features_realtime_library_info_build(): array {
 
   $libraries = [
     'ckeditor5-collaboration-dll',
-    'realtime',
+    'real-time-collaboration',
     'comments',
-    'watchdog',
     'revision-history',
     'track-changes',
   ];

@@ -13,7 +13,7 @@ admin.comments:
     theme:
       css/comments.admin.css: { }
 
-realtime:
+real-time-collaboration:
   css:
     theme:
       css/realtime.css: { }
