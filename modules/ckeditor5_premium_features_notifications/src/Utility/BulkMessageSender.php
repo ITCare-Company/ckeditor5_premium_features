@@ -18,33 +18,13 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Mail\MailManagerInterface;
-use Drupal\Core\Render\Markup;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\node\Entity\Node;
 use Drupal\user\Entity\User;
 use Drupal\Core\Render\RendererInterface;
 
 class BulkMessageSender {
 
   use StringTranslationTrait;
-
-  /**
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected EntityTypeManagerInterface $entityTypeManager;
-
-  /**
-   * @var \Drupal\Core\Mail\MailManagerInterface
-   */
-  protected MailManagerInterface $mailManager;
-
-  /**
-   * The renderer.
-   *
-   * @var \Drupal\Core\Render\RendererInterface
-   */
-  protected $renderer;
-
 
   /**
    * The suggestion storage.
@@ -63,7 +43,7 @@ class BulkMessageSender {
   /**
    * The message storage.
    *
-   * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\MessageStorage
+   * @var \Drupal\ckeditor5_premium_features_notifications\Entity\MessageStorage
    */
   protected MessageStorage $messageStorage;
 
@@ -76,11 +56,10 @@ class BulkMessageSender {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function __construct(EntityTypeManagerInterface $entityTypeManager,
-                              MailManagerInterface $mailManager, RendererInterface $renderer) {
-    $this->entityTypeManager = $entityTypeManager;
-    $this->mailManager = $mailManager;
-    $this->renderer = $renderer;
+  public function __construct(protected EntityTypeManagerInterface $entityTypeManager,
+                              protected MailManagerInterface $mailManager,
+                              protected RendererInterface $renderer,
+                              protected NotificationSettings $notificationSettings) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
     $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
     $this->messageStorage = $this->entityTypeManager->getStorage(MessageInterface::ENTITY_TYPE_ID);
@@ -363,7 +342,10 @@ class BulkMessageSender {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function sendBulkMails() {
-    $messages = $this->messageStorage->getOldestMessages(10);
+    $messages = $this->messageStorage->getOldestMessages(
+      10,
+      $this->notificationSettings->getBulkNotificationsInterval()
+    );
 
     foreach ($messages as $message) {
       $user = $message->getUser();

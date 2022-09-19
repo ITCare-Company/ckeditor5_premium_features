@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_notifications\Entity;
 
+use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -12,6 +13,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Provides the storage class for the Message entity.
  */
 class MessageStorage extends SqlContentEntityStorage {
+
+  use CKeditorPremiumLoggerChannelTrait;
 
   /**
    * {@inheritdoc}
@@ -70,16 +73,33 @@ class MessageStorage extends SqlContentEntityStorage {
    * @return array
    *   Array of message entities.
    */
-  public function getOldestMessages(int $range):array {
-    $nids = $this->getQuery()
+  public function getOldestMessages(int $range, int $timeInterval = 0):array {
+    $query = $this->getQuery()
       ->accessCheck(FALSE)
       ->condition('sent', 0)
       ->sort('created', 'ASC')
-      ->range(0, $range)
-      ->execute();
+      ->range(0, $range);
 
-    if ($nids) {
-      return $this->loadMultiple($nids);
+    if ($timeInterval > 0) {
+      try {
+        $desiredTimestamp = new \DateTime();
+        $desiredTimestamp->sub(new \DateInterval('PT' . $timeInterval . 'M'));
+
+        $query->condition( 'updated',  $desiredTimestamp->getTimestamp(), '<=');
+      }
+      catch (\Exception $e) {
+        $this->error("Exception occurred when searching for bulk messages: @error <br /> <br /><pre>@trace</pre>", [
+          '@error' => $e->getMessage(),
+          '@trace' => $e->getTraceAsString(),
+        ]);
+        return [];
+      }
+    }
+
+    $nIDs = $query->execute();
+
+    if (!empty($nIDs)) {
+      return $this->loadMultiple($nIDs);
     }
 
     return [];

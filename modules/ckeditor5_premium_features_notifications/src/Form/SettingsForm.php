@@ -76,6 +76,19 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#default_value' => $config->get('sender_plugin'),
     ];
 
+    $form['sender_bulk_interval'] = [
+      '#type' => 'number',
+      '#title' => 'Bulk message sending interval',
+      '#description' => $this->t('Set the time interval (in minutes) that must elapse before sending the notification to the user.'),
+      '#min' => 0,
+      '#default_value' => $config->get('sender_bulk_interval') ?? 0,
+      '#states' => [
+        'visible' => [
+          ':input[name="sender_plugin"]' => ['value' => 'ck5_notifications_email_bulk'],
+        ],
+      ],
+    ];
+
     $form = $this->addNotificationMessagesTabs($form, $form_state);
 
     $form['additional_info'] = [

@@ -51,3 +51,4 @@ services:
       - '@entity_type.manager'
       - '@plugin.manager.mail'
       - '@renderer'
+      - '@ckeditor5_premium_features_notifications.notification_settings'
