@@ -7,7 +7,7 @@ namespace Drupal\ckeditor5_premium_features\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Url;
-
+use Drupal\Core\Asset\LibraryDiscoveryInterface;
 /**
  * Provides the utility service for handling the stored settings configuration.
  */
@@ -21,13 +21,21 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   protected ImmutableConfig $config;
 
   /**
+   * The library discovery service.
+   *
+   * @var \Drupal\Core\Asset\LibraryDiscoveryInterface
+   */
+  protected $libraryDiscovery;
+
+  /**
    * Constructs the handler.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory service.
    */
-  public function __construct(protected ConfigFactoryInterface $configFactory) {
+  public function __construct(protected ConfigFactoryInterface $configFactory, protected LibraryDiscoveryInterface $library_discovery) {
     $this->config = $this->configFactory->get('ckeditor5_premium_features.settings');
+    $this->libraryDiscovery = $library_discovery;
   }
 
   /**
@@ -101,11 +109,21 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    *   The URL of the DLL location.
    */
   protected function getDefaultDllLocation(): string {
-    $host = Url::fromRoute('<front>')->setAbsolute()->toString();
-    // We don't do a DI here, because it will be replaced with the CDN URL.
-    $path = \Drupal::moduleHandler()->getModule('ckeditor5_premium_features')->getPath();
+    $version = $this->getDllVersion();
 
-    return $host . $path . '/js/';
+    return 'https://cdn.ckeditor.com/ckeditor5/' . $version . '/dll/';
+  }
+
+  /**
+   * Gets the DLLs version.
+   *
+   * @return string
+   *   The DLLs version.
+   */
+  protected function getDllVersion(): string {
+    $library = $this->libraryDiscovery->getLibraryByName('core', 'ckeditor5');
+
+    return $library['version'];
   }
 
 }

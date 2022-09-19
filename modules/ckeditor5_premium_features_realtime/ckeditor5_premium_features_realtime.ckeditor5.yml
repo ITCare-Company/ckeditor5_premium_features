@@ -5,7 +5,7 @@ ckeditor5_premium_features_realtime__realtime:
       - realTimeCollaboration.PresenceList
   drupal:
     label: Realtime Collaboration
-    library: ckeditor5_premium_features_realtime/realtime
+    library: ckeditor5_premium_features_realtime/real-time-collaboration
     class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
     elements: false
 

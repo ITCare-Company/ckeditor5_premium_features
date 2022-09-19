@@ -183,7 +183,7 @@ class SettingsForm extends ConfigFormBase {
     $advanced['dll_location'] = [
       '#type' => 'textfield',
       '#title' => $this->t('DLL packages location'),
-      '#description' => $this->t('Leave this field empty unless you know what you are doing.'),
+      '#description' => $this->t('Leave this field empty unless you know what you are doing. The path must end by "/"'),
     ];
 
     $this->setDefaultValues($advanced);

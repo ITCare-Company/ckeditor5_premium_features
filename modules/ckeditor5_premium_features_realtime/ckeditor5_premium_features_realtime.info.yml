@@ -1,8 +1,9 @@
-name: Realtime Collaboration
+name: CKEditor 5 Realtime Collaboration
 type: module
-description: "The CKEditor 5 editor plugin for Real-time collaboration."
-package: CKEditor 5 Premium
-core_version_requirement: ^9.2 || ^10.0
+description: "Provides Realtime collaborative editing along with Track Changes, Comments and Revision History features. WARNING: Do not enable it together with CKEditor 5 Non-realtime Collaboration."
+package: CKEditor 5 Premium (Experimental)
+core_version_requirement: ^9.4 || ^10.0
+lifecycle: experimental
 #configure: @todo
 dependencies:
   - ckeditor5_premium_features:ckeditor5_premium_features
