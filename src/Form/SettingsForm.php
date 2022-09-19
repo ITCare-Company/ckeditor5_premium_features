@@ -78,11 +78,12 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'select',
       '#title' => $this->t('Authorization type'),
       '#options' => [
+        'none' => $this->t('Not set'),
         'key' => $this->t('Access key'),
         'dev_token' => $this->t('Development token'),
       ],
       '#default_value' => 'key',
-      '#description' => $this->t('Select the authorization suitable type for your features. The access key-based authorization is highly recommended and the best option in production environment. The development token should rather be used for testing purposes'),
+      '#description' => $this->t('Select the authorization suitable type for your features. The access key-based authorization is highly recommended and the best option in production environment. The development token should rather be used for testing purposes. Required for Export to Word/PDF and Real-time collaboration.'),
     ];
 
     $configuration['env'] = [
@@ -121,20 +122,6 @@ class SettingsForm extends ConfigFormBase {
       ],
     ];
 
-    $configuration['web_socket_url'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Web Socket URL'),
-      '#description' =>
-        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-        . '<br>'
-        . $this->t('Required for Real-time collaboration.'),
-      '#states' => [
-        'visible' => [
-          'select[name="auth_type"]' => ['value' => 'key'],
-        ],
-      ],
-    ];
-
     $configuration['dev_token_url'] = [
       '#type' => 'url',
       '#title' => $this->t('Development token URL'),
@@ -164,6 +151,15 @@ class SettingsForm extends ConfigFormBase {
           'select[name="auth_type"]' => ['value' => 'dev_token'],
         ],
       ],
+    ];
+
+    $configuration['web_socket_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Web Socket URL'),
+      '#description' =>
+        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        . '<br>'
+        . $this->t('Required for Real-time collaboration.'),
     ];
 
     $this->setDefaultValues($configuration);
