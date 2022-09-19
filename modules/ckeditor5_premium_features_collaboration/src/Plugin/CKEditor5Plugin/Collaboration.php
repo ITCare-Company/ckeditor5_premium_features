@@ -87,7 +87,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    * {@inheritdoc}
    */
   public function defaultConfiguration(): array {
-    // A dummy configuration value becasue of the parent class
+    // A dummy configuration value because of the parent class
     // which force to have a form related methods
     // in case we want to use `getElementsSubset` method.
     return [

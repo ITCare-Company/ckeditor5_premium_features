@@ -11,6 +11,7 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
 use Drupal\ckeditor5_premium_features\Utility\PluginHelper;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Url;
 use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -59,8 +60,11 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
    * {@inheritdoc}
    */
   public function defaultConfiguration(): array {
+    // A dummy configuration value because of the parent class
+    // which force to have a form related methods
+    // in case we want to use `getElementsSubset` method.
     return [
-      'allowed_tags' => '',
+      'enabled' => FALSE,
     ];
   }
 
@@ -68,9 +72,18 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
-    $form['allowed_tags'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Allowed tags'),
+    $note = $this->t('In order to setup the Real Time Collaboration, use the <a href="@url">global realtime collaboration configuration instead</a>.', [
+      '@url' => Url::fromRoute('ckeditor5_premium_features_realtime.form.settings')->toString(),
+    ]);
+    $form['note'] = [
+      ['#markup' => '<p>' . $this->t('The configuration for this plugin is not available.') . '</p>'],
+      ['#markup' => '<p>' . $note . '</p>'],
+    ];
+
+    // A dummy form element in order to make the submission works.
+    $form['enabled'] = [
+      '#type' => 'hidden',
+      '#default_value' => $this->configuration['enabled'],
     ];
 
     return $form;
