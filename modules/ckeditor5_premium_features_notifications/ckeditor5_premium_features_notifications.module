@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderMailBulk;
 use Drupal\ckeditor5_premium_features_notifications\Utility\CollaborationChecker;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Render\BubbleableMetadata;
@@ -18,8 +19,20 @@ use Drupal\user\Entity\User;
  * Implements hook_mail().
  */
 function ckeditor5_premium_features_notifications_mail($key, &$message, $params) {
-  if (!NotificationMessageFactoryDefault::isMessageTypeSupported($key)) {
+  if (!NotificationMessageFactoryDefault::isMessageTypeSupported($key) &&
+    $key != NotificationSenderMailBulk::BULK_MAIL_TYPE) {
     return;
+  }
+
+  if (empty($params['headers']['content-type'])) {
+    $params['headers']['content-type'] = 'text/html';
+  }
+
+  $cssPath = \Drupal::moduleHandler()->getModule('ckeditor5_premium_features_notifications')->getPath() . '/css/notifications.css';
+  if (file_exists($cssPath)) {
+    $params['body'] = array_merge([
+      '<style>' . file_get_contents($cssPath) . '</style>',
+    ], $params['body']);
   }
 
   $message['subject'] = $params['subject'];
@@ -65,21 +78,32 @@ function ckeditor5_premium_features_notifications_cron() {
 }
 
 /**
- * Implements hook_entity_update().
+ * Implements hook_theme().
  */
-function ckeditor5_premium_features_notifications_entity_update(EntityInterface $entity) {
-  if (!CollaborationChecker::hasCollaborationFeatures($entity)) {
-    return;
-  }
-
-  /** @var ContainerAwareEventDispatcher $eventDispatcher */
-  $eventDispatcher = \Drupal::service('event_dispatcher');
-  $eventDispatcher->dispatch(
-    new CollaborationEventBase(
-      $entity,
-      User::load(Drupal::currentUser()->id()),
-      CollaborationEventBase::DOCUMENT_UPDATED
-    ),
-    CollaborationEventBase::DOCUMENT_UPDATED
-  );
+function ckeditor5_premium_features_notifications_theme($existing, $type, $theme, $path) {
+  return [
+    'notification_thread_wrapper' => [
+      'variables' => [
+        'items' => NULL
+      ],
+    ],
+    'notification_thread_comment' => [
+      'variables' => [
+        'comment' => NULL
+      ],
+    ],
+    'notification_message' => [
+      'variables' => [
+        'items' => NULL,
+        'title' => NULL,
+      ],
+    ],
+    'notification_context' => [
+      'variables' => [
+        'title' => NULL,
+        'context' => NULL,
+        'thread' => NULL,
+      ],
+    ],
+  ];
 }

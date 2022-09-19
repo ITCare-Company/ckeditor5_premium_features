@@ -72,15 +72,16 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
    *   Suggestion event object.
    */
   public function suggestionAdd(CollaborationEventBase $event): void {
-    $collaborationEntity = $event->getRelatedEntity();
-    if (!$collaborationEntity instanceof Suggestion) {
+    $collaborationEntity = $event->getRelatedDocument();
+    if (!$collaborationEntity) {
       return;
     }
 
-    $recipients = [
-      $collaborationEntity->getAuthorId(),
-    ];
+    $recipients = $event->getRelatedDocumentAuthors();
 
+    if (empty($recipients)) {
+      return;
+    }
     $this->notificationSender->sendNotification(
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED,
       $recipients,

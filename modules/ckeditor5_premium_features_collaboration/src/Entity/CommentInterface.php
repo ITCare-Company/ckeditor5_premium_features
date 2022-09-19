@@ -29,6 +29,13 @@ interface CommentInterface {
   public function setThreadId(string $id): static;
 
   /**
+   * Returns comment thread that the current entity is a part of.
+   *
+   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface[]
+   */
+  public function getThread(): array;
+
+  /**
    * Gets the comment content.
    *
    * @return string|null

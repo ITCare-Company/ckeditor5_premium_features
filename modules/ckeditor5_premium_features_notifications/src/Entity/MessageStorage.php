@@ -44,6 +44,7 @@ class MessageStorage extends SqlContentEntityStorage {
       'uid' => $userId,
       'entity_id' => $documentId,
       'entity_type' => $documentType,
+      'sent' => 0
     ]);
 
     if (empty($result)) {

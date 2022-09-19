@@ -30,7 +30,22 @@ interface MessageInterface {
    */
   public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType, $messageContent): int;
 
+  /**
+   * Returns related message items.
+   *
+   * @return \Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface[]
+   */
   public function getItems();
 
+  /**
+   * Returns message recipient.
+   *
+   * @return \Drupal\user\UserInterface|null
+   */
   public function getUser(): ?UserInterface;
+
+  /**
+   * Returns message title.
+   */
+  public function getTitle(): string;
 }

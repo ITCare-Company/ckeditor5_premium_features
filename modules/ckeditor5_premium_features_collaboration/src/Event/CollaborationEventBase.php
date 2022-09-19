@@ -2,11 +2,11 @@
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Event;
 
+use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase;
 use Drupal\Component\EventDispatcher\Event;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Session\AccountInterface;
-use DrupalCodeGenerator\Command\Entity\ContentEntity;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
 /**
@@ -21,6 +21,13 @@ class CollaborationEventBase extends Event {
   const SUGGESTION_ACCEPT = 'ck5_collaboration_suggestion_accept';
   const SUGGESTION_DISCARD = 'ck5_collaboration_suggestion_discard';
   const SUGGESTION_ADDED = 'ck5_collaboration_suggestion_added';
+
+  /**
+   * Key property that describes the related field ID.
+   *
+   * @var string
+   */
+  protected string $relatedDocumentKey;
 
   /**
    * Collaboration event constructor.
@@ -53,7 +60,8 @@ class CollaborationEventBase extends Event {
   }
 
   /**
-   * Returns related document. It can be the same as getRelatedEntity result for some events.
+   * Returns related document. It can be the same as getRelatedEntity result
+   * for some events.
    *
    * @return \Drupal\Core\Entity\ContentEntityBase|NULL
    */
@@ -70,6 +78,76 @@ class CollaborationEventBase extends Event {
     catch (\Exception) { }
 
     return NULL;
+  }
+
+  /**
+   * Returns "key" attribute from the related collaboration entity or NULL if not found.
+   */
+  public function getRelatedDocumentFieldId(): string|null {
+    $relatedEntity = $this->getRelatedEntity();
+
+    if (!$relatedEntity instanceof CollaborationEntityBase) {
+      return NULL;
+    }
+
+    return $relatedEntity->getKey();
+  }
+
+  /**
+   * Returns content of the proper field from related content entity.
+   */
+  public function getRelatedDocumentContent(): string|NULL {
+    $relatedDocument = $this->getRelatedDocument();
+    $fieldId = $this->relatedDocumentKey ?? $this->getRelatedDocumentFieldId();
+
+    if (!$fieldId) {
+      return NULL;
+    }
+
+    $fields = $relatedDocument->getFields();
+
+    foreach ($fields as $fieldName => $field) {
+      $values = $relatedDocument->get($fieldName)->getValue();
+      foreach ($values as $delta => $val) {
+        $id = CKeditorFieldKeyHelper::getElementId('edit-' . $fieldName . '-' . $delta);
+        if ($fieldId == $id) {
+          return $val['value'];
+        }
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Setter for the related document "key" property.
+   */
+  public function setRelatedDocumentKey(string $key): void {
+    $this->relatedDocumentKey = $key;
+  }
+
+  /**
+   * Returns authors of the related content entity.
+   *
+   * @param bool $filterEventAuthor
+   *   Flag if the current user should be filtered out of the list of users.
+   */
+  public function getRelatedDocumentAuthors(bool $filterEventAuthor = true): array {
+    $relatedDocument = $this->getRelatedDocument();
+
+    $authors = [];
+    if (method_exists($relatedDocument, 'getOwner')) {
+      $authors[] = $relatedDocument->getOwner()->id();
+    }
+    elseif ($relatedDocument->hasField('uid')) {
+      $authors[] = $relatedDocument->get('uid')->getString();
+    }
+
+    if ($filterEventAuthor) {
+      $authors = array_diff($authors, [$this->getAccount()->id()]);
+    }
+
+    return $authors;
   }
 
   /**

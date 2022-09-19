@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
+use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationSuggestionDependingStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
@@ -12,6 +13,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\Component\Utility\Html;
@@ -22,6 +24,10 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\node\Entity\Node;
+use Drupal\user\Entity\User;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Defines the Text Format utility class for handling the collaboration data.
@@ -71,6 +77,8 @@ class TextFormat {
     protected EditorStorageHandlerInterface $editorStorageHandler,
     protected UserDataProvider $userDataProvider,
     protected CollaborationSettings $collaborationSettings,
+    protected EventDispatcherInterface $eventDispatcher,
+    protected AccountInterface $currentUser,
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
     $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
@@ -116,7 +124,7 @@ class TextFormat {
 
     $this->addSubmitCallback($complete_form);
 
-    $id = $this->getElementId($element['#id']);
+    $id = CKeditorFieldKeyHelper::getElementId($element['#id']);
     $id_attribute = 'data-' . static::STORAGE_KEY . '-element-id';
 
     $default_element_keys = [
@@ -223,6 +231,8 @@ class TextFormat {
     ];
 
     foreach ($items as $item_key => $item_parents) {
+      $this->dispatchDocumentUpdateEvent($entity, $item_key);
+
       $suggestion_source_data = $this->getFormElementSourceData($form_state, $item_parents, 'track_changes');
       $suggestion_ids = $this->suggestionStorage->getSuggestionEntityIDs($suggestion_source_data);
 
@@ -341,21 +351,6 @@ class TextFormat {
   }
 
   /**
-   * Gets the element unique HTML ID.
-   *
-   * @param string $elementId
-   *   Form element ID.
-   *
-   * @return string
-   *   The ID.
-   */
-  private function getElementId(string $elementId): string {
-    $id = 'id-' . hash('crc32', $elementId);
-
-    return Html::getId($id);
-  }
-
-  /**
    * Checks if the passed form object is supported.
    *
    * @param \Drupal\Core\Form\FormInterface $form_object
@@ -363,5 +358,27 @@ class TextFormat {
    */
   private function isFormTypeSupported(FormInterface $form_object): bool {
     return $form_object instanceof EntityFormInterface && $form_object->getEntity() instanceof FieldableEntityInterface;
+  }
+
+  /**
+   * Dispatches document update event for specified field.
+   *
+   * @param FieldableEntityInterface $entity
+   *   Source entity
+   * @param string $key
+   *   Key value for source field.
+   */
+  protected function dispatchDocumentUpdateEvent(FieldableEntityInterface $entity, string $key): void {
+    $event = new CollaborationEventBase(
+      $entity,
+      User::load($this->currentUser->id()),
+      CollaborationEventBase::DOCUMENT_UPDATED
+    );
+    $event->setRelatedDocumentKey($key);
+
+    $this->eventDispatcher->dispatch(
+      $event,
+      CollaborationEventBase::DOCUMENT_UPDATED
+    );
   }
 }

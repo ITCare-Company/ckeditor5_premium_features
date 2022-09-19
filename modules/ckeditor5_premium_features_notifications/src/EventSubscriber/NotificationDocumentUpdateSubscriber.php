@@ -47,7 +47,7 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
    */
   public function documentUpdated(CollaborationEventBase $event): void {
     $collaborationEntity = $event->getRelatedEntity();
-    $body = $collaborationEntity->get('body')->getValue()[0]['value'];
+    $body = $event->getRelatedDocumentContent();
     $mentions = $this->collaboratorsService->getBodyMentions($body);
     if (!empty($mentions)) {
       $users = $this->collaboratorsService->getUserIdsByNames($mentions);

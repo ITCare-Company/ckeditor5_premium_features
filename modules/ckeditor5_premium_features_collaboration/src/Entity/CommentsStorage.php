@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Access\AccessException;
@@ -11,7 +12,6 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
-use Drupal\Core\Logger\LoggerChannelTrait;
 use Drupal\Core\Session\AccountProxyInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -25,7 +25,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
     CollaborationSuggestionDependingStorageInterface {
 
   use CollaborationEntityStorageTrait;
-  use LoggerChannelTrait;
+  use CKeditorPremiumLoggerChannelTrait;
 
   protected array $suggestion_ids;
 
@@ -137,7 +137,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
       try {
         $this->delete($stored_comments);
       } catch (EntityStorageException $e) {
-        $this->getLogger('collaboration')->error("Comment storage error while deleting old entities: @error <br /> <br /><pre>@trace</pre>", [
+        $this->error("Comment storage error while deleting old entities: @error <br /> <br /><pre>@trace</pre>", [
           '@error' => $e->getMessage(),
           '@trace' => $e->getTraceAsString(),
         ]);
@@ -242,6 +242,9 @@ class CommentsStorage extends SqlContentEntityStorage implements
    */
   public function getCommentTree($id):array {
     $comment = $this->load($id);
+    if (!$comment) {
+      return [];
+    }
     $comments = $this->loadByProperties(
       [
         'thread_id' => $comment->getThreadId(),

@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_notifications\Entity;
 
+use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\Core\Entity\ContentEntityBase;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\user\UserInterface;
 
 /**
@@ -30,6 +35,9 @@ use Drupal\user\UserInterface;
  * )
  */
 class Message extends ContentEntityBase implements MessageInterface {
+
+  use StringTranslationTrait;
+  use CKeditorPremiumLoggerChannelTrait;
 
   /**
    * {@inheritdoc}
@@ -104,10 +112,53 @@ class Message extends ContentEntityBase implements MessageInterface {
     return $saveResult;
   }
 
-  public function getItems() {
-  $result = $this->entityTypeManager()->getStorage(MessageItem::ENTITY_TYPE_ID)->loadByProperties(['message_id' => $this->id()]);
+  /**
+   * {@inheritdoc}
+   */
+  public function getItems(): array {
+    try {
+      $messageItems = $this->entityTypeManager()
+        ->getStorage(MessageItemInterface::ENTITY_TYPE_ID)
+        ->loadByProperties([
+          'message_id' => $this->id(),
+        ]);
 
-  return $result;
+      $groupedMessageItems = [];
+
+      /** @var \Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface $item */
+      foreach ($messageItems as $item) {
+        switch ($item->getRelatedEntityType()) {
+          case CommentInterface::ENTITY_TYPE_ID:
+            /** @var CommentInterface $entity */
+            $entity = $item->getRelatedEntity();
+
+            if (isset($groupedMessageItems[$entity->getThreadId()]) ) {
+              /** @var \Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface $previousMessageItem */
+              $previousMessageItem = $groupedMessageItems[$entity->getThreadId()];
+              if ($previousMessageItem->getRelatedEntityType() == SuggestionInterface::ENTITY_TYPE_ID) {
+                break;
+              }
+            }
+            $groupedMessageItems[$entity->getThreadId()] = $item;
+            break;
+
+          case SuggestionInterface::ENTITY_TYPE_ID:
+            /** @var SuggestionInterface $entity */
+            $entity = $item->getRelatedEntity();
+            $groupedMessageItems[$entity->getChainId() ?? $entity->id()] = $item;
+            break;
+
+          default:
+            $groupedMessageItems[$item->getType()] = $item;
+            break;
+        }
+      }
+
+      return $groupedMessageItems;
+    }
+    catch (\Exception) {
+      return [];
+    }
   }
 
   /**
@@ -117,4 +168,29 @@ class Message extends ContentEntityBase implements MessageInterface {
     return $this->get('uid')->entity;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getTitle(): string {
+    $entityId = $this->get('entity_id')->getString();
+    $entityType = $this->get('entity_type')->getString();
+    try {
+      $entity = $this->entityTypeManager()->getStorage($entityType)->load($entityId);
+
+      if (method_exists($entity, 'getTitle')) {
+        return $entity->getTitle();
+      }
+      if (method_exists($entity, 'label')) {
+        return $entity->label();
+      }
+    }
+    catch (EntityStorageException $e) {
+      $this->error("Exception occurred when searching for a related entity: @error <br /> <br /><pre>@trace</pre>", [
+        '@error' => $e->getMessage(),
+        '@trace' => $e->getTraceAsString(),
+      ]);
+    }
+
+    return $this->t('New activity in a document')->render();
+  }
 }

@@ -106,4 +106,11 @@ interface SuggestionInterface extends ContentEntityInterface {
    * SuggestionInterface::SUGGESTION_ACCEPTED or NULL.
    */
   public function getStatus(): string|NULL;
+
+  /**
+   * Returns comment thread that replied to the current entity.
+   *
+   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface[]
+   */
+  public function getThread(): array;
 }

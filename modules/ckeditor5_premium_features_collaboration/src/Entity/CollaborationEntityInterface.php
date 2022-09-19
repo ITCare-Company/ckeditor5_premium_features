@@ -123,4 +123,19 @@ interface CollaborationEntityInterface {
    */
   public function setAttributes(array|string $data): static;
 
+  /**
+   * Returns key attribute value.
+   *
+   * @return string|null
+   */
+  public function getKey(): string|null;
+
+  /**
+   * Returns formatted date  of creation.
+   *
+   * @param string $format
+   *   Format name.
+   */
+  public function getCreatedDate(string $format = 'medium'): string;
+
 }

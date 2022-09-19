@@ -159,10 +159,18 @@ class Suggestion extends CollaborationEntityBase implements SuggestionInterface 
    * {@inheritdoc}
    */
   public function getChain(): array {
-    return $this->entityTypeManager()->getStorage(self::ENTITY_TYPE_ID)
+    $chainFromDb = $this->entityTypeManager()->getStorage(self::ENTITY_TYPE_ID)
       ->loadByProperties([
         'chain_id' => $this->getChainId(),
       ]);
+
+    if (empty($chainFromDb)) {
+      return [
+        $this,
+      ];
+    }
+
+    return $chainFromDb;
   }
 
   /**
@@ -172,5 +180,16 @@ class Suggestion extends CollaborationEntityBase implements SuggestionInterface 
     $attributes = $this->getAttributes();
 
     return $attributes['status'] ?? NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getThread(): array {
+    return $this->entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID)->loadByProperties([
+      'entity_type' => $this->getEntityTypeTargetId(),
+      'entity_id' => $this->getEntityId(),
+      'thread_id' => $this->getChainId(),
+    ]);
   }
 }
