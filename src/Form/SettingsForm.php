@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Form;
 
+use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides the form for the main module & submodule configuration.
@@ -27,6 +30,29 @@ class SettingsForm extends ConfigFormBase {
    * Required length of the License key.
    */
   const LICENSE_KEY_MIN_LENGTH = 48;
+
+  /**
+   * Class constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   Config factory service.
+   * @param \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $configHandler
+   *   Module settings handler.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory,
+                              protected SettingsConfigHandlerInterface $configHandler) {
+    parent::__construct($config_factory);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('ckeditor5_premium_features.config_handler.settings')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -179,7 +205,12 @@ class SettingsForm extends ConfigFormBase {
     $advanced['dll_location'] = [
       '#type' => 'textfield',
       '#title' => $this->t('DLL packages location'),
-      '#description' => $this->t('Leave this field empty unless you know what you are doing. The path must end by "/"'),
+      '#description' => $this->t('Leave this field empty unless you know what you are doing. The path must end by "/"
+<br />This field supports additional token: "' .SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN . '" - replaced dynamically with the version of your CKEditor.'),
+      '#default_value' => $this->configHandler->getDefaultDllLocation(),
+      '#attributes' => [
+        'placeholder' => $this->configHandler->getDefaultDllLocation(),
+      ],
     ];
 
     $this->setDefaultValues($advanced);
@@ -226,8 +257,16 @@ class SettingsForm extends ConfigFormBase {
     $config = $this->config($this->getFormId());
     $dll_changed = $config->get('dll_location') !== $form_state->getValue('dll_location');
 
+    $clean_values = $form_state->cleanValues()->getValues();
+
+    foreach ($clean_values as &$value) {
+      if (is_string($value)) {
+        $value = trim($value);
+      }
+    }
+
     $config
-      ->setData($form_state->cleanValues()->getValues())
+      ->setData($clean_values)
       ->save();
 
     $invalidate_tags = [
@@ -256,7 +295,7 @@ class SettingsForm extends ConfigFormBase {
   private function setDefaultValues(array &$elements): void {
     $config = $this->config(($this->getFormId()));
     foreach ($elements as $key => $element) {
-      $elements[$key]['#default_value'] = $config->get($key) ?? $element[$key]['#default_value'] ?? NULL;
+      $elements[$key]['#default_value'] = $config->get($key) ?? ($element['#default_value'] ?? NULL);
     }
   }
 
