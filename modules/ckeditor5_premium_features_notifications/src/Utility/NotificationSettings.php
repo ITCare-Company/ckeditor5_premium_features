@@ -64,4 +64,10 @@ class NotificationSettings {
     return $this->notificationSettings->get('sender_plugin');
   }
 
+  /**
+   * Return the bulk notifications interval setting.
+   */
+  public function getBulkNotificationsInterval(): int {
+    return $this->notificationSettings->get('sender_bulk_interval') ?? 0;
+  }
 }
