@@ -2,7 +2,7 @@ name: CKEditor 5 Notifications
 type: module
 description: "Adds notifications feature for Non-realtime Collaboration. WARNING: Currently this module is incompatible with CKEditor 5 Realtime Collaboration."
 package: CKEditor 5 Premium (Experimental)
-core_version_requirement: '>=9.4'
+core_version_requirement: ^9.4 || ^10.0
 lifecycle: experimental
 dependencies:
   - ckeditor5_premium_features:ckeditor5_premium_features

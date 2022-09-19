@@ -99,6 +99,8 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   public function getDllLocation(string $file_name = ''): string {
     $base_path = $this->config->get('dll_location') ?: $this->getDefaultDllLocation();
 
+    $base_path = $this->replaceDllPathToken($base_path);
+
     return $base_path . $file_name;
   }
 
@@ -108,10 +110,22 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    * @return string
    *   The URL of the DLL location.
    */
-  protected function getDefaultDllLocation(): string {
-    $version = $this->getDllVersion();
+  public function getDefaultDllLocation(): string {
+    return 'https://cdn.ckeditor.com/ckeditor5/' . SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN . '/dll/';
+  }
 
-    return 'https://cdn.ckeditor.com/ckeditor5/' . $version . '/dll/';
+  /**
+   * Dynamically replaces version token in the DLL path.
+   *
+   * @param string $path
+   *   Path to the DLL location.
+   */
+  protected function replaceDllPathToken(string $path): string {
+    return str_replace(
+      SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN,
+      $this->getDllVersion(),
+      $path
+    );
   }
 
   /**
