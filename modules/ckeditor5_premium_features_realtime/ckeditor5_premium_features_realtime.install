@@ -5,6 +5,8 @@
  * Contains CKEditor 5 Premium Features Realtime module install functions.
  */
 
+use Drupal\Core\Url;
+
 /**
  * Implements hook_requirements().
  */
@@ -16,6 +18,30 @@ function ckeditor5_premium_features_realtime_requirements($phase): array {
       'description' => t('You cannot install CKEditor 5 Realtime Collaboration and CKEditor 5 Non-realtime Collaboration modules at the same time.'),
       'severity' => REQUIREMENT_ERROR,
     ];
+  }
+
+  if ($phase == 'runtime') {
+    /** @var \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $config_handler */
+    $config_handler = \Drupal::service('ckeditor5_premium_features.config_handler.settings');
+    if (empty($config_handler->getWebSocketUrl())) {
+      $requirements[] = [
+        'title' => t('CKEditor Premium'),
+        'description' => t('You have to define the Websocket URL in the <a href=":url">CKEditor Premium Settings</a>. Otherwise, the WYSIWYG editor may appear broken.', [
+          ':url' => Url::fromRoute('ckeditor5_premium_features.form.settings_general')->setAbsolute()->toString(),
+        ]),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+
+    if (empty($config_handler->getTokenUrl())) {
+      $requirements[] = [
+        'title' => t('CKEditor Premium'),
+        'description' => t('You have to define the Authorization Type in the <a href=":url">CKEditor Premium Settings</a>. Otherwise, the WYSIWYG editor may appear broken.', [
+          ':url' => Url::fromRoute('ckeditor5_premium_features.form.settings_general')->setAbsolute()->toString(),
+        ]),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
   }
 
   return $requirements;
