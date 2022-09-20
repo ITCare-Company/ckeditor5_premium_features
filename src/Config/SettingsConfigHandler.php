@@ -99,13 +99,15 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   public function getDllLocation(string $file_name = ''): string {
     $base_path = $this->config->get('dll_location') ?: $this->getDefaultDllLocation();
 
+    $base_path = trim($base_path, ' /') . '/';
+
     $base_path = $this->replaceDllPathToken($base_path);
 
     return $base_path . $file_name;
   }
 
   /**
-   * Gets the default DLL location if it was not overriden in the config.
+   * Gets the default DLL location if it was not overridden in the config.
    *
    * @return string
    *   The URL of the DLL location.
