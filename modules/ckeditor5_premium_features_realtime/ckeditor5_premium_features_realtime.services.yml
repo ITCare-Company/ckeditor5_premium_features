@@ -4,3 +4,7 @@ services:
     arguments:
       - '@entity_type.manager'
       - '@config.factory'
+  ckeditor5_premium_features_realtime.channel:
+    class: Drupal\ckeditor5_premium_features_realtime\Utility\ChannelProvider
+    arguments:
+      - '@entity_type.manager'

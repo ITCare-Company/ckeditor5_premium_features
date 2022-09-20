@@ -20,7 +20,6 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *      "id" = "id",
  *      "entity_type" = "entity_type",
  *      "entity_id" = "entity_id",
- *      "field_id" = "field_id",
  *      "created" = "created",
  *
  *   },
