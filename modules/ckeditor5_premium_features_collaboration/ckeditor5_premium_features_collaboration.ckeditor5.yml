@@ -63,6 +63,8 @@ ckeditor5_premium_features_collaboration__collaboration_integration:
     plugins:
       - disableGhsTableIntegration.DisableGhsTableIntegration
       - userAdapter.UserAdapter
+      - disableCollaborationMarkersInCaption.DisableCollaborationMarkersInCaption
+
   drupal:
     label: The load & save integration of collaboration tools.
     library: ckeditor5_premium_features_collaboration/collaboration-integration
