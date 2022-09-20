@@ -91,6 +91,8 @@ class TextFormat {
 
     $form_object = $form_state->getFormObject();
 
+    $element['value']["#attributes"]['data-ckeditorfieldid'] = $element["#id"];
+
     if ($this->isFormTypeSupported($form_object)) {
       $entity = $form_object->getEntity();
 
@@ -98,12 +100,12 @@ class TextFormat {
         $this->addSubmitCallback($complete_form);
       }
       $entityChannel = $complete_form["channel_id"]["#value"];
-      $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $this->getChannelId($entityChannel . $element["#id"]);
+      $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$element["#id"]] = $this->getChannelId($entityChannel . $element["#id"]);
     } else {
       // We still need to process in order to stop our integration from
       // throwing exceptions in console, but we'll block editor toolbar buttons.
       $element['#attached']['drupalSettings']['ckeditor5Premium']['disableCollaboration'] = TRUE;
-      $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $this->getChannelId($element["#id"] . random_bytes(5));
+      $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$element["#id"]] = $this->getChannelId($element["#id"] . random_bytes(5));
     }
 
     // Add the container for the revision list.

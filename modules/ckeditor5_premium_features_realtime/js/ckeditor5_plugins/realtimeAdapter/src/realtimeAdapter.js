@@ -8,8 +8,14 @@ class RealtimeAdapter {
          container: document.querySelector('#' + id_sidebar),
        }
 
+       if (typeof drupalSettings.ckeditor5ChannelId == "undefined" ||
+         typeof this.editor.sourceElement.dataset.ckeditorfieldid == "undefined" ||
+         typeof drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid] == "undefined") {
+         return;
+       }
+
        this.editor.config._config.collaboration = {
-         channelId: drupalSettings.ckeditor5ChannelId,
+         channelId: drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid],
        }
   }
 
