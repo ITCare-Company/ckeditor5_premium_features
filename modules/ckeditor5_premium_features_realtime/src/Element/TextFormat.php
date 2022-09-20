@@ -79,12 +79,11 @@ class TextFormat {
       '#weight' => -1,
       '#attributes' => [
         'class' => [$id . $element["#id"]],
-        'id' => $element["#id"] . '-value-presence-list-containersss',
+        'id' => $element["#id"] . '-value-presence-list-container',
       ],
     ];
-
-    $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $complete_form["channelId"]["#value"];
-
+    $entityChannel = $complete_form["channelId"]["#value"];
+    $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $this->getChannelId($entityChannel . $element["#id"]);
     $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->config->get('presence_list_collapse_at') ?? 8;
     // Attach annotation sidebar.
     AnnotationSidebar::process($element, $form_state, $complete_form);
@@ -237,10 +236,13 @@ class TextFormat {
   /**
    * Generate unique channel ID value.
    *
+   * @param String $uuid
+   *   The node uuid.
+   *
    * @return string
    *   The channelID.
    */
-  private function getChannelId(): string {
-    return Crypt::randomBytesBase64(24);
+  private function getChannelId(String $uuid): string {
+    return substr(Crypt::hashBase64($uuid), 0, 36);
   }
 }

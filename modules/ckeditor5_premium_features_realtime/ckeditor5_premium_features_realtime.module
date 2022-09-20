@@ -49,9 +49,10 @@ function ckeditor5_premium_features_realtime_element_info_alter(array &$info): v
   }
 }
 
+/**
+ * Implements hook_form_alter().
+ */
 function ckeditor5_premium_features_realtime_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  $a=1;
-
   $form_object = $form_state->getFormObject();
   if ($form_object instanceof EntityFormInterface) {
     $entity = $form_object->getEntity();
@@ -63,7 +64,6 @@ function ckeditor5_premium_features_realtime_form_alter(&$form, \Drupal\Core\For
         $channelId = Crypt::randomBytesBase64(24);
       }
     } else {
-
       $entity_type_manager = \Drupal::service('entity_type.manager');
       $channel = $entity_type_manager->getStorage(ChannelInterface::ENTITY_TYPE_ID)->loadByProperties([
         'entity_id' => $entity->uuid(),
