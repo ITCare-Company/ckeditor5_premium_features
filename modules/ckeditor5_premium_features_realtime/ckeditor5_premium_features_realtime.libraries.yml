@@ -20,6 +20,8 @@ real-time-collaboration:
   js:
     js/build/realtimeAdapter.js: { minified: true }
     js/build/sidebarAdapter.js: { minified: true }
+    js/build/disableRealtimeMarkersInCaption.js: { minified: true }
+
   dependencies:
     - ckeditor5_premium_features_realtime/ckeditor5-collaboration-dll
 
