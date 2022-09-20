@@ -12,6 +12,7 @@ use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\EntityFormInterface;
 
 /**
  * Defines the Text Format utility class for handling the collaboration data.
@@ -201,16 +202,18 @@ class TextFormat {
    */
   public function completeFormSubmit(array &$form, FormStateInterface $form_state): void {
     $form_object = $form_state->getFormObject();
-    $entity = $form_object->getEntity();
-    $channelId = $form_state->getValue('channel_id');
+    if ($form_object instanceof EntityFormInterface) {
+      $entity = $form_object->getEntity();
+      $channelId = $form_state->getValue('channel_id');
 
-    $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID)
-      ->create([
-        'id' => $channelId,
-        'entity_type' => $entity->getEntityTypeId(),
-        'entity_id' => $entity->uuid(),
-        'created' => time(),
-      ])->save();
+      $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID)
+        ->create([
+          'id' => $channelId,
+          'entity_type' => $entity->getEntityTypeId(),
+          'entity_id' => $entity->uuid(),
+          'created' => time(),
+        ])->save();
+    }
   }
 
   /**
