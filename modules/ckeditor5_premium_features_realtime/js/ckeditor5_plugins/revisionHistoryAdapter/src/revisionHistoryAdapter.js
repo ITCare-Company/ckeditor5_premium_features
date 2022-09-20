@@ -30,6 +30,50 @@ class RevisionHistoryAdapter {
     });
   }
 
+  /**
+   * Executed after plugin is initialized.
+   *
+   * For the RTC it's the most suitable place to dynamically disable toolbar items.
+   */
+  afterInit() {
+    this.processRevisionDisable();
+  }
+
+  /**
+   * Checks if collaboration is set to be disabled and blocks the revision history feature (button).
+   *
+   * @returns {boolean}
+   *   TRUE if feature was blocked, FALSE otherwise.
+   *
+   * @todo: CCP-201 - refactor
+   */
+  processRevisionDisable() {
+    if (!this.isCollaborationDisabled()) {
+      return false;
+    }
+
+    if (this.editor.plugins.has( 'RevisionTracker' )) {
+
+      this.editor.plugins.get( 'RevisionTracker' ).isEnabled = false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Checks if collaboration is set to be disabled.
+   *
+   * @returns {boolean}
+   *   TRUE if conditions for blocking collaboration are met, FALSE otherwise.
+   *
+   * @todo: CCP-201 - refactor
+   */
+  isCollaborationDisabled() {
+    return typeof drupalSettings.ckeditor5Premium != 'undefined' &&
+      typeof drupalSettings.ckeditor5Premium.disableCollaboration != "undefined" &&
+      drupalSettings.ckeditor5Premium.disableCollaboration === true;
+  }
+
   async updateStorage(plugin, tracker) {
     await tracker.update();
     await tracker.saveRevision({name: 'Entity save'});

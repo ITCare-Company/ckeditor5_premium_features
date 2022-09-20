@@ -11,6 +11,8 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityFormInterface;
 
@@ -66,7 +68,9 @@ class TextFormat {
       '#type' => 'container',
       '#weight' => -1,
       '#attributes' => [
-        'class' => [$id . $element["#id"]],
+        'class' => [
+          $element["#id"]
+        ],
         'id' => $element["#id"] . '-value-presence-list-container',
       ],
     ];
@@ -75,20 +79,33 @@ class TextFormat {
       '#type' => 'container',
       '#weight' => -1,
       '#attributes' => [
-        'class' => [$id . $element["#id"]],
+        'class' => [
+          $element["#id"]
+        ],
         'id' => $element["#id"] . '-value-presence-list-container',
       ],
     ];
-    $entityChannel = $complete_form["channel_id"]["#value"];
-    $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $this->getChannelId($entityChannel . $element["#id"]);
     $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->config->get('presence_list_collapse_at') ?? 8;
     // Attach annotation sidebar.
     AnnotationSidebar::process($element, $form_state, $complete_form);
 
     $form_object = $form_state->getFormObject();
-    $entity = $form_object->getEntity();
-    if ($entity->isNew()) {
-      $this->addSubmitCallback($complete_form);
+
+    $element['value']["#attributes"]['data-ckeditorfieldid'] = $element["#id"];
+
+    if ($this->isFormTypeSupported($form_object)) {
+      $entity = $form_object->getEntity();
+
+      if ($entity->isNew()) {
+        $this->addSubmitCallback($complete_form);
+      }
+      $entityChannel = $complete_form["channel_id"]["#value"];
+      $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$element["#id"]] = $this->getChannelId($entityChannel . $element["#id"]);
+    } else {
+      // We still need to process in order to stop our integration from
+      // throwing exceptions in console, but we'll block editor toolbar buttons.
+      $element['#attached']['drupalSettings']['ckeditor5Premium']['disableCollaboration'] = TRUE;
+      $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$element["#id"]] = $this->getChannelId($element["#id"] . random_bytes(5));
     }
 
     // Add the container for the revision list.
@@ -97,7 +114,6 @@ class TextFormat {
       '#weight' => -1,
       '#attributes' => [
         'class' => ['revision-history-container-data'],
-        $id_attribute => $id,
       ],
       [
         '#type' => 'container',
@@ -202,18 +218,21 @@ class TextFormat {
    */
   public function completeFormSubmit(array &$form, FormStateInterface $form_state): void {
     $form_object = $form_state->getFormObject();
-    if ($form_object instanceof EntityFormInterface) {
-      $entity = $form_object->getEntity();
-      $channelId = $form_state->getValue('channel_id');
-
-      $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID)
-        ->create([
-          'id' => $channelId,
-          'entity_type' => $entity->getEntityTypeId(),
-          'entity_id' => $entity->uuid(),
-          'created' => time(),
-        ])->save();
+    if (!$this->isFormTypeSupported($form_object)) {
+      // Do not process anything, the entity is missing.
+      return;
     }
+
+    $entity = $form_object->getEntity();
+    $channelId = $form_state->getValue('channel_id');
+
+    $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID)
+      ->create([
+        'id' => $channelId,
+        'entity_type' => $entity->getEntityTypeId(),
+        'entity_id' => $entity->uuid(),
+        'created' => time(),
+      ])->save();
   }
 
   /**
@@ -239,5 +258,15 @@ class TextFormat {
    */
   private function getChannelId(String $uuid): string {
     return substr(Crypt::hashBase64($uuid), 0, 36);
+  }
+
+  /**
+   * Checks if the passed form object is supported.
+   *
+   * @param \Drupal\Core\Form\FormInterface $form_object
+   *   Form object from the $form_state object.
+   */
+  private function isFormTypeSupported(FormInterface $form_object): bool {
+    return $form_object instanceof EntityFormInterface && $form_object->getEntity() instanceof FieldableEntityInterface;
   }
 }

@@ -45,7 +45,7 @@ class SidebarAdapter {
       return;
     }
 
-    if (!toolbar.includes('trackChanges') && !toolbar.includes('comment')) {
+    if (!toolbar.includes('trackChanges') && !toolbar.includes('comment') || this.isCollaborationDisabled()) {
       this.sidebarVisibilityModify(true);
     }
     else {
@@ -75,6 +75,20 @@ class SidebarAdapter {
 
   destroy() {
     this.sidebarVisibilityModify(true);
+  }
+
+  /**
+   * Checks if collaboration is set to be disabled.
+   *
+   * @returns {boolean}
+   *   TRUE if conditions for blocking collaboration are met, FALSE otherwise.
+   *
+   * @todo: CCP-201 - refactor
+   */
+  isCollaborationDisabled() {
+    return typeof drupalSettings.ckeditor5Premium != 'undefined' &&
+      typeof drupalSettings.ckeditor5Premium.disableCollaboration != "undefined" &&
+      drupalSettings.ckeditor5Premium.disableCollaboration === true;
   }
 }
 
