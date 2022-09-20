@@ -3,6 +3,7 @@ import CollaborationStorage from "../../collaborationStorage/src/collaborationSt
 class SidebarAdapter {
   constructor( editor ) {
     this.editor = editor;
+    this.storage = new CollaborationStorage(editor);
     const id_sidebar = this.editor.sourceElement.id + '-ck-sidebar';
     let sidebar_wrapper = document.querySelector('#' + id_sidebar);
 
@@ -47,7 +48,7 @@ class SidebarAdapter {
       return;
     }
 
-    if (!toolbar.includes('trackChanges') && !toolbar.includes('comment')) {
+    if (!toolbar.includes('trackChanges') && !toolbar.includes('comment') || this.storage.isCollaborationDisabled()) {
       this.sidebarVisibilityModify(true);
     }
     else {
