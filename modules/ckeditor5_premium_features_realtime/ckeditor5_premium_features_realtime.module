@@ -56,20 +56,15 @@ function ckeditor5_premium_features_realtime_form_alter(&$form, \Drupal\Core\For
   $form_object = $form_state->getFormObject();
   if ($form_object instanceof EntityFormInterface) {
     $entity = $form_object->getEntity();
-    if ($entity->isNew()) {
+    if (!$entity->isNew() && $channel = ckeditor5_premium_features_realtime_get_channel($entity)) {
+      $channelId = $channel->id();
+    } else {
       $input = $form_state->getUserInput();
       if (!empty($input) && isset($input['channel_id'])) {
         $channelId = $input['channel_id'];
       } else {
         $channelId = Crypt::randomBytesBase64(24);
       }
-    } else {
-      $entity_type_manager = \Drupal::service('entity_type.manager');
-      $channel = $entity_type_manager->getStorage(ChannelInterface::ENTITY_TYPE_ID)->loadByProperties([
-        'entity_id' => $entity->uuid(),
-      ]);
-      $channel = reset($channel);
-      $channelId = $channel->id();
     }
     $form['channel_id'] = [
       '#type' => 'hidden',
@@ -77,4 +72,12 @@ function ckeditor5_premium_features_realtime_form_alter(&$form, \Drupal\Core\For
       '#default_value' => $channelId,
     ];
   }
+}
+
+function ckeditor5_premium_features_realtime_get_channel($entity) {
+  $entity_type_manager = \Drupal::service('entity_type.manager');
+  $channel = $entity_type_manager->getStorage(ChannelInterface::ENTITY_TYPE_ID)->loadByProperties([
+    'entity_id' => $entity->uuid(),
+  ]);
+  $channel = reset($channel);
 }
