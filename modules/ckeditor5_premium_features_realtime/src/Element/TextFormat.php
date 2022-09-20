@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_realtime\Element;
 
-use Drupal\ckeditor5_premium_features_realtime\Entity\Channel;
+use Drupal\ckeditor5_premium_features_realtime\Entity\ChannelInterface;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
@@ -82,7 +82,7 @@ class TextFormat {
         'id' => $element["#id"] . '-value-presence-list-container',
       ],
     ];
-    $entityChannel = $complete_form["channelId"]["#value"];
+    $entityChannel = $complete_form["channel_id"]["#value"];
     $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $this->getChannelId($entityChannel . $element["#id"]);
     $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->config->get('presence_list_collapse_at') ?? 8;
     // Attach annotation sidebar.
@@ -206,12 +206,9 @@ class TextFormat {
   public function completeFormSubmit(array &$form, FormStateInterface $form_state): void {
     $form_object = $form_state->getFormObject();
     $entity = $form_object->getEntity();
-    $input = $form_state->getUserInput();
-    if (!empty($input) && isset($input['channelId'])) {
-      $channelId = $input['channelId'];
-    }
+    $channelId = $form_state->getValue('channel_id');
 
-    $this->entityTypeManager->getStorage(Channel::ENTITY_TYPE_ID)
+    $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID)
       ->create([
         'id' => $channelId,
         'entity_type' => $entity->getEntityTypeId(),
