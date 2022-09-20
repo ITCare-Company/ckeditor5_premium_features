@@ -17,8 +17,7 @@ use Drupal\filter\Plugin\FilterBase;
  *
  * @Filter(
  *   id = "ckeditor5_premium_features_collaboration_filter",
- *   title = @Translation("Removes the collaboration (suggestions, comments)
- *   data from the markup"),
+ *   title = @Translation("Removes the collaboration (suggestions, comments) data from the markup so that the content displayed to your end users did not contain comments/suggestions for content editors."),
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
  *   weight = -100
  * )
