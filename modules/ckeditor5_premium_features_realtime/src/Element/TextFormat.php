@@ -213,7 +213,6 @@ class TextFormat {
         'id' => $channelId,
         'entity_type' => $entity->getEntityTypeId(),
         'entity_id' => $entity->uuid(),
-        'field_id' => "field_id",
         'created' => time(),
       ])->save();
   }
