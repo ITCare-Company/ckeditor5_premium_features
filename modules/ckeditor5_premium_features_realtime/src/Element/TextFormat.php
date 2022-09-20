@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_realtime\Element;
 
-
+use Drupal\ckeditor5_premium_features_realtime\Entity\Channel;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
@@ -83,17 +83,17 @@ class TextFormat {
       ],
     ];
 
-
-    $t = $form_state->getValue('channelId');
-    $channelId = $this->getChannelId();
-    $form_state->setValue('channelId', $channelId);
     $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $complete_form["channelId"]["#value"];
 
     $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->config->get('presence_list_collapse_at') ?? 8;
     // Attach annotation sidebar.
     AnnotationSidebar::process($element, $form_state, $complete_form);
 
-    $this->addSubmitCallback($complete_form);
+    $form_object = $form_state->getFormObject();
+    $entity = $form_object->getEntity();
+    if ($entity->isNew()) {
+      $this->addSubmitCallback($complete_form);
+    }
 
     // Add the container for the revision list.
     $element['revision_history_container'] = [
@@ -206,7 +206,20 @@ class TextFormat {
    */
   public function completeFormSubmit(array &$form, FormStateInterface $form_state): void {
     $form_object = $form_state->getFormObject();
-    $channelid = $form_state->getValue('channelId');
+    $entity = $form_object->getEntity();
+    $input = $form_state->getUserInput();
+    if (!empty($input) && isset($input['channelId'])) {
+      $channelId = $input['channelId'];
+    }
+
+    $this->entityTypeManager->getStorage(Channel::ENTITY_TYPE_ID)
+      ->create([
+        'id' => $channelId,
+        'entity_type' => $entity->getEntityTypeId(),
+        'entity_id' => $entity->uuid(),
+        'field_id' => "field_id",
+        'created' => time(),
+      ])->save();
   }
 
   /**
