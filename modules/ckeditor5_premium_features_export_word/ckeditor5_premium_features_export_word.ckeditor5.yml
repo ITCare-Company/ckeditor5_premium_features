@@ -3,13 +3,13 @@ ckeditor5_premium_features_export_word__export_word:
     plugins:
       - exportWord.ExportWord
   drupal:
-    label: Export to word
+    label: Export to Word
     library: ckeditor5_premium_features_export_word/export-word
     admin_library: ckeditor5_premium_features_export_word/admin.export_word
     class: Drupal\ckeditor5_premium_features_export_word\Plugin\CKEditor5Plugin\ExportWord
     toolbar_items:
       exportWord:
-        label: Export to word
+        label: Export to Word
     elements: false
     conditions:
       toolbarItem: exportWord
