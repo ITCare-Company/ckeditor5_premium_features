@@ -61,10 +61,6 @@ class TextFormat {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-
-    $node = $form_state->getFormObject()->getEntity();
-    $id = $node->id();
-
     $element['presence_list'] = [
       '#type' => 'container',
       '#weight' => -1,
