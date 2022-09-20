@@ -9,6 +9,7 @@ declare(strict_types = 1);
 
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 use Drupal\ckeditor5_premium_features_realtime\Element\TextFormat;
+use Drupal\Component\Utility\Crypt;
 
 /**
  * Implements hook_library_info_build().
@@ -45,3 +46,20 @@ function ckeditor5_premium_features_realtime_element_info_alter(array &$info): v
     $info['text_format']['#process'][] = [TextFormat::class, 'process'];
   }
 }
+
+function ckeditor5_premium_features_realtime_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
+  $input = $form_state->getUserInput();
+  if (!empty($input) && $input['channelId']) {
+    $channelId = $input['channelId'];
+  }
+  else {
+    $channelId = Crypt::randomBytesBase64(24);
+  }
+  $form['channelId'] = [
+    '#type' => 'hidden',
+    '#value' => $channelId,
+    '#default_value' => $channelId,
+  ];
+}
+

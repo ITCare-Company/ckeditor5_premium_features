@@ -7,6 +7,7 @@ namespace Drupal\ckeditor5_premium_features_realtime\Element;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -82,10 +83,17 @@ class TextFormat {
       ],
     ];
 
-    $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $this->getChannelId($node->uuid() . $element["#id"]);
+
+    $t = $form_state->getValue('channelId');
+    $channelId = $this->getChannelId();
+    $form_state->setValue('channelId', $channelId);
+    $element['#attached']['drupalSettings']['ckeditor5ChannelId'] = $complete_form["channelId"]["#value"];
+
     $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->config->get('presence_list_collapse_at') ?? 8;
     // Attach annotation sidebar.
     AnnotationSidebar::process($element, $form_state, $complete_form);
+
+    $this->addSubmitCallback($complete_form);
 
     // Add the container for the revision list.
     $element['revision_history_container'] = [
@@ -141,6 +149,67 @@ class TextFormat {
   }
 
   /**
+   * The complete form submit callback.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The state of the form.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public static function onCompleteFormSubmit(array &$form, FormStateInterface $form_state): void {
+    /** @var \Drupal\ckeditor5_premium_features_realtime\Element\TextFormat $service */
+    $service = \Drupal::service('ckeditor5_premium_features_realtime.element.text_format');
+    $service->completeFormSubmit($form, $form_state);
+  }
+
+  /**
+   * Adds the submit callback to the form.
+   *
+   * @param array $form
+   *   The form structure.
+   */
+  private function addSubmitCallback(array &$form): void {
+    $submit_callback = [static::class, 'onCompleteFormSubmit'];
+    $keys = [
+      ['#submit'],
+      ['actions', 'submit', '#submit'],
+    ];
+    foreach ($keys as $key) {
+      if (NestedArray::keyExists($form, $key)) {
+        $callbacks = NestedArray::getValue($form, $key) ?? [];
+
+        // Let's make sure that callback is set only once.
+        foreach ($callbacks as $test_callback) {
+          if (is_array($test_callback) && in_array('onCompleteFormSubmit', $test_callback)) {
+            return;
+          }
+        }
+        $callbacks[] = $submit_callback;
+        NestedArray::setValue($form, $key, $callbacks);
+      }
+    }
+  }
+
+  /**
+   * The complete form submit callback.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The state of the form.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function completeFormSubmit(array &$form, FormStateInterface $form_state): void {
+    $form_object = $form_state->getFormObject();
+    $channelid = $form_state->getValue('channelId');
+  }
+
+  /**
    * Gets the element unique HTML ID.
    *
    * @return string
@@ -155,13 +224,10 @@ class TextFormat {
   /**
    * Generate unique channel ID value.
    *
-   * @param String $uuid
-   *   The node uuid.
-   *
    * @return string
    *   The channelID.
    */
-  private function getChannelId(String $uuid): string {
-    return substr(Crypt::hashBase64($uuid), 0, 36);
+  private function getChannelId(): string {
+    return Crypt::randomBytesBase64(24);
   }
 }
