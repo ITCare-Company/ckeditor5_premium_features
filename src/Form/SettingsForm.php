@@ -224,6 +224,8 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
+    $this->processCleanValues($form_state);
+
     $access_key = $form_state->getValue('access_key', FALSE);
     $env = $form_state->getValue('env', FALSE);
     $auth_type = $form_state->getValue('auth_type');
@@ -255,20 +257,14 @@ class SettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $config = $this->config($this->getFormId());
-    $dll_changed = $config->get('dll_location') !== $form_state->getValue('dll_location');
-
-    $clean_values = $form_state->cleanValues()->getValues();
-
-    foreach ($clean_values as &$value) {
-      if (is_string($value)) {
-        $value = trim($value);
-      }
-    }
+    $clean_values = $this->processCleanValues($form_state);
 
     // Let's make sure the path ends with the trailing slash.
     if (!empty($clean_values['dll_location'])) {
       $clean_values['dll_location'] = trim($clean_values['dll_location'], ' /') . '/';
     }
+
+    $dll_changed = $config->get('dll_location') !== $clean_values['dll_location'];
 
     $config
       ->setData($clean_values)
@@ -304,4 +300,25 @@ class SettingsForm extends ConfigFormBase {
     }
   }
 
+  /**
+   * Additionally cleans up the form state values.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object that values should be cleaned up additionally.
+   *
+   * @return array
+   *   Form state clean values.
+   */
+  protected function processCleanValues(FormStateInterface $form_state): array {
+    $clean_values = $form_state->cleanValues()->getValues();
+
+    foreach ($clean_values as &$value) {
+      if (is_string($value)) {
+        $value = trim($value);
+      }
+    }
+    $form_state->setValues($clean_values);
+
+    return $clean_values;
+  }
 }
