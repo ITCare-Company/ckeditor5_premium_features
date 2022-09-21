@@ -26,7 +26,7 @@ function ckeditor5_premium_features_collaboration_requirements($phase): array {
     if (empty($config_handler->getLicenseKey())) {
       $requirements[] = [
         'title' => t('CKEditor Premium'),
-        'description' => t('You have to define the License Key in the <a href=":url">CKEditor Premium Settings</a>. It is required for Track changes and Comments. Otherwise, the WYSIWYG editor may appear broken.', [
+        'description' => t('You have to define the License Key in the <a href=":url">CKEditor Premium Settings</a>. It is required for Revision History, Track changes and Comments. Otherwise, the WYSIWYG editor may appear broken.', [
           ':url' => Url::fromRoute('ckeditor5_premium_features.form.settings_general')->setAbsolute()->toString(),
         ]),
         'severity' => REQUIREMENT_ERROR,
