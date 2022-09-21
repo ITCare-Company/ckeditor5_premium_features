@@ -97,7 +97,7 @@ class SettingsForm extends ConfigFormBase {
     $configuration['license_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('License key'),
-      '#description' => $this->t('The license key is required <strong>only</strong> for Track changes and Comments (<strong>without</strong> real-time collaboration).'),
+      '#description' => $this->t('The license key is required <strong>only</strong> for Revision History, Track changes and Comments (<strong>without</strong> real-time collaboration).'),
     ];
 
     $configuration['auth_type'] = [
