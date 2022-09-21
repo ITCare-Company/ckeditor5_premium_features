@@ -7,3 +7,8 @@ lifecycle: experimental
 configure: ckeditor5_premium_features_export_pdf.form.settings
 dependencies:
   - ckeditor5_premium_features:ckeditor5_premium_features
+
+# Information added by Drupal.org packaging script on 2022-09-20
+version: '1.0.0-beta1'
+project: 'ckeditor5_premium_features'
+datestamp: 1663684380
