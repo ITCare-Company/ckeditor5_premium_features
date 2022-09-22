@@ -31,21 +31,22 @@ class CollaborationSettings {
    * Returns mentions minimal character count config.
    */
   public function getMentionMinimalCharactersCount(): int {
-    return (int) $this->collaborationSettings->get('mention_min_character') ?? 1;
+    return (int) ($this->collaborationSettings->get('mention_min_character') ?? 1);
   }
 
   /**
    * Returns mentions autocomplete list length config.
    */
   public function getMentionAutocompleteListLength(): int {
-    return (int) $this->collaborationSettings->get('mention_min_character') ?? 5;
+
+    return (int) ($this->collaborationSettings->get('mention_dropdown_limit') ?? 4);
   }
 
   /**
    * Returns annotation sidebar type config.
    */
   public function getAnnotationSidebarType(): string {
-    return $this->collaborationSettings->get('sidebar');
+    return $this->collaborationSettings->get('sidebar') ?? 'auto';
   }
 
   /**

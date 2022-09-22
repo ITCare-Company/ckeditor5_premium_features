@@ -28,9 +28,9 @@ class AnnotationSidebar {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-    $sidebar_mode = \Drupal::service('config.factory')
-      ->getEditable('ckeditor5_premium_features_collaboration.settings')
-      ->get('sidebar') ?? 'auto';
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaboration_settings */
+    $collaboration_settings = \Drupal::service('ckeditor5_premium_features_collaboration.collaboration_settings');
+    $sidebar_mode = $collaboration_settings->getAnnotationSidebarType();
 
     $sidebar['ck_sidebar_type'] = [
       '#type' => 'hidden',

@@ -11,12 +11,14 @@ class DisableCollaborationMarkersInCaption {
 
     editor.set( 'disabledCommands', false );
 
-    if ( editor.plugins.has( 'DrupalImage' ) ) {
+    if ( editor.plugins.has( 'DrupalImage' ) && editor.plugins.has('TrackChangesEditing') ) {
       const tcEditing = editor.plugins.get( 'TrackChangesEditing' );
 
       tcEditing.enableCommand( 'toggleImageCaption', ( executeCommand, options ) => {
         executeCommand( options );
       }, { priority: 'high' } );
+    } else {
+      return;
     }
 
     let tcOriginalValue;
@@ -49,7 +51,7 @@ class DisableCollaborationMarkersInCaption {
           }
         }
       }
-    }, { priotity: 'low' } );
+    }, { priority: 'low' } );
   }
 }
 
