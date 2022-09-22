@@ -14,12 +14,14 @@ class RevisionHistoryAdapter {
   }
 
   init() {
+    this.elementId = this.editor.sourceElement.dataset.ckeditor5PremiumElementId;
     const revisionHistoryConfig = this.editor.config._config.revisionHistory;
 
-    revisionHistoryConfig.viewerContainer = document.querySelector('.revision-history-container-data'),
-    revisionHistoryConfig.viewerEditorElement = document.querySelector('.revision-viewer-editor');
-    revisionHistoryConfig.viewerSidebarContainer = document.querySelector('.revision-viewer-sidebar');
-    revisionHistoryConfig.editorContainer = document.querySelector('.ck-editor-sidebar-wrapper');
+    revisionHistoryConfig.viewerContainer = document.querySelector(`.revision-history-container-data[data-ckeditor5-premium-element-id="${this.elementId}"]`);
+    revisionHistoryConfig.viewerEditorElement = revisionHistoryConfig.viewerContainer.querySelector('.revision-viewer-editor');
+    revisionHistoryConfig.viewerSidebarContainer = revisionHistoryConfig.viewerContainer.querySelector('.revision-viewer-sidebar');
+    revisionHistoryConfig.editorContainer = revisionHistoryConfig.viewerContainer.parentElement.querySelector('.ck-editor-sidebar-wrapper');
+
     // Initialize plugin.
     const revisionTrackerPlugin = this.editor.plugins.get('RevisionTracker');
 

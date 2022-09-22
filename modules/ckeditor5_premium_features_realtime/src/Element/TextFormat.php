@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_realtime\Element;
 
+use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features_realtime\Entity\ChannelInterface;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
@@ -20,6 +21,8 @@ use Drupal\Core\Entity\EntityFormInterface;
  * Defines the Text Format utility class for handling the collaboration data.
  */
 class TextFormat {
+
+  public const STORAGE_KEY = 'ckeditor5-premium';
 
   /**
    * The collaboration config.
@@ -64,13 +67,14 @@ class TextFormat {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array {
+    $id = CKeditorFieldKeyHelper::getElementId($element['#id']);
+    $id_attribute = 'data-' . static::STORAGE_KEY . '-element-id';
+
     $element['presence_list'] = [
       '#type' => 'container',
       '#weight' => -1,
       '#attributes' => [
-        'class' => [
-          $element["#id"]
-        ],
+        'class' => [$id . $element["#id"]],
         'id' => $element["#id"] . '-value-presence-list-container',
       ],
     ];
@@ -79,9 +83,7 @@ class TextFormat {
       '#type' => 'container',
       '#weight' => -1,
       '#attributes' => [
-        'class' => [
-          $element["#id"]
-        ],
+        'class' => [$id . $element["#id"]],
         'id' => $element["#id"] . '-value-presence-list-container',
       ],
     ];
@@ -92,6 +94,7 @@ class TextFormat {
     $form_object = $form_state->getFormObject();
 
     $element['value']["#attributes"]['data-ckeditorfieldid'] = $element["#id"];
+    $element['value']["#attributes"][$id_attribute] = $id;
 
     if ($this->isFormTypeSupported($form_object)) {
       $entity = $form_object->getEntity();
@@ -114,6 +117,7 @@ class TextFormat {
       '#weight' => -1,
       '#attributes' => [
         'class' => ['revision-history-container-data'],
+        $id_attribute => $id,
       ],
       [
         '#type' => 'container',
