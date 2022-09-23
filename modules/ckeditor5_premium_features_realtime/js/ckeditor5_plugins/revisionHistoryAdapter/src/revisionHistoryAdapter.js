@@ -23,6 +23,7 @@ class RevisionHistoryAdapter {
     revisionHistoryConfig.editorContainer = revisionHistoryConfig.viewerContainer.parentElement.querySelector('.ck-editor-sidebar-wrapper');
 
     // Initialize plugin.
+    const revisionHistoryPlugin = this.editor.plugins.get('RevisionHistory');
     const revisionTrackerPlugin = this.editor.plugins.get('RevisionTracker');
 
     // Hook to form submit.
