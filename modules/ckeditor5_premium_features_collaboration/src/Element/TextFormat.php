@@ -16,7 +16,6 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
-use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -25,7 +24,6 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\node\Entity\Node;
 use Drupal\user\Entity\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -113,6 +111,9 @@ class TextFormat {
 
     if ($this->isFormTypeSupported($form_object)) {
       $entity = $form_object->getEntity();
+
+      array_unshift($element['#pre_render'], [TextFormatPreRender::class, 'preRenderBefore']);
+      $element['#pre_render'][] = [TextFormatPreRender::class, 'preRenderAfter'];
     } else {
       // We still need to process in order to stop our integration from
       // throwing exceptions in console, but we'll block editor toolbar buttons.
