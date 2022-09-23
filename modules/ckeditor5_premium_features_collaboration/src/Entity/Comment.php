@@ -13,7 +13,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *
  * @ContentEntityType(
  *   id = "ckeditor5_comment",
- *   label = @Translation("CKEditor5 Suggestion"),
+ *   label = @Translation("CKEditor5 Comment"),
  *   base_table = "ckeditor5_comment",
  *   entity_keys = {
  *      "id" = "id",
