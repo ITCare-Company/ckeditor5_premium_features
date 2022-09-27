@@ -7,8 +7,8 @@
  */
 // cSpell:ignore simplebox
 
-import RevisionHistoryAdapter from "./revisionHistoryAdapter";
+import RealtimeRevisionHistoryAdapter from "./realtimeRevisionHistoryAdapter";
 
 export default {
-  RevisionHistoryAdapter,
+  realtimeRevisionHistoryAdapter: RealtimeRevisionHistoryAdapter,
 };

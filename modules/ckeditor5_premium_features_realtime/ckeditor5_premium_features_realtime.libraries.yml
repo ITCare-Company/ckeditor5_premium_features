@@ -19,8 +19,6 @@ real-time-collaboration:
       css/realtime.css: { }
   js:
     js/build/realtimeAdapter.js: { minified: true }
-    js/build/sidebarAdapter.js: { minified: true }
-    js/build/disableRealtimeMarkersInCaption.js: { minified: true }
 
   dependencies:
     - ckeditor5_premium_features_realtime/ckeditor5-collaboration-dll
@@ -28,10 +26,9 @@ real-time-collaboration:
 realtime-revision-history:
   css:
     theme:
-      css/sidebar.css: { }
       css/revision-history.css: { }
   js:
-    js/build/revisionHistoryAdapter.js: { minified: true }
+    js/build/realtimeRevisionHistoryAdapter.js: { minified: true }
   dependencies:
     - ckeditor5_premium_features_realtime/ckeditor5-collaboration-dll
     - ckeditor5_premium_features_realtime/revision-history

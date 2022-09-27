@@ -1,31 +1,35 @@
+import CollaborationStorage
+  from "../../../../../../js/ckeditor5_plugins/collaborationStorage/src/collaborationStorage";
 
 class RealtimeAdapter {
-  constructor( editor ) {
-     this.editor = editor;
-      const id_sidebar = this.editor.sourceElement.id + '-ck-sidebar';
-       // TODO: Do we have some better way?
-       this.editor.config._config.sidebar = {
-         container: document.querySelector('#' + id_sidebar),
-       }
+  constructor(editor) {
+    this.editor = editor;
+    this.storage = new CollaborationStorage(editor);
 
-       if (typeof drupalSettings.ckeditor5ChannelId == "undefined" ||
-         typeof this.editor.sourceElement.dataset.ckeditorfieldid == "undefined" ||
-         typeof drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid] == "undefined") {
-         return;
-       }
+    const id_sidebar = this.editor.sourceElement.id + '-ck-sidebar';
+    // TODO: Do we have some better way?
+    this.editor.config._config.sidebar = {
+      container: document.querySelector('#' + id_sidebar),
+    }
 
-       this.editor.config._config.collaboration = {
-         channelId: drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid],
-       }
+    if (typeof drupalSettings.ckeditor5ChannelId == "undefined" ||
+      typeof this.editor.sourceElement.dataset.ckeditorfieldid == "undefined" ||
+      typeof drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid] == "undefined") {
+      return;
+    }
+
+    this.editor.config._config.collaboration = {
+      channelId: drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid],
+    }
   }
 
   static get pluginName() {
-      return 'RealtimeAdapter'
-    }
+    return 'RealtimeAdapter'
+  }
 
   static get requires() {
     // AnnotationsUIs is part of the comments repository.
-    return [ 'CommentsRepository' ]
+    return ['CommentsRepository']
   }
 
   init() {
@@ -53,7 +57,8 @@ class RealtimeAdapter {
   /**
    * Executed after plugin is initialized.
    *
-   * For the RTC it's the most suitable place to dynamically disable toolbar items.
+   * For the RTC it's the most suitable place to dynamically disable toolbar
+   * items.
    */
   afterInit() {
     this.processCollaborationCommandDisable("trackChanges");
@@ -61,7 +66,8 @@ class RealtimeAdapter {
   }
 
   /**
-   * Checks if collaboration is set to be disabled and blocks the specified command (button).
+   * Checks if collaboration is set to be disabled and blocks the specified
+   * command (button).
    *
    * @param commandName
    *   Command name (related to a button)
@@ -76,13 +82,13 @@ class RealtimeAdapter {
       return false;
     }
 
-    const command = this.editor.commands._commands.get( commandName );
+    const command = this.editor.commands._commands.get(commandName);
 
     if (typeof command == 'undefined') {
       return true;
     }
 
-    command.forceDisabled( 'premium-features-module' );
+    command.forceDisabled('premium-features-module');
 
     return true;
   }

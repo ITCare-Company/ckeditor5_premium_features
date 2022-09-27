@@ -1,4 +1,6 @@
-import CollaborationStorage from "../../collaborationStorage/src/collaborationStorage";
+
+import CollaborationStorage
+  from "../../../../../../js/ckeditor5_plugins/collaborationStorage/src/collaborationStorage";
 
 class TrackChangesAdapter {
   trackedSuggestion;
@@ -6,6 +8,7 @@ class TrackChangesAdapter {
   constructor( editor ) {
     this.editor = editor;
     this.storage = new CollaborationStorage(editor);
+    console.log('aa');
   }
 
   static get pluginName() {

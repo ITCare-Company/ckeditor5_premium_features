@@ -1,9 +1,10 @@
-import CollaborationStorage from "../../collaborationStorage/src/collaborationStorage";
 
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import List from '@ckeditor/ckeditor5-list/src/list';
+import CollaborationStorage
+  from "../../../../../../js/ckeditor5_plugins/collaborationStorage/src/collaborationStorage";
 
 class CommentsAdapter {
   constructor( editor ) {

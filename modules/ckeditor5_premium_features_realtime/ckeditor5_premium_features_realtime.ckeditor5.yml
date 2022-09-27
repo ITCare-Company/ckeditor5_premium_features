@@ -2,7 +2,6 @@ ckeditor5_premium_features_realtime__realtime:
   ckeditor5:
     plugins:
       - realtimeAdapter.RealtimeAdapter
-      - disableRealtimeMarkersInCaption.DisableRealtimeMarkersInCaption
       - realTimeCollaboration.PresenceList
   drupal:
     label: Realtime Collaboration
@@ -15,7 +14,6 @@ ckeditor5_premium_features_realtime__comment:
     plugins:
       - comments.Comments
       - realTimeCollaboration.RealTimeCollaborativeComments
-      - sidebarAdapter.SidebarAdapter
   drupal:
     label: Comments
     library: ckeditor5_premium_features_realtime/realtime-comments
@@ -47,7 +45,7 @@ ckeditor5_premium_features_realtime__revision_history:
   ckeditor5:
     plugins:
       - revisionHistory.RevisionHistory
-      - revisionHistoryAdapter.RevisionHistoryAdapter
+      - realtimeRevisionHistoryAdapter.RealtimeRevisionHistoryAdapter
       - realTimeCollaboration.RealTimeCollaborativeRevisionHistory
   drupal:
     label: Revision History

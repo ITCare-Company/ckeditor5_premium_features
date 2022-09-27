@@ -30,15 +30,9 @@ collaboration:
     - ckeditor5_premium_features_collaboration/comments
 
 collaboration-integration:
-  css:
-    theme:
-      css/sidebar.css: { }
   js:
-    js/build/disableGhsTableIntegration.js: { minified: true }
-    js/build/disableCollaborationMarkersInCaption.js: { minified: true }
     js/build/userAdapter.js: { minified: true }
     js/build/commentsAdapter.js: { minified: true }
-    js/build/sidebarAdapter.js: { minified: true }
     js/build/trackChangesAdapter.js: { minified: true }
 
 mention-integration:
