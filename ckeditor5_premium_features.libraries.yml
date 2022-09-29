@@ -8,5 +8,4 @@ collaboration-integration-base:
     js/build/disableGhsTableIntegration.js: { minified: true }
     js/build/disableCollaborationMarkersInCaption.js: { minified: true }
   dependencies:
-    - ckeditor5_premium_features/comments
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
