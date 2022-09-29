@@ -20,12 +20,12 @@ revision-history-integration:
   js:
     js/build/revisionHistoryAdapter.js: { minified: true }
   dependencies:
-    - ckeditor5_premium_features_collaboration/ckeditor5-collaboration-dll
+    - ckeditor5_premium_features/collaboration-integration-base
     - ckeditor5_premium_features_collaboration/revision-history
 
 collaboration:
   dependencies:
-    - ckeditor5_premium_features_collaboration/ckeditor5-collaboration-dll
+    - ckeditor5_premium_features/collaboration-integration-base
     - ckeditor5_premium_features_collaboration/track-changes
     - ckeditor5_premium_features_collaboration/comments
 

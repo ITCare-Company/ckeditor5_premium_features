@@ -22,7 +22,6 @@ function ckeditor5_premium_features_collaboration_library_info_build(): array {
   $config_handler = \Drupal::service('ckeditor5_premium_features.config_handler.settings');
 
   $libraries = [
-    'ckeditor5-collaboration-dll',
     'track-changes',
     'comments',
     'revision-history',

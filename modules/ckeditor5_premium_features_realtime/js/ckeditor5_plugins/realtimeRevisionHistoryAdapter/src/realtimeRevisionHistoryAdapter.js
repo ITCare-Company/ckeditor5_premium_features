@@ -9,14 +9,14 @@ class RealtimeRevisionHistoryAdapter {
   }
 
   static get pluginName() {
-    return 'RevisionHistoryAdapter'
+    return 'RealtimeRevisionHistoryAdapter'
   }
 
   static get requires() {
     return ['RevisionTracker']
   }
 
-  init() {
+  afterInit() {
     this.elementId = this.editor.sourceElement.dataset.ckeditor5PremiumElementId;
     const revisionHistoryConfig = this.editor.config._config.revisionHistory;
 
@@ -34,14 +34,7 @@ class RealtimeRevisionHistoryAdapter {
     form.addEventListener("submit", (e) => {
       this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin)
     });
-  }
 
-  /**
-   * Executed after plugin is initialized.
-   *
-   * For the RTC it's the most suitable place to dynamically disable toolbar items.
-   */
-  afterInit() {
     this.storage.processRevisionDisable();
   }
 

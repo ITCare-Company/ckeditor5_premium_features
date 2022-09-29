@@ -106,15 +106,5 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
-    //$static_plugin_config['collaboration']['channelId'] = 'abc';
-    $static_plugin_config['revisionHistory']['editorContainer'] = 'sidebar';
-
-    return $static_plugin_config;
-  }
-
 }
 

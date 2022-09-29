@@ -28,6 +28,7 @@ ckeditor5_premium_features_realtime__comment:
 ckeditor5_premium_features_realtime__trackchanges:
   ckeditor5:
     plugins:
+      - comments.Comments
       - trackChanges.TrackChanges
       - realTimeCollaboration.RealTimeCollaborativeTrackChanges
   drupal:
@@ -45,8 +46,8 @@ ckeditor5_premium_features_realtime__revision_history:
   ckeditor5:
     plugins:
       - revisionHistory.RevisionHistory
-      - realtimeRevisionHistoryAdapter.RealtimeRevisionHistoryAdapter
       - realTimeCollaboration.RealTimeCollaborativeRevisionHistory
+      - realtimeRevisionHistoryAdapter.RealtimeRevisionHistoryAdapter
   drupal:
     label: Revision History
     library: ckeditor5_premium_features_realtime/realtime-revision-history

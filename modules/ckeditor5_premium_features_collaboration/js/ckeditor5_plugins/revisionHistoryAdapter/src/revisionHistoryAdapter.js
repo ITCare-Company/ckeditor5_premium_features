@@ -6,7 +6,6 @@ class RevisionHistoryAdapter {
   constructor( editor ) {
     this.editor = editor;
     this.storage = new CollaborationStorage(editor);
-    console.log("aaa");
   }
 
   static get pluginName() {

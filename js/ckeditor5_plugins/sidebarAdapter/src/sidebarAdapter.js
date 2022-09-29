@@ -4,6 +4,10 @@ class SidebarAdapter {
   constructor( editor ) {
     this.editor = editor;
     this.storage = new CollaborationStorage(editor);
+    this.toolbar = this.editor.ui._toolbarConfig.items
+    this.sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'auto';
+    this.resizeThreshold = 0;
+
     const id_sidebar = this.editor.sourceElement.id + '-ck-sidebar';
     let sidebar_wrapper = document.querySelector('#' + id_sidebar);
 
@@ -23,11 +27,6 @@ class SidebarAdapter {
     return 'SidebarAdapter'
   }
 
-  static get requires() {
-    // AnnotationsUIs is part of the comments repository.
-    return [ 'CommentsRepository', 'AnnotationsUIs' ]
-  }
-
   sidebarVisibilityModify(hide= false) {
     if (!this.sidebar || typeof this.sidebar == 'undefined') {
       return;
@@ -40,62 +39,75 @@ class SidebarAdapter {
   }
 
   init() {
-    this.annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
-    const toolbar = this.editor.ui._toolbarConfig.items
-    var self = this;
-
-    console.log('after init 3');
-    if (!this.sidebar || typeof this.sidebar == 'undefined') {
+    if (!this.sidebar || !this.editor.plugins.has('AnnotationsUIs')) {
       return;
     }
-    console.log('after init 23');
 
-    if (!toolbar.includes('trackChanges') && !toolbar.includes('comment') || this.storage.isCollaborationDisabled()) {
+    this.annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
+    let toggle = document.createElement('a');
+    toggle.classList += 'ck-sidebar-auto-toggle ' + this.sidebarMode;
+    toggle.id = 'ck-sidebar-auto-toggle';
+
+    this.sidebar.prepend(toggle);
+  }
+
+  afterInit() {
+    if (!this.annotationsUIs || typeof this.annotationsUIs == "undefined" ||
+      !this.sidebar || typeof this.sidebar == 'undefined') {
+      return;
+    }
+
+    if (!this.toolbar.includes('trackChanges') && !this.toolbar.includes('comment') || this.storage.isCollaborationDisabled()) {
       this.sidebarVisibilityModify(true);
     }
     else {
       this.sidebarVisibilityModify(false);
     }
 
-    const sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'auto';
-    if (sidebarMode === 'auto') {
-      var doit;
-      window.addEventListener('resize', function (event) {
-        clearTimeout(doit);
-        doit = setTimeout(function() {
-          self.updateCkeditorMode();
-        }, 100);
-      });
-
-      this.updateCkeditorMode();
-
-      var toggle = document.getElementById("ck-sidebar-auto-toggle");
-
-      if (!toggle.classList.contains('sidebar-toggle-init')) {
-        toggle.classList.add('sidebar-toggle-init');
-
-        toggle.addEventListener('click', function (event) {
-          if (self.sidebar.classList.contains('narrowSidebar')) {
-            self.sidebar.classList.remove('manual-toggled');
-            self.setCkEditorSidebarMode('wideSidebar');
-          }
-          else {
-            self.setCkEditorSidebarMode('narrowSidebar');
-            self.sidebar.classList.add('manual-toggled');
-          }
-        });
-
-      }
-    }
-    else {
-      this.annotationsUIs.switchTo(sidebarMode);
-    }
+    this.handleSidebarMode();
   }
 
   destroy() {
     this.sidebarVisibilityModify(true);
+    let toggle = document.getElementById("ck-sidebar-auto-toggle");
+    if (toggle) {
+      toggle.remove();
+    }
   }
 
+
+  /**
+   * Checks sidebar mode setting and attaches event listeners if required.
+   */
+  handleSidebarMode = function() {
+    if (this.sidebarMode === 'auto') {
+      this.updateCkeditorMode();
+
+      var toggle = document.getElementById("ck-sidebar-auto-toggle");
+      var self = this;
+
+      window.addEventListener('resize', function () {
+        clearTimeout(self.resizeThreshold);
+        self.resizeThreshold = setTimeout(function() {
+          self.updateCkeditorMode();
+        }, 100);
+      });
+
+      toggle.addEventListener('click', function () {
+        if (self.sidebar.classList.contains('narrowSidebar')) {
+          self.sidebar.classList.remove('manual-toggled');
+          self.setCkEditorSidebarMode('wideSidebar');
+        }
+        else {
+          self.setCkEditorSidebarMode('narrowSidebar');
+          self.sidebar.classList.add('manual-toggled');
+        }
+      });
+    }
+    else {
+      this.annotationsUIs.switchTo(this.sidebarMode);
+    }
+  }
 
   /**
    * Setup new sidebar mode.
@@ -118,13 +130,11 @@ class SidebarAdapter {
     this.sidebar.classList.add(newMode);
   }
 
-
   /**
    * Setup sidebar mode depends on resolution.
    */
   updateCkeditorMode = function() {
     // TODO: move to config?
-    console.log('update sidebar mode ');
     let w = document.documentElement.clientWidth;
     if (w >= 1200) {
       this.setCkEditorSidebarMode('wideSidebar');

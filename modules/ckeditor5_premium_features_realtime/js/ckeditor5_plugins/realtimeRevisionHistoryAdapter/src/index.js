@@ -10,5 +10,5 @@
 import RealtimeRevisionHistoryAdapter from "./realtimeRevisionHistoryAdapter";
 
 export default {
-  realtimeRevisionHistoryAdapter: RealtimeRevisionHistoryAdapter,
+  RealtimeRevisionHistoryAdapter,
 };

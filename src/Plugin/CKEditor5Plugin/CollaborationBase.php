@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin;
+namespace Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin;
 
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
@@ -11,15 +11,15 @@ use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * CKEditor 5 Revision History plugin.
+ * CKEditor 5 Track changes & comments plugin.
  *
  * @internal
  *   Plugin classes are internal.
  */
-class RevisionHistory extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface {
+class CollaborationBase extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface {
 
   /**
-   * Creates the Revision History plugin instance.
+   * Creates the Track Changes plugin instance.
    *
    * @param \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $settingsConfigHandler
    *   The settings configuration handler.

@@ -8,7 +8,6 @@ class TrackChangesAdapter {
   constructor( editor ) {
     this.editor = editor;
     this.storage = new CollaborationStorage(editor);
-    console.log('aa');
   }
 
   static get pluginName() {
@@ -19,7 +18,7 @@ class TrackChangesAdapter {
     return [ 'TrackChanges', 'Comments', 'TrackChangesAdapter' ]
   }
 
-  init() {
+  afterInit() {
     if (!this.editor.plugins.has('Comments') || !this.editor.plugins.has('TrackChanges')) {
       return
     }
