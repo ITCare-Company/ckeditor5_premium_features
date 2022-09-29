@@ -10,6 +10,8 @@ declare(strict_types = 1);
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
+use Drupal\ckeditor5_premium_features\EditorXssFilter\CollaborationXSSFilter;
+use Drupal\filter\FilterFormatInterface;
 
 /**
  * Implements hook_help().
@@ -50,4 +52,14 @@ function ckeditor5_premium_features_library_info_build(): array {
   $libraries[$library->id()] = $library->getDefinition();
 
   return $libraries;
+}
+
+/**
+ * Implements hook_editor_xss_filter_alter().
+ */
+function ckeditor5_premium_features_collaboration_editor_xss_filter_alter(
+  &$editor_xss_filter_class,
+  FilterFormatInterface $format,
+  FilterFormatInterface $original_format = NULL) {
+  $editor_xss_filter_class = CollaborationXSSFilter::class;
 }
