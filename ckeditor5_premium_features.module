@@ -57,7 +57,7 @@ function ckeditor5_premium_features_library_info_build(): array {
 /**
  * Implements hook_editor_xss_filter_alter().
  */
-function ckeditor5_premium_features_collaboration_editor_xss_filter_alter(
+function ckeditor5_premium_features_editor_xss_filter_alter(
   &$editor_xss_filter_class,
   FilterFormatInterface $format,
   FilterFormatInterface $original_format = NULL) {
