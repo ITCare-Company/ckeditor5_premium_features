@@ -6,22 +6,6 @@ ckeditor5_premium_features_collaboration.form.settings:
   requirements:
     _permission: 'administer site configuration'
 
-ckeditor5_premium_features_collaboration.comments:
-  path: '/ck5/api/comments'
-  defaults:
-    _controller: 'Drupal\ckeditor5_premium_features_collaboration\Controller\CommentController::add'
-  methods:  [POST]
-  requirements:
-    _access: 'TRUE'
-
-ckeditor5_premium_features_collaboration.comments.update:
-  path: '/ck5/api/comments/update/{comment_id}/{thread_id}'
-  defaults:
-    _controller: 'Drupal\ckeditor5_premium_features_collaboration\Controller\CommentController::update'
-  methods:  [POST]
-  requirements:
-    _access: 'TRUE'
-
 ckeditor5_premium_features_collaboration.annotations:
   path: '/ck5/api/annotations'
   defaults:
