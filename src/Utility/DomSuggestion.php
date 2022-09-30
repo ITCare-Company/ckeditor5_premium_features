@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_collaboration\Utility;
+namespace Drupal\ckeditor5_premium_features\Utility;
 
 /**
  * Provides the utility class for accessing suggestions data in DOM.
