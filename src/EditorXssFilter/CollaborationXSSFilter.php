@@ -13,10 +13,11 @@ class CollaborationXSSFilter extends Standard {
   /**
    * {@inheritdoc}
    */
-  public static function filterXss($html, FilterFormatInterface $format, FilterFormatInterface $original_format = NULL) {
-    $html = self::collaborationFilterText($html);
+  public static function filterXss($html, FilterFormatInterface $format, FilterFormatInterface $original_format = NULL): string {
+    $html = static::collaborationFilterText($html);
     $html = parent::filterXss($html, $format, $original_format);
-    return self::collaborationFilterTextRevert($html);
+
+    return static::collaborationFilterTextRevert($html);
   }
 
   /**
@@ -42,12 +43,10 @@ class CollaborationXSSFilter extends Standard {
   /**
    * Performs collaboration name attribute masking/unmasking.
    *
-   * @param array $element
-   *   Form element
+   * @param string $original
+   *   HTML content.
    * @param string $callback
    *   Callback to be used to process collaboration tag..
-   *
-   * @return array
    */
   protected static function preprocessElementValue(string $original, string $callback): string {
     $tagList = [
@@ -73,20 +72,20 @@ class CollaborationXSSFilter extends Standard {
   /**
    * Masks collaboration tag attribute.
    *
-   * @param $tag
-   *   HTML tag.
+   * @param array $tag
+   *   HTML tag info.
    */
-  protected static function replaceSecurity($tag): string {
+  protected static function replaceSecurity(array $tag): string {
     return str_replace(":", "##", $tag[0]);
   }
 
   /**
    * Unmask collaboration tag attribute.
    *
-   * @param $tag
-   *   HTML tag.
+   * @param array $tag
+   *   HTML tag info.
    */
-  protected static function revertSecurityReplace($tag): string {
+  protected static function revertSecurityReplace(array $tag): string {
     return str_replace("##", ":", $tag[0]);
   }
 
