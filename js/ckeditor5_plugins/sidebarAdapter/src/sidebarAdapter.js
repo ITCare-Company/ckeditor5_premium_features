@@ -74,6 +74,15 @@ class SidebarAdapter {
     }
   }
 
+  /**
+   * Search sidebar element near the element with provided ID.
+   *
+   * @param elementId
+   *   Editor related tag ID.
+   *
+   * @returns {null|Element}
+   *   Sidebar tag or NULL if tag not found.
+   */
   getSidebarWrapper(elementId) {
     let sidebar_element = document.getElementById(elementId);
 
