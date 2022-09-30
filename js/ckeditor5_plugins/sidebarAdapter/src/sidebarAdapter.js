@@ -8,19 +8,18 @@ class SidebarAdapter {
     this.sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'auto';
     this.resizeThreshold = 0;
 
-    const id_sidebar = this.editor.sourceElement.id + '-ck-sidebar';
-    let sidebar_wrapper = document.querySelector('#' + id_sidebar);
+    let sidebar_column = this.getSidebarWrapper(this.editor.sourceElement.id);
 
-    if (typeof sidebar_wrapper == 'undefined' || !sidebar_wrapper) {
+    if (typeof sidebar_column == 'undefined' || !sidebar_column) {
       return;
     }
-    this.sidebar = sidebar_wrapper;
+    this.sidebarColumn = sidebar_column;
+    this.sidebar = sidebar_column.parentElement;
 
     // TODO: Do we have some better way?
     this.editor.config._config.sidebar = {
-      container: this.sidebar,
+      container: sidebar_column,
     }
-
   }
 
   static get pluginName() {
@@ -48,7 +47,7 @@ class SidebarAdapter {
     toggle.classList += 'ck-sidebar-auto-toggle ' + this.sidebarMode;
     toggle.id = 'ck-sidebar-auto-toggle';
 
-    this.sidebar.prepend(toggle);
+    this.sidebarColumn.prepend(toggle);
   }
 
   afterInit() {
@@ -75,6 +74,21 @@ class SidebarAdapter {
     }
   }
 
+  getSidebarWrapper(elementId) {
+    let sidebar_element = document.getElementById(elementId);
+
+    while (sidebar_element && typeof sidebar_element !== "undefined"
+    && typeof sidebar_element.classList !== "undefined" &&
+    !sidebar_element.classList.contains('ck-editor-sidebar-wrapper')) {
+      sidebar_element = sidebar_element.parentElement;
+    }
+
+    if (typeof sidebar_element === "undefined") {
+      return null;
+    }
+
+    return sidebar_element.querySelector('.ck-sidebar-wrapper');
+  }
 
   /**
    * Checks sidebar mode setting and attaches event listeners if required.
@@ -83,7 +97,7 @@ class SidebarAdapter {
     if (this.sidebarMode === 'auto') {
       this.updateCkeditorMode();
 
-      var toggle = document.getElementById("ck-sidebar-auto-toggle");
+      var toggle = this.sidebar.querySelector(".ck-sidebar-auto-toggle");
       var self = this;
 
       window.addEventListener('resize', function () {
