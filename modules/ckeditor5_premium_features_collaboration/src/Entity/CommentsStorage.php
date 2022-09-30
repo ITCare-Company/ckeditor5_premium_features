@@ -112,7 +112,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
   public function processSourceData(array $source_data, ContentEntityInterface $entity, string $item_key): array {
     $entity_list = [];
 
-    $stored_comments = $this->loadByEntity($entity);
+    $stored_comments = $this->loadByEntity($entity, $item_key);
 
     foreach ($source_data as $thread_data) {
       $thread_id = $thread_data['threadId'];

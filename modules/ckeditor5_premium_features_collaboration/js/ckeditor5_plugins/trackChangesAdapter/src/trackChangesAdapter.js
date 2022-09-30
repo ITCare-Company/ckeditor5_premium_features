@@ -53,7 +53,7 @@ class TrackChangesAdapter {
 
     // Hook to form submit.
     const form = this.editor.sourceElement.closest('form');
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", () => {
       this.updateStorage(trackChangesPlugin, trackChangesElement);
     });
   }

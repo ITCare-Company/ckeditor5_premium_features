@@ -16,7 +16,8 @@ class CKeditorFieldKeyHelper {
    *   The ID.
    */
   public static function getElementId(string $elementId): string {
-    $id = 'id-' . hash('crc32', $elementId);
+    $elementParts = explode('--', $elementId);
+    $id = 'id-' . hash('crc32', reset($elementParts));
 
     return Html::getId($id);
   }

@@ -75,6 +75,12 @@ class CommentsAdapter {
         this.editor.model.document.fire('comments:change:data');
       });
     }
+
+    // Hook to form submit.
+    const form = this.editor.sourceElement.closest('form');
+    form.addEventListener("submit", () => {
+      this.updateStorage(commentsRepositoryPlugin, commentsRepositoryElement);
+    });
   }
 
   updateStorage(plugin, storageElement) {
