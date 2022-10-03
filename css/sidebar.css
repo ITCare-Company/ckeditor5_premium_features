@@ -17,6 +17,9 @@
 .ck-editor-sidebar-wrapper.narrowSidebar .form-item {
   max-width: calc(100% - 65px);
 }
+.ck-editor-sidebar-wrapper.slider-off .form-item {
+  max-width: unset;
+}
 
 .ck-editor-sidebar-wrapper .ck-content:not(.ck-comment__input *) {
   min-height: 120px;
