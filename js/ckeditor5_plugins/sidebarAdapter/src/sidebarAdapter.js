@@ -11,7 +11,7 @@ class SidebarAdapter {
     const id_sidebar = this.editor.sourceElement.id + '-ck-sidebar';
     let sidebar_wrapper = document.querySelector('#' + id_sidebar);
 
-    if (typeof sidebar_wrapper == 'undefined' || !sidebar_wrapper) {
+    if (typeof sidebar_wrapper === 'undefined' || !sidebar_wrapper) {
       return;
     }
     this.sidebar = sidebar_wrapper;
@@ -27,8 +27,8 @@ class SidebarAdapter {
     return 'SidebarAdapter'
   }
 
-  sidebarVisibilityModify(hide= false) {
-    if (!this.sidebar || typeof this.sidebar == 'undefined') {
+  sidebarVisibilityModify(hide = false) {
+    if (!this.sidebar || typeof this.sidebar === 'undefined') {
       return;
     }
     this.sidebar.classList.toggle('slider-off', hide);
@@ -48,8 +48,8 @@ class SidebarAdapter {
   }
 
   afterInit() {
-    if (!this.annotationsUIs || typeof this.annotationsUIs == "undefined" ||
-      !this.sidebar || typeof this.sidebar == 'undefined') {
+    if (!this.annotationsUIs || typeof this.annotationsUIs === "undefined" ||
+      !this.sidebar || typeof this.sidebar === 'undefined') {
       return;
     }
 
@@ -107,10 +107,10 @@ class SidebarAdapter {
    *   Sidebar mode to setup.
    */
   setCkEditorSidebarMode = function(newMode) {
-    if (!this.sidebar || typeof this.sidebar == 'undefined') {
+    if (!this.sidebar || typeof this.sidebar === 'undefined') {
       return;
     }
-    if (this.sidebar.classList.contains('manual-toggled') && newMode == 'wideSidebar') {
+    if (this.sidebar.classList.contains('manual-toggled') && newMode === 'wideSidebar') {
       return;
     }
 
