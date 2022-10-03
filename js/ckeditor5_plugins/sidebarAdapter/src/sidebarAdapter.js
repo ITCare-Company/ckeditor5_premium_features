@@ -10,13 +10,12 @@ class SidebarAdapter {
 
     let sidebar_column = this.getSidebarWrapper(this.editor.sourceElement.id);
 
-    if (typeof sidebar_column == 'undefined' || !sidebar_column) {
+    if (typeof sidebar_column === 'undefined' || !sidebar_column) {
       return;
     }
     this.sidebarColumn = sidebar_column;
     this.sidebar = sidebar_column.parentElement;
 
-    // TODO: Do we have some better way?
     this.editor.config._config.sidebar = {
       container: sidebar_column,
     }
@@ -26,15 +25,11 @@ class SidebarAdapter {
     return 'SidebarAdapter'
   }
 
-  sidebarVisibilityModify(hide= false) {
-    if (!this.sidebar || typeof this.sidebar == 'undefined') {
+  sidebarVisibilityModify(hide = false) {
+    if (!this.sidebar || typeof this.sidebar === 'undefined') {
       return;
     }
-    if (hide) {
-      this.sidebar.classList.add('slider-off');
-    } else {
-      this.sidebar.classList.remove('slider-off');
-    }
+    this.sidebar.classList.toggle('slider-off', hide);
   }
 
   init() {
@@ -51,17 +46,14 @@ class SidebarAdapter {
   }
 
   afterInit() {
-    if (!this.annotationsUIs || typeof this.annotationsUIs == "undefined" ||
-      !this.sidebar || typeof this.sidebar == 'undefined') {
+    if (!this.annotationsUIs || typeof this.annotationsUIs === "undefined" ||
+      !this.sidebar || typeof this.sidebar === 'undefined') {
       return;
     }
 
-    if (!this.toolbar.includes('trackChanges') && !this.toolbar.includes('comment') || this.storage.isCollaborationDisabled()) {
-      this.sidebarVisibilityModify(true);
-    }
-    else {
-      this.sidebarVisibilityModify(false);
-    }
+    let sidebarHide = !this.toolbar.includes('trackChanges') && !this.toolbar.includes('comment') || this.storage.isCollaborationDisabled();
+
+    this.sidebarVisibilityModify(sidebarHide);
 
     this.handleSidebarMode();
   }
@@ -103,33 +95,32 @@ class SidebarAdapter {
    * Checks sidebar mode setting and attaches event listeners if required.
    */
   handleSidebarMode = function() {
-    if (this.sidebarMode === 'auto') {
-      this.updateCkeditorMode();
-
-      var toggle = this.sidebar.querySelector(".ck-sidebar-auto-toggle");
-      var self = this;
-
-      window.addEventListener('resize', function () {
-        clearTimeout(self.resizeThreshold);
-        self.resizeThreshold = setTimeout(function() {
-          self.updateCkeditorMode();
-        }, 100);
-      });
-
-      toggle.addEventListener('click', function () {
-        if (self.sidebar.classList.contains('narrowSidebar')) {
-          self.sidebar.classList.remove('manual-toggled');
-          self.setCkEditorSidebarMode('wideSidebar');
-        }
-        else {
-          self.setCkEditorSidebarMode('narrowSidebar');
-          self.sidebar.classList.add('manual-toggled');
-        }
-      });
-    }
-    else {
+    if (this.sidebarMode !== 'auto') {
       this.annotationsUIs.switchTo(this.sidebarMode);
+      return;
     }
+
+    this.updateCkeditorMode();
+
+    let toggle = this.sidebar.querySelector(".ck-sidebar-auto-toggle");
+
+    window.addEventListener('resize', () => {
+      clearTimeout(this.resizeThreshold);
+      this.resizeThreshold = setTimeout(() => {
+        this.updateCkeditorMode();
+      }, 100);
+    });
+
+    toggle.addEventListener('click', () => {
+      if (this.sidebar.classList.contains('narrowSidebar')) {
+        this.sidebar.classList.remove('manual-toggled');
+        this.setCkEditorSidebarMode('wideSidebar');
+      }
+      else {
+        this.setCkEditorSidebarMode('narrowSidebar');
+        this.sidebar.classList.add('manual-toggled');
+      }
+    });
   }
 
   /**
@@ -139,16 +130,14 @@ class SidebarAdapter {
    *   Sidebar mode to setup.
    */
   setCkEditorSidebarMode = function(newMode) {
-    if (!this.sidebar || typeof this.sidebar == 'undefined') {
+    if (!this.sidebar || typeof this.sidebar === 'undefined') {
       return;
     }
-    if (this.sidebar.classList.contains('manual-toggled') && newMode == 'wideSidebar') {
+    if (this.sidebar.classList.contains('manual-toggled') && newMode === 'wideSidebar') {
       return;
     }
 
-    this.sidebar.classList.remove('inline');
-    this.sidebar.classList.remove('narrowSidebar');
-    this.sidebar.classList.remove('wideSidebar');
+    this.sidebar.classList.remove('inline', 'narrowSidebar', 'wideSidebar');
     this.annotationsUIs.switchTo(newMode);
     this.sidebar.classList.add(newMode);
   }
@@ -159,15 +148,9 @@ class SidebarAdapter {
   updateCkeditorMode = function() {
     // TODO: move to config?
     let w = document.documentElement.clientWidth;
-    if (w >= 1200) {
-      this.setCkEditorSidebarMode('wideSidebar');
-    }
-    else if (w < 500) {
-      this.setCkEditorSidebarMode('inline');
-    }
-    else if (w < 1200) {
-      this.setCkEditorSidebarMode('narrowSidebar');
-    }
+    let newMode = w >= 1200 ? 'wideSidebar' : (w >= 500 ? 'narrowSidebar' : 'inline');
+
+    this.setCkEditorSidebarMode(newMode);
   }
 }
 
