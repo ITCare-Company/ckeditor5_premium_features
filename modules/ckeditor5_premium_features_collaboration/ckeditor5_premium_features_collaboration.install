@@ -13,7 +13,7 @@ use Drupal\Core\Url;
 function ckeditor5_premium_features_collaboration_requirements($phase): array {
   $requirements = [];
 
-  if (($phase === 'install') && \Drupal::moduleHandler()->moduleExists('ckeditor5_premium_features_realtime')) {
+  if (($phase === 'install') && \Drupal::moduleHandler()->moduleExists('ckeditor5_premium_features_realtime_collaboration')) {
     $requirements[] = [
       'description' => t('You cannot install CKEditor 5 Realtime Collaboration and CKEditor 5 Non-realtime Collaboration modules at the same time.'),
       'severity' => REQUIREMENT_ERROR,
