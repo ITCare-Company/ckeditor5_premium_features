@@ -6,3 +6,16 @@ ckeditor5_premium_features_cloud_services:
     library: ckeditor5_premium_features/cloud-services
     class: Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin\CloudServices
     elements: false
+
+ckeditor5_premium_features__collaboration_integration_base:
+  ckeditor5:
+    plugins:
+      - disableGhsTableIntegration.DisableGhsTableIntegration
+      - disableCollaborationMarkersInCaption.DisableCollaborationMarkersInCaption
+      - sidebarAdapter.SidebarAdapter
+  drupal:
+    label: The load & save integration of collaboration tools.
+    library: ckeditor5_premium_features/collaboration-integration-base
+    class: Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin\CollaborationBase
+    elements: false
+    conditions: [ ]

@@ -1,0 +1,11 @@
+
+collaboration-integration-base:
+  css:
+    theme:
+      css/sidebar.css: { }
+  js:
+    js/build/sidebarAdapter.js: { minified: true }
+    js/build/disableGhsTableIntegration.js: { minified: true }
+    js/build/disableCollaborationMarkersInCaption.js: { minified: true }
+  dependencies:
+    - ckeditor5_premium_features/ckeditor5-collaboration-dll

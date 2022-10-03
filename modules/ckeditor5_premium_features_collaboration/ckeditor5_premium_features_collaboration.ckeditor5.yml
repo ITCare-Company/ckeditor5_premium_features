@@ -21,7 +21,6 @@ ckeditor5_premium_features_collaboration__comments:
     plugins:
       - comments.Comments
       - commentsAdapter.CommentsAdapter
-      - sidebarAdapter.SidebarAdapter
   drupal:
     label: Comments
     library: ckeditor5_premium_features_collaboration/collaboration
@@ -49,7 +48,6 @@ ckeditor5_premium_features_collaboration__revision_history:
     label: Revision history
     library: ckeditor5_premium_features_collaboration/revision-history-integration
     admin_library: ckeditor5_premium_features_collaboration/admin.revision-history
-    class: Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\RevisionHistory
     toolbar_items:
       revisionHistory:
         label: Revision history
@@ -57,14 +55,10 @@ ckeditor5_premium_features_collaboration__revision_history:
     conditions:
       toolbarItem: revisionHistory
 
-
 ckeditor5_premium_features_collaboration__collaboration_integration:
   ckeditor5:
     plugins:
-      - disableGhsTableIntegration.DisableGhsTableIntegration
       - userAdapter.UserAdapter
-      - disableCollaborationMarkersInCaption.DisableCollaborationMarkersInCaption
-
   drupal:
     label: The load & save integration of collaboration tools.
     library: ckeditor5_premium_features_collaboration/collaboration-integration
@@ -75,7 +69,7 @@ ckeditor5_premium_features_collaboration__mention_integration:
   ckeditor5:
     plugins:
       - mention.Mention
-      - mentionsIntegration.mentionsIntegration
+      - mentionsIntegration.MentionsIntegration
   drupal:
     label: The load & save integration of collaboration tools.
     library: ckeditor5_premium_features_collaboration/mention-integration

@@ -8,8 +8,7 @@ class DisableGhsTableIntegration {
   }
 
   init() {
-    const editor = this.editor;
-    const dataFilter = editor.plugins.get( 'DataFilter' );
+    const dataFilter = this.editor.plugins.get( 'DataFilter' );
 
     dataFilter.on('register:table', (e) => {
       e.stop();

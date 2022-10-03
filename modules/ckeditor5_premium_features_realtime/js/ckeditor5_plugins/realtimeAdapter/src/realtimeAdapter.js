@@ -1,31 +1,24 @@
+import CollaborationStorage
+  from "../../../../../../js/ckeditor5_plugins/collaborationStorage/src/collaborationStorage";
 
 class RealtimeAdapter {
-  constructor( editor ) {
-     this.editor = editor;
-      const id_sidebar = this.editor.sourceElement.id + '-ck-sidebar';
-       // TODO: Do we have some better way?
-       this.editor.config._config.sidebar = {
-         container: document.querySelector('#' + id_sidebar),
-       }
+  constructor(editor) {
+    this.editor = editor;
+    this.storage = new CollaborationStorage(editor);
 
-       if (typeof drupalSettings.ckeditor5ChannelId == "undefined" ||
-         typeof this.editor.sourceElement.dataset.ckeditorfieldid == "undefined" ||
-         typeof drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid] == "undefined") {
-         return;
-       }
+    if (typeof drupalSettings.ckeditor5ChannelId == "undefined" ||
+      typeof this.editor.sourceElement.dataset.ckeditorfieldid == "undefined" ||
+      typeof drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid] == "undefined") {
+      return;
+    }
 
-       this.editor.config._config.collaboration = {
-         channelId: drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid],
-       }
+    this.editor.config._config.collaboration = {
+      channelId: drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid],
+    }
   }
 
   static get pluginName() {
-      return 'RealtimeAdapter'
-    }
-
-  static get requires() {
-    // AnnotationsUIs is part of the comments repository.
-    return [ 'CommentsRepository' ]
+    return 'RealtimeAdapter'
   }
 
   init() {
@@ -53,53 +46,14 @@ class RealtimeAdapter {
   /**
    * Executed after plugin is initialized.
    *
-   * For the RTC it's the most suitable place to dynamically disable toolbar items.
+   * For the RTC it's the most suitable place to dynamically disable toolbar
+   * items.
    */
   afterInit() {
-    this.processCollaborationCommandDisable("trackChanges");
-    this.processCollaborationCommandDisable("addCommentThread");
+    this.storage.processCollaborationCommandDisable("trackChanges");
+    this.storage.processCollaborationCommandDisable("addCommentThread");
   }
 
-  /**
-   * Checks if collaboration is set to be disabled and blocks the specified command (button).
-   *
-   * @param commandName
-   *   Command name (related to a button)
-   *
-   * @returns {boolean}
-   *   TRUE if command was blocked, FALSE otherwise.
-   *
-   * @todo: CCP-201 - refactor
-   */
-  processCollaborationCommandDisable(commandName) {
-    if (!this.isCollaborationDisabled()) {
-      return false;
-    }
-
-    const command = this.editor.commands._commands.get( commandName );
-
-    if (typeof command == 'undefined') {
-      return true;
-    }
-
-    command.forceDisabled( 'premium-features-module' );
-
-    return true;
-  }
-
-  /**
-   * Checks if collaboration is set to be disabled.
-   *
-   * @returns {boolean}
-   *   TRUE if conditions for blocking collaboration are met, FALSE otherwise.
-   *
-   * @todo: CCP-201 - refactor
-   */
-  isCollaborationDisabled() {
-    return typeof drupalSettings.ckeditor5Premium != 'undefined' &&
-      typeof drupalSettings.ckeditor5Premium.disableCollaboration != "undefined" &&
-      drupalSettings.ckeditor5Premium.disableCollaboration === true;
-  }
 }
 
 export default RealtimeAdapter;

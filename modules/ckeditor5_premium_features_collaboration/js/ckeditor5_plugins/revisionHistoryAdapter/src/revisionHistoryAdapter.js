@@ -1,4 +1,6 @@
-import CollaborationStorage from "../../collaborationStorage/src/collaborationStorage";
+
+import CollaborationStorage
+  from "../../../../../../js/ckeditor5_plugins/collaborationStorage/src/collaborationStorage";
 
 class RevisionHistoryAdapter {
   constructor( editor ) {
