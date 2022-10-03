@@ -1,17 +1,9 @@
-ckeditor5_premium_features_realtime__realtime:
-  ckeditor5:
-    plugins:
-      - realtimeAdapter.RealtimeAdapter
-      - realTimeCollaboration.PresenceList
-  drupal:
-    label: Realtime Collaboration
-    library: ckeditor5_premium_features_realtime/real-time-collaboration
-    class: Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin\Realtime
-    elements: false
-
 ckeditor5_premium_features_realtime__comment:
   ckeditor5:
     plugins:
+      - cloudServices.CloudServices
+      - realtimeAdapter.RealtimeAdapter
+      - realTimeCollaboration.PresenceList
       - comments.Comments
       - realTimeCollaboration.RealTimeCollaborativeComments
   drupal:
@@ -23,11 +15,15 @@ ckeditor5_premium_features_realtime__comment:
       comment:
         label: Comments
     elements: false
-    conditions: [ ]
+    conditions:
+      toolbarItem: comment
 
 ckeditor5_premium_features_realtime__trackchanges:
   ckeditor5:
     plugins:
+      - cloudServices.CloudServices
+      - realtimeAdapter.RealtimeAdapter
+      - realTimeCollaboration.PresenceList
       - comments.Comments
       - trackChanges.TrackChanges
       - realTimeCollaboration.RealTimeCollaborativeTrackChanges
@@ -40,11 +36,15 @@ ckeditor5_premium_features_realtime__trackchanges:
       trackChanges:
         label: Track Changes
     elements: false
-    conditions: [ ]
+    conditions:
+      toolbarItem: trackChanges
 
 ckeditor5_premium_features_realtime__revision_history:
   ckeditor5:
     plugins:
+      - cloudServices.CloudServices
+#      - realtimeAdapter.RealtimeAdapter
+#      - realTimeCollaboration.PresenceList
       - revisionHistory.RevisionHistory
       - realTimeCollaboration.RealTimeCollaborativeRevisionHistory
       - realtimeRevisionHistoryAdapter.RealtimeRevisionHistoryAdapter
@@ -57,4 +57,5 @@ ckeditor5_premium_features_realtime__revision_history:
       revisionHistory:
         label: Revision History
     elements: false
-    conditions: [ ]
+    conditions:
+      toolbarItem: revisionHistory
