@@ -111,9 +111,6 @@ class TextFormat {
 
     if ($this->isFormTypeSupported($form_object)) {
       $entity = $form_object->getEntity();
-
-      array_unshift($element['#pre_render'], [TextFormatPreRender::class, 'preRenderBefore']);
-      $element['#pre_render'][] = [TextFormatPreRender::class, 'preRenderAfter'];
     } else {
       // We still need to process in order to stop our integration from
       // throwing exceptions in console, but we'll block editor toolbar buttons.
