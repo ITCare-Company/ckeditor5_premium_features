@@ -60,7 +60,7 @@ class SidebarAdapter {
 
   destroy() {
     this.sidebarVisibilityModify(true);
-    let toggle = document.getElementById("ck-sidebar-auto-toggle");
+    let toggle = this.getSidebarToggle()
     if (toggle) {
       toggle.remove();
     }
@@ -84,7 +84,7 @@ class SidebarAdapter {
       sidebar_element = sidebar_element.parentElement;
     }
 
-    if (typeof sidebar_element === "undefined") {
+    if (!sidebar_element || typeof sidebar_element === "undefined") {
       return null;
     }
 
@@ -94,7 +94,7 @@ class SidebarAdapter {
   /**
    * Checks sidebar mode setting and attaches event listeners if required.
    */
-  handleSidebarMode = function() {
+  handleSidebarMode() {
     if (this.sidebarMode !== 'auto') {
       this.annotationsUIs.switchTo(this.sidebarMode);
       return;
@@ -102,8 +102,17 @@ class SidebarAdapter {
 
     this.updateCkeditorMode();
 
-    let toggle = this.sidebar.querySelector(".ck-sidebar-auto-toggle");
+    // Check if there is a label right above the editor.
+    let label = this.sidebar.querySelector('label');
+    if (label && typeof label !== 'undefined' && !label.classList.contains('visually-hidden')) {
+      this.sidebarColumn.style.marginTop = label.clientHeight + "px";
+    }
 
+    let toggle = this.getSidebarToggle();
+
+    if (!toggle) {
+      return;
+    }
     window.addEventListener('resize', () => {
       clearTimeout(this.resizeThreshold);
       this.resizeThreshold = setTimeout(() => {
@@ -124,12 +133,24 @@ class SidebarAdapter {
   }
 
   /**
+   * Returns a toggle button for handled sidebar or null if not found.
+   *
+   * @returns {null|Element}
+   */
+  getSidebarToggle() {
+    if (!this.sidebar || typeof this.sidebar === 'undefined') {
+      return null;
+    }
+    return this.sidebar.querySelector(".ck-sidebar-auto-toggle");
+  }
+
+  /**
    * Setup new sidebar mode.
    *
    * @param newMode
    *   Sidebar mode to setup.
    */
-  setCkEditorSidebarMode = function(newMode) {
+  setCkEditorSidebarMode(newMode) {
     if (!this.sidebar || typeof this.sidebar === 'undefined') {
       return;
     }
