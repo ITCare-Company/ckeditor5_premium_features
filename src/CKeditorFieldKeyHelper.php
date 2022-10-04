@@ -21,6 +21,12 @@ class CKeditorFieldKeyHelper {
     return Html::getId($id);
   }
 
+  /**
+   * Returns cleaned form element ID (without "--POSTFIX").
+   *
+   * @param string $elementId
+   *   Form element ID.
+   */
   public static function cleanElementDrupalId(string $elementId): string {
     $elementParts = explode('--', $elementId);
 

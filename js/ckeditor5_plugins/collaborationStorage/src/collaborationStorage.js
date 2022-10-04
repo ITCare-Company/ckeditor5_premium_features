@@ -60,6 +60,14 @@ class CollaborationStorage {
       drupalSettings.ckeditor5Premium.disableCollaboration === true;
   }
 
+  /**
+   * Returns parent element of an editors' element matching passed ID.
+   *
+   * @param elementId
+   *   HTML ID of an editor.
+   *
+   * @returns {HTMLElement|null}
+   */
   getEditorParentContainer(elementId) {
     let editor_element = document.getElementById(elementId);
 
