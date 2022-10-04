@@ -11,7 +11,6 @@ class RealtimeAdapter {
       typeof drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid] == "undefined") {
       return;
     }
-
     this.editor.config._config.collaboration = {
       channelId: drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid],
     }
@@ -22,8 +21,7 @@ class RealtimeAdapter {
   }
 
   init() {
-    const presenceListPlugin = this.editor.plugins.get('PresenceList');
-    const editorId = this.editor.sourceElement.id;
+    // const presenceListPlugin = this.editor.plugins.get('PresenceList');
     const presenceListConfig = this.editor.config._config.presenceList;
     const editor = this.editor;
     const hasRTC = editor.plugins.has('RealTimeCollaborativeEditing');
@@ -34,9 +32,11 @@ class RealtimeAdapter {
       editor.plugins.get('SourceEditing').forceDisabled('drupal-rtc');
     }
 
-    const el = '#' + editorId + '-presence-list-container'
     if (!presenceListConfig.container) {
-      presenceListConfig.container = document.querySelector(el);
+      let editor_parent = this.storage.getEditorParentContainer(this.editor.sourceElement.id)
+      if (editor_parent !== null) {
+        presenceListConfig.container = editor_parent.querySelector('.ck-presence-list-container')
+      }
     }
     if (!presenceListConfig.collapseAt) {
       presenceListConfig.collapseAt = drupalSettings.presenceListCollapseAt;

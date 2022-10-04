@@ -60,6 +60,25 @@ class CollaborationStorage {
       drupalSettings.ckeditor5Premium.disableCollaboration === true;
   }
 
+  getEditorParentContainer(elementId) {
+    let editor_element = document.getElementById(elementId);
+
+    while (editor_element && typeof editor_element !== "undefined"
+      && typeof editor_element.classList !== "undefined" &&
+      !editor_element.classList.contains('ck-editor-sidebar-wrapper')) {
+
+      editor_element = editor_element.parentElement;
+    }
+
+    if (!editor_element || typeof editor_element === "undefined") {
+      return null;
+    }
+
+    // We get parentElement one more time to be able to search for all related
+    // editor elements (like sidebar, presence list etc)
+    return editor_element.parentElement;
+  }
+
   getSourceDataSelector(type) {
     const types = {
       'trackChanges': '.track-changes',

@@ -76,19 +76,13 @@ class SidebarAdapter {
    *   Sidebar tag or NULL if tag not found.
    */
   getSidebarWrapper(elementId) {
-    let sidebar_element = document.getElementById(elementId);
+    let editor_parent = this.storage.getEditorParentContainer(elementId);
 
-    while (sidebar_element && typeof sidebar_element !== "undefined"
-    && typeof sidebar_element.classList !== "undefined" &&
-    !sidebar_element.classList.contains('ck-editor-sidebar-wrapper')) {
-      sidebar_element = sidebar_element.parentElement;
-    }
-
-    if (!sidebar_element || typeof sidebar_element === "undefined") {
+    if (!editor_parent) {
       return null;
     }
 
-    return sidebar_element.querySelector('.ck-sidebar-wrapper');
+    return editor_parent.querySelector('.ck-sidebar-wrapper');
   }
 
   /**
