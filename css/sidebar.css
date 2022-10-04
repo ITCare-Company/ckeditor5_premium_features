@@ -41,7 +41,7 @@
 }
 
 tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
-  margin-top: unset !important;
+  margin-top: unset;
 }
 
 #block-bartik-content .ck-sidebar-wrapper.wideSidebar {
