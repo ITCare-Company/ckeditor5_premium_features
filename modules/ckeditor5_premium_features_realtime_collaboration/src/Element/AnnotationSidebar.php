@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_realtime\Element;
+namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Element;
 
 use Drupal\Core\Form\FormStateInterface;
 
@@ -29,7 +29,7 @@ class AnnotationSidebar {
    */
   public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array {
     $sidebar_mode = \Drupal::service('config.factory')
-      ->getEditable('ckeditor5_premium_features_realtime.settings')
+      ->getEditable('ckeditor5_premium_features_realtime_collaboration.settings')
       ->get('sidebar') ?? 'auto';
 
     $sidebar['ck_sidebar_type'] = [

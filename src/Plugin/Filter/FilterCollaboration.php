@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_collaboration\Plugin\Filter;
+namespace Drupal\ckeditor5_premium_features\Plugin\Filter;
 
-use Drupal\ckeditor5_premium_features_collaboration\Utility\DomSuggestion;
+use Drupal\ckeditor5_premium_features\Utility\DomSuggestion;
 use Drupal\Component\Utility\Html;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;

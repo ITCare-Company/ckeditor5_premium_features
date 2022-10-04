@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_realtime\Element;
+namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
-use Drupal\ckeditor5_premium_features_realtime\Entity\ChannelInterface;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
@@ -47,7 +47,7 @@ class TextFormat {
     protected EntityTypeManagerInterface $entityTypeManager,
     ConfigFactoryInterface               $config_factory
   ) {
-    $this->config = $config_factory->getEditable('ckeditor5_premium_features_realtime.settings');
+    $this->config = $config_factory->getEditable('ckeditor5_premium_features_realtime_collaboration.settings');
   }
 
   /**
@@ -159,8 +159,8 @@ class TextFormat {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-    /** @var \Drupal\ckeditor5_premium_features_realtime\Element\TextFormat $service */
-    $service = \Drupal::service('ckeditor5_premium_features_realtime.element.text_format');
+    /** @var \Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat $service */
+    $service = \Drupal::service('ckeditor5_premium_features_realtime_collaboration.element.text_format');
     return $service->processElement($element, $form_state, $complete_form);
   }
 
@@ -176,8 +176,8 @@ class TextFormat {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public static function onCompleteFormSubmit(array &$form, FormStateInterface $form_state): void {
-    /** @var \Drupal\ckeditor5_premium_features_realtime\Element\TextFormat $service */
-    $service = \Drupal::service('ckeditor5_premium_features_realtime.element.text_format');
+    /** @var \Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat $service */
+    $service = \Drupal::service('ckeditor5_premium_features_realtime_collaboration.element.text_format');
     $service->completeFormSubmit($form, $form_state);
   }
 

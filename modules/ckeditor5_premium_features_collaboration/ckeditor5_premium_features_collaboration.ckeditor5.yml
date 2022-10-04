@@ -2,6 +2,8 @@ ckeditor5_premium_features_collaboration__track_changes:
   ckeditor5:
     plugins:
       - comments.Comments
+      - commentsAdapter.CommentsAdapter
+      - sidebarAdapter.SidebarAdapter
       - trackChanges.TrackChanges
       - trackChangesAdapter.TrackChangesAdapter
   drupal:

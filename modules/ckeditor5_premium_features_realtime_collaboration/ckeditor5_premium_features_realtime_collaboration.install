@@ -10,7 +10,7 @@ use Drupal\Core\Url;
 /**
  * Implements hook_requirements().
  */
-function ckeditor5_premium_features_realtime_requirements($phase): array {
+function ckeditor5_premium_features_realtime_collaboration_requirements($phase): array {
   $requirements = [];
 
   if (($phase === 'install') && \Drupal::moduleHandler()->moduleExists('ckeditor5_premium_features_collaboration')) {

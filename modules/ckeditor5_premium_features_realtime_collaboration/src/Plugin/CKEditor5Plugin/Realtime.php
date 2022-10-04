@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_realtime\Plugin\CKEditor5Plugin;
+namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Plugin\CKEditor5Plugin;
 
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
@@ -73,7 +73,7 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
     $note = $this->t('In order to setup the Real Time Collaboration, use the <a href="@url">global realtime collaboration configuration instead</a>.', [
-      '@url' => Url::fromRoute('ckeditor5_premium_features_realtime.form.settings')->toString(),
+      '@url' => Url::fromRoute('ckeditor5_premium_features_realtime_collaboration.form.settings')->toString(),
     ]);
     $form['note'] = [
       ['#markup' => '<p>' . $this->t('The configuration for this plugin is not available.') . '</p>'],

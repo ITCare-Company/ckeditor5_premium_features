@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_realtime\Form;
+namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Form;
 
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormBase;
 use Drupal\Core\Config\Config;
@@ -17,7 +17,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
    * {@inheritdoc}
    */
   final public function getFormId(): string {
-    return 'ckeditor5_premium_features_realtime.settings';
+    return 'ckeditor5_premium_features_realtime_collaboration.settings';
   }
 
   /**
