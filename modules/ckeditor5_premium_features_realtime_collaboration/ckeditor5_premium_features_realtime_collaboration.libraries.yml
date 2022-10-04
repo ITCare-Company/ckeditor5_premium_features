@@ -14,12 +14,10 @@ admin.comments:
       css/comments.admin.css: { }
 
 real-time-collaboration:
-  css:
-    theme:
-      css/realtime.css: { }
   js:
     js/build/realtimeAdapter.js: { minified: true }
   dependencies:
+    - ckeditor5_premium_features/cloud-services
     - ckeditor5_premium_features/collaboration-integration-base
 
 realtime-revision-history:
@@ -29,16 +27,13 @@ realtime-revision-history:
   js:
     js/build/realtimeRevisionHistoryAdapter.js: { minified: true }
   dependencies:
-    - ckeditor5_premium_features_realtime_collaboration/revision-history
     - ckeditor5_premium_features_realtime_collaboration/real-time-collaboration
+    - ckeditor5_premium_features_realtime_collaboration/revision-history
 
 realtime-comments:
-  css:
-    theme:
-      css/comments.css: { }
   dependencies:
-    - ckeditor5_premium_features_realtime_collaboration/comments
     - ckeditor5_premium_features_realtime_collaboration/real-time-collaboration
+    - ckeditor5_premium_features_realtime_collaboration/comments
 
 realtime-track-changes:
   dependencies:
