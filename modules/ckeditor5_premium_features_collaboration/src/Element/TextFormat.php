@@ -122,7 +122,7 @@ class TextFormat {
 
     $this->addSubmitCallback($complete_form);
 
-    $id = CKeditorFieldKeyHelper::getElementId($element['#id']);
+    $id = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
     $id_attribute = 'data-' . static::STORAGE_KEY . '-element-id';
 
     $default_element_keys = [

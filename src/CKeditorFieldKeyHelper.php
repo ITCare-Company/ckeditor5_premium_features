@@ -15,10 +15,21 @@ class CKeditorFieldKeyHelper {
    * @return string
    *   The ID.
    */
-  public static function getElementId(string $elementId): string {
-    $elementParts = explode('--', $elementId);
-    $id = 'id-' . hash('crc32', reset($elementParts));
+  public static function getElementUniqueId(string $elementId): string {
+    $id = 'id-' . hash('crc32', static::cleanElementDrupalId($elementId));
 
     return Html::getId($id);
+  }
+
+  /**
+   * Returns cleaned form element ID (without "--POSTFIX").
+   *
+   * @param string $elementId
+   *   Form element ID.
+   */
+  public static function cleanElementDrupalId(string $elementId): string {
+    $elementParts = explode('--', $elementId);
+
+    return reset($elementParts);
   }
 }

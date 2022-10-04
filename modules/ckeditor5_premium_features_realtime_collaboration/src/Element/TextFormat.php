@@ -67,15 +67,18 @@ class TextFormat {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-    $id = CKeditorFieldKeyHelper::getElementId($element['#id']);
+    $elementUniqueId = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
+    $elementDrupalId = CKeditorFieldKeyHelper::cleanElementDrupalId($element['#id']);
     $id_attribute = 'data-' . static::STORAGE_KEY . '-element-id';
 
     $element['presence_list'] = [
       '#type' => 'container',
       '#weight' => -1,
       '#attributes' => [
-        'class' => [$id . $element["#id"]],
-        'id' => $element["#id"] . '-value-presence-list-container',
+        'class' => [
+          'ck-presence-list-container',
+        ],
+        'id' => $elementDrupalId . '-value-presence-list-container',
       ],
     ];
 
@@ -83,8 +86,7 @@ class TextFormat {
       '#type' => 'container',
       '#weight' => -1,
       '#attributes' => [
-        'class' => [$id . $element["#id"]],
-        'id' => $element["#id"] . '-value-presence-list-container',
+        'id' => $elementDrupalId . '-value-presence-list-container',
       ],
     ];
     $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->config->get('presence_list_collapse_at') ?? 8;
@@ -93,8 +95,8 @@ class TextFormat {
 
     $form_object = $form_state->getFormObject();
 
-    $element['value']["#attributes"]['data-ckeditorfieldid'] = $element["#id"];
-    $element['value']["#attributes"][$id_attribute] = $id;
+    $element['value']["#attributes"]['data-ckeditorfieldid'] = $elementDrupalId;
+    $element['value']["#attributes"][$id_attribute] = $elementUniqueId;
 
     if ($this->isFormTypeSupported($form_object)) {
       $entity = $form_object->getEntity();
@@ -103,12 +105,14 @@ class TextFormat {
         $this->addSubmitCallback($complete_form);
       }
       $entityChannel = $complete_form["channel_id"]["#value"];
-      $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$element["#id"]] = $this->getChannelId($entityChannel . $element["#id"]);
+      $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$elementDrupalId] =
+        $this->getChannelId($entityChannel . $elementDrupalId);
     } else {
       // We still need to process in order to stop our integration from
       // throwing exceptions in console, but we'll block editor toolbar buttons.
       $element['#attached']['drupalSettings']['ckeditor5Premium']['disableCollaboration'] = TRUE;
-      $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$element["#id"]] = $this->getChannelId($element["#id"] . random_bytes(5));
+      $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$elementDrupalId] =
+        $this->getChannelId($elementDrupalId . random_bytes(5));
     }
 
     // Add the container for the revision list.
@@ -117,7 +121,7 @@ class TextFormat {
       '#weight' => -1,
       '#attributes' => [
         'class' => ['revision-history-container-data'],
-        $id_attribute => $id,
+        $id_attribute => $elementUniqueId,
       ],
       [
         '#type' => 'container',
