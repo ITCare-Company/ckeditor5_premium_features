@@ -27,15 +27,15 @@ realtime-revision-history:
   js:
     js/build/realtimeRevisionHistoryAdapter.js: { minified: true }
   dependencies:
-    - ckeditor5_premium_features_realtime/real-time-collaboration
-    - ckeditor5_premium_features_realtime/revision-history
+    - ckeditor5_premium_features_realtime_collaboration/real-time-collaboration
+    - ckeditor5_premium_features_realtime_collaboration/revision-history
 
 realtime-comments:
   dependencies:
-    - ckeditor5_premium_features_realtime/real-time-collaboration
-    - ckeditor5_premium_features_realtime/comments
+    - ckeditor5_premium_features_realtime_collaboration/real-time-collaboration
+    - ckeditor5_premium_features_realtime_collaboration/comments
 
 realtime-track-changes:
   dependencies:
-    - ckeditor5_premium_features_realtime/realtime-comments
-    - ckeditor5_premium_features_realtime/track-changes
+    - ckeditor5_premium_features_realtime_collaboration/realtime-comments
+    - ckeditor5_premium_features_realtime_collaboration/track-changes

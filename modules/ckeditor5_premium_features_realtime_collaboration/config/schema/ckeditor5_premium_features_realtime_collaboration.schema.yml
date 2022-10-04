@@ -1,4 +1,4 @@
-ckeditor5.plugin.ckeditor5_premium_features_realtime.settings:
+ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration.settings:
   type: config_object
   label: 'CKEditor 5 Realtime Collaboration settings'
   mapping:
@@ -12,7 +12,7 @@ ckeditor5.plugin.ckeditor5_premium_features_realtime.settings:
       type: string
       label: 'Annotations sidebar'
 
-ckeditor5.plugin.ckeditor5_premium_features_realtime__realtime:
+ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration__realtime:
   type: mapping
   label: 'Realtime'
   mapping:
@@ -20,7 +20,7 @@ ckeditor5.plugin.ckeditor5_premium_features_realtime__realtime:
       type: boolean
       label: 'Enabled'
 
-ckeditor5.plugin.ckeditor5_premium_features_realtime__comment:
+ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration__comment:
   type: mapping
   label: 'Realtime'
   mapping:
@@ -28,7 +28,7 @@ ckeditor5.plugin.ckeditor5_premium_features_realtime__comment:
       type: boolean
       label: 'Enabled'
 
-ckeditor5.plugin.ckeditor5_premium_features_realtime__trackchanges:
+ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration__trackchanges:
   type: mapping
   label: 'Realtime'
   mapping:
@@ -36,7 +36,7 @@ ckeditor5.plugin.ckeditor5_premium_features_realtime__trackchanges:
       type: boolean
       label: 'Enabled'
 
-ckeditor5.plugin.ckeditor5_premium_features_realtime__revision_history:
+ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration__revision_history:
   type: mapping
   label: 'Realtime'
   mapping:

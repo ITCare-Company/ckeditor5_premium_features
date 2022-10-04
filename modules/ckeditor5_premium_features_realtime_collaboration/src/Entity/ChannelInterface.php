@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_realtime\Entity;
+namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Entity;
 
 interface ChannelInterface
 {

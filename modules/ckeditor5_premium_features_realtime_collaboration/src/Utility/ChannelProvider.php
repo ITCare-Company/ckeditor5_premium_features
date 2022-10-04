@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_realtime\Utility;
+namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Utility;
 
-use Drupal\ckeditor5_premium_features_realtime\Entity\ChannelInterface;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 

@@ -120,12 +120,6 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
-    $toolbars = $this->pluginHelper->getFormToolbars($form_state);
-
-    if (in_array('trackChanges', $toolbars) === TRUE &&
-      in_array('comment', $toolbars) === FALSE) {
-      $form_state->setErrorByName('editor', 'The Comment plugin has to be enabled when Track Changes plugin is enabled');
-    }
   }
 
   /**
