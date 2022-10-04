@@ -76,13 +76,13 @@ class SidebarAdapter {
    *   Sidebar tag or NULL if tag not found.
    */
   getSidebarWrapper(elementId) {
-    let editor_parent = this.storage.getEditorParentContainer(elementId);
+    let editorParent = this.storage.getEditorParentContainer(elementId);
 
-    if (!editor_parent) {
+    if (!editorParent) {
       return null;
     }
 
-    return editor_parent.querySelector('.ck-sidebar-wrapper');
+    return editorParent.querySelector('.ck-sidebar-wrapper');
   }
 
   /**

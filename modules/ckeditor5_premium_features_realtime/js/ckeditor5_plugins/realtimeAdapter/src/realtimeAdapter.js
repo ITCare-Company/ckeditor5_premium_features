@@ -21,7 +21,6 @@ class RealtimeAdapter {
   }
 
   init() {
-    // const presenceListPlugin = this.editor.plugins.get('PresenceList');
     const presenceListConfig = this.editor.config._config.presenceList;
     const editor = this.editor;
     const hasRTC = editor.plugins.has('RealTimeCollaborativeEditing');
@@ -33,9 +32,9 @@ class RealtimeAdapter {
     }
 
     if (!presenceListConfig.container) {
-      let editor_parent = this.storage.getEditorParentContainer(this.editor.sourceElement.id)
-      if (editor_parent !== null) {
-        presenceListConfig.container = editor_parent.querySelector('.ck-presence-list-container')
+      let editorParent = this.storage.getEditorParentContainer(this.editor.sourceElement.id)
+      if (editorParent !== null) {
+        presenceListConfig.container = editorParent.querySelector('.ck-presence-list-container')
       }
     }
     if (!presenceListConfig.collapseAt) {

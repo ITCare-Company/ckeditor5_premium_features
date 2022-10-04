@@ -69,22 +69,22 @@ class CollaborationStorage {
    * @returns {HTMLElement|null}
    */
   getEditorParentContainer(elementId) {
-    let editor_element = document.getElementById(elementId);
+    let editorElement = document.getElementById(elementId);
 
-    while (editor_element && typeof editor_element !== "undefined"
-      && typeof editor_element.classList !== "undefined" &&
-      !editor_element.classList.contains('ck-editor-sidebar-wrapper')) {
+    while (editorElement && typeof editorElement !== "undefined"
+      && typeof editorElement.classList !== "undefined" &&
+      !editorElement.classList.contains('ck-editor-sidebar-wrapper')) {
 
-      editor_element = editor_element.parentElement;
+      editorElement = editorElement.parentElement;
     }
 
-    if (!editor_element || typeof editor_element === "undefined") {
+    if (!editorElement || typeof editorElement === "undefined") {
       return null;
     }
 
     // We get parentElement one more time to be able to search for all related
     // editor elements (like sidebar, presence list etc)
-    return editor_element.parentElement;
+    return editorElement.parentElement;
   }
 
   getSourceDataSelector(type) {
