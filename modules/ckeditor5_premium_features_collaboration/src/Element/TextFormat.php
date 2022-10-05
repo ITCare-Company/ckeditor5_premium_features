@@ -349,9 +349,9 @@ class TextFormat {
     $source = $form_state->getValue([...$item_parents, $key]);
 
     $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
-    $filterFormat = FilterFormat::load($fieldFormat);
-    if ($filterFormat) {
-      $restrictions = $filterFormat->getHtmlRestrictions();
+    $filterFormatEntity = !empty($fieldFormat) ? FilterFormat::load($fieldFormat) : NULL;
+    if ($filterFormatEntity) {
+      $restrictions = $filterFormatEntity->getHtmlRestrictions();
       $allowedTags = !empty($restrictions['allowed']) ? array_keys($restrictions['allowed']) :
         array_merge(Xss::getHtmlTagList(), ['p']);
 
