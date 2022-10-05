@@ -66,7 +66,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
   /**
    * {@inheritdoc}
    */
-  public function serializeCollection(array $entities): string {
+  public function serializeCollection(array $entities, $format = NULL): string {
     $comments = $entities;
     $data = [];
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 
@@ -104,7 +103,7 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
   public function getContent(): ?string {
     $field = $this->get('content');
 
-    return $field->isEmpty() ? NULL : self::xssFilter((string) $field->value);
+    return $field->isEmpty() ? NULL : $field->value;
   }
 
   /**
@@ -123,7 +122,7 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
    * {@inheritdoc}
    */
   public function setContent(string $content): static {
-    $this->set('content', self::xssFilter($content));
+    $this->set('content', $content);
 
     return $this;
   }
@@ -154,19 +153,5 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
     $attributes = $this->getAttributes();
 
     return $attributes['position'] ?? -1;
-  }
-
-  /**
-   * Filter the entity content to avoid XSS vulnerabilities.
-   *
-   * @param string $content
-   *   The text to filter.
-   *
-   * @return string
-   *   Filtered text.
-   */
-  protected static function xssFilter(string $content): string {
-    $tags = array_merge(Xss::getHtmlTagList(), ['p']);
-    return Xss::filter($content, $tags);
   }
 }
