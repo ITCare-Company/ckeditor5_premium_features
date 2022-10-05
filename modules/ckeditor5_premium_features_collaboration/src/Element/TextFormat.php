@@ -17,6 +17,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
 use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -24,6 +25,7 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\filter\Entity\FilterFormat;
 use Drupal\user\Entity\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -345,6 +347,17 @@ class TextFormat {
    */
   private function getFormElementSourceData(FormStateInterface $form_state, $item_parents, $key): array {
     $source = $form_state->getValue([...$item_parents, $key]);
+
+    $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
+    $filterFormatEntity = $fieldFormat ? FilterFormat::load($fieldFormat) : NULL;
+    if ($filterFormatEntity) {
+      $restrictions = $filterFormatEntity->getHtmlRestrictions();
+      $allowedTags = !empty($restrictions['allowed']) ? array_keys($restrictions['allowed']) :
+        array_merge(Xss::getHtmlTagList(), ['p']);
+
+      $source = Xss::filter($source, $allowedTags);
+    }
+
     return (array) json_decode($source, TRUE);
   }
 
