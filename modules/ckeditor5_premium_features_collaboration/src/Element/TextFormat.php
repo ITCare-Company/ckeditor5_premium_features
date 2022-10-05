@@ -349,7 +349,7 @@ class TextFormat {
     $source = $form_state->getValue([...$item_parents, $key]);
 
     $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
-    $filterFormatEntity = !empty($fieldFormat) ? FilterFormat::load($fieldFormat) : NULL;
+    $filterFormatEntity = $fieldFormat ? FilterFormat::load($fieldFormat) : NULL;
     if ($filterFormatEntity) {
       $restrictions = $filterFormatEntity->getHtmlRestrictions();
       $allowedTags = !empty($restrictions['allowed']) ? array_keys($restrictions['allowed']) :
