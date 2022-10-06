@@ -210,43 +210,17 @@ class SettingsForm extends SharedBuildConfigFormBase {
    *   Predefined title.
    */
   protected function getPredefinedTitle($messageType): String {
-    switch ($messageType) {
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT:
-        $title = 'The document was updated.';
-        break;
-
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT:
-        $title = 'You were mentioned in a comment.';
-        break;
-
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT:
-        $title = 'You were mentioned in a document body.';
-        break;
-
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_COMMENT_ADDED:
-        $title = 'New comment added.';
-        break;
-
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY:
-        $title = 'A new Reply to a thread.';
-        break;
-
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY:
-        $title = 'A new Reply to a suggestion.';
-        break;
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:
-        $title = 'Your suggestion status changed.';
-        break;
-
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED:
-        $title = 'New Suggestion added.';
-        break;
-
-      default :
-        $title = 'CKEditor5 notification';
-    }
-
-    return $title;
+    return match ($messageType) {
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT => 'The document was updated.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT => 'You were mentioned in a comment.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT => 'You were mentioned in a document body.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_COMMENT_ADDED => 'New comment added.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY => 'A new Reply to a thread.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY => 'A new Reply to a suggestion.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => 'Your suggestion status changed.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED => 'New Suggestion added.',
+      default => 'CKEditor5 notification',
+    };
   }
 
   /**
@@ -258,92 +232,66 @@ class SettingsForm extends SharedBuildConfigFormBase {
    *   Predefined body.
    */
   protected function getPredefinedBodyMessage($messageType): String {
-    switch ($messageType) {
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT:
-        $body = '<h3>Update notification</h3>
-          <p>
-            I need to tell you that node <a href="[node:url]"><strong>[node:title]</strong></a> was modified by [user:name] (at [node:changed])
-          </p>
-          <p>
-            Best regards,
-          </p>';
-        break;
+    return match ($messageType) {
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT => '<h3>Update notification</h3>
+        <p>
+          I need to tell you that node <a href="[node:url]"><strong>[node:title]</strong></a> was modified by [user:name] (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT => '<h3>You were mentioned in a comment</h3>
+        <p>
+          User [user:name] mentioned you in the <a href="[node:url]"><strong>[node:title]</strong></a> document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT => '<h3>You were mentioned in a document body</h3>
+        <p>
+          User [user:name] mentioned you in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_COMMENT_ADDED => '<h3>New comment added</h3>
+        <p>
+          User [user:name] added new comment in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY => '<h3>A new Reply to a thread</h3>
+        <p>
+          User [user:name] replied to one of your threads in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY => '<h3>A new Reply to a suggestion</h3>
+        <p>
+          User [user:name] replied to one of your suggestion in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => '<h3>Your suggestion status changed</h3>
+        <p>
+          User [user:name] [suggestion:status-label] your suggestion to the [node:title] document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED => '<h3>New suggestion added</h3>
+        <p>
+          User [user:name] added new suggestion in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      default => 'CKEditor5 notification default body. If you want to change it please go to configuration page.',
+    };
 
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT:
-        $body = '<h3>You were mentioned in a comment</h3>
-          <p>
-            User [user:name] mentioned you in the <a href="[node:url]"><strong>[node:title]</strong></a> document (at [node:changed])
-          </p>
-          <p>
-            Best regards,
-          </p>';
-        break;
-
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT:
-        $body = '<h3>You were mentioned in a document body</h3>
-          <p>
-            User [user:name] mentioned you in the [node:title] document (at [node:changed])
-          </p>
-          <p>
-            Best regards,
-          </p>';
-        break;
-
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_COMMENT_ADDED:
-        $body = '<h3>New comment added</h3>
-          <p>
-            User [user:name] added new comment in the [node:title] document (at [node:changed])
-          </p>
-          <p>
-            Best regards,
-          </p>';
-        break;
-
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY:
-        $body = '<h3>A new Reply to a thread</h3>
-          <p>
-            User [user:name] replied to one of your threads in the [node:title] document (at [node:changed])
-          </p>
-          <p>
-            Best regards,
-          </p>';
-        break;
-
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY:
-        $body = '<h3>A new Reply to a suggestion</h3>
-          <p>
-            User [user:name] replied to one of your suggestion in the [node:title] document (at [node:changed])
-          </p>
-          <p>
-            Best regards,
-          </p>';
-        break;
-
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:
-        $body = '<h3>Your suggestion status changed</h3>
-          <p>
-            User [user:name] [suggestion:status-label] your suggestion to the [node:title] document (at [node:changed])
-          </p>
-          <p>
-            Best regards,
-          </p>';
-        break;
-
-      case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED:
-        $body = '<h3>New suggestion added</h3>
-          <p>
-            User [user:name] added new suggestion in the [node:title] document (at [node:changed])
-          </p>
-          <p>
-            Best regards,
-          </p>';
-        break;
-
-      default :
-        $body = 'CKEditor5 notification default body. If you want to change it please go to configuration page.';
-    }
-
-    return $body;
   }
 
 }
