@@ -11,8 +11,20 @@ use Drupal\filter\FilterFormatInterface;
  */
 interface CollaborationContentFilteringStorageInterface {
 
+  /**
+   * Sets format filter property.
+   *
+   * @param \Drupal\filter\FilterFormatInterface $filter_format
+   *   Filter Format object.
+   */
   public function setSourceFilterFormat(FilterFormatInterface $filter_format): void;
 
+  /**
+   * Process passed source data and does the filtering.
+   *
+   * @param array $source_data
+   *   Storage source data.
+   */
   public function filterSourceData(array &$source_data): void;
 
 }
