@@ -6,6 +6,7 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationContentFilteringStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationSuggestionDependingStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
@@ -17,7 +18,6 @@ use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
 use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -26,6 +26,7 @@ use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\filter\Entity\FilterFormat;
+use Drupal\filter\FilterFormatInterface;
 use Drupal\user\Entity\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -235,11 +236,15 @@ class TextFormat {
 
       $suggestion_source_data = $this->getFormElementSourceData($form_state, $item_parents, 'track_changes');
       $suggestion_ids = $this->suggestionStorage->getSuggestionEntityIDs($suggestion_source_data);
+      $filter_format = $this->getFormElementFilterFormat($form_state, $item_parents);
 
       foreach ($features as $key => $storage) {
         $source_data = $this->getFormElementSourceData($form_state, $item_parents, $key);
         if ($storage instanceof CollaborationSuggestionDependingStorageInterface) {
           $storage->setSuggestionIds($suggestion_ids);
+        }
+        if ($storage instanceof CollaborationContentFilteringStorageInterface) {
+          $storage->setSourceFilterFormat($filter_format);
         }
         $entities_data = $storage->processSourceData($source_data, $entity, $item_key);
         $this->doStorageOperations($entities_data, $storage);
@@ -348,17 +353,21 @@ class TextFormat {
   private function getFormElementSourceData(FormStateInterface $form_state, $item_parents, $key): array {
     $source = $form_state->getValue([...$item_parents, $key]);
 
-    $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
-    $filterFormatEntity = $fieldFormat ? FilterFormat::load($fieldFormat) : NULL;
-    if ($filterFormatEntity) {
-      $restrictions = $filterFormatEntity->getHtmlRestrictions();
-      $allowedTags = !empty($restrictions['allowed']) ? array_keys($restrictions['allowed']) :
-        array_merge(Xss::getHtmlTagList(), ['p']);
-
-      $source = Xss::filter($source, $allowedTags);
-    }
-
     return (array) json_decode($source, TRUE);
+  }
+
+  /**
+   * Returns FilterFormat entity matching value in the selected field.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object.
+   * @param array $item_parents
+   *   An array describing field values location.
+   */
+  private function getFormElementFilterFormat(FormStateInterface $form_state, array $item_parents): ?FilterFormatInterface {
+    $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
+
+    return $fieldFormat ? FilterFormat::load($fieldFormat) : NULL;
   }
 
   /**
