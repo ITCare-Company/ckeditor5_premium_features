@@ -10,8 +10,3 @@ collaboration-integration-base:
     js/build/removeIncorrectCollaborationMarkers.js: { minified: true }
   dependencies:
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
-
-export-integration-base:
-  css:
-    theme:
-      css/export-stylesheets.css: { }

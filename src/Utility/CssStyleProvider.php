@@ -92,18 +92,7 @@ class CssStyleProvider implements ContainerFactoryPluginInterface {
     $fonts = $this->getCssStylesheetsUrls(TRUE);
     $non_fonts = $this->getCssStylesheetsUrls();
 
-    /** @var LibraryDiscovery $librDisc */
-    $librDisc = \Drupal::service('library.discovery');
-    $libInfo = $librDisc->getLibraryByName('ckeditor5_premium_features', 'export-integration-base');
-
-    $customStyles = [];
-    if (!empty($libInfo['css'])) {
-      foreach ($libInfo['css'] as $cssInfo) {
-        $customStyles[] = '/' . $cssInfo['data'];
-      }
-    }
-
-    return array_merge($fonts, ['EDITOR_STYLES'], $non_fonts, $customStyles);
+    return array_merge($fonts, ['EDITOR_STYLES'], $non_fonts);
   }
 
 }
