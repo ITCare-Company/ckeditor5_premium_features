@@ -1,6 +1,7 @@
 ckeditor5_premium_features_export_pdf__export_pdf:
   ckeditor5:
     plugins:
+      - cloudServices.CloudServices
       - exportPdf.ExportPdf
   drupal:
     label: Export to PDF
