@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Utility;
 
+use Drupal\Core\Asset\LibraryDiscovery;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Theme\ThemeManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -91,7 +92,18 @@ class CssStyleProvider implements ContainerFactoryPluginInterface {
     $fonts = $this->getCssStylesheetsUrls(TRUE);
     $non_fonts = $this->getCssStylesheetsUrls();
 
-    return array_merge($fonts, ['EDITOR_STYLES'], $non_fonts);
+    /** @var LibraryDiscovery $librDisc */
+    $librDisc = \Drupal::service('library.discovery');
+    $libInfo = $librDisc->getLibraryByName('ckeditor5_premium_features', 'export-integration-base');
+
+    $customStyles = [];
+    if (!empty($libInfo['css'])) {
+      foreach ($libInfo['css'] as $cssInfo) {
+        $customStyles[] = '/' . $cssInfo['data'];
+      }
+    }
+
+    return array_merge($fonts, ['EDITOR_STYLES'], $non_fonts, $customStyles);
   }
 
 }
