@@ -43,6 +43,7 @@ ckeditor5_premium_features_realtime_collaboration__revision_history:
   ckeditor5:
     plugins:
       - cloudServices.CloudServices
+      - realtimeAdapter.RealtimeAdapter
       - revisionHistory.RevisionHistory
       - realTimeCollaboration.RealTimeCollaborativeRevisionHistory
       - realtimeRevisionHistoryAdapter.RealtimeRevisionHistoryAdapter
