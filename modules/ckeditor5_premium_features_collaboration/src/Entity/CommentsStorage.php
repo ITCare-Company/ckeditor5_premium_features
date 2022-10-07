@@ -7,12 +7,14 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessException;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\filter\FilterFormatInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -22,12 +24,14 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 class CommentsStorage extends SqlContentEntityStorage implements
     CollaborationEntityStorageInterface,
     EditorDataStorageProviderInterface,
-    CollaborationSuggestionDependingStorageInterface {
+    CollaborationSuggestionDependingStorageInterface,
+    CollaborationContentFilteringStorageInterface {
 
   use CollaborationEntityStorageTrait;
   use CKeditorPremiumLoggerChannelTrait;
 
   protected array $suggestion_ids;
+  protected FilterFormatInterface $filterFormat;
 
   /**
    * Creates the storage instance.
@@ -113,6 +117,8 @@ class CommentsStorage extends SqlContentEntityStorage implements
     $entity_list = [];
 
     $stored_comments = $this->loadByEntity($entity, $item_key);
+
+    $this->filterSourceData($source_data);
 
     foreach ($source_data as $thread_data) {
       $thread_id = $thread_data['threadId'];
@@ -237,7 +243,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
 
   /**
    * @param $id
-   *   Id of comment.
+   *   ID of comment.
    * @return array
    */
   public function getCommentTree($id):array {
@@ -260,6 +266,34 @@ class CommentsStorage extends SqlContentEntityStorage implements
       return $thread;
     }
     return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setSourceFilterFormat(FilterFormatInterface $filter_format): void {
+    $this->filterFormat = $filter_format;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function filterSourceData(array &$source_data): void {
+    if (!isset($this->filterFormat)) {
+      return;
+    }
+
+    $restrictions = $this->filterFormat->getHtmlRestrictions();
+
+    $allowed_tags = !empty($restrictions['allowed']) ? array_keys($restrictions['allowed']) : Xss::getHtmlTagList();
+
+    $allowed_tags =  array_merge($allowed_tags, ['p', 'li', 'ol', 'ul', 'strong', 'i']);
+
+    foreach ($source_data as &$thread_data) {
+      foreach ($thread_data['comments'] as &$element_data) {
+        $element_data['content'] = Xss::filter($element_data['content'], $allowed_tags);
+      }
+    }
   }
 
 }
