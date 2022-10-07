@@ -244,18 +244,6 @@ class TextFormat {
   }
 
   /**
-   * Gets the element unique HTML ID.
-   *
-   * @return string
-   *   The ID.
-   */
-  private function getElementId(): string {
-    $id = 'id-' . Crypt::randomBytesBase64(8);
-
-    return Html::getId($id);
-  }
-
-  /**
    * Generate unique channel ID value.
    *
    * @param String $uuid
