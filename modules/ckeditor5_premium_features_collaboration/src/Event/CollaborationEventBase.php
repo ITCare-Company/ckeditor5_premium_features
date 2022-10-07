@@ -109,7 +109,7 @@ class CollaborationEventBase extends Event {
     foreach ($fields as $fieldName => $field) {
       $values = $relatedDocument->get($fieldName)->getValue();
       foreach ($values as $delta => $val) {
-        $id = CKeditorFieldKeyHelper::getElementId('edit-' . $fieldName . '-' . $delta);
+        $id = CKeditorFieldKeyHelper::getElementUniqueId('edit-' . $fieldName . '-' . $delta);
         if ($fieldId == $id) {
           return $val['value'];
         }
