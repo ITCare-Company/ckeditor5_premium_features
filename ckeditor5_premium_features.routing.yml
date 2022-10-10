@@ -25,3 +25,12 @@ ckeditor5_premium_features.endpoint.jwt_token:
     _access: 'TRUE'
   options:
     no_cache: 'TRUE'
+
+ckeditor5_premium_features.media_tags:
+  path: '/ck5/api/media-tags'
+  defaults:
+    _controller: 'Drupal\ckeditor5_premium_features\Controller\MediaTagConverterController::decodeMediaTags'
+  methods:  [POST]
+  requirements:
+    _permission: 'view media'
+    _format: json

@@ -1,12 +1,12 @@
 
 class ExportPdfAdapter {
   constructor( editor ) {
-    let baseHref = '<base href="' + window.location.origin + '">';
+    console.log(editor.config._config.exportPdf);
 
     editor.config._config.exportPdf.dataCallback = (editor) => {
-      return baseHref + editor.getData( {
-        showSuggestionHighlights: true,
-      });
+      let editorContent = Drupal.CKEditor5PremiumFeatures.editorContentExportProcessor(editor);
+
+      return editorContent
     }
   }
 
