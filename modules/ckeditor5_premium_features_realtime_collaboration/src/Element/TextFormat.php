@@ -67,8 +67,8 @@ class TextFormat {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-    $elementUniqueId = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
-    $elementDrupalId = CKeditorFieldKeyHelper::cleanElementDrupalId($element['#id']);
+    $element_unique_id = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
+    $element_drupal_id = CKeditorFieldKeyHelper::cleanElementDrupalId($element['#id']);
     $id_attribute = 'data-' . static::STORAGE_KEY . '-element-id';
 
     $element['presence_list'] = [
@@ -78,7 +78,7 @@ class TextFormat {
         'class' => [
           'ck-presence-list-container',
         ],
-        'id' => $elementDrupalId . '-value-presence-list-container',
+        'id' => $element_drupal_id . '-value-presence-list-container',
       ],
     ];
 
@@ -86,7 +86,7 @@ class TextFormat {
       '#type' => 'container',
       '#weight' => -1,
       '#attributes' => [
-        'id' => $elementDrupalId . '-value-presence-list-container',
+        'id' => $element_drupal_id . '-value-presence-list-container',
       ],
     ];
     $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->config->get('presence_list_collapse_at') ?? 8;
@@ -95,24 +95,22 @@ class TextFormat {
 
     $form_object = $form_state->getFormObject();
 
-    $element['value']["#attributes"]['data-ckeditorfieldid'] = $elementDrupalId;
-    $element['value']["#attributes"][$id_attribute] = $elementUniqueId;
+    $element['value']["#attributes"]['data-ckeditorfieldid'] = $element_drupal_id;
+    $element['value']["#attributes"][$id_attribute] = $element_unique_id;
 
     if ($this->isFormTypeSupported($form_object)) {
-      $entity = $form_object->getEntity();
+      // We need to attach the submit just in case the entity was created before the rtc module was enabled.
+      $this->addSubmitCallback($complete_form);
 
-      if ($entity->isNew()) {
-        $this->addSubmitCallback($complete_form);
-      }
-      $entityChannel = $complete_form["channel_id"]["#value"];
-      $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$elementDrupalId] =
-        $this->getChannelId($entityChannel . $elementDrupalId);
+      $entity_channel = $complete_form["channel_id"]["#value"];
+      $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$element_drupal_id] =
+        $this->getChannelId($entity_channel . $element_drupal_id);
     } else {
       // We still need to process in order to stop our integration from
       // throwing exceptions in console, but we'll block editor toolbar buttons.
       $element['#attached']['drupalSettings']['ckeditor5Premium']['disableCollaboration'] = TRUE;
-      $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$elementDrupalId] =
-        $this->getChannelId($elementDrupalId . random_bytes(5));
+      $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$element_drupal_id] =
+        $this->getChannelId($element_drupal_id . random_bytes(5));
     }
 
     // Add the container for the revision list.
@@ -121,7 +119,7 @@ class TextFormat {
       '#weight' => -1,
       '#attributes' => [
         'class' => ['revision-history-container-data'],
-        $id_attribute => $elementUniqueId,
+        $id_attribute => $element_unique_id,
       ],
       [
         '#type' => 'container',
@@ -231,12 +229,16 @@ class TextFormat {
       return;
     }
 
-    $entity = $form_object->getEntity();
-    $channelId = $form_state->getValue('channel_id');
+    $channel_storage = $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID);
+    $channel_id = $form_state->getValue('channel_id');
 
-    $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID)
-      ->create([
-        'id' => $channelId,
+    if ($channel_storage->load($channel_id)) {
+      return;
+    }
+    $entity = $form_object->getEntity();
+
+    $channel_storage->create([
+        'id' => $channel_id,
         'entity_type' => $entity->getEntityTypeId(),
         'entity_id' => $entity->uuid(),
         'created' => time(),
