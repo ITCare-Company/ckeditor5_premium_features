@@ -1,9 +1,13 @@
 
 class ExportPdfAdapter {
   constructor( editor ) {
-    editor.config._config.exportPdf.dataCallback = editor => editor.getData( {
+    let baseHref = '<base href="' + window.location.origin + '">';
+
+    editor.config._config.exportPdf.dataCallback = (editor) => {
+      return baseHref + editor.getData( {
         showSuggestionHighlights: true,
-    });
+      });
+    }
   }
 
   static get pluginName() {
