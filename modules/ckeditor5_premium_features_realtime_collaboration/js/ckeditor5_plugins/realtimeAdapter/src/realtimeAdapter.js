@@ -30,6 +30,9 @@ class RealtimeAdapter {
       console.info('The Source editing plugin is not compatible with real-time collaboration, so it has been disabled. If you need it, please contact us to discuss your use case - https://ckeditor.com/contact/');
       editor.plugins.get('SourceEditing').forceDisabled('drupal-rtc');
     }
+    if (!presenceListConfig || typeof presenceListConfig === "undefined") {
+      return;
+    }
 
     if (!presenceListConfig.container) {
       let editorParent = this.storage.getEditorParentContainer(this.editor.sourceElement.id)
