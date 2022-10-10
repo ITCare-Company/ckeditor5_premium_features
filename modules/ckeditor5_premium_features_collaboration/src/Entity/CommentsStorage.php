@@ -246,7 +246,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
    *   ID of comment.
    * @return array
    */
-  public function getCommentTree($id):array {
+  public function getCommentTree($id): array {
     $comment = $this->load($id);
     if (!$comment) {
       return [];
@@ -287,7 +287,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
 
     $allowed_tags = !empty($restrictions['allowed']) ? array_keys($restrictions['allowed']) : Xss::getHtmlTagList();
 
-    $allowed_tags =  array_merge($allowed_tags, ['p', 'li', 'ol', 'ul', 'strong', 'i']);
+    $allowed_tags =  array_merge($allowed_tags, ['p', 'li', 'ol', 'ul', 'strong', 'i', 'span']);
 
     foreach ($source_data as &$thread_data) {
       foreach ($thread_data['comments'] as &$element_data) {
