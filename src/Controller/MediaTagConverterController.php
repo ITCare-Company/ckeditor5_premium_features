@@ -4,27 +4,31 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Controller;
 
-use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
-use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\file\Entity\File;
-use Drupal\image\Entity\ImageStyle;
+use Drupal\Core\Render\RendererInterface;
+use Drupal\filter\Entity\FilterFormat;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
+/**
+ * Controller exposing an endpoint for rendering media entities in a selected text editor format.
+ */
 class MediaTagConverterController extends ControllerBase {
 
   /**
-   * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userProvider
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaborationSettings
+   * Constructor.
+   *
+   * @param \Drupal\Core\Render\RendererInterface $renderer
    * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
    */
   public function __construct(
-    protected UserDataProvider $userProvider,
-    protected CollaborationSettings $collaborationSettings,
+    protected RendererInterface $renderer,
     protected RequestStack $requestStack
   ) {
   }
@@ -34,65 +38,106 @@ class MediaTagConverterController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('ckeditor5_premium_features_collaboration.data_provider.users'),
-      $container->get('ckeditor5_premium_features_collaboration.collaboration_settings'),
+      $container->get('renderer'),
       $container->get('request_stack')
     );
   }
 
   /**
-   * Method returning a json response with users matching query criteria.
+   * API endpoint for rendering media tags.
+   *
+   * @param string $format
+   *   Text editor format.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   Current request object.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse|\Symfony\Component\HttpFoundation\JsonResponse
-   * @throws \Drupal\Core\Entity\EntityMalformedException
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function decodeMediaTags() {
-    $args = $this->requestStack->getCurrentRequest()->request;
+  public function decodeMediaTags(string $format, Request $request) {
+    $entityTypes = $this->getMediaIdsWithTypes($request);
+    $viewMode = $this->getMediaEmbedDefaultViewMode($format);
 
-    if (empty($args->get('media')) ) {
+    if (empty($entityTypes)) {
       return new JsonResponse([]);
     }
 
-    $media = Json::decode($args->get('media'));
+    $resultList = [];
+    foreach ($entityTypes as $type => $ids) {
+      $entities = $this->entityTypeManager()->getStorage($type)->loadByProperties([
+        'uuid' => $ids,
+      ]);
+      $view_builder = $this->entityTypeManager()->getViewBuilder($type);
 
+      /** @var \Drupal\media\Entity\Media $entity */
+      foreach ($entities as $entity) {
+        $pre_render = $view_builder->view($entity, $viewMode);
+
+        $viewRendered = $this->renderer->render($pre_render);
+
+        if ($viewRendered) {
+          $resultList[$entity->uuid()] = [
+            'uuid' => $entity->uuid(),
+            'rendered' => $viewRendered,
+          ];
+        }
+      }
+    }
+
+    return new AjaxResponse(array_values($resultList));
+  }
+
+  /**
+   * Returns a media default view used to render entity.
+   *
+   * @param string $format
+   *   Text editor format.
+   */
+  protected function getMediaEmbedDefaultViewMode(string $format): string {
+    /** @var \Drupal\filter\Entity\FilterFormat $filterFormat */
+    $filterFormat = FilterFormat::load($format);
+    if (!$filterFormat) {
+      throw new BadRequestHttpException('No matching text format');
+    }
+    $perm = $filterFormat->getPermissionName();
+
+    if (!$this->currentUser()->hasPermission($perm)) {
+      throw new AccessDeniedHttpException('Missing permission to use specified format');
+    }
+
+    /** @var \Drupal\media\Plugin\Filter\MediaEmbed $filter */
+    $filter = $filterFormat->filters('media_embed');
+    if (!$filter) {
+      throw new BadRequestHttpException('Missing media embed filter');
+    }
+
+    return $filter->settings['default_view_mode'];
+  }
+
+  /**
+   * Returns a list of media IDs with types collected from current request.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   Request object.
+   *
+   * @return array
+   *   Associative array where media type is a key, and a value is a list of media IDs.
+   */
+  protected function getMediaIdsWithTypes(Request $request): array {
+    $args = $request->request;
+
+    if (empty($args->get('media')) ) {
+      throw new BadRequestHttpException('Missing required parameters');
+    }
+
+    $media = Json::decode($args->get('media'));
     $entityTypes = [];
 
     foreach ($media as $entityInfo) {
       $entityTypes[$entityInfo['type']][] = $entityInfo['id'];
     }
 
-    $resultList = [];
-    foreach ($entityTypes as $type => $ids) {
-      $entities = \Drupal::entityTypeManager()->getStorage($type)->loadByProperties([
-        'uuid' => $ids
-      ]);
-      foreach ($entities as $entity) {
-        // get the file source value for the media entity
-        $source_value = $entity->getSource()->getSourceFieldValue($entity);
-
-        // if a file resource exists, then build an image_style url based off of it using the image_style 'thumbnail'
-        if ($source_value) {
-          $file_entity = File::load($source_value);
-          $resultList[$entity->uuid()] = ImageStyle::load('thumbnail')->buildUrl($file_entity->getFileUri());
-        }
-      }
-    }
-
-    return new AjaxResponse($resultList);
+    return $entityTypes;
   }
-
-  /**
-   * Returns a marker character used for starting annotations.
-   */
-  protected function getMentionMarker(): string {
-    return $this->collaborationSettings->getMentionsMarker();
-  }
-
-  /**
-   * Returns the maximum number of suggestions displayed.
-   */
-  protected function getDropdownLimit(): int {
-    return $this->collaborationSettings->getMentionAutocompleteListLength();
-  }
-
 }

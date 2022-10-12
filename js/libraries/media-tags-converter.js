@@ -1,21 +1,35 @@
 (function ($, Drupal) {
   Drupal.CKEditor5PremiumFeatures.mediaTagsConverter = {
-    convertMediaTags(content) {
-      console.log('media tag lib');
-
+    /**
+     * Convert drupal-media tags to proper HTML rendered content.
+     * @param content
+     *   Document content.
+     * @param format
+     *   Text format.
+     *
+     * @returns {Promise<string>}
+     */
+    async convertMediaTags(content, format) {
       let documentDom = document.createElement('body');
       documentDom.innerHTML = content;
 
       let elementsAttributes = this.getTagProperties(documentDom);
 
-      let mediaPaths = this.queryMediaPaths(elementsAttributes);
+      let mediaPaths = await this.queryMediaPaths(elementsAttributes, format);
 
-      console.log(elementsAttributes);
-      console.log(mediaPaths);
+      this.replaceMediaTags(documentDom, mediaPaths);
 
-      return 'converted: ' + documentDom.innerHTML;
+      return documentDom.innerHTML;
     },
 
+    /**
+     * Returns a list of properties collected for drupal-media tags.
+     *
+     * @param documentDom
+     *   A DOM element to search in.
+     *
+     * @returns {*[]}
+     */
     getTagProperties(documentDom) {
       let elements = documentDom.getElementsByTagName("drupal-media");
       let elementsAttributes = [];
@@ -25,39 +39,47 @@
         let id = elements[e].dataset.entityUuid;
 
         elementsAttributes.push({type: type, id: id});
-        let props = elements[e].attributes;
-        console.log(props);
       }
 
       return elementsAttributes;
     },
 
-    async queryMediaPaths(elementAttributes) {
-      // return new Promise( resolve => {
-      let res = [];
-        await $.post('/ck5/api/media-tags', {
-          media: JSON.stringify(elementAttributes)
+    /**
+     * Queries a backed API to get media elements rendered.
+     *
+     * @param elementAttributes
+     *   List of media tag attributes.
+     * @param format
+     *   Text editor format.
+     *
+     * @returns {Promise<unknown>}
+     */
+    queryMediaPaths(elementAttributes, format) {
+      return new Promise( resolve => {
+        $.post('/ck5/api/media-tags/' + format, {
+          media: JSON.stringify(elementAttributes),
         }).done(function(result) {
-          console.log( result );
-          res = result;
-          return result;
+          resolve(result);
         });
-
-        console.log(res);
-
-        return res;
-      // } );
+      });
     },
 
     /**
+     * Replaces media tags with rendered entities HTML.
      *
-     * @param documentElement
-     * @param mediaPaths
+     * @param documentElements
+     *   A document DOM element to search in and replace media tags.
+     * @param mediaTagContent
+     *   A list of rendered media tags.
      */
-    replaceMediaTags(documentElements, mediaPaths) {
-      for (let i = 0; i < documentElements.length; ++i) {
-        let element = documentElements[i];
+    replaceMediaTags(documentElements, mediaTagContent) {
+      for (const mediaInfo of mediaTagContent) {
+        let mediaTags = documentElements.querySelectorAll('[data-entity-uuid="' + mediaInfo.uuid + '"]');
+
+        for (const tag of mediaTags) {
+          tag.innerHTML = mediaInfo.rendered;
+        }
       }
-    }
+    },
   }
 })(jQuery, Drupal);

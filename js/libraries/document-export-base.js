@@ -1,16 +1,16 @@
 (function ($, Drupal) {
   Drupal.CKEditor5PremiumFeatures = {
 
-    editorContentExportProcessor: function(editor) {
+    editorContentExportProcessor: async function(editor) {
       this.editor = editor;
 
       let editorContent = this.getEditorContent();
 
-      editorContent = Drupal.CKEditor5PremiumFeatures.mediaTagsConverter.convertMediaTags(editorContent);
+      editorContent = await Drupal.CKEditor5PremiumFeatures.mediaTagsConverter.convertMediaTags(
+        editorContent,
+        editor.sourceElement.dataset.editorActiveTextFormat
+      );
       editorContent = Drupal.CKEditor5PremiumFeatures.relativePathsProcessor(editorContent);
-
-      console.log('after processing');
-      console.log(editorContent);
 
       return editorContent;
     },
