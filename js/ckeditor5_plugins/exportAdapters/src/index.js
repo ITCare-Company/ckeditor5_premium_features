@@ -7,8 +7,8 @@
  */
 // cSpell:ignore simplebox
 
-import ExportPdfAdapter from "./exportPdfAdapter";
+import ExportAdapters from "./exportAdapters";
 
 export default {
-  ExportPdfAdapter,
+  ExportAdapters,
 };

@@ -3,10 +3,10 @@ ckeditor5_premium_features_export_pdf__export_pdf:
     plugins:
       - cloudServices.CloudServices
       - exportPdf.ExportPdf
-      - exportPdfAdapter.ExportPdfAdapter
+      - exportAdapters.ExportAdapters
   drupal:
     label: Export to PDF
-    library: ckeditor5_premium_features_export_pdf/export-pdf-integration
+    library: ckeditor5_premium_features_export_pdf/export-pdf
     admin_library: ckeditor5_premium_features_export_pdf/admin.export_pdf
     class: Drupal\ckeditor5_premium_features_export_pdf\Plugin\CKEditor5Plugin\ExportPdf
     toolbar_items:

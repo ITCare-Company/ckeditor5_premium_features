@@ -16,3 +16,11 @@ media-export-features:
     js/libraries/document-export-base.js: { minified: false }
     js/libraries/media-tags-converter.js: { minified: false }
     js/libraries/relative-paths-processor.js: { minified: false }
+
+export-integration:
+  js:
+    js/build/exportAdapters.js: { minified: true }
+  dependencies:
+    - ckeditor5_premium_features/cloud-services
+    - ckeditor5_premium_features/collaboration-integration-base
+    - ckeditor5_premium_features/media-export-features
