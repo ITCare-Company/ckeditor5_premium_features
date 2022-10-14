@@ -10,3 +10,9 @@ collaboration-integration-base:
     js/build/removeIncorrectCollaborationMarkers.js: { minified: true }
   dependencies:
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
+
+media-export-features:
+  js:
+    js/libraries/document-export-base.js: { minified: false }
+    js/libraries/media-tags-converter.js: { minified: false }
+    js/libraries/relative-paths-processor.js: { minified: false }
