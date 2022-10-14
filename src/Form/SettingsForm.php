@@ -109,7 +109,9 @@ class SettingsForm extends ConfigFormBase {
         'dev_token' => $this->t('Development token'),
       ],
       '#default_value' => 'key',
-      '#description' => $this->t('Select the authorization suitable type for your features. The access key-based authorization is highly recommended and the best option in production environment. The development token should rather be used for testing purposes. Required for Export to Word/PDF and Real-time collaboration.'),
+      '#description' => $this->t('Select the authorization suitable type for your features. The access key-based authorization is highly recommended and the best option in production environment. The development token should rather be used for testing purposes. Required for Export to Word/PDF and Real-time collaboration.')
+      . '<br />'
+      . $this->t('The access key-based authorization is required for real-time collaboration and optional for Export to Word/PDF to generate documents without the watermark.'),
     ];
 
     $configuration['env'] = [
@@ -117,9 +119,7 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Environment ID'),
       '#required' => $auth_type == 'key',
       '#description' =>
-      $this->t('The environment management panel can be found in <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-      . '<br>'
-      . $this->t('Required for Export to Word/PDF and Real-time collaboration.'),
+      $this->t('The environment management panel can be found in <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url]),
       '#states' => [
         'visible' => [
           'select[name="auth_type"]' => ['value' => 'key'],
@@ -135,9 +135,7 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Access key'),
       '#required' => $auth_type == 'key',
       '#description' =>
-      $this->t('The access key for the environment can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-      . '<br>'
-      . $this->t('Required for Export to Word/PDF and Real-time collaboration.'),
+      $this->t('The access key for the environment can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url]),
       '#states' => [
         'visible' => [
           'select[name="auth_type"]' => ['value' => 'key'],
