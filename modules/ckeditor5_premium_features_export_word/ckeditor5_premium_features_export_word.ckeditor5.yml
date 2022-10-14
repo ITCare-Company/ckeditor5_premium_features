@@ -16,7 +16,7 @@ ckeditor5_premium_features_export_word__export_word:
     conditions:
       toolbarItem: exportWord
       plugins:
-        - ckeditor5_premium_features_cloud_services
+        - ckeditor5_premium_features__cloud_services
         - ckeditor5_premium_features__export_adapter
     premium_features:
       plugin: exportWord
