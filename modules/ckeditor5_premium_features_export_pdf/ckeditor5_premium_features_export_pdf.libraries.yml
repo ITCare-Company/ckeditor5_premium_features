@@ -2,12 +2,3 @@ admin.export_pdf:
   css:
     theme:
       css/export-pdf.admin.css: { }
-
-export-pdf-integration:
-  js:
-    js/build/exportPdfAdapter.js: { minified: true }
-  dependencies:
-    - ckeditor5_premium_features/cloud-services
-    - ckeditor5_premium_features/collaboration-integration-base
-    - ckeditor5_premium_features_export_pdf/export-pdf
-    - ckeditor5_premium_features/media-export-features
