@@ -25,7 +25,7 @@
       return splitted.join('="');
     })
 
-    return '<base href="' + window.location.origin + '">'
+    return '<base href="' + basePath + '" />'
       + content;
   }
 }) (jQuery, Drupal);
