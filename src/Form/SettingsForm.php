@@ -87,7 +87,7 @@ class SettingsForm extends ConfigFormBase {
       $this->t("Premium features will only work if configured correctly. If you have not subscribed yet, you can start <a href='@trial'>a free trial</a>.", ['@trial' => 'https://orders.ckeditor.com/trial/premium-features'])
       . '<br>'
         // @todo define the documentation URL.
-      . $this->t("Follow the <a href='@documentation'>dedicated documentation for Drupal</a> as most of the steps necessary to run premium features have been already included in this module.", ['@documentation' => 'https://www.drupal.org/project/ckeditor5_premium_features']),
+      . $this->t("Follow the <a href='@documentation'>dedicated documentation for Drupal</a> as most of the steps necessary to run premium features have been already included in this module.", ['@documentation' => 'https://www.drupal.org/docs/contributed-modules/ckeditor-5-premium-features/how-to-install-and-set-up-the-module#s-adding-credentials-to-drupal']),
     ];
 
     $configuration = [];
