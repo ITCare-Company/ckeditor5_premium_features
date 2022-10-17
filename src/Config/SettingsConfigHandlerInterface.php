@@ -75,4 +75,11 @@ interface SettingsConfigHandlerInterface {
    */
   public function getDefaultDllLocation(): string;
 
+  /**
+   * Gets the DLLs version.
+   *
+   * @return string
+   *   The DLLs version.
+   */
+  public function getDllVersion(): string;
 }
