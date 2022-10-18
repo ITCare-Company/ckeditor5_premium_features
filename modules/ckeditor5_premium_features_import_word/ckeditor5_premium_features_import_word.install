@@ -5,8 +5,6 @@
  * Contains CKEditor 5 Premium Features Collaboration module install functions.
  */
 
-use Drupal\Core\Url;
-
 /**
  * Implements hook_requirements().
  */
@@ -18,7 +16,7 @@ function ckeditor5_premium_features_import_word_requirements($phase): array {
 
   $dllVersion = $settings->getDllVersion();
 
-  if ($dllVersion < '35.2.1') {
+  if (version_compare('35.2.1', $dllVersion) > 0) {
     $requirements[] = [
       'title' => t('CKEditor 5 Import from Word'),
       'description' => t('CKEditor 5 Import from Word module requires Ckeditor5 version higher or equal to 35.2.1'),
