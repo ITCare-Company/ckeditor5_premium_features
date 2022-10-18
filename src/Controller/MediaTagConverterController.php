@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Controller;
 
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Controller\ControllerBase;
@@ -59,7 +60,7 @@ class MediaTagConverterController extends ControllerBase {
     $entityTypes = $this->getMediaIdsWithTypes($request);
     $viewMode = $this->getMediaEmbedDefaultViewMode($format);
 
-    if (empty($entityTypes)) {
+    if (empty($entityTypes) || empty($viewMode)) {
       return new JsonResponse([]);
     }
 
@@ -89,12 +90,12 @@ class MediaTagConverterController extends ControllerBase {
   }
 
   /**
-   * Returns a media default view used to render entity.
+   * Returns a media default view used to render entity or NULL if format not exists.
    *
    * @param string $format
    *   Text editor format.
    */
-  protected function getMediaEmbedDefaultViewMode(string $format): string {
+  protected function getMediaEmbedDefaultViewMode(string $format): ?string {
     /** @var \Drupal\filter\Entity\FilterFormat $filterFormat */
     $filterFormat = FilterFormat::load($format);
     if (!$filterFormat) {
@@ -106,10 +107,15 @@ class MediaTagConverterController extends ControllerBase {
       throw new AccessDeniedHttpException('Missing permission to use specified format');
     }
 
-    /** @var \Drupal\media\Plugin\Filter\MediaEmbed $filter */
-    $filter = $filterFormat->filters('media_embed');
+    try {
+      /** @var \Drupal\media\Plugin\Filter\MediaEmbed $filter */
+      $filter = $filterFormat->filters('media_embed');
+    }
+    catch (PluginNotFoundException) {
+      return NULL;
+    }
     if (!$filter) {
-      throw new BadRequestHttpException('Missing media embed filter');
+      return NULL;
     }
 
     return $filter->settings['default_view_mode'];
