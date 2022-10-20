@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\ckeditor5_premium_features\CKeditorDateFormatterTrait;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -16,6 +18,8 @@ use Drupal\user\UserInterface;
  * Provides the base entity class for the collaboration entities.
  */
 abstract class CollaborationEntityBase extends ContentEntityBase implements CollaborationEntityInterface {
+
+  use CKeditorDateFormatterTrait;
 
   /**
    * {@inheritdoc}
@@ -136,6 +140,13 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
   /**
    * {@inheritdoc}
    */
+  public function getCreatedDate($format = 'medium'): string {
+    return $this->format($this->getCreatedTime(), $format);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getEntityTypeTargetId(): string {
     return (string) $this->get('entity_type')->value;
   }
@@ -145,6 +156,18 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
    */
   public function getEntityId(): string {
     return (string) $this->get('entity_id')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function getReferencedEntity(): EntityInterface {
+    return $this->entityTypeManager()
+      ->getStorage($this->getEntityTypeTargetId())
+      ->load($this->getEntityId());
   }
 
   /**
@@ -166,6 +189,15 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
    */
   public function setAttributes(array|string $data): static {
     return $this->setJsonFieldValue('attributes', $data);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getKey(): string|null {
+    $attributes = $this->getAttributes();
+
+    return $attributes['key'] ?? NULL;
   }
 
   /**

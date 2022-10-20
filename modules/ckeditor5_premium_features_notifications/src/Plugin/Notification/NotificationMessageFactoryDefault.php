@@ -2,9 +2,8 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
-use Drupal\ckeditor5_premium_features_notifications\Form\SettingsForm;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Config\ImmutableConfig;
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\Core\Utility\Token;
@@ -15,21 +14,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class NotificationMessageFactoryDefault extends PluginBase implements NotificationMessageFactoryInterface, ContainerFactoryPluginInterface {
 
-  /**
-   * Notification config.
-   *
-   * @var \Drupal\Core\Config\ImmutableConfig
-   */
-  protected ImmutableConfig $config;
-
   public function __construct(array $configuration,
                               $pluginId,
                               $pluginDefinition,
-                              ConfigFactoryInterface $configFactory,
+                              protected NotificationSettings $notificationSettings,
                               protected Token $tokenService) {
     parent::__construct($configuration, $pluginId, $pluginDefinition);
-
-    $this->config = $configFactory->get(SettingsForm::NOTIFICATION_CONFIG);
   }
 
   /**
@@ -39,7 +29,7 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
     return new static($configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('config.factory'),
+      $container->get('ckeditor5_premium_features_notifications.notification_settings'),
       $container->get('token'),
     );
   }
@@ -47,7 +37,7 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
   /**
    * {@inheritdoc}
    */
-  public function label() {
+  public function label(): string {
     // The title from YAML file discovery may be a TranslatableMarkup object.
     return (string) $this->pluginDefinition['label'];
   }
@@ -55,15 +45,27 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
   /**
    * {@inheritdoc}
    */
-  public function getMessage(string $messageType, array $parameters): NotificationMessageInterface|NULL {
+  public function getMessage(string $messageType, CollaborationEventBase $event): NotificationMessageInterface|NULL {
     if (!self::isMessageTypeSupported($messageType)) {
       return NULL;
     }
 
-    $subject = $this->tokenService->replace($this->getMessageSubject($messageType), $parameters);
-    $body = $this->tokenService->replace($this->getMessageBody($messageType), $parameters);
+    try {
+      $parameters = $this->getMessageParameters($messageType, $event);
+    }
+    catch (\Exception) {
+      return NULL;
+    }
 
-    return new NotificationMessage($messageType, $subject, $body);
+    $subject = $this->tokenService->replace($this->notificationSettings->getMessageSubject($messageType), $parameters);
+    $body = $this->tokenService->replace($this->notificationSettings->getMessageBody($messageType), $parameters);
+
+    return new NotificationMessage(
+      $messageType,
+      $subject,
+      $body,
+      $event
+    );
   }
 
   /**
@@ -71,12 +73,14 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
    */
   public static function getSupportedMessageTypes(): array {
     return [
-      self::CKEDITOR5_MESSAGE_DEFAULT => 'Default (to be removed)',
+      self::CKEDITOR5_MESSAGE_DEFAULT => 'Default (any update made)',
       self::CKEDITOR5_MESSAGE_MENTION_COMMENT => 'Mentioned in a comment',
       self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT => 'Mentioned in a document',
+      self::CKEDITOR5_MESSAGE_COMMENT_ADDED => 'New comment added',
       self::CKEDITOR5_MESSAGE_THREAD_REPLY => 'Reply in a thread',
       self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY => 'Reply to a suggestion',
       self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => 'Suggestion status change',
+      self::CKEDITOR5_MESSAGE_SUGGESTION_ADDED => 'New Suggestion added',
     ];
   }
 
@@ -89,22 +93,45 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
   }
 
   /**
-   * Returns subject template for specified message type.
-   *
    * @param string $messageType
-   *   Type of message.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   *
+   * @return array
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  protected function getMessageSubject(string $messageType): string {
-    return $this->config->get($messageType . '__subject');
+  protected function getMessageParameters(string $messageType, CollaborationEventBase $event): array {
+    $parameters = [
+      'user' => $event->getAccount(),
+    ];
+
+    if ($messageType == self::CKEDITOR5_MESSAGE_DEFAULT) {
+      $parameters[$event->getRelatedEntity()->getEntityTypeId()] = $event->getRelatedEntity();
+    }
+
+    switch ($messageType) {
+      case self::CKEDITOR5_MESSAGE_COMMENT_ADDED:
+      case self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:
+      case self::CKEDITOR5_MESSAGE_SUGGESTION_ADDED:
+      case self::CKEDITOR5_MESSAGE_THREAD_REPLY:
+      case self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY:
+      case self::CKEDITOR5_MESSAGE_MENTION_COMMENT:
+        /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase $collaborationEntity */
+        $collaborationEntity = $event->getRelatedEntity();
+        $parameters[$collaborationEntity->getEntityTypeTargetId()] = $collaborationEntity->getReferencedEntity();
+        break;
+
+      case self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT:
+        $collaboratedEntity = $event->getRelatedEntity();
+        $parameters[$collaboratedEntity->getEntityTypeId()] = $collaboratedEntity;
+        break;
+    }
+
+    if ($messageType == self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS) {
+      $parameters['suggestion'] = $event;
+    }
+
+    return $parameters;
   }
 
-  /**
-   * Returns body template for specified message type.
-   *
-   * @param string $messageType
-   *   Type of message.
-   */
-  protected function getMessageBody(string $messageType): string {
-    return $this->config->get($messageType . '__message')['value'];
-  }
 }

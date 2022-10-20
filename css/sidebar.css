@@ -1,0 +1,79 @@
+.ck-editor-sidebar-wrapper {
+  display: flex;
+}
+.ck-editor-sidebar-wrapper .form-item__label {
+  margin: 0;
+  line-height: 27px;
+}
+.ck-editor-sidebar-wrapper .form-item {
+  margin: 0;
+  flex: 0 1 auto;
+  min-width: 0;
+  width: 100%;
+}
+.ck-editor-sidebar-wrapper.wideSidebar .form-item {
+  max-width: calc(100% - 300px);
+}
+.ck-editor-sidebar-wrapper.narrowSidebar .form-item {
+  max-width: calc(100% - 65px);
+}
+.ck-editor-sidebar-wrapper.slider-off .form-item {
+  max-width: unset;
+}
+
+.ck-editor-sidebar-wrapper .ck-content:not(.ck-comment__input *) {
+  min-height: 120px;
+  padding-bottom: 120px;
+}
+
+/*sidebar */
+.ck-editor-sidebar-wrapper.slider-off .ck-sidebar-wrapper {
+  display: none;
+}
+.ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper,
+.ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper {
+  background: var(--ck-color-toolbar-background);
+  border: 1px solid var(--ck-color-toolbar-border);
+  border-left: 0;
+  overflow: hidden;
+  margin: 1.7em 0 0 0;
+  width: 100%;
+}
+
+tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
+  margin-top: unset;
+}
+
+#block-bartik-content .ck-sidebar-wrapper.wideSidebar {
+  margin: 1.35em 0 0 0;
+}
+.ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper {
+  max-width: 65px;
+}
+.ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
+  max-width: 279px;
+  padding: 0 10px;
+}
+
+/*Toggle*/
+.ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
+  position: absolute;
+  margin: 0px 18px;
+}
+.ck-sidebar-wrapper a.ck-sidebar-auto-toggle:hover {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/*Toggle Icon*/
+.ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after,
+.ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
+  font-size: 26px;
+  color: var(--ck-color-toolbar-border)
+}
+.ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
+  content: '«';
+}
+.ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
+  content: '»';
+}

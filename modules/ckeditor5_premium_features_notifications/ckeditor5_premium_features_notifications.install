@@ -7,6 +7,8 @@
 
 declare(strict_types=1);
 
+use Drupal\Core\Field\BaseFieldDefinition;
+
 /**
  * Implements hook_install().
  */
@@ -34,4 +36,25 @@ function ckeditor5_premium_features_notifications_install($is_syncing) {
   ];
 
   $userFormConfig->setData($configArray)->save();
+}
+
+/**
+ * Implements hook_update().
+ */
+function ckeditor5_premium_features_notifications_update_9001() {
+  $storage_definition = BaseFieldDefinition::create('string_long')
+    ->setLabel(t('Message item event type.'))
+    ->setDescription(t('The message content.'));
+
+  $entityDefinition = \Drupal::entityDefinitionUpdateManager();
+  $message_item = $entityDefinition->getEntityType('ckeditor5_message_item');
+
+  if ($message_item) {
+    $entityDefinition->installFieldStorageDefinition(
+      'message_content',
+      'ckeditor5_message_item',
+      'ckeditor5_message_item',
+      $storage_definition
+    );
+  }
 }

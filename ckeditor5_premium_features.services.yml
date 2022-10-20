@@ -3,6 +3,7 @@ services:
     class: Drupal\ckeditor5_premium_features\Config\SettingsConfigHandler
     arguments:
       - '@config.factory'
+      - '@library.discovery'
 
   ckeditor5_premium_features.config_handler.export_settings:
     class: Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandler
@@ -24,3 +25,6 @@ services:
     class: \Drupal\ckeditor5_premium_features\Utility\CssStyleProvider
     arguments:
       - '@theme.manager'
+
+  ckeditor5_premium_features.plugin_helper:
+    class: \Drupal\ckeditor5_premium_features\Utility\PluginHelper

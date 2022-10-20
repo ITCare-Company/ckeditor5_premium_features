@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * @file
+ * Contains CKEditor 5 Premium Features Realtime module functions.
+ */
+
+declare(strict_types = 1);
+
+use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat;
+use Drupal\Component\Utility\Crypt;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Entity\EntityFormInterface;
+
+/**
+ * Implements hook_library_info_build().
+ */
+function ckeditor5_premium_features_realtime_collaboration_library_info_build(): array {
+  /** @var \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $config_handler */
+  $config_handler = \Drupal::service('ckeditor5_premium_features.config_handler.settings');
+
+  $libraries = [
+    'real-time-collaboration',
+    'comments',
+    'revision-history',
+    'track-changes',
+  ];
+
+  $definitions = [];
+
+  foreach ($libraries as $library) {
+    $definition = new LibraryDefinitionItem($library, $config_handler->getDllLocation());
+    $definition->addRemoteJs($definition->id());
+
+    $definitions[$definition->id()] = $definition->getDefinition();
+  }
+
+  return $definitions;
+}
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function ckeditor5_premium_features_realtime_collaboration_element_info_alter(array &$info): void {
+  if (isset($info['text_format'])) {
+    $info['text_format']['#process'][] = [TextFormat::class, 'process'];
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function ckeditor5_premium_features_realtime_collaboration_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $form_object = $form_state->getFormObject();
+  if ($form_object instanceof EntityFormInterface) {
+    $entity = $form_object->getEntity();
+    if ($entity instanceof FieldableEntityInterface) {
+      $channel_provider = \Drupal::service('ckeditor5_premium_features_realtime_collaboration.channel');
+      if (!$entity->isNew() && $channel = $channel_provider->getChannel($entity)) {
+        $channelId = $channel->id();
+      } else {
+        $input = $form_state->getUserInput();
+        if (!empty($input) && isset($input['channel_id'])) {
+          $channelId = $input['channel_id'];
+        } else {
+          $channelId = Crypt::randomBytesBase64(24);
+        }
+      }
+
+      $form['channel_id'] = [
+        '#type' => 'hidden',
+        '#value' => $channelId,
+        '#default_value' => $channelId,
+      ];
+    }
+  }
+}

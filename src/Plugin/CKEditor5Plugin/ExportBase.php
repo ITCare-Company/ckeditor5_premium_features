@@ -17,7 +17,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use ReflectionClass;
 
 /**
  * CKEditor 5 export related modules base plugin.
@@ -69,7 +68,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
-    $this->settingsForm = (new ReflectionClass($this->settingsFormClass))->newInstanceWithoutConstructor();
+    $this->settingsForm = (new \ReflectionClass($this->settingsFormClass))->newInstanceWithoutConstructor();
   }
 
   /**

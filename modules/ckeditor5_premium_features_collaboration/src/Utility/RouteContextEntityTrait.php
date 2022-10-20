@@ -19,7 +19,7 @@ trait RouteContextEntityTrait {
    *
    * @var \Drupal\Core\Routing\RouteMatchInterface|null
    */
-  protected ?RouteMatchInterface $routeMatch = null;
+  protected ?RouteMatchInterface $routeMatch = NULL;
 
   /**
    * Gets the route context data.

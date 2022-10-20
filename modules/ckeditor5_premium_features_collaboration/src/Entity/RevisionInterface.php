@@ -92,4 +92,5 @@ interface RevisionInterface {
    *   The revision number.
    */
   public function setPreviousVersion(int $version): static;
+
 }

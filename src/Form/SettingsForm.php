@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Form;
 
+use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides the form for the main module & submodule configuration.
@@ -27,6 +30,29 @@ class SettingsForm extends ConfigFormBase {
    * Required length of the License key.
    */
   const LICENSE_KEY_MIN_LENGTH = 48;
+
+  /**
+   * Class constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   Config factory service.
+   * @param \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $configHandler
+   *   Module settings handler.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory,
+                              protected SettingsConfigHandlerInterface $configHandler) {
+    parent::__construct($config_factory);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('ckeditor5_premium_features.config_handler.settings')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -58,10 +84,10 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Premium features configuration'),
       '#open' => TRUE,
       '#description' =>
-        $this->t("Premium features will work only if configured correctly. If you haven't subscribed yet, you cen start <a href='@trial'>a free trial</a>.", ['@trial' => 'https://orders.ckeditor.com/trial/premium-features'])
-        . '<br>'
+      $this->t("Premium features will only work if configured correctly. If you have not subscribed yet, you can start <a href='@trial'>a free trial</a>.", ['@trial' => 'https://orders.ckeditor.com/trial/premium-features'])
+      . '<br>'
         // @todo define the documentation URL.
-        . $this->t("Follow the <a href='@documentation'>dedicated documentation for Drupal</a> as most of the steps necessary to run premium features have been already included in this module.", ['@documentation' => '#']),
+      . $this->t("Follow the <a href='@documentation'>dedicated documentation for Drupal</a> as most of the steps necessary to run premium features have been already included in this module.", ['@documentation' => 'https://www.drupal.org/docs/contributed-modules/ckeditor-5-premium-features/how-to-install-and-set-up-the-module#s-adding-credentials-to-drupal']),
     ];
 
     $configuration = [];
@@ -71,18 +97,21 @@ class SettingsForm extends ConfigFormBase {
     $configuration['license_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('License key'),
-      '#description' => $this->t('The license key is required <strong>only</strong> for Track changes and Comments (<strong>without</strong> real-time collaboration).'),
+      '#description' => $this->t('The license key is required <strong>only</strong> for Revision History, Track changes and Comments (<strong>without</strong> real-time collaboration).'),
     ];
 
     $configuration['auth_type'] = [
       '#type' => 'select',
-      '#title' => $this->t('Authroization type'),
+      '#title' => $this->t('Authorization type'),
       '#options' => [
+        'none' => $this->t('Not set'),
         'key' => $this->t('Access key'),
         'dev_token' => $this->t('Development token'),
       ],
       '#default_value' => 'key',
-      '#description' => $this->t('Select the authorization type for your features. The access key-based authorization is highly recommended and the best option in most cases.'),
+      '#description' => $this->t('Select the authorization suitable type for your features. The access key-based authorization is highly recommended and the best option in production environment. The development token should rather be used for testing purposes. Required for Export to Word/PDF and Real-time collaboration.')
+      . '<br />'
+      . $this->t('The access key-based authorization is required for real-time collaboration and optional for Export to Word/PDF to generate documents without the watermark.'),
     ];
 
     $configuration['env'] = [
@@ -90,9 +119,7 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Environment ID'),
       '#required' => $auth_type == 'key',
       '#description' =>
-        $this->t('The environment management panel can be found in <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-        . '<br>'
-        . $this->t('Required for Export to Word/PDF and Real-time collaboration.'),
+      $this->t('The environment management panel can be found in <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url]),
       '#states' => [
         'visible' => [
           'select[name="auth_type"]' => ['value' => 'key'],
@@ -108,9 +135,7 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Access key'),
       '#required' => $auth_type == 'key',
       '#description' =>
-        $this->t('The access key to the environment can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-        . '<br>'
-        . $this->t('Required for Export to Word/PDF and Real-time collaboration.'),
+      $this->t('The access key for the environment can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url]),
       '#states' => [
         'visible' => [
           'select[name="auth_type"]' => ['value' => 'key'],
@@ -125,7 +150,7 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'url',
       '#title' => $this->t('Development token URL'),
       '#required' => $auth_type == 'dev_token',
-      '#description' => $this->t('The development token URL should be used with care as it does not provide sufficient permission validation. It is highly recommended to specify Environment ID and Access Key instead.'),
+      '#description' => $this->t('The development token URL should be used with care as it does not provide sufficient permission validation. While it is good for testing, it is highly recommended to specify Environment ID and Access Key instead for production environments.'),
       '#attributes' => [
         'placeholder' => 'https://',
       ],
@@ -141,7 +166,7 @@ class SettingsForm extends ConfigFormBase {
 
     $configuration['dev_token_accept'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('I understand the consequences of using a development token URL'),
+      '#title' => $this->t('I understand the consequences of using a development token URL.'),
       '#states' => [
         'required' => [
           'select[name="auth_type"]' => ['value' => 'dev_token'],
@@ -150,6 +175,15 @@ class SettingsForm extends ConfigFormBase {
           'select[name="auth_type"]' => ['value' => 'dev_token'],
         ],
       ],
+    ];
+
+    $configuration['web_socket_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Web Socket URL'),
+      '#description' =>
+        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        . '<br>'
+        . $this->t('Required for Real-time collaboration.'),
     ];
 
     $this->setDefaultValues($configuration);
@@ -161,15 +195,20 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Advanced settings'),
       '#open' => TRUE,
       '#description' =>
-        $this->t('CKEditor Premium Features needs to load additional plugins (“DLLs”) in order to run. By default this module will detect the version of CKEditor your website is running and load automatically required plugins from a CDN.')
-        . '<br>'
-        . $this->t('Specify the DLL packages location only if you host the DLL packages by yourself. Contact us in case of any questions.'),
+      $this->t('CKEditor Premium Features needs to load additional plugins (“DLLs”) in order to run. By default this module will detect the version of CKEditor your website is running and load required plugins from a CDN automatically.')
+      . '<br>'
+      . $this->t('Specify the DLL packages location <strong>only</strong> if you host the DLL packages by yourself. Contact us in case of any questions.'),
     ];
 
     $advanced['dll_location'] = [
       '#type' => 'textfield',
       '#title' => $this->t('DLL packages location'),
-      '#description' => $this->t('Leave this field empty unless you know what you are doing.'),
+      '#description' => $this->t('Leave this field empty unless you know what you are doing. The path must end by "/"
+<br />This field supports additional token: "' .SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN . '" - replaced dynamically with the version of your CKEditor.'),
+      '#default_value' => $this->configHandler->getDefaultDllLocation(),
+      '#attributes' => [
+        'placeholder' => $this->configHandler->getDefaultDllLocation(),
+      ],
     ];
 
     $this->setDefaultValues($advanced);
@@ -183,6 +222,8 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
+    $this->processCleanValues($form_state);
+
     $access_key = $form_state->getValue('access_key', FALSE);
     $env = $form_state->getValue('env', FALSE);
     $auth_type = $form_state->getValue('auth_type');
@@ -192,7 +233,7 @@ class SettingsForm extends ConfigFormBase {
     $length_message = '@name length is invalid (@num characters required)';
     $min_length_message = '@name length is invalid (minimum @num characters required)';
 
-    if (!empty($license_key) && strlen($license_key) < self::LICENSE_KEY_MIN_LENGTH ) {
+    if (!empty($license_key) && strlen($license_key) < self::LICENSE_KEY_MIN_LENGTH) {
       $form_state->setErrorByName('license_key', $this->t($min_length_message, ['@name' => 'License key', '@num' => self::LICENSE_KEY_MIN_LENGTH]));
     }
 
@@ -214,10 +255,17 @@ class SettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $config = $this->config($this->getFormId());
-    $dll_changed = $config->get('dll_location') !== $form_state->getValue('dll_location');
+    $clean_values = $this->processCleanValues($form_state);
+
+    // Let's make sure the path ends with the trailing slash.
+    if (!empty($clean_values['dll_location'])) {
+      $clean_values['dll_location'] = trim($clean_values['dll_location'], ' /') . '/';
+    }
+
+    $dll_changed = $config->get('dll_location') !== $clean_values['dll_location'];
 
     $config
-      ->setData($form_state->cleanValues()->getValues())
+      ->setData($clean_values)
       ->save();
 
     $invalidate_tags = [
@@ -246,8 +294,29 @@ class SettingsForm extends ConfigFormBase {
   private function setDefaultValues(array &$elements): void {
     $config = $this->config(($this->getFormId()));
     foreach ($elements as $key => $element) {
-      $elements[$key]['#default_value'] = $config->get($key) ?? $element[$key]['#default_value'] ?? NULL;
+      $elements[$key]['#default_value'] = $config->get($key) ?? ($element['#default_value'] ?? NULL);
     }
   }
 
+  /**
+   * Additionally cleans up the form state values.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object that values should be cleaned up additionally.
+   *
+   * @return array
+   *   Form state clean values.
+   */
+  protected function processCleanValues(FormStateInterface $form_state): array {
+    $clean_values = $form_state->cleanValues()->getValues();
+
+    foreach ($clean_values as &$value) {
+      if (is_string($value)) {
+        $value = trim($value);
+      }
+    }
+    $form_state->setValues($clean_values);
+
+    return $clean_values;
+  }
 }

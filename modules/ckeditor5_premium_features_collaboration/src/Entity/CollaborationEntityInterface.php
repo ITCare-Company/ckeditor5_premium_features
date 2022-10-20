@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\user\UserInterface;
 
@@ -95,6 +96,14 @@ interface CollaborationEntityInterface {
   public function getEntityId(): string;
 
   /**
+   * Returns referenced entity object.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface
+   *   Referenced entity.
+   */
+  public function getReferencedEntity(): EntityInterface;
+
+  /**
    * Gets the JSON suggestion attributes.
    *
    * @param bool $raw
@@ -113,5 +122,20 @@ interface CollaborationEntityInterface {
    *   The data value (decoded or raw)
    */
   public function setAttributes(array|string $data): static;
+
+  /**
+   * Returns key attribute value.
+   *
+   * @return string|null
+   */
+  public function getKey(): string|null;
+
+  /**
+   * Returns formatted date  of creation.
+   *
+   * @param string $format
+   *   Format name.
+   */
+  public function getCreatedDate(string $format = 'medium'): string;
 
 }

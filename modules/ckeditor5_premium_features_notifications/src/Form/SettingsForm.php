@@ -6,6 +6,7 @@ namespace Drupal\ckeditor5_premium_features_notifications\Form;
 
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormBase;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -19,7 +20,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
 
   const NOTIFICATION_CONFIG = 'ckeditor5_premium_features_notifications.settings';
 
-  public function __construct(ConfigFactoryInterface  $configFactory,
+  public function __construct(ConfigFactoryInterface $configFactory,
                               protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager,
                               protected NotificationSenderPluginManager $senderPluginManager) {
     parent::__construct($configFactory);
@@ -52,31 +53,48 @@ class SettingsForm extends SharedBuildConfigFormBase {
 
     $config = $this->config($this->getFormId());
 
-    // Collect plugins information;
+    // Collect plugins information.
     $messageFactoryDefinitions = $this->messageFactoryPluginManager->getDefinitions();
     $senderDefinitions = $this->senderPluginManager->getDefinitions();
 
     $form['message_factory_plugin'] = [
       '#type' => 'select',
       '#title' => 'Message content factory',
-      '#description' => 'Choose plugin responsible for providing notification messages templates.',
-      '#options' => array_map(function($value) { return $value['label'];}, $messageFactoryDefinitions),
+      '#description' => $this->t('Choose the plugin responsible for providing the notification messages templates.'),
+      '#options' => array_map(function ($value) {
+        return $value['label'];
+      }, $messageFactoryDefinitions),
       '#default_value' => $config->get('message_factory_plugin'),
     ];
     $form['sender_plugin'] = [
       '#type' => 'select',
       '#title' => 'Message sender',
-      '#description' => 'Choose plugin responsible for sending notification messages.',
-      '#options' => array_map(function($value) { return $value['label'];}, $senderDefinitions),
+      '#description' => $this->t('Choose the plugin responsible for sending the notification messages.'),
+      '#options' => array_map(function ($value) {
+        return $value['label'];
+      }, $senderDefinitions),
       '#default_value' => $config->get('sender_plugin'),
+    ];
+
+    $form['sender_bulk_interval'] = [
+      '#type' => 'number',
+      '#title' => 'Bulk message sending interval',
+      '#description' => $this->t('Set the time interval (in minutes) that must elapse before sending the notification to the user.'),
+      '#min' => 0,
+      '#default_value' => $config->get('sender_bulk_interval') ?? 0,
+      '#states' => [
+        'visible' => [
+          ':input[name="sender_plugin"]' => ['value' => 'ck5_notifications_email_bulk'],
+        ],
+      ],
     ];
 
     $form = $this->addNotificationMessagesTabs($form, $form_state);
 
     $form['additional_info'] = [
-      '#markup' => 'The "Message body" fields supports tokens that will be dynamically replaced by corresponding values.
+      '#markup' => 'The "Message body" field supports tokens that will be dynamically replaced by corresponding values.
       Currently supported tokens relate to Node and User entities, for example [node:title], [node:url], [user:name].<br/>
-      For more, please check the below two sample lists:',
+      For more entities, please check the two sample lists below:',
       'list' => [
         '#theme' => 'item_list',
         '#items' => [
@@ -86,7 +104,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
           [
             '#markup' => '<a href="https://www.drupal.org/node/390482#drupal7tokenslist-token-user">User tokens</a>',
           ],
-        ]
+        ],
       ],
     ];
 
@@ -112,25 +130,168 @@ class SettingsForm extends SharedBuildConfigFormBase {
         '#group' => 'verticaltabs',
       ];
 
+      $form[$groupKey][$messageType . '__enabled'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Enable'),
+        '#description' => $this->t('Decide whether your system should support this type of notification.'),
+        '#default_value' => $config->get($messageType . '__enabled'),
+      ];
+
+      $visibility = [
+        '#states' => [
+          'visible' => [
+            'input[name="' . $messageType . '__enabled"]' => ['checked' => TRUE],
+          ],
+        ],
+      ];
+
       $form[$groupKey][$messageType . '__subject'] = [
         '#type' => 'textfield',
-        '#title' => t('Subject'),
-        '#description' => t('Subject of the email that will be sent to users.'),
-        '#default_value' => $config->get($messageType . '__subject'),
-      ];
+        '#title' => $this->t('Subject'),
+        '#description' => $this->t('Subject of the email that will be sent to users.'),
+        '#default_value' => $config->get($messageType . '__subject') ?? $this->getPredefinedTitle($messageType),
+      ] + $visibility;
 
       $messageConfig = $config->get($messageType . '__message');
       $form[$groupKey][$messageType . '__message'] = [
         '#type' => 'text_format',
-        '#title' => t('Message body'),
-        '#description' => t('Body of the message sent to the users that collaborated on the updated node.'),
-        '#default_value' => $messageConfig['value'] ?? '',
+        '#title' => $this->t('Message body'),
+        '#description' => $this->t('Body of the message sent to the users that collaborated on the updated node.'),
+        '#default_value' => $messageConfig['value'] ?? $this->getPredefinedBodyMessage($messageType),
         '#format' => $messageConfig['test_format'] ?? 'full_html',
-      ];
+      ] + $visibility;
 
+      if ($additional = $this->getNotificationAdditionalInstruction($messageType)) {
+        $form[$groupKey][$messageType . '__additional_help'] = $additional + $visibility;
+      }
     }
 
     return $form;
+  }
+
+  /**
+   * Returns additional description specific for passed message type.
+   *
+   * @param $messageType
+   *   Type of message.
+   *
+   * @return array
+   *   Render array with additional info.
+   */
+  protected function getNotificationAdditionalInstruction($messageType): array {
+    return match ($messageType) {
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => [
+        '#type' => 'container',
+        'intro' => [
+          '#markup' => 'In this notification, you can use additional tokens with suggestion status:',
+        ],
+        'list' => [
+          '#theme' => 'item_list',
+          '#items' => [
+            [
+              '#markup' => '[suggestion:status] - replaced by system event key.',
+            ],
+            [
+              '#markup' => '[suggestion:status-label] - replaced by translatable event user friendly label.',
+            ],
+          ],
+        ],
+      ],
+      default => [],
+    };
+  }
+
+  /**
+   * Get predefined title for the notification message.
+   *
+   * @param $messageType
+   *   Type of message.
+   * @return string
+   *   Predefined title.
+   */
+  protected function getPredefinedTitle($messageType): String {
+    return match ($messageType) {
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT => 'The document was updated.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT => 'You were mentioned in a comment.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT => 'You were mentioned in a document body.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_COMMENT_ADDED => 'New comment added.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY => 'A new Reply to a thread.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY => 'A new Reply to a suggestion.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => 'Your suggestion status changed.',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED => 'New Suggestion added.',
+      default => 'CKEditor5 notification',
+    };
+  }
+
+  /**
+   * Get predefined body for the notification message.
+   *
+   * @param $messageType
+   *   Type of message.
+   * @return string
+   *   Predefined body.
+   */
+  protected function getPredefinedBodyMessage($messageType): String {
+    return match ($messageType) {
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT => '<h3>Update notification</h3>
+        <p>
+          I need to tell you that node <a href="[node:url]"><strong>[node:title]</strong></a> was modified by [user:name] (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT => '<h3>You were mentioned in a comment</h3>
+        <p>
+          User [user:name] mentioned you in the <a href="[node:url]"><strong>[node:title]</strong></a> document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT => '<h3>You were mentioned in a document body</h3>
+        <p>
+          User [user:name] mentioned you in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_COMMENT_ADDED => '<h3>New comment added</h3>
+        <p>
+          User [user:name] added new comment in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY => '<h3>A new Reply to a thread</h3>
+        <p>
+          User [user:name] replied to one of your threads in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY => '<h3>A new Reply to a suggestion</h3>
+        <p>
+          User [user:name] replied to one of your suggestion in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => '<h3>Your suggestion status changed</h3>
+        <p>
+          User [user:name] [suggestion:status-label] your suggestion to the [node:title] document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED => '<h3>New suggestion added</h3>
+        <p>
+          User [user:name] added new suggestion in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+          Best regards,
+        </p>',
+      default => 'CKEditor5 notification default body. If you want to change it please go to configuration page.',
+    };
+
   }
 
 }

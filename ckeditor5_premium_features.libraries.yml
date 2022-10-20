@@ -1,0 +1,26 @@
+
+collaboration-integration-base:
+  css:
+    theme:
+      css/sidebar.css: { }
+  js:
+    js/build/sidebarAdapter.js: { minified: true }
+    js/build/disableGhsTableIntegration.js: { minified: true }
+    js/build/disableCollaborationMarkersInCaption.js: { minified: true }
+    js/build/removeIncorrectCollaborationMarkers.js: { minified: true }
+  dependencies:
+    - ckeditor5_premium_features/ckeditor5-collaboration-dll
+
+media-export-features:
+  js:
+    js/libraries/document-export-base.js: { minified: false }
+    js/libraries/media-tags-converter.js: { minified: false }
+    js/libraries/relative-paths-processor.js: { minified: false }
+
+export-integration:
+  js:
+    js/build/exportAdapters.js: { minified: true }
+  dependencies:
+    - ckeditor5_premium_features/cloud-services
+    - ckeditor5_premium_features/collaboration-integration-base
+    - ckeditor5_premium_features/media-export-features

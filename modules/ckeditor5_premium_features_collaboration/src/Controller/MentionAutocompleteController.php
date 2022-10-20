@@ -5,20 +5,25 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Controller;
 
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
+use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class MentionAutocompleteController extends ControllerBase {
 
-  protected $mentionsConfig;
-
+  /**
+   * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userProvider
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaborationSettings
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   */
   public function __construct(
     protected UserDataProvider $userProvider,
-    protected $configFactory
+    protected CollaborationSettings $collaborationSettings,
+    protected RequestStack $requestStack
   ) {
-    $this->mentionsConfig =  $this->configFactory->get('ckeditor5_premium_features_collaboration.settings');
   }
 
   /**
@@ -27,7 +32,8 @@ class MentionAutocompleteController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('ckeditor5_premium_features_collaboration.data_provider.users'),
-      $container->get('config.factory')
+      $container->get('ckeditor5_premium_features_collaboration.collaboration_settings'),
+      $container->get('request_stack')
     );
   }
 
@@ -38,7 +44,7 @@ class MentionAutocompleteController extends ControllerBase {
    * @throws \Drupal\Core\Entity\EntityMalformedException
    */
   public function annotation() {
-    $args = \Drupal::request()->query;
+    $args = $this->requestStack->getCurrentRequest()->query;
 
     if (empty($args->get('query')) ) {
       return new JsonResponse([]);
@@ -65,14 +71,14 @@ class MentionAutocompleteController extends ControllerBase {
    * Returns a marker character used for starting annotations.
    */
   protected function getMentionMarker(): string {
-    return $this->mentionsConfig->get('mention_marker');
+    return $this->collaborationSettings->getMentionsMarker();
   }
 
   /**
    * Returns the maximum number of suggestions displayed.
    */
   protected function getDropdownLimit(): int {
-    return (int) $this->mentionsConfig->get('mention_dropdown_limit');
+    return $this->collaborationSettings->getMentionAutocompleteListLength();
   }
 
 }

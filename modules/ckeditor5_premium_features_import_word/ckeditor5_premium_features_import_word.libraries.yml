@@ -1,0 +1,5 @@
+admin.import_word:
+  css:
+    theme:
+      css/import-word.admin.css: { }
+

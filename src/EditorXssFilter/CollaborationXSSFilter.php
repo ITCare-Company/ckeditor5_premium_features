@@ -1,0 +1,92 @@
+<?php
+
+namespace Drupal\ckeditor5_premium_features\EditorXssFilter;
+
+use Drupal\editor\EditorXssFilter\Standard;
+use Drupal\filter\FilterFormatInterface;
+
+/**
+ * Extends the standard text editor XSS filter in order to keep collaboration attributes in the HTML.
+ */
+class CollaborationXSSFilter extends Standard {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function filterXss($html, FilterFormatInterface $format, FilterFormatInterface $original_format = NULL): string {
+    $html = static::collaborationFilterText($html);
+    $html = parent::filterXss($html, $format, $original_format);
+
+    return static::collaborationFilterTextRevert($html);
+  }
+
+  /**
+   * Masks collaboration tags name attribute from XSS filtering.
+   *
+   * @param string $original
+   *   HTML string.
+   */
+  public static function collaborationFilterText(string $original): string {
+    return self::preprocessElementValue($original, "self::replaceSecurity");
+  }
+
+  /**
+   * Reverts masking of collaboration tags name attribute.
+   *
+   * @param string $original
+   *   HTML string.
+   */
+  public static function collaborationFilterTextRevert(string $original): string {
+    return self::preprocessElementValue($original, "self::revertSecurityReplace");
+  }
+
+  /**
+   * Performs collaboration name attribute masking/unmasking.
+   *
+   * @param string $original
+   *   HTML content.
+   * @param string $callback
+   *   Callback to be used to process collaboration tag..
+   */
+  protected static function preprocessElementValue(string $original, string $callback): string {
+    $tagList = [
+      'suggestion-start',
+      'suggestion-end',
+      'comment-start',
+      'comment-end'
+    ];
+
+    $attributePattern = '[^<>]+name=[^<>]+';
+
+    foreach ($tagList as $tagName) {
+      $original = preg_replace_callback(
+        "/$tagName$attributePattern/si",
+        $callback,
+        $original
+      );
+    }
+
+    return $original;
+  }
+
+  /**
+   * Masks collaboration tag attribute.
+   *
+   * @param array $tag
+   *   HTML tag info.
+   */
+  protected static function replaceSecurity(array $tag): string {
+    return str_replace(":", "##", $tag[0]);
+  }
+
+  /**
+   * Unmask collaboration tag attribute.
+   *
+   * @param array $tag
+   *   HTML tag info.
+   */
+  protected static function revertSecurityReplace(array $tag): string {
+    return str_replace("##", ":", $tag[0]);
+  }
+
+}

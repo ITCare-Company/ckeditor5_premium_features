@@ -4,7 +4,7 @@ const webpack = require('webpack');
 const { styles, builds } = require('@ckeditor/ckeditor5-dev-utils');
 const TerserPlugin = require('terser-webpack-plugin');
 
-const entries = glob.sync('./modules/*/js/ckeditor5_plugins/**/*.js').reduce((entries, entry) => {
+const entries = glob.sync('./{modules/*/js,js}/ckeditor5_plugins/**/*.js').reduce((entries, entry) => {
     const entryName = path.parse(entry).name
     if (entryName !== 'index') {
       entries[entryName] = entry.replace(entryName + '/src/' + entryName + '.js', '')

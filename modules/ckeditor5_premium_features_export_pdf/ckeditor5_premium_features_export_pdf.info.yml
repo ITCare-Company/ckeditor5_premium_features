@@ -1,8 +1,9 @@
 name: CKEditor 5 Export to PDF
 type: module
-description: "The CKEditor 5 editor plugin allowing export to PDF."
-package: CKEditor 5 Premium
-core_version_requirement: ^9.2 || ^10.0
+description: "Generate PDF files directly from the CKEditor 5."
+package: CKEditor 5 Premium (Experimental)
+core_version_requirement: ^9.4 || ^10.0
+lifecycle: experimental
 configure: ckeditor5_premium_features_export_pdf.form.settings
 dependencies:
   - ckeditor5_premium_features:ckeditor5_premium_features

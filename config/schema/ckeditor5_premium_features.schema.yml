@@ -7,13 +7,16 @@ ckeditor5_premium_features.settings:
       label: 'License key'
     auth_type:
       type: string
-      label: 'Authroization type'
+      label: 'Authorization type'
     env:
       type: string
       label: 'Environment ID'
     access_key:
       type: string
       label: 'Access key'
+    web_socket_url:
+      type: string
+      label: 'Web Socket Url'
     dev_token_url:
       type: string
       label: 'Development token URL'

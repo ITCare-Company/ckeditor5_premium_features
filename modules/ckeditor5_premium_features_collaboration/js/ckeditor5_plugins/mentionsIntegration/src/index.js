@@ -10,5 +10,5 @@
 import MentionsIntegration from "./mentionsIntegration";
 
 export default {
-  mentionsIntegration: MentionsIntegration,
+  MentionsIntegration,
 };
