@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains CKEditor 5 Premium Features Collaboration module install functions.
+ * Contains CKEditor 5 Premium Features Import Word module install functions.
  */
 
 /**
@@ -11,12 +11,11 @@
 function ckeditor5_premium_features_import_word_requirements($phase): array {
   $requirements = [];
 
-  /** @var \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $settings */
-  $settings = \Drupal::service('ckeditor5_premium_features.config_handler.settings');
+  /** @var \Drupal\Core\Asset\LibraryDiscoveryInterface $libraryDiscovery */
+  $libraryDiscovery = \Drupal::service('library.discovery');
+  $library = $libraryDiscovery->getLibraryByName('core', 'ckeditor5');
 
-  $dllVersion = $settings->getDllVersion();
-
-  if (version_compare('35.2.1', $dllVersion) > 0) {
+  if (empty($library) || version_compare('35.2.1', $library['version']) > 0) {
     $requirements[] = [
       'title' => t('CKEditor 5 Import from Word'),
       'description' => t('CKEditor 5 Import from Word module requires Ckeditor5 version higher or equal to 35.2.1'),
