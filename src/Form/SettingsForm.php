@@ -112,9 +112,9 @@ class SettingsForm extends ConfigFormBase {
         'dev_token' => $this->t('Development token'),
       ],
       '#default_value' => 'none',
-      '#description' => $this->t('Select the authorization suitable type for your features. The access key-based authorization is highly recommended and the best option in production environment. The development token should rather be used for testing purposes. Required for Export to Word/PDF and Real-time collaboration.')
+      '#description' => $this->t('Select the authorization suitable type for your features. The access key-based authorization is highly recommended and the best option in production environment. The development token should rather be used for testing purposes.')
       . '<br />'
-      . $this->t('The access key-based authorization is required for real-time collaboration and optional for Export to Word/PDF to generate documents without the watermark.'),
+      . $this->t('The authorization credentials are required for Real-time collaboration or Import from Word, and optional for Export to Word/PDF to generate documents without the watermark.'),
     ];
 
     $configuration['env'] = [
