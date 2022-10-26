@@ -8,6 +8,7 @@
 declare(strict_types=1);
 
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface;
 
 /**
  * Implements hook_install().
@@ -42,19 +43,50 @@ function ckeditor5_premium_features_notifications_install($is_syncing) {
  * Implements hook_update().
  */
 function ckeditor5_premium_features_notifications_update_9001() {
-  $storage_definition = BaseFieldDefinition::create('string_long')
+  $storageDefinition = BaseFieldDefinition::create('string_long')
     ->setLabel(t('Message item event type.'))
     ->setDescription(t('The message content.'));
 
   $entityDefinition = \Drupal::entityDefinitionUpdateManager();
-  $message_item = $entityDefinition->getEntityType('ckeditor5_message_item');
+  $messageItem = $entityDefinition->getEntityType('ckeditor5_message_item');
 
-  if ($message_item) {
+  if ($messageItem) {
     $entityDefinition->installFieldStorageDefinition(
       'message_content',
       'ckeditor5_message_item',
       'ckeditor5_message_item',
-      $storage_definition
+      $storageDefinition
+    );
+  }
+}
+
+/**
+ * Implements hook_update().
+ */
+function ckeditor5_premium_features_notifications_update_9006() {
+  $storageDefinitionUid = BaseFieldDefinition::create('entity_reference')
+    ->setLabel(t('User'))
+    ->setSetting('target_type', 'user')
+    ->setRequired(TRUE);
+  $storageDefinitionCreated = BaseFieldDefinition::create('created')
+    ->setLabel(t('Created'))
+    ->setRequired(TRUE);
+
+  $entityDefinition = \Drupal::entityDefinitionUpdateManager();
+  $messageItemUserReference = $entityDefinition->getFieldStorageDefinition('created', MessageItemInterface::ENTITY_TYPE_ID);
+
+  if (!$messageItemUserReference) {
+    $entityDefinition->installFieldStorageDefinition(
+      'uid',
+      MessageItemInterface::ENTITY_TYPE_ID,
+      MessageItemInterface::ENTITY_TYPE_ID,
+      $storageDefinitionUid
+    );
+    $entityDefinition->installFieldStorageDefinition(
+      'created',
+      MessageItemInterface::ENTITY_TYPE_ID,
+      MessageItemInterface::ENTITY_TYPE_ID,
+      $storageDefinitionCreated
     );
   }
 }

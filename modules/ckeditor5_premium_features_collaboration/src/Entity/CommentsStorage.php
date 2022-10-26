@@ -296,4 +296,22 @@ class CommentsStorage extends SqlContentEntityStorage implements
     }
   }
 
+  public function getCommentsThread($entityType, $entityId, $threadId): array {
+    $query = $this->getQuery()
+      ->accessCheck(TRUE)
+      ->condition('entity_type', $entityType)
+      ->condition('entity_id', $entityId)
+      ->condition('thread_id', $threadId)
+      ->sort('created');
+
+    $entityIds = $query->execute();
+
+    if (empty($entityIds)) {
+      return [];
+    }
+
+    return $this->loadMultiple($entityIds);
+
+  }
+
 }

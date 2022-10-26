@@ -389,6 +389,8 @@ class TextFormat {
    *   Key value for source field.
    */
   protected function dispatchDocumentUpdateEvent(FieldableEntityInterface $entity, string $key): void {
+    $original = $entity->original;
+
     $event = new CollaborationEventBase(
       $entity,
       User::load($this->currentUser->id()),

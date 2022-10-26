@@ -105,4 +105,15 @@ class MessageStorage extends SqlContentEntityStorage {
     return [];
   }
 
+  public function cleanMessageItems(Message $message) {
+    $messageItems = $this->entityTypeManager
+      ->getStorage(MessageItemInterface::ENTITY_TYPE_ID)
+      ->loadByProperties([
+        'message_id' => $message->id(),
+      ]);
+
+    foreach ($messageItems as $item) {
+      $item->delete();
+    }
+  }
 }

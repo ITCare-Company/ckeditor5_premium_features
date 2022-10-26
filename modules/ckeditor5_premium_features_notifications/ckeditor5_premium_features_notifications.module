@@ -92,6 +92,11 @@ function ckeditor5_premium_features_notifications_theme($existing, $type, $theme
         'comment' => NULL
       ],
     ],
+    'notification_thread_default' => [
+      'variables' => [
+        'item' => NULL
+      ],
+    ],
     'notification_message' => [
       'variables' => [
         'items' => NULL,

@@ -66,83 +66,6 @@ class BulkMessageSender {
   }
 
   /**
-   * @param String $entityId
-   *   Id of thread.
-   * @return array
-   *   Return render array of thread.
-   */
-  private function prepareThreadReply(String $entityId): array {
-    $thread = [];
-    $commentThread = $this->commentsStorage->getCommentTree($entityId);
-    foreach ($commentThread as $threadItem) {
-      $comment = $this->commentsStorage->load($threadItem);
-
-      $thread[$comment->id()] = [
-        '#type' => 'html_tag',
-        '#tag' => 'div',
-        '#attributes' => [
-          'class' => 'thread-reply-item',
-        ],
-        '#value' => $comment->getAuthor()->getDisplayName() . '' . gmdate('Y-m-d H:i:s', $comment->getCreatedTime()),
-        'child' => [
-          '#markup' => $comment->getContent(),
-        ],
-      ];
-    }
-
-    return $thread;
-  }
-
-  /**
-   * @param String $content
-   *   Given content to catch context.
-   * @param String $startTag
-   *   Comment tag start.
-   * @param String $endTag
-   *   Comment tag end.
-   * @return array
-   *   Return render array of context.
-   */
-  private function getContext(String $content, String $startTag, String $endTag): array {
-    $begin = strpos($content, $startTag);
-    if ($begin) {
-      $end = strpos($content, $endTag);
-      $context = substr($content, $begin, $end - $begin);
-
-      return [
-        '#type' => 'html_tag',
-        '#tag' => 'div',
-        '#attributes' => [
-          'class' => 'thread-reply-context',
-        ],
-        'child' => [
-          '#markup' => $context,
-        ],
-      ];
-    }
-    return [];
-  }
-
-  /**
-   * @param $comment
-   *   The comment entity.
-   * @return array
-   *   Return render array of mention in thread headline.
-   */
-  private function getThreadMentionHeadline($comment): array {
-
-    return ['#type' => 'html_tag',
-      '#tag' => 'div',
-      '#attributes' => [
-        'class' => 'thread-mention-headline',
-      ],
-      'child' => [
-        '#markup' => $comment->getAuthor()->getDisplayName() . t(' mention you in thread:'),
-      ],
-    ];
-  }
-
-  /**
    * @param $message
    *   Message entity.
    * @return String
@@ -155,13 +78,26 @@ class BulkMessageSender {
     $body = [];
 
     foreach ($messageItems as $messageItem) {
-      $entityId = $messageItem->getRelatedEntityId();
       $messageType = $messageItem->getType();
       $title = NULL;
 
       /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $relatedEntity */
       $relatedEntity = $messageItem->getRelatedEntity();
       switch ($messageType) {
+
+        case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT:
+          $body[$messageItem->id()] = [
+            '#theme' => 'notification_context',
+            '#context' => [],
+            '#title' => 'Document updated',
+            '#thread' => [
+              [
+                '#theme' => 'notification_thread_default',
+                '#item' => $messageItem,
+              ],
+            ]
+          ];
+          break;
 
         case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_COMMENT_ADDED:
         case NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY:
@@ -357,6 +293,8 @@ class BulkMessageSender {
 
       $message->set('sent', 1);
       $message->save();
+
+      $this->messageStorage->cleanMessageItems($message);
     }
   }
 

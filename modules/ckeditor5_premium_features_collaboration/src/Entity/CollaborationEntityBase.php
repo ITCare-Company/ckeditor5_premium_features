@@ -109,6 +109,13 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
   /**
    * {@inheritdoc}
    */
+  public function getId(): string {
+    return $this->get('id')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getAuthorId(): ?int {
     $field = $this->get('uid');
 
@@ -241,7 +248,7 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
   /**
    * Sets the string as the machine name.
    *
-   * Adds some sanitizion methods before saving the value.
+   * Adds some sanitization methods before saving the value.
    *
    * @param string $field_name
    *   The name of the field.

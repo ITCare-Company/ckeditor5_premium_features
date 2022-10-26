@@ -6,9 +6,11 @@
     </div>
   {% endif %}
 
-  <div class="context-content">
-    {{ context|render }}
-  </div>
+  {% if context is defined and context is not empty %}
+    <div class="context-content">
+      {{ context|render }}
+    </div>
+  {% endif %}
 
   {% if thread is defined and thread is not empty %}
     <div class="thread comment-thread-wrapper">

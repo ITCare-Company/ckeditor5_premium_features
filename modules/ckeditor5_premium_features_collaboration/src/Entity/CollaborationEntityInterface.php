@@ -38,6 +38,11 @@ interface CollaborationEntityInterface {
   public static function getNormalizationMapping(bool $reversed): array;
 
   /**
+   * Returns Collaboration entity ID.
+   */
+  public function getId(): string;
+
+  /**
    * Gets the suggestion author ID.
    *
    * @return int|null
