@@ -105,7 +105,17 @@ class MessageStorage extends SqlContentEntityStorage {
     return [];
   }
 
-  public function cleanMessageItems(Message $message) {
+  /**
+   * Removes message item potential leftovers.
+   *
+   * @param \Drupal\ckeditor5_premium_features_notifications\Entity\Message $message
+   *   Message that should have removed all message items.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   */
+  public function cleanMessageItems(Message $message): void {
     $messageItems = $this->entityTypeManager
       ->getStorage(MessageItemInterface::ENTITY_TYPE_ID)
       ->loadByProperties([

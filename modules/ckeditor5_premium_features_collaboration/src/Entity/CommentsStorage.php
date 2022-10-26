@@ -296,6 +296,16 @@ class CommentsStorage extends SqlContentEntityStorage implements
     }
   }
 
+  /**
+   * Returns a list of comments that belong to the same thread.
+   *
+   * @param $entityType
+   *   Type of source entity.
+   * @param $entityId
+   *   Source entity ID.
+   * @param $threadId
+   *   Thread ID.
+   */
   public function getCommentsThread($entityType, $entityId, $threadId): array {
     $query = $this->getQuery()
       ->accessCheck(TRUE)
@@ -311,7 +321,6 @@ class CommentsStorage extends SqlContentEntityStorage implements
     }
 
     return $this->loadMultiple($entityIds);
-
   }
 
 }

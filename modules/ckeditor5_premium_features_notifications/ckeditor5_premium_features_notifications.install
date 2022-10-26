@@ -63,7 +63,7 @@ function ckeditor5_premium_features_notifications_update_9001() {
 /**
  * Implements hook_update().
  */
-function ckeditor5_premium_features_notifications_update_9006() {
+function ckeditor5_premium_features_notifications_update_9002() {
   $storageDefinitionUid = BaseFieldDefinition::create('entity_reference')
     ->setLabel(t('User'))
     ->setSetting('target_type', 'user')
