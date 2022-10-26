@@ -3,8 +3,6 @@
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
 use Drupal\ckeditor5_premium_features_notifications\Form\SettingsForm;
-use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
-use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 
@@ -17,10 +15,8 @@ class NotificationSettings {
 
   /**
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
-   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager $messageFactoryPluginManager
    */
-  public function __construct(ConfigFactoryInterface $configFactory,
-                              protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager) {
+  public function __construct(ConfigFactoryInterface $configFactory) {
     $this->notificationSettings = $configFactory->get(SettingsForm::NOTIFICATION_CONFIG);
   }
 
@@ -59,19 +55,6 @@ class NotificationSettings {
    */
   public function getMessageFactoryPluginId(): string {
     return $this->notificationSettings->get('message_factory_plugin');
-  }
-
-  /**
-   * @return \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface|null
-   * @throws \Drupal\Component\Plugin\Exception\PluginException
-   */
-  public function getMessageFactoryPlugin(): ?NotificationMessageFactoryInterface {
-    $pluginId = $this->getMessageFactoryPluginId();
-    if (!$this->messageFactoryPluginManager->hasDefinition($pluginId)) {
-      return NULL;
-    }
-
-    return $this->messageFactoryPluginManager->createInstance($pluginId);
   }
 
   /**

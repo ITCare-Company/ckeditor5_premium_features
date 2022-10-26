@@ -87,7 +87,7 @@ class NotificationSender {
    * Returns notification message factory plugin instance.
    */
   protected function getMessageFactoryPlugin(): NotificationMessageFactoryInterface|NULL {
-    $pluginId = $this->notificationSettings->getMessageFactoryPlugin();
+    $pluginId = $this->notificationSettings->getMessageFactoryPluginId();
     if (!$this->messageFactoryPluginManager->hasDefinition($pluginId)) {
       return NULL;
     }
