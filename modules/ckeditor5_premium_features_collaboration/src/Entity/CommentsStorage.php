@@ -314,13 +314,13 @@ class CommentsStorage extends SqlContentEntityStorage implements
       ->condition('thread_id', $threadId)
       ->sort('created');
 
-    $entityIds = $query->execute();
+    $entity_ids = $query->execute();
 
-    if (empty($entityIds)) {
+    if (empty($entity_ids)) {
       return [];
     }
 
-    return $this->loadMultiple($entityIds);
+    return $this->loadMultiple($entity_ids);
   }
 
 }
