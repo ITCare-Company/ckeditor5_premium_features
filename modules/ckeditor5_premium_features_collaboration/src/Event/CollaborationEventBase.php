@@ -4,6 +4,7 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Event;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase;
+use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextHelper;
 use Drupal\Component\EventDispatcher\Event;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Session\AccountInterface;
@@ -28,6 +29,20 @@ class CollaborationEventBase extends Event {
    * @var string
    */
   protected string $relatedDocumentKey;
+
+  /**
+   * Original document content.
+   *
+   * @var string
+   */
+  protected string $originalContent;
+
+  /**
+   * Optionally referened user ID.
+   *
+   * @var string
+   */
+  protected string $referencedUserId;
 
   /**
    * Collaboration event constructor.
@@ -87,7 +102,7 @@ class CollaborationEventBase extends Event {
     $relatedEntity = $this->getRelatedEntity();
 
     if (!$relatedEntity instanceof CollaborationEntityBase) {
-      return NULL;
+      return $this->relatedDocumentKey;
     }
 
     return $relatedEntity->getKey();
@@ -97,6 +112,10 @@ class CollaborationEventBase extends Event {
    * Returns content of the proper field from related content entity.
    */
   public function getRelatedDocumentContent(): string|NULL {
+    if ($this->getEventType() == self::SUGGESTION_DISCARD || $this->getEventType() == self::SUGGESTION_ACCEPT) {
+      return $this->getOriginalContent();
+    }
+
     $relatedDocument = $this->getRelatedDocument();
     $fieldId = $this->relatedDocumentKey ?? $this->getRelatedDocumentFieldId();
 
@@ -104,19 +123,7 @@ class CollaborationEventBase extends Event {
       return NULL;
     }
 
-    $fields = $relatedDocument->getFields();
-
-    foreach ($fields as $fieldName => $field) {
-      $values = $relatedDocument->get($fieldName)->getValue();
-      foreach ($values as $delta => $val) {
-        $id = CKeditorFieldKeyHelper::getElementUniqueId('edit-' . $fieldName . '-' . $delta);
-        if ($fieldId == $id) {
-          return $val['value'];
-        }
-      }
-    }
-
-    return NULL;
+    return NotificationContextHelper::getDocumentFieldContent($relatedDocument, $fieldId);
   }
 
   /**
@@ -203,6 +210,37 @@ class CollaborationEventBase extends Event {
     }
 
     return $supportedTypes[$eventType];
+  }
+
+  /**
+   * Returns the original document content string.
+   */
+  public function getOriginalContent(): string {
+    return $this->originalContent;
+  }
+
+  /**
+   * Sets the original document content string.
+   *
+   * @param string $documentContent
+   *   String with original content.
+   */
+  public function setOriginalContent(string $documentContent) {
+    $this->originalContent = $documentContent;
+  }
+
+  /**
+   * Returns the referenced user ID property value.
+   */
+  public function getReferencedUserId(): ?string {
+    return $this->referencedUserId ?? NULL;
+  }
+
+  /**
+   * Sets the referenced user ID property value.
+   */
+  public function setReferencedUserId(string $referencedUserId): void {
+    $this->referencedUserId = $referencedUserId;
   }
 
 }

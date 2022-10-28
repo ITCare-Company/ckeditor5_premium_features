@@ -7,6 +7,7 @@ namespace Drupal\ckeditor5_premium_features_notifications\Entity;
 use Drupal\ckeditor5_premium_features\CKeditorDateFormatterTrait;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -63,6 +64,13 @@ class MessageItem extends ContentEntityBase implements MessageItemInterface {
       ->setLabel(t('Created'))
       ->setRequired(TRUE);
 
+    $fields['key_id'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Field Key ID'));
+
+    $fields['ref_uid'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Referenced User'))
+      ->setSetting('target_type', 'user');
+
     $fields['message_type'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Message type'))
       ->setRequired(TRUE)
@@ -99,6 +107,22 @@ class MessageItem extends ContentEntityBase implements MessageItemInterface {
    */
   public function getEventType(): string {
     return $this->get('event_type')->getString();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEvent(): CollaborationEventBase {
+    $evt = new CollaborationEventBase(
+      $this->getRelatedEntity(),
+      $this->getUser(),
+      $this->getEventType()
+    );
+
+    $evt->setRelatedDocumentKey($this->getKeyId());
+    $evt->setOriginalContent($this->getMessageContent());
+    $evt->setReferencedUserId($this->getRefUid());
+    return $evt;
   }
 
   /**
@@ -146,6 +170,20 @@ class MessageItem extends ContentEntityBase implements MessageItemInterface {
     } catch (\Exception) {
       return NULL;
     }
+  }
+
+  /**
+   * Returns referenced entity field ID.
+   */
+  public function getKeyId(): ?string {
+    return $this->get('key_id')->getString();
+  }
+
+  /**
+   * Returns referenced user ID.
+   */
+  public function getRefUid(): ?string {
+    return $this->get('ref_uid')->getString();
   }
 
   /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_notifications\Entity;
 
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\user\UserInterface;
 
@@ -30,6 +31,11 @@ interface MessageItemInterface {
   public function getEventType(): string;
 
   /**
+   * Getter for event object suitable for current item.
+   */
+  public function getEvent(): CollaborationEventBase;
+
+  /**
    * Getter for related entity ID.
    */
   public function getRelatedEntityId(): string;
@@ -53,6 +59,11 @@ interface MessageItemInterface {
    * Returns referenced User entity.
    */
   public function getUser(): ?UserInterface;
+
+  /**
+   * Returns referenced entity field ID.
+   */
+  public function getKeyId(): ?string;
 
   /**
    * Gets the node creation timestamp.

@@ -240,12 +240,18 @@ class TextFormat {
 
       foreach ($features as $key => $storage) {
         $source_data = $this->getFormElementSourceData($form_state, $item_parents, $key);
+        $source_original_data = $this->getFormElementOriginalValue($form, $item_parents);
+
+        if ($source_original_data) {
+          $storage->setDocumentOriginalValue($source_original_data);
+        }
         if ($storage instanceof CollaborationSuggestionDependingStorageInterface) {
           $storage->setSuggestionIds($suggestion_ids);
         }
         if ($storage instanceof CollaborationContentFilteringStorageInterface) {
           $storage->setSourceFilterFormat($filter_format);
         }
+
         $entities_data = $storage->processSourceData($source_data, $entity, $item_key);
         $this->doStorageOperations($entities_data, $storage);
       }
@@ -354,6 +360,20 @@ class TextFormat {
     $source = $form_state->getValue([...$item_parents, $key]);
 
     return (array) json_decode($source, TRUE);
+  }
+
+  private function getFormElementOriginalValue($form, $item_parents) {
+    $result_path = [];
+    foreach (array_chunk($item_parents, 2) as $subArray) {
+      $result_path[] = array_shift($subArray);
+      $result_path[] = 'widget';
+      $result_path[] = reset($subArray);
+    }
+    $result_path[] = '#default_value';
+
+    $value = NestedArray::getValue($form, $result_path);
+
+    return $value;
   }
 
   /**
