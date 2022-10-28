@@ -142,7 +142,6 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
 
       case self::CKEDITOR5_MESSAGE_MENTION_COMMENT:
       case self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT:
-//        $userName = $event->getAccount()->getAccountName();
         $user = User::load($event->getReferencedUserId());
         $parameters['marker'] = $user->getAccountName();
         break;

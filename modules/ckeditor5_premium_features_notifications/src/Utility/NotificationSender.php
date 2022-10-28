@@ -61,6 +61,50 @@ class NotificationSender {
     }
   }
 
+  /**
+   * Internal method for executing notification sending for a mention event.
+   *
+   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface $sender
+   *   Sender plugin
+   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory
+   *   Message factory plugin
+   * @param array $recipientIds
+   *   User IDs.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   *   Event entity.
+   * @param string $messageType
+   *   Type of message
+   */
+  protected function mentionsSender(NotificationSenderInterface $sender,
+                                    NotificationMessageFactoryInterface $messageFactory,
+                                    array $recipientIds,
+                                    CollaborationEventBase $event,
+                                    string $messageType
+  ): bool {
+    foreach ($recipientIds as $userId) {
+      $clonedEvent = clone $event;
+      $clonedEvent->setReferencedUserId($userId);
+
+      $this->basicSender($sender, $messageFactory, [$userId], $clonedEvent, $messageType);
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * Internal method for executing primary notification sending.
+   *
+   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface $sender
+   *   Sender plugin
+   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory
+   *   Message factory plugin
+   * @param array $recipientIds
+   *   User IDs.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   *   Event entity.
+   * @param string $messageType
+   *   Type of message
+   */
   protected function basicSender(NotificationSenderInterface $sender,
                                  NotificationMessageFactoryInterface $messageFactory,
                                  array $recipientIds,
@@ -73,21 +117,6 @@ class NotificationSender {
     }
 
     return $sender->send($message, $recipientIds);
-  }
-  protected function mentionsSender(NotificationSenderInterface $sender,
-                                    NotificationMessageFactoryInterface $messageFactory,
-                                    array $recipientIds,
-                                    CollaborationEventBase $event,
-                                    string $messageType
-  ) {
-    foreach ($recipientIds as $userId) {
-      $clonedEvent = clone $event;
-      $clonedEvent->setReferencedUserId($userId);
-
-      $this->basicSender($sender, $messageFactory, [$userId], $clonedEvent, $messageType);
-    }
-
-    return TRUE;
   }
 
   /**

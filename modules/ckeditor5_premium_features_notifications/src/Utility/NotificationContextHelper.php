@@ -10,15 +10,40 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\FieldableEntityInterface;
 
+/**
+ * Class offering helper methods for collecting notification context.
+ */
 class NotificationContextHelper {
 
-  public function getFullContext(FieldableEntityInterface $document, string $key, CollaborationEntityInterface $entity) {
+  /**
+   * Collects a context for a collaboration entity using a document entity.
+   *
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $document
+   *   Document entity.
+   * @param string $key
+   *   Unique key ID to collect document value from.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $entity
+   *   Collaboration entity.
+   *
+   * @return array
+   */
+  public function getFullContext(FieldableEntityInterface $document, string $key, CollaborationEntityInterface $entity): array {
     $context = self::getDocumentFieldContent($document, $key);
 
     return $this->getFullContextFromDocument($context, $entity);
   }
 
-  public function getFullContextFromDocument(string $context, CollaborationEntityInterface $entity) {
+  /**
+   * Collects a context for a collaboration entity.
+   *
+   * @param string $context
+   *   A string with a document content.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $entity
+   *   Collaboration entity.
+   *
+   * @return array
+   */
+  public function getFullContextFromDocument(string $context, CollaborationEntityInterface $entity): array {
     $thread = $this->renderEntityThread($entity);
 
     $snippets = [];
@@ -36,7 +61,17 @@ class NotificationContextHelper {
     ];
   }
 
-  public function getDocumentMentionContext(FieldableEntityInterface $document, string $key, string $mentionMarker) {
+  /**
+   * Collects a context for a mention found in a document.
+   *
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $document
+   *   Document entity.
+   * @param string $key
+   *   Unique key ID to collect document value from.
+   * @param string $mentionMarker
+   *   Mention marker that should be found in a document.
+   */
+  public function getDocumentMentionContext(FieldableEntityInterface $document, string $key, string $mentionMarker): array {
     $context = self::getDocumentFieldContent($document, $key);
 
     $snippets = $this->getHighlightedDocumentMention($context, $mentionMarker);
@@ -47,7 +82,17 @@ class NotificationContextHelper {
     ];
   }
 
-  public static function getDocumentFieldContent(FieldableEntityInterface $document, string $key) {
+  /**
+   * Search for a field matching the key parameter and returns its value.
+   *
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $document
+   *   Document entity with fields.
+   * @param string $key
+   *   Unique field key.
+   *
+   * @return mixed|null
+   */
+  public static function getDocumentFieldContent(FieldableEntityInterface $document, string $key): ?string {
     if (!$key) {
       return NULL;
     }
@@ -67,7 +112,15 @@ class NotificationContextHelper {
     return NULL;
   }
 
-  public function getHighlightedComment(string $context, CommentInterface $comment) {
+  /**
+   * Prepares a render array with highlighted suggestion markup.
+   *
+   * @param string $context
+   *   Document content.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface $comment
+   *   Comment to be highlighted.
+   */
+  public function getHighlightedComment(string $context, CommentInterface $comment): array  {
     $threadID = $comment->getThreadId();
 
     $query="//comment-start[contains(@name,'$threadID')]";
@@ -88,7 +141,15 @@ class NotificationContextHelper {
     return $result;
   }
 
-  public function getHighlightedSuggestion(string $context, SuggestionInterface $suggestion) {
+  /**
+   * Prepares a render array with highlighted suggestion markup.
+   *
+   * @param string $context
+   *   Document content.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
+   *   Suggestion to be highlighted.
+   */
+  public function getHighlightedSuggestion(string $context, SuggestionInterface $suggestion): array  {
     $suggestionChain = $suggestion->getChain();
 
     $queryOrParts = [];
@@ -115,7 +176,15 @@ class NotificationContextHelper {
 
   }
 
-  public function getHighlightedDocumentMention(string $context, string $mentionMarker) {
+  /**
+   * Prepares a render array with highlighted the mention markup.
+   *
+   * @param string $context
+   *   Document content.
+   * @param string $mentionMarker
+   *   Mention marker to be highlighted.
+   */
+  public function getHighlightedDocumentMention(string $context, string $mentionMarker): array {
     $query = "//span[contains(@data-mention,'$mentionMarker')]";
 
     $snippets = [];
@@ -128,6 +197,14 @@ class NotificationContextHelper {
     return $snippets;
   }
 
+  /**
+   * Returns a render array with the collaboration entity thread.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $entity
+   *   Collaboration entity that is a part of a thread.
+   *
+   * @return array
+   */
   public function renderEntityThread(CollaborationEntityInterface $entity): array {
     $result = [];
     foreach ($entity->getThread() as $threadItem) {
@@ -139,6 +216,11 @@ class NotificationContextHelper {
     return $result;
   }
 
+  /**
+   * Returns a list of additional collaboration tags.
+   *
+   * @return array
+   */
   public static function getNotificationAllowedTags(): array {
     return  array_merge(Xss::getAdminTagList(), [
       'suggestion-start',

@@ -14,6 +14,11 @@ use Drupal\Core\Entity\EntityInterface;
  */
 trait CollaborationEntityStorageTrait {
 
+  /**
+   * Document original content (before submitting).
+   *
+   * @var string
+   */
   protected string $originalDocument;
 
   /**

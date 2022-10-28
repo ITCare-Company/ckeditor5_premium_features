@@ -362,7 +362,17 @@ class TextFormat {
     return (array) json_decode($source, TRUE);
   }
 
-  private function getFormElementOriginalValue($form, $item_parents) {
+  /**
+   * Returns an original value set for the element.
+   *
+   * @param array $form
+   *   Form array.
+   * @param array $item_parents
+   *   Array defining path to the field.
+   *
+   * @return array|mixed|null
+   */
+  private function getFormElementOriginalValue(array $form, array $item_parents) {
     $result_path = [];
     foreach (array_chunk($item_parents, 2) as $subArray) {
       $result_path[] = array_shift($subArray);
@@ -371,9 +381,7 @@ class TextFormat {
     }
     $result_path[] = '#default_value';
 
-    $value = NestedArray::getValue($form, $result_path);
-
-    return $value;
+    return NestedArray::getValue($form, $result_path);
   }
 
   /**

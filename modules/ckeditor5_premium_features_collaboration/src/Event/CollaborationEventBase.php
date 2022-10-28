@@ -102,7 +102,7 @@ class CollaborationEventBase extends Event {
     $relatedEntity = $this->getRelatedEntity();
 
     if (!$relatedEntity instanceof CollaborationEntityBase) {
-      return $this->relatedDocumentKey;
+      return $this->relatedDocumentKey ?? NULL;
     }
 
     return $relatedEntity->getKey();
