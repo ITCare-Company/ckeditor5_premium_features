@@ -92,9 +92,22 @@ class SettingsForm extends SharedBuildConfigFormBase {
     $form = $this->addNotificationMessagesTabs($form, $form_state);
 
     $form['additional_info'] = [
-      '#markup' => 'The "Message body" field supports tokens that will be dynamically replaced by corresponding values.
-      Currently supported tokens relate to Node and User entities, for example [node:title], [node:url], [user:name].<br/>
+      [
+        '#markup' => 'The "Message body" field supports tokens that will be dynamically replaced by corresponding values.
+      Ckeditor5_premium_features module adds a special token, that is design to store notification context: <br />'
+      ],
+      'list1' => [
+        '#theme' => 'item_list',
+        '#items' => [
+          [
+            '#markup' => '[ckeditor5_premium_notification:context]',
+          ],
+        ],
+      ],
+      [
+        '#markup' => 'System tokens currently supported, relate to Node and User entities, for example [node:title], [node:url], [user:name].
       For more entities, please check the two sample lists below:',
+      ],
       'list' => [
         '#theme' => 'item_list',
         '#items' => [
@@ -245,11 +258,17 @@ class SettingsForm extends SharedBuildConfigFormBase {
           User [user:name] mentioned you in the <a href="[node:url]"><strong>[node:title]</strong></a> document (at [node:changed])
         </p>
         <p>
+            [ckeditor5_premium_notification:context]
+        </p>
+        <p>
           Best regards,
         </p>',
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT => '<h3>You were mentioned in a document body</h3>
         <p>
           User [user:name] mentioned you in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+            [ckeditor5_premium_notification:context]
         </p>
         <p>
           Best regards,
@@ -259,11 +278,17 @@ class SettingsForm extends SharedBuildConfigFormBase {
           User [user:name] added new comment in the [node:title] document (at [node:changed])
         </p>
         <p>
+            [ckeditor5_premium_notification:context]
+        </p>
+        <p>
           Best regards,
         </p>',
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY => '<h3>A new Reply to a thread</h3>
         <p>
           User [user:name] replied to one of your threads in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+            [ckeditor5_premium_notification:context]
         </p>
         <p>
           Best regards,
@@ -273,6 +298,9 @@ class SettingsForm extends SharedBuildConfigFormBase {
           User [user:name] replied to one of your suggestion in the [node:title] document (at [node:changed])
         </p>
         <p>
+            [ckeditor5_premium_notification:context]
+        </p>
+        <p>
           Best regards,
         </p>',
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => '<h3>Your suggestion status changed</h3>
@@ -280,11 +308,17 @@ class SettingsForm extends SharedBuildConfigFormBase {
           User [user:name] [suggestion:status-label] your suggestion to the [node:title] document (at [node:changed])
         </p>
         <p>
+            [ckeditor5_premium_notification:context]
+        </p>
+        <p>
           Best regards,
         </p>',
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED => '<h3>New suggestion added</h3>
         <p>
           User [user:name] added new suggestion in the [node:title] document (at [node:changed])
+        </p>
+        <p>
+            [ckeditor5_premium_notification:context]
         </p>
         <p>
           Best regards,

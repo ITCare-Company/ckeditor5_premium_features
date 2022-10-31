@@ -8,11 +8,18 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Provides the methods used reused by the collaboration entitites.
+ * Provides the methods used/reused by the collaboration entities.
  *
  * @todo May be a parent class in the future.
  */
 trait CollaborationEntityStorageTrait {
+
+  /**
+   * Document original content (before submitting).
+   *
+   * @var string
+   */
+  protected string $originalDocument;
 
   /**
    * Loads the entities by the parent/context entity.
@@ -59,7 +66,14 @@ trait CollaborationEntityStorageTrait {
   }
 
   /**
-   * {@inheritdoc}
+   * Returns a list of collaboration entities attributes generated from collaboration source array.
+   *
+   * @param array $source_data
+   *   Collaboration source array.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   Related entity.
+   * @param string $item_key
+   *   Related entity field key.
    */
   public function processSourceData(array $source_data, ContentEntityInterface $entity, string $item_key): array {
     $entity_list = [];
@@ -81,6 +95,25 @@ trait CollaborationEntityStorageTrait {
     }
 
     return $entity_list;
+  }
+
+  /**
+   * Sets the source document original (before submitting) content .
+   *
+   * @param string $content
+   *   String with document content.
+   */
+  public function setDocumentOriginalValue(string $content): void {
+    $this->originalDocument = $content;
+  }
+
+  /**
+   * Returns stored document original value or NULL if not set.
+   *
+   * @return string|null
+   */
+  public function getDocumentOriginalValue(): ?string {
+    return $this->originalDocument ?? NULL;
   }
 
 }

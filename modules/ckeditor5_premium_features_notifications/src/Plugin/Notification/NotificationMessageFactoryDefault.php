@@ -2,11 +2,15 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
+use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\Core\Utility\Token;
+use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -14,12 +18,22 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class NotificationMessageFactoryDefault extends PluginBase implements NotificationMessageFactoryInterface, ContainerFactoryPluginInterface {
 
+  /**
+   * Suggestion entities storage.
+   *
+   * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage|\Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected SuggestionStorage $suggestionStorage;
+
   public function __construct(array $configuration,
                               $pluginId,
                               $pluginDefinition,
                               protected NotificationSettings $notificationSettings,
-                              protected Token $tokenService) {
+                              protected Token $tokenService,
+                              protected EntityTypeManagerInterface $entityTypeManager) {
     parent::__construct($configuration, $pluginId, $pluginDefinition);
+
+    $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
   }
 
   /**
@@ -31,6 +45,7 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
       $plugin_definition,
       $container->get('ckeditor5_premium_features_notifications.notification_settings'),
       $container->get('token'),
+      $container->get('entity_type.manager'),
     );
   }
 
@@ -103,27 +118,32 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
   protected function getMessageParameters(string $messageType, CollaborationEventBase $event): array {
     $parameters = [
       'user' => $event->getAccount(),
+      'key_id' => $event->getRelatedDocumentFieldId(),
     ];
 
-    if ($messageType == self::CKEDITOR5_MESSAGE_DEFAULT) {
-      $parameters[$event->getRelatedEntity()->getEntityTypeId()] = $event->getRelatedEntity();
+    $relatedEntity = $event->getRelatedEntity();
+
+    // Set the "document_type" parameter - in most cases the "node"
+    if (method_exists($relatedEntity, 'getEntityTypeTargetId')) {
+      $parameters[$relatedEntity->getEntityTypeTargetId()] = $relatedEntity->getReferencedEntity();
     }
 
+    $parameters[$relatedEntity->getEntityTypeId()] = $relatedEntity;
+
     switch ($messageType) {
-      case self::CKEDITOR5_MESSAGE_COMMENT_ADDED:
-      case self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:
-      case self::CKEDITOR5_MESSAGE_SUGGESTION_ADDED:
-      case self::CKEDITOR5_MESSAGE_THREAD_REPLY:
       case self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY:
-      case self::CKEDITOR5_MESSAGE_MENTION_COMMENT:
-        /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase $collaborationEntity */
-        $collaborationEntity = $event->getRelatedEntity();
-        $parameters[$collaborationEntity->getEntityTypeTargetId()] = $collaborationEntity->getReferencedEntity();
+        $relatedSuggestion = $this->suggestionStorage->load($relatedEntity->getThreadId());
+        $parameters[$relatedSuggestion->getEntityTypeId()] = $relatedSuggestion;
         break;
 
+      case self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:
+        $parameters['original_content'] = $event->getOriginalContent();
+        break;
+
+      case self::CKEDITOR5_MESSAGE_MENTION_COMMENT:
       case self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT:
-        $collaboratedEntity = $event->getRelatedEntity();
-        $parameters[$collaboratedEntity->getEntityTypeId()] = $collaboratedEntity;
+        $user = User::load($event->getReferencedUserId());
+        $parameters['marker'] = $user->getAccountName();
         break;
     }
 

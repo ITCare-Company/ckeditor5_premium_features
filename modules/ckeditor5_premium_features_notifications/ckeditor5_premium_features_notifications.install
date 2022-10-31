@@ -71,9 +71,14 @@ function ckeditor5_premium_features_notifications_update_9002() {
   $storageDefinitionCreated = BaseFieldDefinition::create('created')
     ->setLabel(t('Created'))
     ->setRequired(TRUE);
+  $storageDefinitionKeyId = BaseFieldDefinition::create('string')
+    ->setLabel(t('Field Key ID'));
+  $storageDefinitionRefUid = BaseFieldDefinition::create('entity_reference')
+    ->setLabel(t('Referenced User'))
+    ->setSetting('target_type', 'user');
 
   $entityDefinition = \Drupal::entityDefinitionUpdateManager();
-  $messageItemUserReference = $entityDefinition->getFieldStorageDefinition('created', MessageItemInterface::ENTITY_TYPE_ID);
+  $messageItemUserReference = $entityDefinition->getFieldStorageDefinition('ref_uid', MessageItemInterface::ENTITY_TYPE_ID);
 
   if (!$messageItemUserReference) {
     $entityDefinition->installFieldStorageDefinition(
@@ -87,6 +92,18 @@ function ckeditor5_premium_features_notifications_update_9002() {
       MessageItemInterface::ENTITY_TYPE_ID,
       MessageItemInterface::ENTITY_TYPE_ID,
       $storageDefinitionCreated
+    );
+    $entityDefinition->installFieldStorageDefinition(
+      'key_id',
+      MessageItemInterface::ENTITY_TYPE_ID,
+      MessageItemInterface::ENTITY_TYPE_ID,
+      $storageDefinitionKeyId
+    );
+    $entityDefinition->installFieldStorageDefinition(
+      'ref_uid',
+      MessageItemInterface::ENTITY_TYPE_ID,
+      MessageItemInterface::ENTITY_TYPE_ID,
+      $storageDefinitionRefUid
     );
   }
 }

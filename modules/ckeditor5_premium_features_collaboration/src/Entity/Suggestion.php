@@ -189,10 +189,12 @@ class Suggestion extends CollaborationEntityBase implements SuggestionInterface 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage $storage */
     $storage = $this->entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID);
 
+    $threadId = $this->getChainId() ? $this->getChainId() : $this->getId();
+
     return $storage->getCommentsThread(
       $this->getEntityTypeTargetId(),
       $this->getEntityId(),
-      $this->getThreadId()
+      $threadId
     );
 
   }

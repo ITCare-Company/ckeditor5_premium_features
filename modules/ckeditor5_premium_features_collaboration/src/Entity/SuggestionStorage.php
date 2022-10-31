@@ -255,8 +255,11 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
       return;
     }
 
+    $event = new CollaborationEventBase($suggestion, $this->user, $event_type);
+    $event->setOriginalContent($this->getDocumentOriginalValue());
+
     $this->event_dispatcher->dispatch(
-      new CollaborationEventBase($suggestion, $this->user, $event_type),
+      $event,
       $event_type
     );
   }
