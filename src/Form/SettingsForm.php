@@ -253,7 +253,7 @@ class SettingsForm extends ConfigFormBase {
     }
 
     if ($this->isRealtimeSettingsRequired() && !in_array($auth_type, ['key', 'dev_token'])) {
-      $form_state->setErrorByName('auth_type', $this->t('You need to choose the Access key authorization type in order to use Realtime Collaboration features'));
+      $form_state->setErrorByName('auth_type', $this->t('You need to choose the authorization type in order to use Realtime Collaboration features'));
     }
 
     parent::validateForm($form, $form_state);
