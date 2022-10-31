@@ -53,7 +53,7 @@ class CollaborationSettings {
    * Returns mentions revision history on submit config.
    */
   public function isRevisionHistoryOnSubmit(): bool {
-    return (bool) $this->collaborationSettings->get('add_revision_on_submit');
+    return (bool) ($this->collaborationSettings->get('add_revision_on_submit') ?? TRUE);
   }
 
 }
