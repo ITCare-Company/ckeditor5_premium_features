@@ -90,11 +90,14 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
    * {@inheritdoc}
    */
   public function getThread(): array {
-    return $this->entityTypeManager()->getStorage(self::ENTITY_TYPE_ID)->loadByProperties([
-      'entity_type' => $this->getEntityTypeTargetId(),
-      'entity_id' => $this->getEntityId(),
-      'thread_id' => $this->getThreadId(),
-    ]);
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage $storage */
+    $storage = $this->entityTypeManager()->getStorage(self::ENTITY_TYPE_ID);
+
+    return $storage->getCommentsThread(
+      $this->getEntityTypeTargetId(),
+      $this->getEntityId(),
+      $this->getThreadId()
+    );
   }
 
   /**

@@ -93,7 +93,7 @@ class Message extends ContentEntityBase implements MessageInterface {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType, $messageContent): int {
+  public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType, $messageContent, $uid): int {
     $saveResult = $this->entityTypeManager()->getStorage(MessageItem::ENTITY_TYPE_ID)
       ->create([
         'message_id' => $this->id(),
@@ -101,6 +101,7 @@ class Message extends ContentEntityBase implements MessageInterface {
         'entity_id' => $itemEntityId,
         'message_type' => $messageType,
         'event_type' => $eventType,
+        'uid' => $uid,
         'message_content' => $messageContent,
       ])->save();
 
@@ -149,7 +150,7 @@ class Message extends ContentEntityBase implements MessageInterface {
             break;
 
           default:
-            $groupedMessageItems[$item->getType()] = $item;
+            $groupedMessageItems[$item->getUid()] = $item;
             break;
         }
       }

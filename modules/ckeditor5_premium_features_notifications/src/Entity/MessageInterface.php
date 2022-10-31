@@ -24,11 +24,15 @@ interface MessageInterface {
    *   Type of message.
    * @param $eventType
    *   Type of event.
+   * @param $messageContent
+   *   Content of the document.
+   * @param $uid
+   *   ID of the message item author.
    *
    * @return int
    *   Either SAVED_NEW or SAVED_UPDATED, depending on the operation performed
    */
-  public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType, $messageContent): int;
+  public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType, $messageContent, $uid): int;
 
   /**
    * Returns related message items.

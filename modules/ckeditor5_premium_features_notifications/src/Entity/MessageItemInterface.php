@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_notifications\Entity;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\user\UserInterface;
 
 /**
  * Provides the interface for the CKEditor5 "Message Item" entity.
@@ -42,6 +43,32 @@ interface MessageItemInterface {
    * Returns related document entity.
    */
   public function getRelatedEntity(): EntityInterface|null;
+
+  /**
+   * Returns uid field value.
+   */
+  public function getUid(): string;
+
+  /**
+   * Returns referenced User entity.
+   */
+  public function getUser(): ?UserInterface;
+
+  /**
+   * Gets the node creation timestamp.
+   *
+   * @return int
+   *   Creation timestamp of the node.
+   */
+  public function getCreatedTime(): int;
+
+  /**
+   * Returns formatted date  of creation.
+   *
+   * @param string $format
+   *   Format name.
+   */
+  public function getCreatedDate(string $format = 'medium'): string;
 
   /**
    * Returns a related collaboration entity thread.
