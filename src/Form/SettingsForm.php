@@ -99,6 +99,7 @@ class SettingsForm extends ConfigFormBase {
 
     $configuration['license_key'] = [
       '#type' => 'textfield',
+      '#required' => $this->isNonRealtimeSettingsRequired(),
       '#title' => $this->t('License key'),
       '#description' => $this->t('The license key is required <strong>only</strong> for Revision History, Track changes and Comments (<strong>without</strong> real-time collaboration).'),
     ];
@@ -120,7 +121,7 @@ class SettingsForm extends ConfigFormBase {
     $configuration['env'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Environment ID'),
-      '#required' => $this->isAccessKeyAuthorizationRequired($auth_type),
+      '#required' => $auth_type === 'key',
       '#description' =>
       $this->t('The environment management panel can be found in <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url]),
       '#states' => [
@@ -136,7 +137,7 @@ class SettingsForm extends ConfigFormBase {
     $configuration['access_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Access key'),
-      '#required' => $this->isAccessKeyAuthorizationRequired($auth_type),
+      '#required' => $auth_type === 'key',
       '#description' =>
       $this->t('The access key for the environment can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url]),
       '#states' => [
@@ -251,8 +252,8 @@ class SettingsForm extends ConfigFormBase {
       }
     }
 
-    if ($this->isRealtimeSettingsRequired() && $auth_type != 'key') {
-      $form_state->setErrorByName('auth_type', $this->t('You need to choose the Access key authorization type in order to use Realtime Collaboration features'));
+    if ($this->isRealtimeSettingsRequired() && !in_array($auth_type, ['key', 'dev_token'])) {
+      $form_state->setErrorByName('auth_type', $this->t('You need to choose the authorization type in order to use Realtime Collaboration features'));
     }
 
     parent::validateForm($form, $form_state);
@@ -329,20 +330,17 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
-   * Checks if the chosen authorization is an access-key type or if the Realtime Collaboration module is enabled.
-   *
-   * @param $auth_key
-   *   Type of chosen authorization.
+   * Checks if the Realtime Collaboration module is enabled.
    */
-  protected function isAccessKeyAuthorizationRequired($auth_key): bool {
-    return $auth_key === 'key' || $this->isRealtimeSettingsRequired();
+  protected function isRealtimeSettingsRequired(): bool {
+    return $this->moduleHandler->moduleExists('ckeditor5_premium_features_realtime_collaboration');
   }
 
   /**
    * Checks if the Realtime Collaboration module is enabled.
    */
-  protected function isRealtimeSettingsRequired(): bool {
-    return $this->moduleHandler->moduleExists('ckeditor5_premium_features_realtime_collaboration');
+  protected function isNonRealtimeSettingsRequired(): bool {
+    return $this->moduleHandler->moduleExists('ckeditor5_premium_features_collaboration');
   }
 
 }
