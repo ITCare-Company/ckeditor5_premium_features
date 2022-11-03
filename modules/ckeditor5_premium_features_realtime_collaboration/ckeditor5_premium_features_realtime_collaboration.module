@@ -46,8 +46,6 @@ function ckeditor5_premium_features_realtime_collaboration_element_info_alter(ar
   if (isset($info['text_format'])) {
     $info['text_format']['#process'][] = [TextFormat::class, 'process'];
   }
-  /** @var \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $config_handler */
-  $config_handler = \Drupal::service('ckeditor5_premium_features.api_adapter');
 }
 
 /**
