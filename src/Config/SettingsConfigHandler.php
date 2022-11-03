@@ -136,10 +136,17 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    * @return string
    *   The DLLs version.
    */
-  protected function getDllVersion(): string {
+  public function getDllVersion(): string {
     $library = $this->libraryDiscovery->getLibraryByName('core', 'ckeditor5');
 
     return $library['version'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOrganizationId(): ?string {
+    return $this->config->get('organization_id');
   }
 
 }

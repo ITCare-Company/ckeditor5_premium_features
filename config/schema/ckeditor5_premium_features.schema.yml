@@ -26,3 +26,6 @@ ckeditor5_premium_features.settings:
     dll_location:
       type: string
       label: 'DLL packages location'
+    organization_id:
+      type: string
+      label: 'Organization ID'

@@ -46,6 +46,8 @@ function ckeditor5_premium_features_realtime_collaboration_element_info_alter(ar
   if (isset($info['text_format'])) {
     $info['text_format']['#process'][] = [TextFormat::class, 'process'];
   }
+  /** @var \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $config_handler */
+  $config_handler = \Drupal::service('ckeditor5_premium_features.api_adapter');
 }
 
 /**
@@ -59,6 +61,9 @@ function ckeditor5_premium_features_realtime_collaboration_form_alter(&$form, \D
       $channel_provider = \Drupal::service('ckeditor5_premium_features_realtime_collaboration.channel');
       if (!$entity->isNew() && $channel = $channel_provider->getChannel($entity)) {
         $channelId = $channel->id();
+        /** @var \Drupal\ckeditor5_premium_features\Utility\ApiAdapter $api_adapter */
+        $api_adapter = \Drupal::service('ckeditor5_premium_features.api_adapter');
+        $api_adapter->validateLibraryVersion($channelId);
       } else {
         $input = $form_state->getUserInput();
         if (!empty($input) && isset($input['channel_id'])) {
