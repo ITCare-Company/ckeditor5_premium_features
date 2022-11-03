@@ -38,7 +38,7 @@ class ApiAdapter {
    * Call flush all collaborative sessions endpoint.
    * @return void
    */
-  public function flushAllCollaborativeSessions():void {
+  public function flushAllCollaborativeSessions(): void {
     $this->sendRequest('DELETE', 'collaborations');
   }
 
@@ -48,7 +48,7 @@ class ApiAdapter {
    *
    * @return array
    */
-  public function getCollaborativeSessionDetails($documentId):array {
+  public function getCollaborativeSessionDetails($documentId): array {
     return $this->sendRequest('GET', 'collaborations/' . $documentId . '/details');
   }
 
@@ -60,7 +60,7 @@ class ApiAdapter {
    * @return String|NULL
    *   Library version
    */
-  public function getLibraryVersion($documentId):?String {
+  public function getLibraryVersion($documentId): ?String {
     $details = $this->getCollaborativeSessionDetails($documentId);
     if (!empty($details['current_session'])) {
       return $details['current_session']['bundle_version'];
@@ -75,7 +75,7 @@ class ApiAdapter {
    *
    * @return void
    */
-  public function validateLibraryVersion($documentId):void {
+  public function validateLibraryVersion($documentId): void {
     $sessionVersion = $this->getLibraryVersion($documentId);
     $libraryVersion = $this->settingsConfigHandler->getDllVersion();
     if ($sessionVersion === $libraryVersion) {
@@ -92,7 +92,7 @@ class ApiAdapter {
    * @return string
    *   Base URL.
    */
-  private function getBaseUrl():String {
+  private function getBaseUrl(): String {
     return 'https://' . $this->settingsConfigHandler->getOrganizationId() . '.cke-cs.com/api/v4/' . $this->settingsConfigHandler->getEnvironmentId() . '/';
   }
 
@@ -109,7 +109,7 @@ class ApiAdapter {
    * @return string
    *   Generated signature.
    */
-  private function generateSignature($method, $url, $timestamp, $body):String {
+  private function generateSignature($method, $url, $timestamp, $body): String {
     $parsedUrl = parse_url($url);
     $uri = $parsedUrl['path'] ?? '';
 
@@ -139,7 +139,7 @@ class ApiAdapter {
    * @return array
    *   Result of sent request.
    */
-  private function sendRequest($method, $path, $data = [] ):array {
+  private function sendRequest($method, $path, $data = [] ): array {
     $url = $this->getBaseUrl() . $path;
     $timestamp = time();
 
