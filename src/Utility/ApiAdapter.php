@@ -78,7 +78,7 @@ class ApiAdapter {
   public function validateLibraryVersion($documentId): void {
     $sessionVersion = $this->getLibraryVersion($documentId);
     $libraryVersion = $this->settingsConfigHandler->getDllVersion();
-    if ($sessionVersion === $libraryVersion) {
+    if (is_null($sessionVersion) || $sessionVersion === $libraryVersion) {
       return;
     }
     else {
