@@ -6,9 +6,6 @@
  */
 
 use Drupal\Core\Url;
-use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
-use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Database\Database;
 
 /**
  * Implements hook_requirements().
@@ -52,34 +49,4 @@ function ckeditor5_premium_features_realtime_collaboration_requirements($phase):
   }
 
   return $requirements;
-}
-
-/**
- * Implements hook_update().
- */
-function ckeditor5_premium_features_realtime_collaboration_update_9001() {
-  $storageDefinitionKeyId = BaseFieldDefinition::create('string')
-    ->setLabel(t('Field Key ID'))
-    ->setSetting('not null', TRUE)
-    ->setRequired(TRUE);
-
-  $entityDefinition = \Drupal::entityDefinitionUpdateManager();
-  $channelKeyColumnReference = $entityDefinition->getFieldStorageDefinition('key_id3', ChannelInterface::ENTITY_TYPE_ID);
-
-  if (!$channelKeyColumnReference) {
-    $entityDefinition->installFieldStorageDefinition(
-      'key_id',
-      ChannelInterface::ENTITY_TYPE_ID,
-      ChannelInterface::ENTITY_TYPE_ID,
-      $storageDefinitionKeyId
-    );
-
-    $schema = Database::getConnection()->schema();
-
-    $channelTable = $entityDefinition->getEntityType(ChannelInterface::ENTITY_TYPE_ID)
-      ->getBaseTable();
-    $fields = ['entity_id', 'entity_type', 'key_id'];
-
-    $schema->addUniqueKey($channelTable, 'channel_entity', $fields);
-  }
 }

@@ -117,17 +117,24 @@ class TextFormat {
       /** @var EntityInterface $entity */
       $entity = $form_object->getEntity();
 
-      $channel_id = NestedArray::getValue($form_state->getUserInput(), [...$element['#parents'], 'channel_id']) ??
-        $this->getChannelId($entity->uuid() . $element_unique_id);
-
       if (!$entity->isNew()) {
-        $channel = $this->handleEntityChannel($entity, $channel_id, $element_unique_id);
-        $channel_id = $channel->id();
+        $channel = $this->channelStorage->loadByEntity($entity);
+        $entity_channel = $channel->id();
       }
+
+      if (empty($entity_channel)) {
+        $entity_channel =  NestedArray::getValue($form_state->getUserInput(), [...$element['#parents'], 'entity_channel']) ?? $entity->uuid();
+      }
+
+      $channel_id = $this->getChannelId($entity_channel . $element_unique_id);
 
       // We need to attach the submit just in case the entity was created before the rtc module was enabled.
       $this->addSubmitCallback($complete_form);
 
+      $element['entity_channel'] = [
+        '#type' => 'hidden',
+        '#value' => $entity_channel,
+      ];
     } else {
       // We still need to process in order to stop our integration from
       // throwing exceptions in console, but we'll block editor toolbar buttons.
@@ -135,10 +142,6 @@ class TextFormat {
       $channel_id = $this->getChannelId($element_drupal_id . random_bytes(5));
     }
 
-    $element['channel_id'] = [
-      '#type' => 'hidden',
-      '#value' => $channel_id,
-    ];
     $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$element_drupal_id] = $channel_id;
 
     // Add the container for the revision list.
@@ -256,15 +259,12 @@ class TextFormat {
       // Do not process anything, the entity is missing.
       return;
     }
+    $items = $form_state->get(static::STORAGE_KEY) ?? [];
+    $entity_channel = $form_state->getValue([...reset($items), 'entity_channel']);
 
     $entity = $form_object->getEntity();
-    $items = $form_state->get(static::STORAGE_KEY) ?? [];
 
-    foreach ($items as $item_key => $item_parents) {
-      $channel_id = $form_state->getValue([...$item_parents, 'channel_id']);
-
-      $this->handleEntityChannel($entity, $channel_id, $item_key);
-    }
+    $this->handleEntityChannel($entity, $entity_channel);
   }
 
   /**
@@ -272,27 +272,22 @@ class TextFormat {
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   Referenced entity.
-   * @param string $channel_id
-   *   Desired channel ID.
-   * @param $key_id
-   *   Referenced source field key ID.
+   * @param string $entity_channel
+   *   Desired entity channel ID.
    *
    * @return \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  private function handleEntityChannel(EntityInterface $entity, string $channel_id, $key_id): ChannelInterface {
-    if ($channel = $this->channelStorage->loadByEntity($entity, $key_id)) {
-      return $channel;
-    }
-    if ($channel = $this->channelStorage->load($channel_id)) {
+  private function handleEntityChannel(EntityInterface $entity, string $entity_channel): ChannelInterface {
+    if ($channel = $this->channelStorage->loadByEntity($entity)) {
       return $channel;
     }
 
     try {
-      return $this->channelStorage->createChannel($entity, $channel_id, $key_id);
+      return $this->channelStorage->createChannel($entity, $entity_channel);
     } catch (EntityStorageException) {
-      return $this->channelStorage->loadByEntity($entity, $key_id);
+      return $this->channelStorage->loadByEntity($entity);
     }
   }
 

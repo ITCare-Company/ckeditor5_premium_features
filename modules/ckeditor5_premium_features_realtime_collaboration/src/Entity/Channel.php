@@ -21,11 +21,9 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *      "entity_type" = "entity_type",
  *      "entity_id" = "entity_id",
  *      "created" = "created",
- *
  *   },
  *   handlers = {
  *     "storage" = "Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage",
- *     "storage_schema" = "Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorageSchema",
  *   }
  * )
  */
@@ -52,10 +50,6 @@ class Channel extends ContentEntityBase implements ChannelInterface {
       ->setLabel(t('Entity ID'))
       ->setRequired(TRUE)
       ->setDescription(t('The Entity ID.'));
-
-    $fields['key_id'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Field Key ID'))
-      ->setRequired(TRUE);
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
