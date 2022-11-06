@@ -28,6 +28,7 @@ class ChannelProvider {
    */
   public function getChannel($entity): ChannelInterface|bool {
     $channel = $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID)->loadByProperties([
+      'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->uuid(),
     ]);
     return reset($channel);
