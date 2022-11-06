@@ -25,6 +25,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   },
  *   handlers = {
  *     "storage" = "Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage",
+ *     "storage_schema" = "Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorageSchema",
  *   }
  * )
  */
@@ -54,7 +55,6 @@ class Channel extends ContentEntityBase implements ChannelInterface {
 
     $fields['key_id'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Field Key ID'))
-      ->setSetting('not null', TRUE)
       ->setRequired(TRUE);
 
     $fields['created'] = BaseFieldDefinition::create('created')

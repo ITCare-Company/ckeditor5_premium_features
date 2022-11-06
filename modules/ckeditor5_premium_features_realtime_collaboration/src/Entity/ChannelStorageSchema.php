@@ -17,7 +17,9 @@ class ChannelStorageSchema extends SqlContentEntityStorageSchema {
     $schema = parent::getEntitySchema($entity_type, $reset);
 
     if ($data_table = $this->storage->getBaseTable()) {
-      $schema[$data_table]['unique'] += [
+      $schema[$data_table]['fields']['key_id']['not null'] = TRUE;
+
+      $schema[$data_table]['unique keys'] += [
         'channel_entity' => ['entity_id', 'entity_type', 'key_id'],
       ];
     }
