@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 
@@ -13,7 +12,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *
  * @ContentEntityType(
  *   id = "ckeditor5_comment",
- *   label = @Translation("CKEditor5 Suggestion"),
+ *   label = @Translation("CKEditor5 Comment"),
  *   base_table = "ckeditor5_comment",
  *   entity_keys = {
  *      "id" = "id",
@@ -90,33 +89,72 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
   /**
    * {@inheritdoc}
    */
+  public function getThread(): array {
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage $storage */
+    $storage = $this->entityTypeManager()->getStorage(self::ENTITY_TYPE_ID);
+
+    return $storage->getCommentsThread(
+      $this->getEntityTypeTargetId(),
+      $this->getEntityId(),
+      $this->getThreadId()
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getContent(): ?string {
     $field = $this->get('content');
 
-    return $field->isEmpty() ? NULL : self::xssFilter((string) $field->value);
+    return $field->isEmpty() ? NULL : $field->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getContentPlain(): string|null {
+    $content = $this->getContent();
+    if (empty($content)) {
+      return NULL;
+    }
+
+    return str_replace(chr(0xC2) . chr(0xA0), ' ', html_entity_decode(strip_tags($content)));
   }
 
   /**
    * {@inheritdoc}
    */
   public function setContent(string $content): static {
-    $this->set('content', self::xssFilter($content));
+    $this->set('content', $content);
 
     return $this;
   }
 
   /**
-   * Filter the entity content to avoid XSS vulnerabilities.
-   *
-   * @param string $content
-   *   The text to filter.
-   *
-   * @return string
-   *   Filtered text.
+   * {@inheritdoc}
    */
-  protected static function xssFilter(string $content): string {
-    $tags = array_merge(Xss::getHtmlTagList(), ['p']);
-    return Xss::filter($content, $tags);
+  public function setIsReply(bool $is_reply): void {
+    $attributes = $this->getAttributes();
+    $attributes['is_reply'] = $is_reply;
+
+    $this->setAttributes($attributes);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function isReply(): bool {
+    $attributes = $this->getAttributes();
+
+    return !empty($attributes['is_reply']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPosition(): int {
+    $attributes = $this->getAttributes();
+
+    return $attributes['position'] ?? -1;
+  }
 }

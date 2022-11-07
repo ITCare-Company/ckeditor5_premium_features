@@ -61,8 +61,9 @@ class UserDataProvider {
       $user = $entity->getAuthor();
       if ($user) {
         $users[$user->id()] = $user;
-      } else {
-        $users[$entity->get('uid')->target_id ] = NULL;
+      }
+      else {
+        $users[$entity->get('uid')->target_id] = NULL;
       }
     }
 
@@ -99,7 +100,7 @@ class UserDataProvider {
         ->range($offset, $query_limit)
         ->execute();
 
-      /** @var UserInterface[] $users */
+      /** @var \Drupal\user\UserInterface[] $users */
       $users = $this->userStorage->loadMultiple($user_ids);
 
       foreach ($users as $user_to_check) {

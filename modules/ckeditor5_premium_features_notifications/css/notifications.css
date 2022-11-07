@@ -1,0 +1,31 @@
+.message-inner-wrapper {
+  margin: 0 auto;
+  width: 60%;
+}
+
+.document-context-wrapper {
+  border: 1px solid lightgrey;
+  padding: 15px;
+  border-radius: 15px;
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.context-content {
+  border: 1px solid lightgrey;
+  padding: 15px;
+  border-radius: 15px;
+}
+
+.comment-thread-wrapper {
+  padding: 15px;
+  margin-top: 15px;
+}
+
+.highlight-item-wrapper .highlight-item {
+  background-color: yellow;
+}
+
+.thread-wrapper .author {
+  font-weight: bold;
+}

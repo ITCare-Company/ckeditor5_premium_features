@@ -7,7 +7,7 @@ namespace Drupal\ckeditor5_premium_features\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Url;
-
+use Drupal\Core\Asset\LibraryDiscoveryInterface;
 /**
  * Provides the utility service for handling the stored settings configuration.
  */
@@ -21,13 +21,21 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   protected ImmutableConfig $config;
 
   /**
+   * The library discovery service.
+   *
+   * @var \Drupal\Core\Asset\LibraryDiscoveryInterface
+   */
+  protected $libraryDiscovery;
+
+  /**
    * Constructs the handler.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory service.
    */
-  public function __construct(protected ConfigFactoryInterface $configFactory) {
+  public function __construct(protected ConfigFactoryInterface $configFactory, protected LibraryDiscoveryInterface $library_discovery) {
     $this->config = $this->configFactory->get('ckeditor5_premium_features.settings');
+    $this->libraryDiscovery = $library_discovery;
   }
 
   /**
@@ -42,6 +50,13 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    */
   public function getAccessKey(): ?string {
     return $this->config->get('access_key');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getWebSocketUrl(): ?string {
+    return $this->config->get('web_socket_url');
   }
 
   /**
@@ -84,21 +99,44 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   public function getDllLocation(string $file_name = ''): string {
     $base_path = $this->config->get('dll_location') ?: $this->getDefaultDllLocation();
 
+    $base_path = trim($base_path, ' /') . '/';
+
+    $base_path = $this->replaceDllPathToken($base_path);
+
     return $base_path . $file_name;
   }
 
   /**
-   * Gets the default DLL location if it was not overriden in the config.
+   * {@inheritdoc}
+   */
+  public function getDllVersion(): string {
+    $library = $this->libraryDiscovery->getLibraryByName('core', 'ckeditor5');
+
+    return $library['version'];
+  }
+
+  /**
+   * Gets the default DLL location if it was not overridden in the config.
    *
    * @return string
    *   The URL of the DLL location.
    */
-  protected function getDefaultDllLocation(): string {
-    $host = Url::fromRoute('<front>')->setAbsolute()->toString();
-    // We don't do a DI here, because it will be replaced with the CDN URL.
-    $path = \Drupal::moduleHandler()->getModule('ckeditor5_premium_features')->getPath();
+  public function getDefaultDllLocation(): string {
+    return 'https://cdn.ckeditor.com/ckeditor5/' . SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN . '/dll/';
+  }
 
-    return $host . $path . '/js/';
+  /**
+   * Dynamically replaces version token in the DLL path.
+   *
+   * @param string $path
+   *   Path to the DLL location.
+   */
+  protected function replaceDllPathToken(string $path): string {
+    return str_replace(
+      SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN,
+      $this->getDllVersion(),
+      $path
+    );
   }
 
 }

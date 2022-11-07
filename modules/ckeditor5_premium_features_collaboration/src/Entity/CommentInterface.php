@@ -29,12 +29,26 @@ interface CommentInterface {
   public function setThreadId(string $id): static;
 
   /**
+   * Returns comment thread that the current entity is a part of.
+   *
+   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface[]
+   */
+  public function getThread(): array;
+
+  /**
    * Gets the comment content.
    *
    * @return string|null
    *   The content of the comment, defaults to null.
    */
   public function getContent(): ?string;
+
+  /**
+   * Returns content without HTML markup.
+   *
+   * @return string|null
+   */
+  public function getContentPlain(): string|null;
 
   /**
    * Sets the comment content.
@@ -46,5 +60,22 @@ interface CommentInterface {
    *   The current object.
    */
   public function setContent(string $content): static;
+
+  /**
+   * Gets the is_reply attribute value.
+   */
+  public function isReply(): bool;
+
+  /**
+   * Sets the is_reply attribute value.
+   *
+   * @param bool $is_reply
+   */
+  public function setIsReply(bool $is_reply): void;
+
+  /**
+   * Returns position attribute.
+   */
+  public function getPosition(): int;
 
 }

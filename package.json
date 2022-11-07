@@ -17,6 +17,7 @@
     "@ckeditor/ckeditor5-dev-utils": "^25.4.5",
     "@ckeditor/ckeditor5-export-pdf": "^35.0.1",
     "@ckeditor/ckeditor5-export-word": "^35.0.1",
+    "@ckeditor/ckeditor5-import-word": "^35.2.1",
     "@ckeditor/ckeditor5-list": "^35.0.1",
     "@ckeditor/ckeditor5-mention": "^35.0.1",
     "@ckeditor/ckeditor5-revision-history": "^35.0.1",

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
+use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Access\AccessException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
@@ -27,7 +30,8 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
    */
   public function __construct(
     protected AccountProxyInterface $user,
-    ...$parent_arguments
+    protected ContainerAwareEventDispatcher $event_dispatcher,
+                                            ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
   }
@@ -38,6 +42,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
     return new static(
       $container->get('current_user'),
+      $container->get('event_dispatcher'),
       $entity_type,
       $container->get('database'),
       $container->get('entity_field.manager'),
@@ -66,9 +71,15 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
   /**
    * {@inheritdoc}
    */
-  public function add(array $raw_data): CollaborationEntityInterface {
+  public function add(array $raw_data): CollaborationEntityInterface|NULL {
     $raw_data = Suggestion::normalize($raw_data);
     $data = new ParameterBag($raw_data);
+
+    $raw_attributes = $data->get('attributes');
+    if (!empty($raw_attributes['status'])) {
+      // Here we skip adding the entity, because it was already accepted/rejected.
+      return NULL;
+    }
 
     $object_data = [
       'id' => $data->getAlnum('id'),
@@ -88,7 +99,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
       $type,
     ] = call_user_func([__CLASS__, $callback], $object_data, $source);
 
-    $attributes['key'] = $raw_data['item_key'];
+    $attributes['key'] = $data->get('key');
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion $suggestion */
     $suggestion = $this->create($object_data);
@@ -104,13 +115,18 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
 
     $suggestion->save();
 
+    $this->event_dispatcher->dispatch(
+      new CollaborationEventBase($suggestion, $this->user, CollaborationEventBase::SUGGESTION_ADDED),
+      CollaborationEventBase::SUGGESTION_ADDED
+    );
+
     return $suggestion;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface {
+  public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface|NULL {
     if (!$entity->access('update')) {
       throw new AccessException();
     }
@@ -121,6 +137,10 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
     $suggestion_data = $data->get('data') ?? [];
     $suggestion_attributes = $data->get('attributes') ?? [];
 
+    if (!empty($suggestion_attributes['status']) && $suggestion_attributes['status'] != $entity->getStatus()) {
+      $this->dispatchSuggestionStateEvent($entity, $suggestion_attributes['status']);
+    }
+
     $entity
       ->setCommentState($has_comments)
       ->setData($suggestion_data)
@@ -128,6 +148,18 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
       ->save();
 
     return $entity;
+  }
+
+  /**
+   * Returns the list of IDs present in the source data array.
+   *
+   * @param array $source_data
+   *   Collaboration source data.
+   */
+  public function getSuggestionEntityIds(array $source_data): array {
+    return array_map(function ($value) {
+      return $value['id'];
+    }, $source_data);
   }
 
   /**
@@ -161,10 +193,15 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
       'uid' => $this->user->id(),
     ] + $current_data;
 
+    $attributes = $data->get('attributes');
+    if (!empty($attributes['head'])) {
+      $object_data['chain_id'] = $attributes['head'];
+    }
+
     return [
       $object_data,
       $data->get('data') ?? [],
-      $data->get('attributes') ?? [],
+      $attributes ?? [],
       $data->get('type'),
     ];
   }
@@ -193,6 +230,38 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
       $suggestion->getAttributes(),
       $suggestion->getType(),
     ];
+  }
+
+  /**
+   * Dispatches the suggestion state change event.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
+   *   Suggestion entity.
+   * @param string $suggestion_status
+   *   Suggestion new status.
+   */
+  protected function dispatchSuggestionStateEvent(SuggestionInterface $suggestion, string $suggestion_status): void {
+    switch ($suggestion_status) {
+      case SuggestionInterface::SUGGESTION_ACCEPTED:
+        $event_type = CollaborationEventBase::SUGGESTION_ACCEPT;
+        break;
+
+      case SuggestionInterface::SUGGESTION_REJECTED:
+        $event_type = CollaborationEventBase::SUGGESTION_DISCARD;
+        break;
+    }
+
+    if (!isset($event_type)) {
+      return;
+    }
+
+    $event = new CollaborationEventBase($suggestion, $this->user, $event_type);
+    $event->setOriginalContent($this->getDocumentOriginalValue());
+
+    $this->event_dispatcher->dispatch(
+      $event,
+      $event_type
+    );
   }
 
 }

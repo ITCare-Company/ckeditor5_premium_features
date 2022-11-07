@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * @file
+ * Contains CKEditor 5 Premium Features Collaboration module install functions.
+ */
+
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_requirements().
+ */
+function ckeditor5_premium_features_collaboration_requirements($phase): array {
+  $requirements = [];
+
+  if (($phase === 'install')) {
+    if (\Drupal::moduleHandler()->moduleExists('ckeditor5_premium_features_realtime_collaboration') || defined('COLLABORATION_INSTALLING')) {
+      $requirements[] = [
+        'description' => t('You cannot install CKEditor 5 Realtime Collaboration and CKEditor 5 Non-realtime Collaboration modules at the same time.'),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    } else {
+      define('COLLABORATION_INSTALLING', TRUE);
+    }
+  }
+
+  if ($phase == 'runtime') {
+    /** @var \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $config_handler */
+    $config_handler = \Drupal::service('ckeditor5_premium_features.config_handler.settings');
+    if (empty($config_handler->getLicenseKey())) {
+      $requirements[] = [
+        'title' => t('CKEditor Premium'),
+        'description' => t('You have to define the License Key in the <a href=":url">CKEditor Premium Settings</a>. It is required for Revision History, Track changes and Comments. Otherwise, the WYSIWYG editor may appear broken.', [
+          ':url' => Url::fromRoute('ckeditor5_premium_features.form.settings_general')->setAbsolute()->toString(),
+        ]),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+  }
+
+  return $requirements;
+}

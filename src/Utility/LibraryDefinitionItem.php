@@ -51,7 +51,7 @@ class LibraryDefinitionItem {
    *   The name of the library file without extension.
    */
   public function addRemoteJs(string $name): void {
-    $file_name = "{$this->baseDirectory}{$name}.js";
+    $file_name = "{$this->baseDirectory}{$name}/{$name}.js";
 
     $this->jsData[$file_name] = [
       'type' => 'external',

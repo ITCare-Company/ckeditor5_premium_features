@@ -1,9 +1,10 @@
-import CollaborationStorage from "../../collaborationStorage/src/collaborationStorage";
 
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import List from '@ckeditor/ckeditor5-list/src/list';
+import CollaborationStorage
+  from "../../../../../../js/ckeditor5_plugins/collaborationStorage/src/collaborationStorage";
 
 class CommentsAdapter {
   constructor( editor ) {
@@ -31,6 +32,10 @@ class CommentsAdapter {
   }
 
   init() {
+    if (this.storage.processCollaborationCommandDisable("addCommentThread")) {
+      return;
+    }
+
     if (!this.editor.plugins.has('CommentsRepository')) {
       return
     }
@@ -38,7 +43,7 @@ class CommentsAdapter {
     const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
     const commentsRepositoryElement = document.querySelector(this.storage.getSourceDataSelector('comments'));
 
-    if (!commentsRepositoryElement) {
+    if (!commentsRepositoryElement || commentsRepositoryElement.value == '') {
       return;
     }
 
@@ -70,6 +75,12 @@ class CommentsAdapter {
         this.editor.model.document.fire('comments:change:data');
       });
     }
+
+    // Hook to form submit.
+    const form = this.editor.sourceElement.closest('form');
+    form.addEventListener("submit", () => {
+      this.updateStorage(commentsRepositoryPlugin, commentsRepositoryElement);
+    });
   }
 
   updateStorage(plugin, storageElement) {

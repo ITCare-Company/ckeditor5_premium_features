@@ -40,6 +40,10 @@ class Suggestion extends CollaborationEntityBase implements SuggestionInterface 
       ->setSetting('machine_name', TRUE)
       ->setDescription(t('The editor suggestion type.'));
 
+    $fields['chain_id'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Suggestion chain ID'))
+      ->setRequired(FALSE);
+
     $fields['has_comments'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Has comments'))
       ->setRequired(TRUE)
@@ -123,4 +127,75 @@ class Suggestion extends CollaborationEntityBase implements SuggestionInterface 
     return (bool) $this->get('has_comments')->value;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getChainId(): string {
+    return (string) $this->get('chain_id')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setChainId(string $chain_id): static {
+    return $this->set('chain_id', $chain_id);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isInChain(): bool {
+    return !empty($this->getChainId());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isHeadOfChain(): bool {
+    return $this->isInChain() && $this->id() == $this->getChainId();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getChain(): array {
+    $chainFromDb = $this->entityTypeManager()->getStorage(self::ENTITY_TYPE_ID)
+      ->loadByProperties([
+        'chain_id' => $this->getChainId(),
+      ]);
+
+    if (empty($chainFromDb)) {
+      return [
+        $this,
+      ];
+    }
+
+    return $chainFromDb;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getStatus(): string|NULL {
+    $attributes = $this->getAttributes();
+
+    return $attributes['status'] ?? NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getThread(): array {
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage $storage */
+    $storage = $this->entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID);
+
+    $threadId = $this->getChainId() ? $this->getChainId() : $this->getId();
+
+    return $storage->getCommentsThread(
+      $this->getEntityTypeTargetId(),
+      $this->getEntityId(),
+      $threadId
+    );
+
+  }
 }

@@ -1,8 +1,29 @@
-ckeditor5_premium_features_cloud_services:
+ckeditor5_premium_features__cloud_services:
   ckeditor5:
-    plugins: [cloudServices.CloudServices]
+    plugins: []
   drupal:
     label: CloudServices
-    library: ckeditor5_premium_features/cloud-services
     class: Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin\CloudServices
+    elements: false
+
+ckeditor5_premium_features__collaboration_integration_base:
+  ckeditor5:
+    plugins:
+      - disableGhsTableIntegration.DisableGhsTableIntegration
+      - disableCollaborationMarkersInCaption.DisableCollaborationMarkersInCaption
+      - sidebarAdapter.SidebarAdapter
+      - removeIncorrectCollaborationMarkers.RemoveIncorrectCollaborationMarkers
+  drupal:
+    label: The load & save integration of collaboration tools.
+    library: ckeditor5_premium_features/collaboration-integration-base
+    class: Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin\CollaborationBase
+    elements: false
+    conditions: [ ]
+
+ckeditor5_premium_features__export_adapter:
+  ckeditor5:
+    plugins: []
+  drupal:
+    label: Export Adapter
+    library: ckeditor5_premium_features/export-integration
     elements: false

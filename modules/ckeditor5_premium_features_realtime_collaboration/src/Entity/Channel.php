@@ -1,0 +1,61 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Entity;
+
+use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+
+
+/**
+ * Defines the CKEditor5 Premium features "Channel" entity.
+ *
+ * @ContentEntityType(
+ *   id = "ckeditor5_channel",
+ *   label = @Translation("CKEditor5 Channel"),
+ *   base_table = "ckeditor5_channel",
+ *   entity_keys = {
+ *      "id" = "id",
+ *      "entity_type" = "entity_type",
+ *      "entity_id" = "entity_id",
+ *      "created" = "created",
+ *   },
+ *   handlers = {
+ *     "storage" = "Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage",
+ *   }
+ * )
+ */
+class Channel extends ContentEntityBase implements ChannelInterface {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array {
+    $fields = [];
+
+    $fields['id'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Channel ID'))
+      ->setRequired(TRUE)
+      ->setReadOnly(TRUE);
+
+    $fields['entity_type'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Entity type'))
+      ->setRequired(TRUE)
+      ->setSetting('machine_name', TRUE)
+      ->setDescription(t('The target entity type.'));
+
+    $fields['entity_id'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Entity ID'))
+      ->setRequired(TRUE)
+      ->setDescription(t('The Entity ID.'));
+
+    $fields['created'] = BaseFieldDefinition::create('created')
+      ->setLabel(t('Created'))
+      ->setDescription(t('The time that the suggestion was created.'));
+
+    return $fields;
+  }
+
+}

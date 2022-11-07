@@ -82,7 +82,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
   /**
    * {@inheritdoc}
    */
-  public function add(array $raw_data): CollaborationEntityInterface {
+  public function add(array $raw_data): CollaborationEntityInterface|NULL {
     $raw_data = Revision::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
@@ -93,8 +93,8 @@ class RevisionStorage extends SqlContentEntityStorage implements
       'created' => $data->getInt('created'),
     ];
     $attributes = [
-      'key' => $raw_data['item_key'],
-    ];
+      'key' => $raw_data['key'],
+    ] + $data->get('attributes') ?? [];
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Revision $revision */
     $revision = $this->create($object_data);
@@ -123,7 +123,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
   /**
    * {@inheritdoc}
    */
-  public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface {
+  public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface|NULL {
     if (!$entity->access('update')) {
       throw new AccessException();
     }
@@ -138,7 +138,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
       ->setPreviousVersion($data->get('previous_version'))
       ->setCurrentVersion($data->get('current_version'))
       // When updating, we should avoid  overwriting the author id.
-//      ->setAuthor($this->user)
+    //      ->setAuthor($this->user)
       ->save();
 
     // Set the 'draft' attribute if the creator is empty.

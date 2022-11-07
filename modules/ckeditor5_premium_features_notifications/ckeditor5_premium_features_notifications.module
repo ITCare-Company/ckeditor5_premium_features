@@ -7,51 +7,176 @@
 
 declare(strict_types=1);
 
-use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
-use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
-use Drupal\ckeditor5_premium_features_notifications\Utility\CollaborationChecker;
-use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\user\Entity\User;
-
-/**
- * Implements hook_entity_update().
- */
-function ckeditor5_premium_features_notifications_entity_update(EntityInterface $entity) {
-  if (!CollaborationChecker::hasCollaborationFeatures($entity)) {
-    return;
-  }
-
-  /** @var Collaborators $collaboratorsService */
-  $collaboratorsService = \Drupal::service('ckeditor5_premium_features_collaboration.collaborators');
-  /** @var NotificationSender $notificationService */
-  $notificationService = \Drupal::service('ckeditor5_premium_features_notifications.notification_sender');
-
-  $currentUser = User::load(Drupal::currentUser()->id());
-  $otherAuthorsList = $collaboratorsService->getCollaborators($entity, (int) $currentUser->id());
-
-  $parameters = [
-    'node' => $entity,
-    'user' => $currentUser,
-  ];
-
-  $notificationService->sendNotification(
-    NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT,
-    $otherAuthorsList,
-    $parameters
-  );
-}
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderMailBulk;
+use Drupal\Component\Utility\Xss;
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Render\RendererInterface;
 
 /**
  * Implements hook_mail().
  */
 function ckeditor5_premium_features_notifications_mail($key, &$message, $params) {
-  if (!NotificationMessageFactoryDefault::isMessageTypeSupported($key)) {
+  if (!NotificationMessageFactoryDefault::isMessageTypeSupported($key) &&
+    $key != NotificationSenderMailBulk::BULK_MAIL_TYPE) {
     return;
+  }
+
+  if (empty($params['headers']['content-type'])) {
+    $params['headers']['content-type'] = 'text/html';
+  }
+
+  $cssPath = \Drupal::moduleHandler()->getModule('ckeditor5_premium_features_notifications')->getPath() . '/css/notifications.css';
+  if (file_exists($cssPath)) {
+    $params['body'] = array_merge([
+      '<style>' . file_get_contents($cssPath) . '</style>',
+    ], $params['body']);
   }
 
   $message['subject'] = $params['subject'];
   $message['body'] = $params['body'];
   $message['headers'] += $params['headers'];
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleableMetadata) {
+  $acceptedTypes = [
+    'ckeditor5_premium_notification',
+    'suggestion',
+  ];
+  if (!in_array($type, $acceptedTypes)) {
+    return [];
+  }
+
+  /** @var \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $suggestionEvent */
+  $suggestionEvent = $data['suggestion'] ?? NULL;
+  $suggestion = $data['ckeditor5_suggestion'] ?? NULL;
+  $comment = $data['ckeditor5_comment'] ?? NULL;
+  $node = $data['node'] ?? NULL;
+  $key = $data['key_id'] ?? NULL;
+  $marker = $data['marker'] ?? NULL;
+  $originalContent = $data['original_content'] ?? NULL;
+
+  /** @var RendererInterface $renderer */
+  $renderer = Drupal::service('renderer');
+  /** @var \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextHelper $contextHelper */
+  $contextHelper = Drupal::service('ckeditor5_premium_features_notifications.notification_context_helper');
+
+  $replacements = [];
+
+  if ($suggestionEvent instanceof CollaborationEventBase) {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'status':
+          $replacements[$original] = $suggestionEvent->getEventType();
+          break;
+        case 'status-label':
+          try {
+            $replacements[$original] = t(CollaborationEventBase::getEventLabel($suggestionEvent->getEventType()));
+          }
+          catch (Exception) {}
+          break;
+      }
+    }
+  }
+
+  if ($suggestion instanceof SuggestionInterface) {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'context':
+          if (!empty($originalContent)) {
+            $result = $contextHelper->getFullContextFromDocument($originalContent, $suggestion);
+          }
+          else {
+            $result = $contextHelper->getFullContext($node, $key, $suggestion);
+          }
+          $replacements[$original] = $renderer->renderPlain($result);
+          break;
+      }
+    }
+  }
+  else if ($comment instanceof CommentInterface) {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'context':
+          $result = $contextHelper->getFullContext($node, $key, $comment);
+          $replacements[$original] = $renderer->renderPlain($result);
+          break;
+      }
+    }
+  }
+
+  if (!empty($marker)) {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'context':
+          if ($comment instanceof CommentInterface) {
+            $result = $contextHelper->getFullContext($node, $key, $comment);
+          } else {
+            $result = $contextHelper->getDocumentMentionContext($node, $key, $marker);
+          }
+
+          $replacements[$original] = $renderer->renderPlain($result);
+          break;
+      }
+    }
+  }
+
+  return $replacements;
+}
+
+/**
+ * Implements hook_cron().
+ */
+function ckeditor5_premium_features_notifications_cron() {
+  $bulkMessageSender = \Drupal::service('ckeditor5_premium_features_notifications.bulk_message_sender');
+  $bulkMessageSender->sendBulkMails();
+}
+
+/**
+ * Implements hook_theme().
+ */
+function ckeditor5_premium_features_notifications_theme($existing, $type, $theme, $path) {
+  return [
+    'notification_thread_wrapper' => [
+      'variables' => [
+        'items' => NULL
+      ],
+    ],
+    'notification_thread_comment' => [
+      'variables' => [
+        'comment' => NULL
+      ],
+    ],
+    'notification_thread_default' => [
+      'variables' => [
+        'item' => NULL
+      ],
+    ],
+    'notification_message_bulk' => [
+      'variables' => [
+        'items' => NULL,
+        'title' => NULL,
+      ],
+    ],
+    'notification_message_single' => [
+      'variables' => [
+        'context' => NULL,
+        'thread' => NULL,
+      ],
+    ],
+    'notification_context' => [
+      'variables' => [
+        'title' => NULL,
+        'messageContent' => NULL,
+        'context' => NULL,
+        'thread' => NULL,
+      ],
+    ],
+  ];
 }
