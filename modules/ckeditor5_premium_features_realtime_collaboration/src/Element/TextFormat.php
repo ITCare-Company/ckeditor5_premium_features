@@ -126,11 +126,12 @@ class TextFormat {
 
         if ($channel instanceof ChannelInterface) {
           $entity_channel = $channel->id();
-          $this->apiAdapter->validateLibraryVersion((string) $entity_channel);
         }
       }
 
       $channel_id = $this->getChannelId($entity_channel . $element_unique_id);
+
+      $this->apiAdapter->validateLibraryVersion($channel_id);
 
       // We need to attach the submit just in case the entity was created before the rtc module was enabled.
       $this->addSubmitCallback($complete_form);
