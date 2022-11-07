@@ -47,7 +47,6 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
   public function send(NotificationMessageInterface $message, array $userIds): bool|array {
     $documentId = $message->getSourceEvent()->getRelatedDocument()->id();
     $documentType = $message->getSourceEvent()->getRelatedDocument()->getEntityTypeId();
-    $document = $message->getSourceEvent()->getRelatedDocument();
 
     $documentContent = $message->getSourceEvent()->getRelatedDocumentContent();
 
@@ -72,7 +71,10 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
           $message->getSourceEvent()->getRelatedEntity()->id(),
           $message->getType(),
           $message->getSourceEvent()->getEventType(),
-          $documentContent
+          $documentContent,
+          $message->getSourceEvent()->getAccount()->id(),
+          $message->getSourceEvent()->getRelatedDocumentFieldId(),
+          $message->getSourceEvent()->getReferencedUserId()
         );
       }
 

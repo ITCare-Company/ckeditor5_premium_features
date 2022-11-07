@@ -186,10 +186,16 @@ class Suggestion extends CollaborationEntityBase implements SuggestionInterface 
    * {@inheritdoc}
    */
   public function getThread(): array {
-    return $this->entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID)->loadByProperties([
-      'entity_type' => $this->getEntityTypeTargetId(),
-      'entity_id' => $this->getEntityId(),
-      'thread_id' => $this->getChainId(),
-    ]);
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage $storage */
+    $storage = $this->entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID);
+
+    $threadId = $this->getChainId() ? $this->getChainId() : $this->getId();
+
+    return $storage->getCommentsThread(
+      $this->getEntityTypeTargetId(),
+      $this->getEntityId(),
+      $threadId
+    );
+
   }
 }

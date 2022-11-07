@@ -23,10 +23,12 @@ class NotificationSender {
   /**
    * Sends notification mail.
    *
+   * @param string $messageType
    * @param array $recipientIds
-   * @param array $parameters
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
    *
    * @return bool|array
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function sendNotification(string $messageType, array $recipientIds, CollaborationEventBase $event): bool|array {
     if (!$this->notificationSettings->isMessageEnabled($messageType)) {
@@ -40,7 +42,7 @@ class NotificationSender {
     }
 
     /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory */
-    $messageFactory = $this->getMessageFactoryPlugin();
+    $messageFactory = $this->notificationSettings->getMessageFactoryPlugin();
     if (!$messageFactory) {
       return FALSE;
     }
@@ -51,6 +53,64 @@ class NotificationSender {
       return FALSE;
     }
 
+    if ($messageType == NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT ||
+      $messageType == NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT) {
+      return $this->mentionsSender($sender, $messageFactory, $recipientIds, $event, $messageType);
+    } else {
+      return $this->basicSender($sender, $messageFactory, $recipientIds, $event, $messageType);
+    }
+  }
+
+  /**
+   * Internal method for executing notification sending for a mention event.
+   *
+   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface $sender
+   *   Sender plugin
+   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory
+   *   Message factory plugin
+   * @param array $recipientIds
+   *   User IDs.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   *   Event entity.
+   * @param string $messageType
+   *   Type of message
+   */
+  protected function mentionsSender(NotificationSenderInterface $sender,
+                                    NotificationMessageFactoryInterface $messageFactory,
+                                    array $recipientIds,
+                                    CollaborationEventBase $event,
+                                    string $messageType
+  ): bool {
+    foreach ($recipientIds as $userId) {
+      $clonedEvent = clone $event;
+      $clonedEvent->setReferencedUserId($userId);
+
+      $this->basicSender($sender, $messageFactory, [$userId], $clonedEvent, $messageType);
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * Internal method for executing primary notification sending.
+   *
+   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface $sender
+   *   Sender plugin
+   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory
+   *   Message factory plugin
+   * @param array $recipientIds
+   *   User IDs.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   *   Event entity.
+   * @param string $messageType
+   *   Type of message
+   */
+  protected function basicSender(NotificationSenderInterface $sender,
+                                 NotificationMessageFactoryInterface $messageFactory,
+                                 array $recipientIds,
+                                 CollaborationEventBase $event,
+                                 string $messageType
+  ): bool|array {
     $message = $messageFactory->getMessage($messageType, $event);
     if (empty($message)) {
       return FALSE;
@@ -81,18 +141,6 @@ class NotificationSender {
       ->condition(self::NOTIFICATION_OPT_OUT_FIELD_VALUE, 1)
       ->execute()
       ->fetchCol();
-  }
-
-  /**
-   * Returns notification message factory plugin instance.
-   */
-  protected function getMessageFactoryPlugin(): NotificationMessageFactoryInterface|NULL {
-    $pluginId = $this->notificationSettings->getMessageFactoryPluginId();
-    if (!$this->messageFactoryPluginManager->hasDefinition($pluginId)) {
-      return NULL;
-    }
-
-    return $this->messageFactoryPluginManager->createInstance($pluginId);
   }
 
   /**

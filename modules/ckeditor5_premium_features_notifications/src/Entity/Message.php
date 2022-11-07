@@ -7,6 +7,7 @@ namespace Drupal\ckeditor5_premium_features_notifications\Entity;
 use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityStorageException;
@@ -93,7 +94,7 @@ class Message extends ContentEntityBase implements MessageInterface {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType, $messageContent): int {
+  public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType, $messageContent, $uid, $key, $refUid): int {
     $saveResult = $this->entityTypeManager()->getStorage(MessageItem::ENTITY_TYPE_ID)
       ->create([
         'message_id' => $this->id(),
@@ -101,6 +102,9 @@ class Message extends ContentEntityBase implements MessageInterface {
         'entity_id' => $itemEntityId,
         'message_type' => $messageType,
         'event_type' => $eventType,
+        'uid' => $uid,
+        'key_id' => $key,
+        'ref_uid' => $refUid,
         'message_content' => $messageContent,
       ])->save();
 
@@ -149,7 +153,7 @@ class Message extends ContentEntityBase implements MessageInterface {
             break;
 
           default:
-            $groupedMessageItems[$item->getType()] = $item;
+            $groupedMessageItems[NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT . $item->getUid()] = $item;
             break;
         }
       }

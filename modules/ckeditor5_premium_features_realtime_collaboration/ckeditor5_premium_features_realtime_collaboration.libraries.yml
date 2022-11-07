@@ -23,7 +23,7 @@ real-time-collaboration:
 realtime-revision-history:
   css:
     theme:
-      css/revision-history.css: { }
+      ../../css/revision-history.css: { }
   js:
     js/build/realtimeRevisionHistoryAdapter.js: { minified: true }
   dependencies:

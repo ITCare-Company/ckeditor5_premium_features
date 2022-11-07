@@ -54,6 +54,9 @@ class TokenGenerator implements TokenGeneratorInterface {
         ],
       ],
     ];
+    if (empty($payload['user']['email'])) {
+      unset($payload['user']['email']);
+    }
 
     return JWT::encode($payload, $this->settingsConfigHandler->getAccessKey(), static::ALGORITHM);
   }

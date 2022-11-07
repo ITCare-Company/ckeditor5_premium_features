@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_notifications\Entity;
 
-use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase;
+use Drupal\ckeditor5_premium_features\CKeditorDateFormatterTrait;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\user\UserInterface;
 
 /**
  * @ContentEntityType(
@@ -25,6 +26,8 @@ use Drupal\Core\Field\BaseFieldDefinition;
  * )
  */
 class MessageItem extends ContentEntityBase implements MessageItemInterface {
+
+  use CKeditorDateFormatterTrait;
 
   /**
    * {@inheritdoc}
@@ -51,6 +54,22 @@ class MessageItem extends ContentEntityBase implements MessageItemInterface {
     $fields['entity_id'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Item entity ID'))
       ->setDescription(t('The Entity ID.'));
+
+    $fields['uid'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('User'))
+      ->setSetting('target_type', 'user')
+      ->setRequired(TRUE);
+
+    $fields['created'] = BaseFieldDefinition::create('created')
+      ->setLabel(t('Created'))
+      ->setRequired(TRUE);
+
+    $fields['key_id'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Field Key ID'));
+
+    $fields['ref_uid'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Referenced User'))
+      ->setSetting('target_type', 'user');
 
     $fields['message_type'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Message type'))
@@ -93,6 +112,22 @@ class MessageItem extends ContentEntityBase implements MessageItemInterface {
   /**
    * {@inheritdoc}
    */
+  public function getEvent(): CollaborationEventBase {
+    $evt = new CollaborationEventBase(
+      $this->getRelatedEntity(),
+      $this->getUser(),
+      $this->getEventType()
+    );
+
+    $evt->setRelatedDocumentKey($this->getKeyId());
+    $evt->setOriginalContent($this->getMessageContent());
+    $evt->setReferencedUserId($this->getRefUid());
+    return $evt;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getRelatedEntityId(): string {
     return $this->get('entity_id')->getString();
   }
@@ -115,6 +150,54 @@ class MessageItem extends ContentEntityBase implements MessageItemInterface {
     } catch (\Exception) {
       return NULL;
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUid(): string {
+    return $this->get('uid')->getString();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUser(): ?UserInterface {
+    try {
+      return $this->entityTypeManager()
+        ->getStorage('user')
+        ->load($this->getUid());
+    } catch (\Exception) {
+      return NULL;
+    }
+  }
+
+  /**
+   * Returns referenced entity field ID.
+   */
+  public function getKeyId(): ?string {
+    return $this->get('key_id')->getString();
+  }
+
+  /**
+   * Returns referenced user ID.
+   */
+  public function getRefUid(): ?string {
+    return $this->get('ref_uid')->getString();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCreatedTime(): int {
+    return (int) $this->get('created')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCreatedDate($format = 'medium'): string {
+    return $this->format($this->getCreatedTime(), $format);
   }
 
   /**

@@ -7,6 +7,7 @@ namespace Drupal\ckeditor5_premium_features\Form;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -40,7 +41,8 @@ class SettingsForm extends ConfigFormBase {
    *   Module settings handler.
    */
   public function __construct(ConfigFactoryInterface $config_factory,
-                              protected SettingsConfigHandlerInterface $configHandler) {
+                              protected SettingsConfigHandlerInterface $configHandler,
+                              protected ModuleHandlerInterface $moduleHandler) {
     parent::__construct($config_factory);
   }
 
@@ -50,7 +52,8 @@ class SettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('ckeditor5_premium_features.config_handler.settings')
+      $container->get('ckeditor5_premium_features.config_handler.settings'),
+      $container->get('module_handler'),
     );
   }
 
@@ -96,6 +99,7 @@ class SettingsForm extends ConfigFormBase {
 
     $configuration['license_key'] = [
       '#type' => 'textfield',
+      '#required' => $this->isNonRealtimeSettingsRequired(),
       '#title' => $this->t('License key'),
       '#description' => $this->t('The license key is required <strong>only</strong> for Revision History, Track changes and Comments (<strong>without</strong> real-time collaboration).'),
     ];
@@ -108,16 +112,16 @@ class SettingsForm extends ConfigFormBase {
         'key' => $this->t('Access key'),
         'dev_token' => $this->t('Development token'),
       ],
-      '#default_value' => 'key',
-      '#description' => $this->t('Select the authorization suitable type for your features. The access key-based authorization is highly recommended and the best option in production environment. The development token should rather be used for testing purposes. Required for Export to Word/PDF and Real-time collaboration.')
+      '#default_value' => 'none',
+      '#description' => $this->t('Select the authorization suitable type for your features. The access key-based authorization is highly recommended and the best option in production environment. The development token should rather be used for testing purposes.')
       . '<br />'
-      . $this->t('The access key-based authorization is required for real-time collaboration and optional for Export to Word/PDF to generate documents without the watermark.'),
+      . $this->t('The authorization credentials are required for Real-time collaboration or Import from Word, and optional for Export to Word/PDF to generate documents without the watermark.'),
     ];
 
     $configuration['env'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Environment ID'),
-      '#required' => $auth_type == 'key',
+      '#required' => $auth_type === 'key',
       '#description' =>
       $this->t('The environment management panel can be found in <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url]),
       '#states' => [
@@ -133,7 +137,7 @@ class SettingsForm extends ConfigFormBase {
     $configuration['access_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Access key'),
-      '#required' => $auth_type == 'key',
+      '#required' => $auth_type === 'key',
       '#description' =>
       $this->t('The access key for the environment can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url]),
       '#states' => [
@@ -180,6 +184,7 @@ class SettingsForm extends ConfigFormBase {
     $configuration['web_socket_url'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Web Socket URL'),
+      '#required' => $this->isRealtimeSettingsRequired(),
       '#description' =>
         $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
         . '<br>'
@@ -256,6 +261,10 @@ class SettingsForm extends ConfigFormBase {
       }
     }
 
+    if ($this->isRealtimeSettingsRequired() && !in_array($auth_type, ['key', 'dev_token'])) {
+      $form_state->setErrorByName('auth_type', $this->t('You need to choose the authorization type in order to use Realtime Collaboration features'));
+    }
+
     parent::validateForm($form, $form_state);
   }
 
@@ -328,4 +337,19 @@ class SettingsForm extends ConfigFormBase {
 
     return $clean_values;
   }
+
+  /**
+   * Checks if the Realtime Collaboration module is enabled.
+   */
+  protected function isRealtimeSettingsRequired(): bool {
+    return $this->moduleHandler->moduleExists('ckeditor5_premium_features_realtime_collaboration');
+  }
+
+  /**
+   * Checks if the Realtime Collaboration module is enabled.
+   */
+  protected function isNonRealtimeSettingsRequired(): bool {
+    return $this->moduleHandler->moduleExists('ckeditor5_premium_features_collaboration');
+  }
+
 }
