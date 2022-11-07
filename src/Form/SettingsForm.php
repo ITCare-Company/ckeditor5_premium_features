@@ -191,6 +191,15 @@ class SettingsForm extends ConfigFormBase {
         . $this->t('Required for Real-time collaboration.'),
     ];
 
+    $configuration['organization_id'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Organization Id'),
+      '#description' =>
+        $this->t('The organization ID can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        . '<br>'
+        . $this->t('Required for Real-time collaboration and API requests.'),
+    ];
+
     $this->setDefaultValues($configuration);
 
     $form['configuration'] = $configuration + $form['configuration'];

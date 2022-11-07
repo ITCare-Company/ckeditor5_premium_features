@@ -82,4 +82,13 @@ interface SettingsConfigHandlerInterface {
    *   The DLLs version.
    */
   public function getDllVersion(): string;
+
+  /**
+   * Gets the organization ID based on the configuration values.
+   *
+   * @return string|null
+   *   The URL of the DLL location.
+   */
+  public function getOrganizationId(): ?string;
+
 }

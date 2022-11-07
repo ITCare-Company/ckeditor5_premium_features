@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
+use Drupal\ckeditor5_premium_features\Utility\ApiAdapter;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage;
 use Drupal\Component\Utility\Crypt;
@@ -49,13 +50,16 @@ class TextFormat {
    *   The entity type manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   * @param \Drupal\ckeditor5_premium_features\Utility\ApiAdapter $apiAdapter
+   *   The api adapter.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
-    ConfigFactoryInterface               $config_factory
+    ConfigFactoryInterface               $config_factory,
+    protected ApiAdapter                           $apiAdapter,
   ) {
     $this->config = $config_factory->getEditable('ckeditor5_premium_features_realtime_collaboration.settings');
     $this->channelStorage = $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID);
@@ -120,6 +124,7 @@ class TextFormat {
       if (!$entity->isNew()) {
         $channel = $this->channelStorage->loadByEntity($entity);
         $entity_channel = $channel->id();
+        $this->apiAdapter->validateLibraryVersion((string) $entity_channel);
       }
 
       if (empty($entity_channel)) {
