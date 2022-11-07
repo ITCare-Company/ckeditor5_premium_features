@@ -14,9 +14,13 @@ class DisableCollaborationMarkersInCaption {
     if ( editor.plugins.has( 'DrupalImage' ) && editor.plugins.has('TrackChangesEditing') ) {
       const tcEditing = editor.plugins.get( 'TrackChangesEditing' );
 
-      tcEditing.enableCommand( 'toggleImageCaption', ( executeCommand, options ) => {
-        executeCommand( options );
-      }, { priority: 'high' } );
+      try {
+        tcEditing.enableCommand( 'toggleImageCaption', ( executeCommand, options ) => {
+          executeCommand( options );
+        }, { priority: 'high' } );
+      } catch (error) {
+        return;
+      }
     } else {
       return;
     }
