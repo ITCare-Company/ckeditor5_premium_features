@@ -48,31 +48,3 @@ function ckeditor5_premium_features_realtime_collaboration_element_info_alter(ar
   }
 }
 
-/**
- * Implements hook_form_alter().
- */
-function ckeditor5_premium_features_realtime_collaboration_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  $form_object = $form_state->getFormObject();
-  if ($form_object instanceof EntityFormInterface) {
-    $entity = $form_object->getEntity();
-    if ($entity instanceof FieldableEntityInterface) {
-      $channel_provider = \Drupal::service('ckeditor5_premium_features_realtime_collaboration.channel');
-      if (!$entity->isNew() && $channel = $channel_provider->getChannel($entity)) {
-        $channelId = $channel->id();
-      } else {
-        $input = $form_state->getUserInput();
-        if (!empty($input) && isset($input['channel_id'])) {
-          $channelId = $input['channel_id'];
-        } else {
-          $channelId = Crypt::randomBytesBase64(24);
-        }
-      }
-
-      $form['channel_id'] = [
-        '#type' => 'hidden',
-        '#value' => $channelId,
-        '#default_value' => $channelId,
-      ];
-    }
-  }
-}

@@ -21,8 +21,10 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *      "entity_type" = "entity_type",
  *      "entity_id" = "entity_id",
  *      "created" = "created",
- *
  *   },
+ *   handlers = {
+ *     "storage" = "Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage",
+ *   }
  * )
  */
 class Channel extends ContentEntityBase implements ChannelInterface {
