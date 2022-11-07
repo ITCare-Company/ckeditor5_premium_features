@@ -117,13 +117,13 @@ class TextFormat {
       /** @var EntityInterface $entity */
       $entity = $form_object->getEntity();
 
-      if (!$entity->isNew()) {
-        $channel = $this->channelStorage->loadByEntity($entity);
-        $entity_channel = $channel->id();
-      }
+      $entity_channel =  NestedArray::getValue($form_state->getUserInput(), [...$element['#parents'], 'entity_channel']) ?? $entity->uuid();
 
-      if (empty($entity_channel)) {
-        $entity_channel =  NestedArray::getValue($form_state->getUserInput(), [...$element['#parents'], 'entity_channel']) ?? $entity->uuid();
+      if (!$entity->isNew()) {
+        $channel = $this->handleEntityChannel($entity, $entity_channel);
+        if ($channel instanceof ChannelInterface) {
+          $entity_channel = $channel->id();
+        }
       }
 
       $channel_id = $this->getChannelId($entity_channel . $element_unique_id);
@@ -279,7 +279,7 @@ class TextFormat {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  private function handleEntityChannel(EntityInterface $entity, string $entity_channel): ChannelInterface {
+  private function handleEntityChannel(EntityInterface $entity, string $entity_channel): ?ChannelInterface {
     if ($channel = $this->channelStorage->loadByEntity($entity)) {
       return $channel;
     }
