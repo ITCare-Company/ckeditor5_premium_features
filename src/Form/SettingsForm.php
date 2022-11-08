@@ -181,23 +181,24 @@ class SettingsForm extends ConfigFormBase {
       ],
     ];
 
-    $configuration['web_socket_url'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Web Socket URL'),
-      '#required' => $this->isRealtimeSettingsRequired(),
-      '#description' =>
-        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-        . '<br>'
-        . $this->t('Required for Real-time collaboration.'),
-    ];
-
     $configuration['organization_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Organization Id'),
+      '#required' => $this->isRealtimeSettingsRequired(),
       '#description' =>
         $this->t('The organization ID can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
         . '<br>'
         . $this->t('Required for Real-time collaboration and API requests.'),
+    ];
+
+    $configuration['api_key'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('API Key'),
+      '#required' => $this->isRealtimeSettingsRequired(),
+//      '#description' =>
+//        $this->t('The organization ID can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+//        . '<br>'
+//        . $this->t('Required for Real-time collaboration and API requests.'),
     ];
 
     $this->setDefaultValues($configuration);
@@ -212,6 +213,32 @@ class SettingsForm extends ConfigFormBase {
       $this->t('CKEditor Premium Features needs to load additional plugins (“DLLs”) in order to run. By default this module will detect the version of CKEditor your website is running and load required plugins from a CDN automatically.')
       . '<br>'
       . $this->t('Specify the DLL packages location <strong>only</strong> if you host the DLL packages by yourself. Contact us in case of any questions.'),
+    ];
+
+    $advanced['web_socket_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Web Socket URL'),
+      '#default_value' => $this->configHandler->getDefaultWebSocketUrl(),
+      '#attributes' => [
+        'placeholder' => $this->configHandler->getDefaultWebSocketUrl(),
+      ],
+      //      '#description' =>
+      //        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+      //        . '<br>'
+      //        . $this->t('Required for Real-time collaboration.'),
+    ];
+
+    $advanced['api_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('API URL'),
+      '#default_value' => $this->configHandler->getDefaultApiUrl(),
+      '#attributes' => [
+        'placeholder' => $this->configHandler->getDefaultApiUrl(),
+      ],
+      //      '#description' =>
+      //        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+      //        . '<br>'
+      //        . $this->t('Required for Real-time collaboration.'),
     ];
 
     $advanced['dll_location'] = [
