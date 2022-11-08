@@ -183,7 +183,7 @@ class SettingsForm extends ConfigFormBase {
 
     $configuration['organization_id'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Organization Id'),
+      '#title' => $this->t('Organization ID'),
       '#required' => $this->isRealtimeSettingsRequired(),
       '#description' =>
         $this->t('The organization ID can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
@@ -195,10 +195,10 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => $this->t('API Key'),
       '#required' => $this->isRealtimeSettingsRequired(),
-//      '#description' =>
-//        $this->t('The organization ID can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-//        . '<br>'
-//        . $this->t('Required for Real-time collaboration and API requests.'),
+      '#description' =>
+        $this->t('The API Key can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        . '<br>'
+        . $this->t('Required for Real-time collaboration and API requests.'),
     ];
 
     $this->setDefaultValues($configuration);
@@ -222,23 +222,23 @@ class SettingsForm extends ConfigFormBase {
       '#attributes' => [
         'placeholder' => $this->configHandler->getDefaultWebSocketUrl(),
       ],
-      //      '#description' =>
-      //        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-      //        . '<br>'
-      //        . $this->t('Required for Real-time collaboration.'),
+      '#description' =>
+        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        . '<br />'
+        . 'You can leave this field empty - system will automatically generate this URL using Organization ID field',
     ];
 
     $advanced['api_url'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('API URL'),
+      '#title' => $this->t('API base URL'),
       '#default_value' => $this->configHandler->getDefaultApiUrl(),
       '#attributes' => [
         'placeholder' => $this->configHandler->getDefaultApiUrl(),
       ],
-      //      '#description' =>
-      //        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-      //        . '<br>'
-      //        . $this->t('Required for Real-time collaboration.'),
+      '#description' =>
+        $this->t('The API base URL can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        . '<br />'
+        . 'You can leave this field empty - system will automatically generate this URL using Organization ID and Environment ID fields',
     ];
 
     $advanced['dll_location'] = [

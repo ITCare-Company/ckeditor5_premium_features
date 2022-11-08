@@ -118,7 +118,7 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
 
     $base_path = trim($base_path, ' /') . '/';
 
-    return $this->replaceOrganizationToken($base_path);
+    return $this->replaceEnvironmentToken($this->replaceOrganizationToken($base_path));
   }
 
   /**
@@ -146,7 +146,8 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    * {@inheritdoc}
    */
   public function getDefaultApiUrl(): string {
-    return 'https://' . SettingsConfigHandlerInterface::ORGANISATION_ID_TOKEN . '.cke-cs.com/api/v5/';
+    return 'https://' . SettingsConfigHandlerInterface::ORGANISATION_ID_TOKEN . '.cke-cs.com/api/v5/'
+      . SettingsConfigHandlerInterface::ENVIRONMENT_ID_TOKEN . '/';
   }
 
   /**
@@ -183,15 +184,29 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   }
 
   /**
-   * Replaces Organization token in passed parameter.
+   * Replaces Organization ID token in passed parameter.
    *
    * @param string $path
-   *   A URL with potential organization token.
+   *   A URL with potential organization ID token.
    */
   protected function replaceOrganizationToken(string $path): string {
     return str_replace(
       SettingsConfigHandlerInterface::ORGANISATION_ID_TOKEN,
       $this->getOrganizationId(),
+      $path
+    );
+  }
+
+  /**
+   * Replaces Environment ID token in passed parameter.
+   *
+   * @param string $path
+   *   A URL with potential environment ID token.
+   */
+  protected function replaceEnvironmentToken(string $path): string {
+    return str_replace(
+      SettingsConfigHandlerInterface::ENVIRONMENT_ID_TOKEN,
+      $this->getEnvironmentId(),
       $path
     );
   }

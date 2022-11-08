@@ -96,7 +96,7 @@ class ApiAdapter {
    *   Base URL.
    */
   private function getBaseUrl(): String {
-    return $this->settingsConfigHandler->getApiUrl() . $this->settingsConfigHandler->getEnvironmentId() . '/';
+    return $this->settingsConfigHandler->getApiUrl();
   }
 
   /**
@@ -138,14 +138,12 @@ class ApiAdapter {
    *   Request method.
    * @param string $path
    *   Request path.
-   * @param array $data
-   *   Array with data to send request.
    *
    * @return array
    *   Result of sent request.
    */
-  private function sendRequest(string $method, string $path, array $data = []): array {
-    $url = $this->getBaseUrl() . trim($path, ' /') . '/' ;
+  private function sendRequest(string $method, string $path): array {
+    $url = $this->getBaseUrl() . $path;
     $timestamp = hrtime(TRUE);
 
     $signature = $this->generateSignature($method, $url, $timestamp, []);

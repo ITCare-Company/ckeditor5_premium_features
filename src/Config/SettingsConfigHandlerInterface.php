@@ -11,6 +11,7 @@ interface SettingsConfigHandlerInterface {
 
   const DLL_PATH_VERSION_TOKEN = 'VERSION_TOKEN';
   const ORGANISATION_ID_TOKEN = 'ORGANIZATION_ID';
+  const ENVIRONMENT_ID_TOKEN = 'ENVIRONMENT_ID';
 
   /**
    * Getter for the license key.
