@@ -60,7 +60,7 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
 
     $base_path = trim($base_path, ' /');
 
-    return $this->replaceOrganizationToken($base_path);
+    return $this->replaceTokens($base_path);
   }
 
   /**
@@ -105,7 +105,7 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
 
     $base_path = trim($base_path, ' /') . '/';
 
-    $base_path = $this->replaceDllPathToken($base_path);
+    $base_path = $this->replaceTokens($base_path);
 
     return $base_path . $file_name;
   }
@@ -118,7 +118,7 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
 
     $base_path = trim($base_path, ' /') . '/';
 
-    return $this->replaceEnvironmentToken($this->replaceOrganizationToken($base_path));
+    return $this->replaceTokens($base_path);
   }
 
   /**
@@ -170,45 +170,23 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   }
 
   /**
-   * Dynamically replaces version token in the DLL path.
+   * Replaces supported tokens in passed parameter path..
    *
    * @param string $path
-   *   Path to the DLL location.
+   *   A URL with potential tokens to replace.
    */
-  protected function replaceDllPathToken(string $path): string {
-    return str_replace(
-      SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN,
-      $this->getDllVersion(),
-      $path
-    );
-  }
+  protected function replaceTokens(string $path): string {
+    $tokens = [
+      SettingsConfigHandlerInterface::ENVIRONMENT_ID_TOKEN => $this->getEnvironmentId(),
+      SettingsConfigHandlerInterface::ORGANISATION_ID_TOKEN => $this->getOrganizationId(),
+      SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN => $this->getDllVersion(),
+    ];
 
-  /**
-   * Replaces Organization ID token in passed parameter.
-   *
-   * @param string $path
-   *   A URL with potential organization ID token.
-   */
-  protected function replaceOrganizationToken(string $path): string {
-    return str_replace(
-      SettingsConfigHandlerInterface::ORGANISATION_ID_TOKEN,
-      $this->getOrganizationId(),
-      $path
-    );
-  }
+    foreach ($tokens as $token => $value) {
+      $path = str_replace($token, $value, $path);
+    }
 
-  /**
-   * Replaces Environment ID token in passed parameter.
-   *
-   * @param string $path
-   *   A URL with potential environment ID token.
-   */
-  protected function replaceEnvironmentToken(string $path): string {
-    return str_replace(
-      SettingsConfigHandlerInterface::ENVIRONMENT_ID_TOKEN,
-      $this->getEnvironmentId(),
-      $path
-    );
+    return $path;
   }
 
 }
