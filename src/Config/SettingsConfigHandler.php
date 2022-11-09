@@ -139,14 +139,14 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    * {@inheritdoc}
    */
   public function getDefaultWebSocketUrl(): string {
-    return 'wss://' . SettingsConfigHandlerInterface::ORGANISATION_ID_TOKEN . '.cke-cs.com/ws';
+    return 'wss://' . SettingsConfigHandlerInterface::ORGANIZATION_ID_TOKEN . '.cke-cs.com/ws';
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDefaultApiUrl(): string {
-    return 'https://' . SettingsConfigHandlerInterface::ORGANISATION_ID_TOKEN . '.cke-cs.com/api/v5/'
+    return 'https://' . SettingsConfigHandlerInterface::ORGANIZATION_ID_TOKEN . '.cke-cs.com/api/v5/'
       . SettingsConfigHandlerInterface::ENVIRONMENT_ID_TOKEN . '/';
   }
 
@@ -178,7 +178,7 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   protected function replaceTokens(string $path): string {
     $tokens = [
       SettingsConfigHandlerInterface::ENVIRONMENT_ID_TOKEN => $this->getEnvironmentId(),
-      SettingsConfigHandlerInterface::ORGANISATION_ID_TOKEN => $this->getOrganizationId(),
+      SettingsConfigHandlerInterface::ORGANIZATION_ID_TOKEN => $this->getOrganizationId(),
       SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN => $this->getDllVersion(),
     ];
 

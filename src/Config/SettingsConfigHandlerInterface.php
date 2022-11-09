@@ -10,7 +10,7 @@ namespace Drupal\ckeditor5_premium_features\Config;
 interface SettingsConfigHandlerInterface {
 
   const DLL_PATH_VERSION_TOKEN = 'VERSION_TOKEN';
-  const ORGANISATION_ID_TOKEN = 'ORGANIZATION_ID';
+  const ORGANIZATION_ID_TOKEN = 'ORGANIZATION_ID';
   const ENVIRONMENT_ID_TOKEN = 'ENVIRONMENT_ID';
 
   /**
