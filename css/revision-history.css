@@ -21,7 +21,7 @@
 
 .revision-viewer-sidebar {
   border-left: 1px solid var(--ck-color-toolbar-border);
-  width: 25%;
+  width: 40%;
 }
 
 .revision-history-container-data {
