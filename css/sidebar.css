@@ -56,9 +56,12 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 }
 
 /*Toggle*/
+.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
+  padding-left: 3px; /* width of the sidebar elements border */
+}
 .ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
   position: absolute;
-  margin: 0px 18px;
+  padding: 0px 18px;
 }
 .ck-sidebar-wrapper a.ck-sidebar-auto-toggle:hover {
   text-decoration: none;
