@@ -10,6 +10,8 @@ namespace Drupal\ckeditor5_premium_features\Config;
 interface SettingsConfigHandlerInterface {
 
   const DLL_PATH_VERSION_TOKEN = 'VERSION_TOKEN';
+  const ORGANIZATION_ID_TOKEN = 'ORGANIZATION_ID';
+  const ENVIRONMENT_ID_TOKEN = 'ENVIRONMENT_ID';
 
   /**
    * Getter for the license key.
@@ -68,12 +70,32 @@ interface SettingsConfigHandlerInterface {
   public function getDllLocation(string $file_name = ''): string;
 
   /**
-   * Gets the default DLL location if it was not overriden in the config.
+   * Gets the API base path.
+   */
+  public function getApiUrl(): string;
+
+  /**
+   * Gets the API authorisation Key.
+   */
+  public function getApiKey(): ?string;
+
+  /**
+   * Gets the default DLL location if it was not overridden in the config.
    *
    * @return string
    *   The URL of the DLL location.
    */
   public function getDefaultDllLocation(): string;
+
+  /**
+   * Gets the default Web Socket URL.
+   */
+  public function getDefaultWebSocketUrl(): string;
+
+  /**
+   * Gets the default Api URL.
+   */
+  public function getDefaultApiUrl(): string;
 
   /**
    * Gets the DLLs version.

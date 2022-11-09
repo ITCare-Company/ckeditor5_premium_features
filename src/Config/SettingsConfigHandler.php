@@ -56,7 +56,11 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    * {@inheritdoc}
    */
   public function getWebSocketUrl(): ?string {
-    return $this->config->get('web_socket_url');
+    $base_path = $this->config->get('web_socket_url') ?: $this->getDefaultWebSocketUrl();
+
+    $base_path = trim($base_path, ' /');
+
+    return $this->replaceTokens($base_path);
   }
 
   /**
@@ -101,33 +105,49 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
 
     $base_path = trim($base_path, ' /') . '/';
 
-    $base_path = $this->replaceDllPathToken($base_path);
+    $base_path = $this->replaceTokens($base_path);
 
     return $base_path . $file_name;
   }
 
   /**
-   * Gets the default DLL location if it was not overridden in the config.
-   *
-   * @return string
-   *   The URL of the DLL location.
+   * {@inheritdoc}
+   */
+  public function getApiUrl(): string {
+    $base_path = $this->config->get('api_url') ?: $this->getDefaultApiUrl();
+
+    $base_path = trim($base_path, ' /') . '/';
+
+    return $this->replaceTokens($base_path);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getApiKey(): ?string {
+    return $this->config->get('api_key');
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function getDefaultDllLocation(): string {
     return 'https://cdn.ckeditor.com/ckeditor5/' . SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN . '/dll/';
   }
 
   /**
-   * Dynamically replaces version token in the DLL path.
-   *
-   * @param string $path
-   *   Path to the DLL location.
+   * {@inheritdoc}
    */
-  protected function replaceDllPathToken(string $path): string {
-    return str_replace(
-      SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN,
-      $this->getDllVersion(),
-      $path
-    );
+  public function getDefaultWebSocketUrl(): string {
+    return 'wss://' . SettingsConfigHandlerInterface::ORGANIZATION_ID_TOKEN . '.cke-cs.com/ws';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultApiUrl(): string {
+    return 'https://' . SettingsConfigHandlerInterface::ORGANIZATION_ID_TOKEN . '.cke-cs.com/api/v5/'
+      . SettingsConfigHandlerInterface::ENVIRONMENT_ID_TOKEN . '/';
   }
 
   /**
@@ -147,6 +167,26 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    */
   public function getOrganizationId(): ?string {
     return $this->config->get('organization_id');
+  }
+
+  /**
+   * Replaces supported tokens in passed parameter path..
+   *
+   * @param string $path
+   *   A URL with potential tokens to replace.
+   */
+  protected function replaceTokens(string $path): string {
+    $tokens = [
+      SettingsConfigHandlerInterface::ENVIRONMENT_ID_TOKEN => $this->getEnvironmentId(),
+      SettingsConfigHandlerInterface::ORGANIZATION_ID_TOKEN => $this->getOrganizationId(),
+      SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN => $this->getDllVersion(),
+    ];
+
+    foreach ($tokens as $token => $value) {
+      $path = str_replace($token, $value, $path);
+    }
+
+    return $path;
   }
 
 }

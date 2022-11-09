@@ -96,7 +96,7 @@ class ApiAdapter {
    *   Base URL.
    */
   private function getBaseUrl(): String {
-    return 'https://' . $this->settingsConfigHandler->getOrganizationId() . '.cke-cs.com/api/v4/' . $this->settingsConfigHandler->getEnvironmentId() . '/';
+    return $this->settingsConfigHandler->getApiUrl();
   }
 
   /**
@@ -127,7 +127,7 @@ class ApiAdapter {
     if ($body) {
       $data .= JSON::encode($body);
     }
-    $key = $this->settingsConfigHandler->getAccessKey();
+    $key = $this->settingsConfigHandler->getApiKey();
     return hash_hmac('sha256', $data, $key);
   }
 
@@ -138,15 +138,13 @@ class ApiAdapter {
    *   Request method.
    * @param string $path
    *   Request path.
-   * @param array $data
-   *   Array with data to send request.
    *
    * @return array
    *   Result of sent request.
    */
-  private function sendRequest(string $method, string $path, array $data = []): array {
+  private function sendRequest(string $method, string $path): array {
     $url = $this->getBaseUrl() . $path;
-    $timestamp = time();
+    $timestamp = hrtime(TRUE);
 
     $signature = $this->generateSignature($method, $url, $timestamp, []);
 
@@ -168,7 +166,7 @@ class ApiAdapter {
 
     $response = $request->getBody()->getContents();
 
-    return empty($response) ? [] : (array) Json::decode($data);
+    return empty($response) ? [] : (array) Json::decode($response);
   }
 
 }
