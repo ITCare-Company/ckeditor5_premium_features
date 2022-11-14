@@ -131,37 +131,13 @@ class FormElement {
           $type . 'RemoveCallback',
         ],
         '#ajax' => [
-          'callback' => [
-            FormElement::class,
-            '::' . $type . 'AddMoreWordCallback',
-          ],
+          'callback' => $type . 'AddMoreWordCallback',
           'wrapper' => $selector,
         ],
       ];
     }
-
+    $fieldset['actions'] = $actions;
     $element[$type] = $fieldset;
-    $element[$type . 'actions'] = $actions;
-  }
-
-  /**
-   * Callback for both ajax-enabled buttons.
-   *
-   * Selects and returns the fieldset with the names in it.
-   */
-  public static function headerAddMoreWordCallback(array &$form, FormStateInterface $form_state) {
-    $settings_element = $form['editor']['settings']['subform']['plugins']['ckeditor5_premium_features_export_word__export_word'] ?? $form;
-
-    return $settings_element['converter_options']['header'] ?? NULL;
-  }
-  /**
-   * Callback for both ajax-enabled buttons.
-   *
-   * Selects and returns the fieldset with the names in it.
-   */
-  public static function footerAddMoreWordCallback(array &$form, FormStateInterface $form_state) {
-    $settings_element = $form['editor']['settings']['subform']['plugins']['ckeditor5_premium_features_export_word__export_word'] ?? $form;
-
-    return $settings_element['converter_options']['footer'] ?? NULL;
+//    $element[$type . 'actions'] = $actions;
   }
 }

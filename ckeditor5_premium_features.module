@@ -75,9 +75,7 @@ function ckeditor5_premium_features_editor_xss_filter_alter(
 }
 
 /**
- * Callback for header both ajax-enabled buttons.
- *
- * Selects and returns the fieldset with the names in it.
+ * Callback for export to Word header buttons (add/remove).
  */
 function headerAddMoreWordCallback(array &$form, FormStateInterface $form_state): ?array {
   $settings_element = $form['editor']['settings']['subform']['plugins']['ckeditor5_premium_features_export_word__export_word'] ?? $form;
@@ -86,9 +84,7 @@ function headerAddMoreWordCallback(array &$form, FormStateInterface $form_state)
 }
 
 /**
- * Callback for both ajax-enabled buttons.
- *
- * Selects and returns the fieldset with the names in it.
+ * Callback for export to Word footer buttons (add/remove).
  */
 function footerAddMoreWordCallback(array &$form, FormStateInterface $form_state): ?array {
   $settings_element = $form['editor']['settings']['subform']['plugins']['ckeditor5_premium_features_export_word__export_word'] ?? $form;
@@ -97,36 +93,28 @@ function footerAddMoreWordCallback(array &$form, FormStateInterface $form_state)
 }
 
 /**
- * Submit handler for the "add-one-more" button.
- *
- * Increments the max counter and causes a rebuild.
+ * Submit handler for the header "add-one-more" button.
  */
 function headerAddOne(array &$form, FormStateInterface $form_state): void {
   _modifyItemCounter($form_state, 'num_headers', 1);
 }
 
 /**
- * Submit handler for the "add-one-more" button.
- *
- * Increments the max counter and causes a rebuild.
+ * Submit handler for the footer "add-one-more" button.
  */
 function footerAddOne(array &$form, FormStateInterface $form_state) : void{
   _modifyItemCounter($form_state, 'num_footers', 1);
 }
 
 /**
- * Submit handler for the "remove one" button.
- *
- * Decrements the max counter and causes a form rebuild.
+ * Submit handler for the header "remove-one" button.
  */
 function headerRemoveCallback(array &$form, FormStateInterface $form_state): void {
   _modifyItemCounter($form_state, 'num_headers');
 }
 
 /**
- * Submit handler for the "remove one" button.
- *
- * Decrements the max counter and causes a form rebuild.
+ * Submit handler for the footer "remove-one" button.
  */
 function footerRemoveCallback(array &$form, FormStateInterface $form_state): void {
   _modifyItemCounter($form_state, 'num_footers');

@@ -173,8 +173,8 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->configuration = $form_state->cleanValues()->getValues();
 
-    unset($this->configuration['converter_options']['headeractions']);
-    unset($this->configuration['converter_options']['footeractions']);
+    unset($this->configuration['converter_options']['header']['actions']);
+    unset($this->configuration['converter_options']['footer']['actions']);
   }
 
 }
