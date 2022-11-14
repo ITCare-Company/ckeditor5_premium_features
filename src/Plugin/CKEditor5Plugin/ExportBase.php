@@ -126,8 +126,13 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $global_config = array_filter($this->settingsConfigHandler->getConverterOptions());
     $format_config = array_filter($this->configuration['converter_options']);
 
+    /*
+     * Here we are merging two configurations, from the custom settings form nad from the text format plugin page.
+     * The current order, means that the plugin settings will overwrite the custom settings form values.
+     */
     $static_plugin_config[$plugin]['converterOptions'] = NestedArray::mergeDeepArray([
-      $global_config, $format_config,
+      $global_config,
+      $format_config,
     ], TRUE);
 
     $file_extension = $this->getFileExtension();
@@ -167,6 +172,9 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->configuration = $form_state->cleanValues()->getValues();
+
+    unset($this->configuration['converter_options']['headeractions']);
+    unset($this->configuration['converter_options']['footeractions']);
   }
 
 }

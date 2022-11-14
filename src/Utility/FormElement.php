@@ -50,7 +50,7 @@ class FormElement {
    * @param array $options
    *   The additional options to merged into element.
    */
-  public static function pageOrientation(array &$element, array $options = []): void {
+  public static function pageOrientation(array &$element, array $options, ): void {
     $element['page_orientation'] = $options + [
       '#type' => 'select',
       '#title' => new TranslatableMarkup('Page orientation'),
@@ -72,27 +72,37 @@ class FormElement {
    * @param array $options
    *   The additional options to merged into element.
    */
-  public static function headingFooter(array &$element, string $type = 'heading', array $options = []): void {
+  public static function headingFooter(array &$element, string $type = 'header', array $options = [], $items_length = 1): void {
+    $actions = [
+      '#type' => 'container',
+    ];
+
+    $selector = $type . '-items-wrapper';
     $fieldset = [
       '#type' => 'fieldset',
-      '#title' => new TranslatableMarkup(ucfirst($type)),
+      '#title' => new TranslatableMarkup(ucfirst($type) . 's'),
       '#tree' => TRUE,
+      '#id' => $selector,
     ];
-    $items_length = 1;
+
     for ($index = 0; $index < $items_length; $index++) {
       $fieldset[$index]['html'] = [
         '#type' => 'textarea',
         '#title' => 'HTML',
+        '#default_value' => $options[$index]['html'] ?? NULL,
+        '#prefix' => $index > 0 ? '<br />' : '',
       ];
 
       $fieldset[$index]['css'] = [
         '#type' => 'textarea',
         '#title' => 'CSS',
+        '#default_value' => $options[$index]['css'] ?? NULL
       ];
 
       $fieldset[$index]['type'] = [
         '#type' => 'select',
         '#title' => new TranslatableMarkup('Type'),
+        '#default_value' => $options[$index]['type'] ?? NULL,
         '#options' => [
           'default' => new TranslatableMarkup('Default'),
           'even' => new TranslatableMarkup('Even'),
@@ -101,8 +111,57 @@ class FormElement {
         ],
       ];
     }
+    $actions['add_' . $type] = [
+      '#type' => 'submit',
+      '#value' => new TranslatableMarkup('Add one more ' . $type),
+      '#submit' => [
+        $type . 'AddOne',
+      ],
+      '#ajax' => [
+        'callback' => $type . 'AddMoreWordCallback',
+        'wrapper' => $selector,
+      ],
+    ];
 
-    $element[$type] = NestedArray::mergeDeepArray([$fieldset, $options], TRUE);
+    if ($items_length > 1) {
+      $actions['remove_' . $type] = [
+        '#type' => 'submit',
+        '#value' => new TranslatableMarkup('Remove one ' . $type),
+        '#submit' => [
+          $type . 'RemoveCallback',
+        ],
+        '#ajax' => [
+          'callback' => [
+            FormElement::class,
+            '::' . $type . 'AddMoreWordCallback',
+          ],
+          'wrapper' => $selector,
+        ],
+      ];
+    }
+
+    $element[$type] = $fieldset;
+    $element[$type . 'actions'] = $actions;
   }
 
+  /**
+   * Callback for both ajax-enabled buttons.
+   *
+   * Selects and returns the fieldset with the names in it.
+   */
+  public static function headerAddMoreWordCallback(array &$form, FormStateInterface $form_state) {
+    $settings_element = $form['editor']['settings']['subform']['plugins']['ckeditor5_premium_features_export_word__export_word'] ?? $form;
+
+    return $settings_element['converter_options']['header'] ?? NULL;
+  }
+  /**
+   * Callback for both ajax-enabled buttons.
+   *
+   * Selects and returns the fieldset with the names in it.
+   */
+  public static function footerAddMoreWordCallback(array &$form, FormStateInterface $form_state) {
+    $settings_element = $form['editor']['settings']['subform']['plugins']['ckeditor5_premium_features_export_word__export_word'] ?? $form;
+
+    return $settings_element['converter_options']['footer'] ?? NULL;
+  }
 }
