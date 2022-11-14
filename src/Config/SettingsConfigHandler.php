@@ -183,7 +183,9 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
     ];
 
     foreach ($tokens as $token => $value) {
-      if ($value)
+      if (!$value) {
+        continue;
+      }
       $path = str_replace($token, $value, $path);
     }
 
