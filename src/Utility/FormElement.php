@@ -138,9 +138,7 @@ class FormElement {
     }
     $fieldset['actions'] = $actions;
     $element[$type] = $fieldset;
-//    $element[$type . 'actions'] = $actions;
   }
-
 
   /**
    * Sets form element placeholders if corresponding key is found in the placeholders array.
