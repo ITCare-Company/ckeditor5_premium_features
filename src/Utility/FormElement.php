@@ -140,4 +140,49 @@ class FormElement {
     $element[$type] = $fieldset;
 //    $element[$type . 'actions'] = $actions;
   }
+
+
+  /**
+   * Sets form element placeholders if corresponding key is found in the placeholders array.
+   *
+   * @param array $form
+   *   Form to be processed.
+   * @param array $placeholders
+   *   Array containing placeholders to be used.
+   */
+  static function setPlaceholders(array &$form, array $placeholders): void {
+    foreach ($form as $name => &$item) {
+      if (!is_array($item)) {
+        continue;
+      }
+      if (array_key_exists('#default_value', $item)) {
+        if (isset($placeholders[$name])) {
+          $item['#attributes']['placeholder'] = $placeholders[$name];
+        }
+      }
+      else {
+        static::setPlaceholders($item, $placeholders);
+      }
+    }
+  }
+
+  /**
+   * Walks through the form and disables all fields and buttons.
+   *
+   * @param $form
+   *   Form to be processed.
+   */
+  static function disableFormFields(&$form): void {
+    foreach ($form as $key => &$item) {
+      if (!is_array($item) || $key == 'override_global') {
+        continue;
+      }
+      if (array_key_exists('#default_value', $item) || isset($item['#type']) && $item['#type'] == 'submit') {
+        $item['#disabled'] = TRUE;
+      }
+      else {
+        static::disableFormFields($item);
+      }
+    }
+  }
 }

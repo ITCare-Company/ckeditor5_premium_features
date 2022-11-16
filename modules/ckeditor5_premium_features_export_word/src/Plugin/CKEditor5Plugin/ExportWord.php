@@ -54,8 +54,9 @@ class ExportWord extends ExportBase {
     $options = &$static_plugin_config[$this->getFeaturePlugin()]['converterOptions'];
 
     // Word converter requires a different name than the PDF converter.
-    $options['orientation'] = $options['page_orientation'];
-    unset($options['page_orientation']);
+    if (isset($options['page_orientation'])) {
+      $options['orientation'] = $options['page_orientation'];
+    }
 
     foreach (['footer', 'header'] as $item) {
       if (isset($options[$item]) && is_array($options[$item])) {
