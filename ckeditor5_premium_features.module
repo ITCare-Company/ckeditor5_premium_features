@@ -12,7 +12,6 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 use Drupal\ckeditor5_premium_features\EditorXssFilter\CollaborationXSSFilter;
 use Drupal\filter\FilterFormatInterface;
-use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_help().
@@ -72,72 +71,4 @@ function ckeditor5_premium_features_editor_xss_filter_alter(
   FilterFormatInterface $format,
   FilterFormatInterface $original_format = NULL) {
   $editor_xss_filter_class = CollaborationXSSFilter::class;
-}
-
-/**
- * Callback for export to Word header buttons (add/remove).
- */
-function headerAddMoreWordCallback(array &$form, FormStateInterface $form_state): ?array {
-  $settings_element = $form['editor']['settings']['subform']['plugins']['ckeditor5_premium_features_export_word__export_word'] ?? $form;
-
-  return $settings_element['converter_options']['header'] ?? NULL;
-}
-
-/**
- * Callback for export to Word footer buttons (add/remove).
- */
-function footerAddMoreWordCallback(array &$form, FormStateInterface $form_state): ?array {
-  $settings_element = $form['editor']['settings']['subform']['plugins']['ckeditor5_premium_features_export_word__export_word'] ?? $form;
-
-  return $settings_element['converter_options']['footer'] ?? NULL;
-}
-
-/**
- * Submit handler for the header "add-one-more" button.
- */
-function headerAddOne(array &$form, FormStateInterface $form_state): void {
-  _modifyItemCounter($form_state, 'num_headers', 1);
-}
-
-/**
- * Submit handler for the footer "add-one-more" button.
- */
-function footerAddOne(array &$form, FormStateInterface $form_state) : void{
-  _modifyItemCounter($form_state, 'num_footers', 1);
-}
-
-/**
- * Submit handler for the header "remove-one" button.
- */
-function headerRemoveCallback(array &$form, FormStateInterface $form_state): void {
-  _modifyItemCounter($form_state, 'num_headers');
-}
-
-/**
- * Submit handler for the footer "remove-one" button.
- */
-function footerRemoveCallback(array &$form, FormStateInterface $form_state): void {
-  _modifyItemCounter($form_state, 'num_footers');
-}
-
-/**
- * Increments or decrements the items max counter and causes a rebuild.
- *
- * @param \Drupal\Core\Form\FormStateInterface $form_state
- *   Form state object.
- * @param string$counter_name
- *   Name of property to modify.
- * @param int $modifier
- *   Value to modify the counter.
- *
- * @return void
- */
-function _modifyItemCounter(FormStateInterface $form_state, string $counter_name, int $modifier = -1): void {
-  $name_field = $form_state->get($counter_name);
-  if ($modifier > 0 || $name_field > abs($modifier)) {
-    $remove_button = $name_field + $modifier;
-    $form_state->set($counter_name, $remove_button);
-  }
-
-  $form_state->setRebuild();
 }

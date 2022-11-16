@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features\Utility;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
@@ -111,14 +112,21 @@ class FormElement {
         ],
       ];
     }
+
     $actions['add_' . $type] = [
       '#type' => 'submit',
       '#value' => new TranslatableMarkup('Add one more ' . $type),
       '#submit' => [
-        $type . 'AddOne',
+        [
+          static::class,
+          $type . 'AddOne',
+        ],
       ],
       '#ajax' => [
-        'callback' => $type . 'AddMoreWordCallback',
+        'callback' => [
+          static::class,
+          $type . 'AddMoreWordCallback',
+        ],
         'wrapper' => $selector,
       ],
     ];
@@ -128,10 +136,16 @@ class FormElement {
         '#type' => 'submit',
         '#value' => new TranslatableMarkup('Remove one ' . $type),
         '#submit' => [
-          $type . 'RemoveCallback',
+          [
+            static::class,
+            $type . 'RemoveCallback',
+          ],
         ],
         '#ajax' => [
-          'callback' => $type . 'AddMoreWordCallback',
+          'callback' => [
+            static::class,
+            $type . 'AddMoreWordCallback',
+          ],
           'wrapper' => $selector,
         ],
       ];
@@ -183,4 +197,73 @@ class FormElement {
       }
     }
   }
+
+  /**
+   * Callback for export to Word header buttons (add/remove).
+   */
+  static function headerAddMoreWordCallback(array &$form, FormStateInterface $form_state): ?array {
+    $settings_element = $form['editor']['settings']['subform']['plugins']['ckeditor5_premium_features_export_word__export_word'] ?? $form;
+
+    return $settings_element['converter_options']['header'] ?? NULL;
+  }
+
+  /**
+   * Callback for export to Word footer buttons (add/remove).
+   */
+  static function footerAddMoreWordCallback(array &$form, FormStateInterface $form_state): ?array {
+    $settings_element = $form['editor']['settings']['subform']['plugins']['ckeditor5_premium_features_export_word__export_word'] ?? $form;
+
+    return $settings_element['converter_options']['footer'] ?? NULL;
+  }
+
+  /**
+   * Submit handler for the header "add-one-more" button.
+   */
+  static function headerAddOne(array &$form, FormStateInterface $form_state): void {
+    static::modifyItemCounter($form_state, 'num_headers', 1);
+  }
+
+  /**
+   * Submit handler for the footer "add-one-more" button.
+   */
+  static function footerAddOne(array &$form, FormStateInterface $form_state) : void {
+    static::modifyItemCounter($form_state, 'num_footers', 1);
+  }
+
+  /**
+   * Submit handler for the header "remove-one" button.
+   */
+  static function headerRemoveCallback(array &$form, FormStateInterface $form_state): void {
+    static::modifyItemCounter($form_state, 'num_headers');
+  }
+
+  /**
+   * Submit handler for the footer "remove-one" button.
+   */
+  static function footerRemoveCallback(array &$form, FormStateInterface $form_state): void {
+    static::modifyItemCounter($form_state, 'num_footers');
+  }
+
+  /**
+   * Increments or decrements the items max counter and causes a rebuild.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object.
+   * @param string$counter_name
+   *   Name of property to modify.
+   * @param int $modifier
+   *   Value to modify the counter.
+   *
+   * @return void
+   */
+  static function modifyItemCounter(FormStateInterface $form_state, string $counter_name, int $modifier = -1): void {
+    $name_field = $form_state->get($counter_name);
+    if ($modifier > 0 || $name_field > abs($modifier)) {
+      $remove_button = $name_field + $modifier;
+      $form_state->set($counter_name, $remove_button);
+    }
+
+    $form_state->setRebuild();
+  }
+
 }
