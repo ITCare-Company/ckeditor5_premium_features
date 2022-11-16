@@ -249,7 +249,7 @@ class FormElement {
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Form state object.
-   * @param string$counter_name
+   * @param string $counter_name
    *   Name of property to modify.
    * @param int $modifier
    *   Value to modify the counter.
