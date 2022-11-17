@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
+use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
+use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationContentFilteringStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationSuggestionDependingStorageInterface;
@@ -18,11 +20,9 @@ use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
 use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\filter\Entity\FilterFormat;
@@ -33,9 +33,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Defines the Text Format utility class for handling the collaboration data.
  */
-class TextFormat {
+class TextFormat implements Ckeditor5TextFormatInterface {
 
-  public const STORAGE_KEY = 'ckeditor5-premium';
+  use Ckeditor5TextFormatTrait;
 
   /**
    * The suggestion storage.
@@ -109,21 +109,14 @@ class TextFormat {
       return $element;
     }
 
+    $this->generalProcessElement($element, $form_state, $complete_form, $this->collaborationSettings);
+
     $form_object = $form_state->getFormObject();
     $entity = NULL;
 
     if ($this->isFormTypeSupported($form_object)) {
       $entity = $form_object->getEntity();
-    } else {
-      // We still need to process in order to stop our integration from
-      // throwing exceptions in console, but we'll block editor toolbar buttons.
-      $element['#attached']['drupalSettings']['ckeditor5Premium']['disableCollaboration'] = TRUE;
     }
-
-    // Attach annotation sidebar.
-    AnnotationSidebar::process($element, $form_state, $complete_form);
-
-    $this->addSubmitCallback($complete_form);
 
     $id = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
     $id_attribute = 'data-' . static::STORAGE_KEY . '-element-id';
@@ -172,34 +165,6 @@ class TextFormat {
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface[] $users_data */
     $users_data = array_merge($comments, $suggestions, $revisions);
     $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $this->userDataProvider->getFromEntities($users_data);
-
-    // Add the container for the revision list.
-    $element['revision_history_container'] = [
-      '#type' => 'container',
-      '#weight' => -1,
-      '#attributes' => [
-        'class' => ['revision-history-container-data'],
-        $id_attribute => $id,
-      ],
-      [
-        '#type' => 'container',
-        '#attributes' => [
-          'class' => ['editor-container'],
-        ],
-        [
-          '#type' => 'container',
-          '#attributes' => [
-            'class' => ['revision-viewer-editor'],
-          ],
-        ],
-        [
-          '#type' => 'container',
-          '#attributes' => [
-            'class' => ['revision-viewer-sidebar'],
-          ],
-        ],
-      ],
-    ];
 
     return $element;
   }
@@ -298,34 +263,6 @@ class TextFormat {
   }
 
   /**
-   * Adds the submit callback to the form.
-   *
-   * @param array $form
-   *   The form structure.
-   */
-  private function addSubmitCallback(array &$form): void {
-    $submit_callback = [static::class, 'onCompleteFormSubmit'];
-    $keys = [
-      ['#submit'],
-      ['actions', 'submit', '#submit'],
-    ];
-    foreach ($keys as $key) {
-      if (NestedArray::keyExists($form, $key)) {
-        $callbacks = NestedArray::getValue($form, $key) ?? [];
-
-        // Let's make sure that callback is set only once.
-        foreach ($callbacks as $test_callback) {
-          if (is_array($test_callback) && in_array('onCompleteFormSubmit', $test_callback)) {
-            return;
-          }
-        }
-        $callbacks[] = $submit_callback;
-        NestedArray::setValue($form, $key, $callbacks);
-      }
-    }
-  }
-
-  /**
    * Execute the storage commands based on the given markup data.
    *
    * @param array $entities_data
@@ -396,16 +333,6 @@ class TextFormat {
     $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
 
     return $fieldFormat ? FilterFormat::load($fieldFormat) : NULL;
-  }
-
-  /**
-   * Checks if the passed form object is supported.
-   *
-   * @param \Drupal\Core\Form\FormInterface $form_object
-   *   Form object from the $form_state object.
-   */
-  private function isFormTypeSupported(FormInterface $form_object): bool {
-    return $form_object instanceof EntityFormInterface && $form_object->getEntity() instanceof FieldableEntityInterface;
   }
 
   /**
