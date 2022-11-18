@@ -159,7 +159,11 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       '#default_value' => $override_global,
     ];
 
-    $config->initWithData($this->configuration);
+    if (!$override_global) {
+      $config->initWithData(['converter_options' => $global_options]);
+    } else {
+      $config->initWithData($this->configuration);
+    }
 
     $export_form = $this->settingsForm::form($form, $form_state, $config);
     unset($export_form['converter_url']);

@@ -77,11 +77,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
 
     if ($num_headers === NULL) {
       $headers_items = $config->get("$options_key.header") ?? [];
+      unset($headers_items['actions']);
       $num_headers = count($headers_items);
       $form_state->set('num_headers', $num_headers);
     }
     if ($num_footers === NULL) {
       $footer_items = $config->get("$options_key.footer") ?? [];
+      unset($footer_items['actions']);
       $num_footers = count($footer_items);
       $form_state->set('num_footers', $num_footers);
     }
