@@ -8,6 +8,7 @@ use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
 use Drupal\ckeditor5_premium_features\Utility\ApiAdapter;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Ckeditor5ChannelHandlingException;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\CollaborationSettings;
@@ -63,6 +64,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @throws \Drupal\ckeditor5_premium_features_realtime_collaboration\Ckeditor5ChannelHandlingException
    */
   public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array {
     $this->generalProcessElement($element, $form_state, $complete_form, $this->collaborationSettings);
@@ -100,7 +103,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         if ($channel instanceof ChannelInterface) {
           $channel_id = $channel->id();
         } else {
-          throw new \Ckeditor5ChannelHandlingException("Problem occured while creating Ckeditor5 Channel Entity");
+          throw new Ckeditor5ChannelHandlingException("Problem occured while creating Ckeditor5 Channel Entity");
         }
       }
 
