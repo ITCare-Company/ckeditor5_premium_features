@@ -12,8 +12,26 @@ use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityFormInterface;
 
+/**
+ * Trait providing scripts with common preprocessing te input text element.
+ */
 trait Ckeditor5TextFormatTrait  {
 
+  /**
+   * Common text element preprocessing.
+   *
+   * @param array $element
+   *   Text element to be processed.
+   * @param \Drupal\Core\Form\FormStateInterface $formState
+   *   Current form state object.
+   * @param array $completeForm
+   *   Complete form structure.
+   * @param \Drupal\ckeditor5_premium_features\Utility\CommonCollaborationSettingsInterface $commonCollaborationSettings
+   *   Settings object.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
   public function generalProcessElement(array &$element, FormStateInterface $formState, array &$completeForm, CommonCollaborationSettingsInterface $commonCollaborationSettings): array {
     $elementUniqueId = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
     $elementDrupalId = CKeditorFieldKeyHelper::cleanElementDrupalId($element['#id']);
