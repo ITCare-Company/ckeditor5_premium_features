@@ -3,9 +3,14 @@ services:
     class: Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat
     arguments:
       - '@entity_type.manager'
-      - '@config.factory'
+      - '@ckeditor5_premium_features_realtime_collaboration.collaboration_settings'
       - '@ckeditor5_premium_features.api_adapter'
   ckeditor5_premium_features_realtime_collaboration.channel:
     class: Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\ChannelProvider
     arguments:
       - '@entity_type.manager'
+
+  ckeditor5_premium_features_realtime_collaboration.collaboration_settings:
+    class: Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\CollaborationSettings
+    arguments:
+      - '@config.factory'

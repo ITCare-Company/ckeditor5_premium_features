@@ -13,11 +13,13 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class SettingsForm extends SharedBuildConfigFormBase {
 
+  const COLLABORATION_SETTINGS_ID = 'ckeditor5_premium_features_realtime_collaboration.settings';
+
   /**
    * {@inheritdoc}
    */
   final public function getFormId(): string {
-    return 'ckeditor5_premium_features_realtime_collaboration.settings';
+    return static::COLLABORATION_SETTINGS_ID;
   }
 
   /**
