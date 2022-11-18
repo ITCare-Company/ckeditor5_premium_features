@@ -16,6 +16,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Url;
 use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -152,7 +153,9 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $form['override_global'] = [
       '#type' => 'checkbox',
       '#title' => 'Override global settings',
-      '#description' => 'link to global <a></a>',
+      '#description' => $this->t('Using below form you can overwrite the <a href="@url">global export settings </a>.', [
+        '@url' => Url::fromRoute($this->settingsForm::getSettingsRouteName())->toString(),
+      ]),
       '#default_value' => $override_global,
     ];
 

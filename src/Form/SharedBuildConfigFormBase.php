@@ -21,6 +21,11 @@ abstract class SharedBuildConfigFormBase extends ConfigFormBase implements Share
   /**
    * {@inheritdoc}
    */
+  abstract public static function getSettingsRouteName(): string;
+
+  /**
+   * {@inheritdoc}
+   */
   protected function getEditableConfigNames(): array {
     return [
       $this->getFormId(),

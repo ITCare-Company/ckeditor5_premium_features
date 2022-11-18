@@ -23,6 +23,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  public static function getSettingsRouteName(): string {
+    return 'ckeditor5_premium_features_realtime_collaboration.form.settings';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function form(array $form, FormStateInterface $form_state, Config $config): array {
     $form['sidebar'] = [
       '#type' => 'select',
