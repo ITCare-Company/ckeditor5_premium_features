@@ -61,20 +61,26 @@ class SettingsForm extends SharedBuildConfigFormBase {
       ];
     }
 
-    foreach (['header', 'footer'] as $type) {
-      FormElement::headingFooter($options, $type, [
-        [
-          'html' => [
-            '#default_value' => $config->get("$options_key.$type.0.html"),
-          ],
-          'css' => [
-            '#default_value' => $config->get("$options_key.$type.0.css"),
-          ],
-          'type' => [
-            '#default_value' => $config->get("$options_key.$type.0.type"),
-          ],
-        ],
-      ]);
+    FormElement::pageOrientation($options, [
+      '#default_value' => $config->get($options_key . '.page_orientation') ?? 'portrait',
+    ]);
+
+    $num_headers = $form_state->get('num_headers');
+    $num_footers = $form_state->get('num_footers');
+
+    if ($num_headers === NULL) {
+      $headers_items = $config->get("$options_key.header") ?? [];
+      $num_headers = count($headers_items);
+      $form_state->set('num_headers', $num_headers);
+    }
+    if ($num_footers === NULL) {
+      $footer_items = $config->get("$options_key.footer") ?? [];
+      $num_footers = count($footer_items);
+      $form_state->set('num_footers', $num_footers);
+    }
+
+    foreach (['header' => $num_headers, 'footer' => $num_footers] as $type => $type_count) {
+      FormElement::headingFooter($options, $type, $config->get("$options_key.$type"), $type_count);
     }
 
     return $form;

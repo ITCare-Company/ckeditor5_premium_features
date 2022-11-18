@@ -11,6 +11,7 @@ use Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandlerInterfac
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormInterface;
 use Drupal\ckeditor5_premium_features\Generator\FileNameGeneratorInterface;
 use Drupal\ckeditor5_premium_features\Utility\CssStyleProvider;
+use Drupal\ckeditor5_premium_features\Utility\FormElement;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -116,19 +117,12 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
     $plugin = $this->getFeaturePlugin();
-    if ($this->configuration['converter_url']) {
-      $static_plugin_config[$plugin]['converterUrl'] = $this->configuration['converter_url'];
-    }
-    elseif ($this->settingsConfigHandler->hasConverterUrl()) {
+
+    if ($this->settingsConfigHandler->hasConverterUrl()) {
       $static_plugin_config[$plugin]['converterUrl'] = $this->settingsConfigHandler->getConverterUrl();
     }
 
-    $global_config = array_filter($this->settingsConfigHandler->getConverterOptions());
-    $format_config = array_filter($this->configuration['converter_options']);
-
-    $static_plugin_config[$plugin]['converterOptions'] = NestedArray::mergeDeepArray([
-      $global_config, $format_config,
-    ], TRUE);
+    $static_plugin_config[$plugin]['converterOptions'] = $this->getCurrentConfiguration();
 
     $file_extension = $this->getFileExtension();
     $file_name = $this->fileNameGenerator->generateFromRequest();
@@ -151,9 +145,29 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $config = $this->configFactory->get($this->getPluginId());
+
+    $global_options = $this->settingsConfigHandler->getConverterOptions();
+    $override_global = $this->configuration['override_global'] ?? FALSE;
+
+    $form['override_global'] = [
+      '#type' => 'checkbox',
+      '#title' => 'Override global settings',
+      '#description' => 'link to global <a></a>',
+      '#default_value' => $override_global,
+    ];
+
     $config->initWithData($this->configuration);
 
-    return $this->settingsForm::form($form, $form_state, $config);
+    $export_form = $this->settingsForm::form($form, $form_state, $config);
+    unset($export_form['converter_url']);
+
+    FormElement::setPlaceholders($export_form, $global_options);
+
+    if (!$override_global) {
+      FormElement::disableFormFields($export_form);
+    }
+
+    return $export_form;
   }
 
   /**
@@ -167,6 +181,31 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->configuration = $form_state->cleanValues()->getValues();
+
+    unset($this->configuration['converter_options']['header']['actions']);
+    unset($this->configuration['converter_options']['footer']['actions']);
+  }
+
+  /**
+   * Returns final plugin configuration.
+   */
+  protected function getCurrentConfiguration(): array {
+    $global_config = array_filter($this->settingsConfigHandler->getConverterOptions());
+    if (!$this->configuration['override_global']) {
+      return $global_config;
+    }
+
+    $format_config = array_filter($this->configuration['converter_options']);
+
+    /*
+     * Here we are merging two configurations, from the custom settings form nad from the text format plugin page.
+     * The current order, means that the plugin settings will overwrite the custom settings form values.
+     */
+    return NestedArray::mergeDeepArray([
+        $global_config,
+        $format_config,
+      ], TRUE);
+
   }
 
 }
