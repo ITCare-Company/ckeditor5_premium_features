@@ -73,7 +73,7 @@ class FormElement {
    * @param array $options
    *   The additional options to merged into element.
    */
-  public static function headingFooter(array &$element, string $type = 'header', array $options = [], $items_length = 1): void {
+  public static function headingFooter(array &$element, string $type = 'header', $options = [], $items_length = 1): void {
     $actions = [
       '#type' => 'container',
     ];
@@ -152,6 +152,64 @@ class FormElement {
     }
     $fieldset['actions'] = $actions;
     $element[$type] = $fieldset;
+  }
+
+  /**
+   * Adds margin fields to the form element.
+   *
+   * @param array $element
+   *   Form element.
+   * @param string $type
+   *   Type of margin field to be added.
+   * @param $margin_config
+   *   Current margin configuration values.
+   */
+  public static function marginElement(array &$element, string $type, $margin_config): void {
+    $matching_keys = [];
+    if (!is_array($margin_config)) {
+      if (preg_match('/(\d+)([^\s]+)/', $margin_config ?? '', $matching_keys)) {
+        $margin_config = [
+          'value' => $matching_keys[1],
+          'units' => $matching_keys[2],
+        ];
+      } else {
+        $margin_config = [
+          'value' => 1,
+          'units' => 'cm',
+        ];
+      }
+    }
+
+    $element['margin_' . $type] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => [
+          'form-item',
+        ],
+        'style' => 'display: flex; align-items: end;',
+      ],
+      'value' => [
+        '#type' => 'number',
+        '#title' => t("Margin $type"),
+        '#default_value' => $margin_config['value'] ?? '1cm',
+        '#wrapper_attributes' => [
+          'style' => 'margin-top: 0; margin-bottom: 0;',
+        ],
+      ],
+      'units' => [
+        '#type' => 'select',
+        '#default_value' => $margin_config['units'] ?? 'cm',
+        '#options' => [
+          'in' => 'inches',
+          'cm' => 'centimeters',
+          'mm' => 'millimeters',
+          'px' => 'pixels',
+        ],
+        '#wrapper_attributes' => [
+          'style' => 'margin-top: 0; margin-bottom: 0;',
+        ],
+      ],
+    ];
   }
 
   /**
