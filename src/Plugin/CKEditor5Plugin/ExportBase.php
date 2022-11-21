@@ -200,6 +200,10 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $global_config = array_filter($this->settingsConfigHandler->getConverterOptions());
     $this->processConfigCleanup($global_config);
 
+    if (empty($this->configuration['override_global']) && !empty($global_config)) {
+      return $global_config;
+    }
+
     $format_config = array_filter($this->configuration['converter_options']);
     $this->processConfigCleanup($format_config);
 
@@ -263,6 +267,8 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
         unset($config[$placement]);
       }
     }
+
+    $config = array_filter($config);
   }
 
 }
