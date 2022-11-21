@@ -84,7 +84,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       ],
     ];
 
-    $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->config->get('presence_list_collapse_at') ?? 8;
+    $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->collaborationSettings->getPresenceListCollapseAt();
 
     $form_object = $form_state->getFormObject();
 
