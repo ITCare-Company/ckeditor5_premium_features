@@ -53,10 +53,9 @@ abstract class SharedBuildConfigFormBase extends ConfigFormBase implements Share
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $cv = $form_state->cleanValues()->getValues();
     $this
       ->config($this->getFormId())
-      ->setData($cv)
+      ->setData($form_state->cleanValues()->getValues())
       ->save();
 
     parent::submitForm($form, $form_state);
