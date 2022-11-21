@@ -22,10 +22,22 @@ class ExportPdf extends ExportBase {
       'converter_url' => NULL,
       'converter_options' => [
         'format' => NULL,
-        'margin_top' => NULL,
-        'margin_bottom' => NULL,
-        'margin_left' => NULL,
-        'margin_right' => NULL,
+        'margin_top' => [
+          'value' => NULL,
+          'units' => NULL
+        ],
+        'margin_bottom' => [
+          'value' => NULL,
+          'units' => NULL
+        ],
+        'margin_left' => [
+          'value' => NULL,
+          'units' => NULL
+        ],
+        'margin_right' => [
+          'value' => NULL,
+          'units' => NULL
+        ],
         'page_orientation' => NULL,
         'header_html' => NULL,
         'footer_html' => NULL,

@@ -198,21 +198,77 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    */
   protected function getCurrentConfiguration(): array {
     $global_config = array_filter($this->settingsConfigHandler->getConverterOptions());
-    if (!$this->configuration['override_global']) {
+    $this->processConfigCleanup($global_config);
+
+    if (empty($this->configuration['override_global']) && !empty($global_config)) {
       return $global_config;
     }
 
     $format_config = array_filter($this->configuration['converter_options']);
+    $this->processConfigCleanup($format_config);
 
     /*
      * Here we are merging two configurations, from the custom settings form nad from the text format plugin page.
      * The current order, means that the plugin settings will overwrite the custom settings form values.
      */
-    return NestedArray::mergeDeepArray([
+    $merged_config = NestedArray::mergeDeepArray([
         $global_config,
         $format_config,
       ], TRUE);
 
+    $adds = [
+      'header',
+      'footer',
+    ];
+    foreach ($adds as $placement) {
+      if (isset($format_config[$placement])) {
+        $merged_config[$placement] = $format_config[$placement];
+      }
+    }
+
+    return $merged_config;
+  }
+
+  /**
+   * Processing export configuration to perform required clean-ups.
+   *
+   * @param array $config
+   *   Config array to be processed.
+   */
+  protected function processConfigCleanup(array &$config): void {
+    $margins = [
+      'top',
+      'bottom',
+      'left',
+      'right',
+    ];
+    foreach ($margins as $direction) {
+      $key = 'margin_' . $direction;
+      if (empty($config[$key]) || !is_array($config[$key])) {
+        continue;
+      }
+      $config[$key] = $config[$key]['value'] . $config[$key]['units'];
+    }
+
+    $adds = [
+      'header',
+      'footer',
+    ];
+    foreach ($adds as $placement) {
+      unset($config[$placement]['actions']);
+      if (is_array($config[$placement])) {
+        foreach ($config[$placement] as $key => $item) {
+          if ($item['html'] == '') {
+            unset($config[$placement][$key]);
+          }
+        }
+      }
+      if (empty($config[$placement])) {
+        unset($config[$placement]);
+      }
+    }
+
+    $config = array_filter($config);
   }
 
 }

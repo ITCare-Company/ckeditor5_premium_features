@@ -61,11 +61,8 @@ class SettingsForm extends SharedBuildConfigFormBase {
     ];
 
     foreach ($margins as $margin) {
-      $options['margin_' . $margin] = [
-        '#type' => 'textfield',
-        '#title' => t("Margin $margin"),
-        '#default_value' => $config->get($options_key . '.margin_' . $margin) ?? '1cm',
-      ];
+      $margin_config = $config->get($options_key . '.margin_' . $margin);
+      FormElement::marginElement($options, $margin, $margin_config);
     }
 
     FormElement::pageOrientation($options, [

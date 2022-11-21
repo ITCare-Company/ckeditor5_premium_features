@@ -61,11 +61,8 @@ class SettingsForm extends SharedBuildConfigFormBase {
     ];
 
     foreach ($margins as $margin) {
-      $options['margin_' . $margin] = [
-        '#type' => 'textfield',
-        '#title' => t("Margin $margin"),
-        '#default_value' => $config->get($options_key . '.margin_' . $margin) ?? '1cm',
-      ];
+      $margin_config = $config->get($options_key . '.margin_' . $margin);
+      FormElement::marginElement($options, $margin, $margin_config);
     }
 
     FormElement::pageOrientation($options, [
@@ -78,13 +75,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
     if ($num_headers === NULL) {
       $headers_items = $config->get("$options_key.header") ?? [];
       unset($headers_items['actions']);
-      $num_headers = count($headers_items);
-      $form_state->set('num_headers', $num_headers);
+      $num_headers = max(count($headers_items), 1);
+      $form_state->set('num_headers', max($num_headers, 1));
     }
     if ($num_footers === NULL) {
       $footer_items = $config->get("$options_key.footer") ?? [];
       unset($footer_items['actions']);
-      $num_footers = count($footer_items);
+      $num_footers = max(count($footer_items), 1);
       $form_state->set('num_footers', $num_footers);
     }
 
