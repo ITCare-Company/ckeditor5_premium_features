@@ -199,9 +199,6 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
   protected function getCurrentConfiguration(): array {
     $global_config = array_filter($this->settingsConfigHandler->getConverterOptions());
     $this->processConfigCleanup($global_config);
-    if (!$this->configuration['override_global']) {
-      return $global_config;
-    }
 
     $format_config = array_filter($this->configuration['converter_options']);
     $this->processConfigCleanup($format_config);
@@ -243,7 +240,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     ];
     foreach ($margins as $direction) {
       $key = 'margin_' . $direction;
-      if (empty($config[$key])) {
+      if (empty($config[$key]) || !is_array($config[$key])) {
         continue;
       }
       $config[$key] = $config[$key]['value'] . $config[$key]['units'];

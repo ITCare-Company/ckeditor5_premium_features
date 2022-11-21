@@ -50,7 +50,7 @@ class FormElement {
    * @param array $options
    *   The additional options to merged into element.
    */
-  public static function pageOrientation(array &$element, array $options, ): void {
+  public static function pageOrientation(array &$element, array $options = [] ): void {
     $element['page_orientation'] = $options + [
       '#type' => 'select',
       '#title' => new TranslatableMarkup('Page orientation'),
@@ -69,7 +69,7 @@ class FormElement {
    *   should be added.
    * @param string $type
    *   The type: footer or header.
-   * @param array $options
+   * @param $options
    *   The additional options to merged into element.
    */
   public static function headingFooter(array &$element, string $type = 'header', $options = [], $items_length = 1): void {
