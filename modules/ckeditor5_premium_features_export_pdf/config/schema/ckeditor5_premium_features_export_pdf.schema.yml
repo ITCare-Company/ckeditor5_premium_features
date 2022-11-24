@@ -14,17 +14,45 @@ ckeditor5.plugin.ckeditor5_premium_features_export_pdf__export_pdf:
           type: string
           label: 'Page format'
         margin_top:
-          type: string
           label: 'Margin top'
+          type: mapping
+          mapping:
+            value:
+              type: string
+              label: 'Value'
+            units:
+              type: string
+              label: 'Units'
         margin_bottom:
-          type: string
           label: 'Margin bottom'
+          type: mapping
+          mapping:
+            value:
+              type: string
+              label: 'Value'
+            units:
+              type: string
+              label: 'Units'
         margin_left:
-          type: string
           label: 'Margin left'
+          type: mapping
+          mapping:
+            value:
+              type: string
+              label: 'Value'
+            units:
+              type: string
+              label: 'Units'
         margin_right:
-          type: string
           label: 'Margin right'
+          type: mapping
+          mapping:
+            value:
+              type: string
+              label: 'Value'
+            units:
+              type: string
+              label: 'Units'
         page_orientation:
           type: string
           label: 'Page orientation'
@@ -53,17 +81,45 @@ ckeditor5_premium_features_export_pdf.settings:
           type: string
           label: 'Page format'
         margin_top:
-          type: string
           label: 'Margin top'
+          type: mapping
+          mapping:
+            value:
+              type: string
+              label: 'Value'
+            units:
+              type: string
+              label: 'Units'
         margin_bottom:
-          type: string
           label: 'Margin bottom'
+          type: mapping
+          mapping:
+            value:
+              type: string
+              label: 'Value'
+            units:
+              type: string
+              label: 'Units'
         margin_left:
-          type: string
           label: 'Margin left'
+          type: mapping
+          mapping:
+            value:
+              type: string
+              label: 'Value'
+            units:
+              type: string
+              label: 'Units'
         margin_right:
-          type: string
           label: 'Margin right'
+          type: mapping
+          mapping:
+            value:
+              type: string
+              label: 'Value'
+            units:
+              type: string
+              label: 'Units'
         page_orientation:
           type: string
           label: 'Page orientation'

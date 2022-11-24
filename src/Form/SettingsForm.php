@@ -181,14 +181,24 @@ class SettingsForm extends ConfigFormBase {
       ],
     ];
 
-    $configuration['web_socket_url'] = [
+    $configuration['organization_id'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Web Socket URL'),
+      '#title' => $this->t('Organization ID'),
       '#required' => $this->isRealtimeSettingsRequired(),
       '#description' =>
-        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        $this->t('The organization ID can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
         . '<br>'
-        . $this->t('Required for Real-time collaboration.'),
+        . $this->t('Required for Real-time collaboration and API requests.'),
+    ];
+
+    $configuration['api_key'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('API Key'),
+      '#required' => $this->isRealtimeSettingsRequired(),
+      '#description' =>
+        $this->t('The API Key can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        . '<br>'
+        . $this->t('Required for Real-time collaboration and API requests.'),
     ];
 
     $this->setDefaultValues($configuration);
@@ -203,6 +213,32 @@ class SettingsForm extends ConfigFormBase {
       $this->t('CKEditor Premium Features needs to load additional plugins (“DLLs”) in order to run. By default this module will detect the version of CKEditor your website is running and load required plugins from a CDN automatically.')
       . '<br>'
       . $this->t('Specify the DLL packages location <strong>only</strong> if you host the DLL packages by yourself. Contact us in case of any questions.'),
+    ];
+
+    $advanced['web_socket_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Web Socket URL'),
+      '#default_value' => $this->configHandler->getDefaultWebSocketUrl(),
+      '#attributes' => [
+        'placeholder' => $this->configHandler->getDefaultWebSocketUrl(),
+      ],
+      '#description' =>
+        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        . '<br />'
+        . 'You can leave this field empty - system will automatically generate this URL using Organization ID field',
+    ];
+
+    $advanced['api_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('API base URL'),
+      '#default_value' => $this->configHandler->getDefaultApiUrl(),
+      '#attributes' => [
+        'placeholder' => $this->configHandler->getDefaultApiUrl(),
+      ],
+      '#description' =>
+        $this->t('The API base URL can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+        . '<br />'
+        . 'You can leave this field empty - system will automatically generate this URL using Organization ID and Environment ID fields',
     ];
 
     $advanced['dll_location'] = [

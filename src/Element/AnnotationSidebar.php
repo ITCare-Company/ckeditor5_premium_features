@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_collaboration\Element;
+namespace Drupal\ckeditor5_premium_features\Element;
 
-use Drupal\Core\Form\FormStateInterface;
+use Drupal\ckeditor5_premium_features\Utility\CommonCollaborationSettingsInterface;
 
 /**
  * Add sidebar view mode, when comments or track changes plugin is on.
@@ -16,10 +16,8 @@ class AnnotationSidebar {
    *
    * @param array $element
    *   The form element.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The state of the form.
-   * @param array $complete_form
-   *   The form structure.
+   * @param CommonCollaborationSettingsInterface $collaboration_settings
+   *   Settings service.
    *
    * @return array
    *   The element data.
@@ -27,9 +25,7 @@ class AnnotationSidebar {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-    /** @var \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaboration_settings */
-    $collaboration_settings = \Drupal::service('ckeditor5_premium_features_collaboration.collaboration_settings');
+  public static function process(array &$element, CommonCollaborationSettingsInterface $collaboration_settings): array {
     $sidebar_mode = $collaboration_settings->getAnnotationSidebarType();
 
     $sidebar['ck_sidebar_type'] = [

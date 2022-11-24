@@ -2,6 +2,7 @@
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Utility;
 
+use Drupal\ckeditor5_premium_features\Utility\CommonCollaborationSettingsInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Form\SettingsForm;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
@@ -9,7 +10,7 @@ use Drupal\Core\Config\ImmutableConfig;
 /**
  * Class for accessing collaboration config values.
  */
-class CollaborationSettings {
+class CollaborationSettings implements CommonCollaborationSettingsInterface {
 
   private ImmutableConfig $collaborationSettings;
 
@@ -43,7 +44,7 @@ class CollaborationSettings {
   }
 
   /**
-   * Returns annotation sidebar type config.
+   * {@inheritdoc}
    */
   public function getAnnotationSidebarType(): string {
     return $this->collaborationSettings->get('sidebar') ?? 'auto';

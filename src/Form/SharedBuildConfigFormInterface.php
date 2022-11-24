@@ -27,4 +27,8 @@ interface SharedBuildConfigFormInterface {
    */
   public static function form(array $form, FormStateInterface $form_state, Config $config): array;
 
+  /**
+   * Returns route name for the settings page.
+   */
+  public static function getSettingsRouteName(): string;
 }

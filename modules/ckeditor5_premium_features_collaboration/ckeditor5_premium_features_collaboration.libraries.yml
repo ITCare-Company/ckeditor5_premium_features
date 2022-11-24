@@ -16,7 +16,7 @@ admin.track-changes:
 revision-history-integration:
   css:
       theme:
-        css/revision-history.css: { }
+        ../../css/revision-history.css: { }
   js:
     js/build/revisionHistoryAdapter.js: { minified: true }
   dependencies:

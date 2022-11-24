@@ -24,6 +24,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  public static function getSettingsRouteName(): string {
+    return 'ckeditor5_premium_features_export_pdf.form.settings';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function form(array $form, FormStateInterface $form_state, Config $config): array {
     $form['converter_url'] = [
       '#type' => 'textfield',
@@ -54,11 +61,8 @@ class SettingsForm extends SharedBuildConfigFormBase {
     ];
 
     foreach ($margins as $margin) {
-      $options['margin_' . $margin] = [
-        '#type' => 'textfield',
-        '#title' => t("Margin $margin"),
-        '#default_value' => $config->get($options_key . '.margin_' . $margin) ?? '1cm',
-      ];
+      $margin_config = $config->get($options_key . '.margin_' . $margin);
+      FormElement::marginElement($options, $margin, $margin_config);
     }
 
     FormElement::pageOrientation($options, [

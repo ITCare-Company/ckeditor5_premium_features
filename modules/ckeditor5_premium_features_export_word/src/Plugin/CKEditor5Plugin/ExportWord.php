@@ -23,10 +23,22 @@ class ExportWord extends ExportBase {
       'converter_url' => NULL,
       'converter_options' => [
         'format' => NULL,
-        'margin_top' => NULL,
-        'margin_bottom' => NULL,
-        'margin_left' => NULL,
-        'margin_right' => NULL,
+        'margin_top' => [
+          'value' => NULL,
+          'units' => NULL
+        ],
+        'margin_bottom' => [
+          'value' => NULL,
+          'units' => NULL
+        ],
+        'margin_left' => [
+          'value' => NULL,
+          'units' => NULL
+        ],
+        'margin_right' => [
+          'value' => NULL,
+          'units' => NULL
+        ],
         'header' => [
           [
             'html' => NULL,
@@ -52,6 +64,11 @@ class ExportWord extends ExportBase {
     $static_plugin_config = parent::getDynamicPluginConfig($static_plugin_config, $editor);
 
     $options = &$static_plugin_config[$this->getFeaturePlugin()]['converterOptions'];
+
+    // Word converter requires a different name than the PDF converter.
+    if (isset($options['page_orientation'])) {
+      $options['orientation'] = $options['page_orientation'];
+    }
 
     foreach (['footer', 'header'] as $item) {
       if (isset($options[$item]) && is_array($options[$item])) {
