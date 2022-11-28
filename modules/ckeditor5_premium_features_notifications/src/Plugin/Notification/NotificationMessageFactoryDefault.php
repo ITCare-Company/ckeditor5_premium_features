@@ -147,6 +147,10 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
         break;
     }
 
+    if ($originalContent = $event->getOriginalContent()) {
+      $parameters['original_content'] = $originalContent;
+    }
+
     if ($messageType == self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS) {
       $parameters['suggestion'] = $event;
     }

@@ -71,8 +71,8 @@ class NotificationContextHelper {
    * @param string $mentionMarker
    *   Mention marker that should be found in a document.
    */
-  public function getDocumentMentionContext(FieldableEntityInterface $document, string $key, string $mentionMarker): array {
-    $context = self::getDocumentFieldContent($document, $key);
+  public function getDocumentMentionContext(FieldableEntityInterface $document, string $key, string $mentionMarker, string $originalContent = NULL): array {
+    $context = !empty($originalContent) ? $originalContent : self::getDocumentFieldContent($document, $key);
 
     $snippets = $this->getHighlightedDocumentMention($context, $mentionMarker);
 
@@ -186,6 +186,20 @@ class NotificationContextHelper {
    */
   public function getHighlightedDocumentMention(string $context, string $mentionMarker): array {
     $query = "//span[contains(@data-mention,'$mentionMarker')]";
+
+    $snippets = [];
+    foreach ($this->getHighlightedContext($context, $query) as $markup) {
+      $snippets[] = [
+        '#markup' => $markup,
+      ];
+    }
+
+    return $snippets;
+  }
+
+
+  public function getHighlightedDocumentInserts(string $context): array {
+    $query = "//ins";
 
     $snippets = [];
     foreach ($this->getHighlightedContext($context, $query) as $markup) {

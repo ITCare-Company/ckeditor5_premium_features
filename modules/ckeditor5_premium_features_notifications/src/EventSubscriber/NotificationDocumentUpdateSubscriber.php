@@ -2,6 +2,7 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
+use Drupal\ckeditor5_premium_features_notifications\Diff\Ckeditor5DiffInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
@@ -28,6 +29,7 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
     protected NotificationSender $notificationSender,
     protected Collaborators $collaboratorsService,
     protected AccountInterface $currentUser,
+    protected Ckeditor5DiffInterface $ckeditor5Diff
   ) { }
 
   /**
@@ -48,11 +50,22 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
   public function documentUpdated(CollaborationEventBase $event): void {
     $collaborationEntity = $event->getRelatedEntity();
     $body = $event->getRelatedDocumentContent();
-    if (!$body) {
+    $previousBody = $event->getOriginalContent();
+
+    if (!empty($previousBody)) {
+      $difference = $this->ckeditor5Diff->getDiff($previousBody, $body);
+
+      $event->setOriginalContent($this->ckeditor5Diff->getDiffContext());
+    } else {
+      $difference = $body;
+    }
+
+    if (!$body || empty($difference)) {
       return;
     }
 
-    $mentions = $this->collaboratorsService->getBodyMentions($body);
+
+    $mentions = $this->collaboratorsService->getBodyMentions($difference);
     if (!empty($mentions)) {
       $users = $this->collaboratorsService->getUserIdsByNames($mentions);
       $users = array_diff($users, [$this->currentUser->id()]);

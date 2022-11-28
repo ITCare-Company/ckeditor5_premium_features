@@ -12,7 +12,6 @@ use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderMailBulk;
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\RendererInterface;
 
@@ -118,7 +117,7 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
           if ($comment instanceof CommentInterface) {
             $result = $contextHelper->getFullContext($node, $key, $comment);
           } else {
-            $result = $contextHelper->getDocumentMentionContext($node, $key, $marker);
+            $result = $contextHelper->getDocumentMentionContext($node, $key, $marker, $originalContent);
           }
 
           $replacements[$original] = $renderer->renderPlain($result);
