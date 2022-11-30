@@ -1,3 +1,28 @@
+:root {
+  --ck-color-suggestion-marker-insertion-border: hsla(128, 71%, 40%, .35);
+  --ck-color-suggestion-marker-insertion-border-active: hsla(128, 71%, 25%, .5);
+  --ck-color-suggestion-marker-insertion-background: hsla(128, 71%, 65%, .35);
+  --ck-color-suggestion-marker-insertion-background-active: hsla(128, 71%, 50%, .5);
+
+  --ck-color-suggestion-marker-deletion-border: hsla(345, 71%, 40%, .35);
+  --ck-color-suggestion-marker-deletion-border-active: hsla(345, 71%, 25%, .5);
+  --ck-color-suggestion-marker-deletion-background: hsla(345, 71%, 65%, .35);
+  --ck-color-suggestion-marker-deletion-background-active: hsla(345, 71%, 50%, .5);
+  --ck-color-suggestion-marker-deletion-stroke: hsla(345, 71%, 20%, .5);
+
+  --ck-color-suggestion-marker-format-border: hsla(191, 90%, 40%, .4);
+  --ck-color-suggestion-marker-format-border-active: hsla(191, 90%, 40%, .65);
+
+  --ck-color-suggestion-widget-insertion-background: hsla(128, 71%, 65%, .05);
+  --ck-color-suggestion-widget-insertion-background-active: hsla(128, 71%, 50%, .07);
+
+  --ck-color-suggestion-widget-deletion-background: hsla(345, 71%, 65%, .05);
+  --ck-color-suggestion-widget-deletion-background-active: hsla(345, 71%, 45%, .07);
+
+  --ck-color-suggestion-widget-format-background: hsla(191, 90%, 40%, .09);
+  --ck-color-suggestion-widget-format-background-active: hsla(191, 90%, 40%, .16);
+}
+
 .message-inner-wrapper {
   margin: 0 auto;
   width: 60%;
@@ -28,4 +53,19 @@
 
 .thread-wrapper .author {
   font-weight: bold;
+}
+
+del {
+  background: var(--ck-color-suggestion-marker-deletion-background);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-deletion-border);
+  border-top: 3px solid var(--ck-color-suggestion-marker-deletion-border);
+  text-decoration: line-through;
+  text-decoration-color: var(--ck-color-suggestion-marker-deletion-stroke);
+  text-decoration-thickness: 3px;
+}
+
+ins {
+  background: var(--ck-color-suggestion-marker-insertion-background);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
+  border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
 }

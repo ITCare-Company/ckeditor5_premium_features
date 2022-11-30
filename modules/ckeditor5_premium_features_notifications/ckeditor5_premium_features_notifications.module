@@ -60,6 +60,7 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
   $key = $data['key_id'] ?? NULL;
   $marker = $data['marker'] ?? NULL;
   $originalContent = $data['original_content'] ?? NULL;
+  $isDefaultContextRequired = $data['is_default'] ?? FALSE;
 
   /** @var RendererInterface $renderer */
   $renderer = Drupal::service('renderer');
@@ -120,6 +121,17 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
             $result = $contextHelper->getDocumentMentionContext($node, $key, $marker, $originalContent);
           }
 
+          $replacements[$original] = $renderer->renderPlain($result);
+          break;
+      }
+    }
+  }
+
+  if ($isDefaultContextRequired && !empty($originalContent)) {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'context':
+          $result = $contextHelper->getHighlightedDocumentChanges($originalContent);
           $replacements[$original] = $renderer->renderPlain($result);
           break;
       }

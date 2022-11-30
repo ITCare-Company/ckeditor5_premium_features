@@ -6,5 +6,7 @@ interface Ckeditor5DiffInterface {
 
   public function getDiff(string $oldDocument, string $newDocument): ?string;
 
+  public function getDiffAddedContext(): ?string;
+
   public function getDiffContext(): ?string;
 }

@@ -6,6 +6,7 @@ use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
+use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -127,7 +128,7 @@ class NotificationContextHelper {
 
     $result = [];
 
-    foreach ($this->getHighlightedContext($context, $query) as $markup) {
+    foreach ($this->getMatchingContext($context, $query) as $markup) {
       $fixedMarkup = str_replace('</comment-start>', '', $markup);
       $fixedMarkup = str_replace('<comment-end', '<span', $fixedMarkup);
       $fixedMarkup = str_replace('</comment-end>', '</comment-start>', $fixedMarkup);
@@ -149,7 +150,7 @@ class NotificationContextHelper {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
    *   Suggestion to be highlighted.
    */
-  public function getHighlightedSuggestion(string $context, SuggestionInterface $suggestion): array  {
+  public function getHighlightedSuggestion(string $context, SuggestionInterface $suggestion): array {
     $suggestionChain = $suggestion->getChain();
 
     $queryOrParts = [];
@@ -161,7 +162,7 @@ class NotificationContextHelper {
 
     $result = [];
 
-    foreach ($this->getHighlightedContext($context, $query) as $markup) {
+    foreach ($this->getMatchingContext($context, $query) as $markup) {
       $fixedMarkup = str_replace('</suggestion-start>', '', $markup);
       $fixedMarkup = str_replace('<suggestion-end', '<span', $fixedMarkup);
       $fixedMarkup = str_replace('</suggestion-end>', '</suggestion-start>', $fixedMarkup);
@@ -188,7 +189,7 @@ class NotificationContextHelper {
     $query = "//span[contains(@data-mention,'$mentionMarker')]";
 
     $snippets = [];
-    foreach ($this->getHighlightedContext($context, $query) as $markup) {
+    foreach ($this->getMatchingContext($context, $query) as $markup) {
       $snippets[] = [
         '#markup' => $markup,
       ];
@@ -197,15 +198,29 @@ class NotificationContextHelper {
     return $snippets;
   }
 
-
-  public function getHighlightedDocumentInserts(string $context): array {
-    $query = "//ins";
+  public function getHighlightedDocumentChanges(string $context, $onlyInserts = FALSE): array {
+    $query = "//ins" . ($onlyInserts ? '' : '|//del');
 
     $snippets = [];
-    foreach ($this->getHighlightedContext($context, $query) as $markup) {
+    foreach ($this->getMatchingContext($context, $query, FALSE) as $markup) {
       $snippets[] = [
         '#markup' => $markup,
       ];
+    }
+
+    return [
+      '#theme' => 'notification_message_single',
+      '#context' => $snippets,
+    ];
+  }
+
+
+  public function getDocumentChangesContext(string $context, $onlyInserts = FALSE): array {
+    $query = "//ins" . ($onlyInserts ? '' : '|//del');
+
+    $snippets = [];
+    foreach ($this->getMatchingContext($context, $query, FALSE) as $markup) {
+      $snippets[] = $markup;
     }
 
     return $snippets;
@@ -245,16 +260,17 @@ class NotificationContextHelper {
   }
 
   /**
-   * Returns matching HTML elements list with addition class used for highlighting matched element.
+   * Returns matching HTML elements list with optional addition class used for highlighting matched element.
    *
-   * @param $context
+   * @param string $context
    *   Source HTML content.
-   * @param $query
+   * @param string $query
    *   XPATH query that will be used for selecting matching HTML part.
+   * @param bool $highlight
    *
    * @return array
    */
-  protected function getHighlightedContext($context, $query): array {
+  protected function getMatchingContext(string $context, string $query, bool $highlight = TRUE): array {
     $document = Html::load($context);
 
     $contextParts = [];
@@ -264,13 +280,52 @@ class NotificationContextHelper {
     if (!empty($matchingElements)) {
       /** @var \DOMElement $element */
       foreach ($matchingElements as $element) {
-        $element->setAttribute('class', $element->getAttribute('class') . ' highlight-item');
-
-        $contextParts[] = $element->ownerDocument->saveXML($element->parentNode);
+        if ($highlight) {
+          $element->setAttribute('class', $element->getAttribute('class') . ' highlight-item');
+        }
+        // Let's prevent selecting same parent node several times (when several changes were made in the same paragraph tag).
+        $parentNode = $this->selectElementParentNode($element);
+        $parentPath = $parentNode->getNodePath();
+        $matched = FALSE;
+        foreach ($contextParts as $nodePath => $html) {
+          if (stripos($nodePath, $parentPath) !== FALSE) {
+            // Let's prefer to choose parent node instead of it;s children.
+            unset($contextParts[$nodePath]);
+          }
+          elseif (stripos($parentPath, $nodePath) !== FALSE) {
+            // Let's also detect a situation when we select a child of a parent that we already selected.
+            $matched = TRUE;
+            break;
+          }
+        }
+        if (!$matched) {
+          $contextParts[$parentPath] = $element->ownerDocument->saveXML($parentNode);
+        }
       }
     }
 
     return $contextParts;
+  }
+
+  protected function selectElementParentNode(\DOMElement $element) {
+    $acceptingParentNodeTypes = array_flip([
+      'div',
+      'p',
+      'table'
+    ]);
+    $parentNode = $element->parentNode;
+    while (true) {
+      if (isset($acceptingParentNodeTypes[$parentNode->nodeName]) || $parentNode->parentNode == NULL) {
+        break;
+      }
+      $value = $parentNode->nodeValue;
+      if (mb_strlen(strip_tags($value)) > 255) {
+        break;
+      }
+      $parentNode = $parentNode->parentNode;
+    }
+
+    return $parentNode;
   }
 
 }

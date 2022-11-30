@@ -2,18 +2,22 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
+use Drupal\ckeditor5_premium_features\Plugin\Filter\FilterCollaboration;
 use Drupal\ckeditor5_premium_features_notifications\Diff\Ckeditor5DiffInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\filter\FilterPluginManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Comment notification subscriber class.
  */
 class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
+
+  protected FilterCollaboration $filterCollaboration;
 
   /**
    * Constructor.
@@ -29,8 +33,11 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
     protected NotificationSender $notificationSender,
     protected Collaborators $collaboratorsService,
     protected AccountInterface $currentUser,
-    protected Ckeditor5DiffInterface $ckeditor5Diff
-  ) { }
+    protected Ckeditor5DiffInterface $ckeditor5Diff,
+    FilterPluginManager $filterPluginManager
+  ) {
+    $this->filterCollaboration = $filterPluginManager->createInstance('ckeditor5_premium_features_collaboration_filter');
+  }
 
   /**
    * {@inheritdoc}
@@ -52,31 +59,46 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
     $body = $event->getRelatedDocumentContent();
     $previousBody = $event->getOriginalContent();
 
+    // Let's cleanup the incoming body, to not send notifications about added collaboration tags (track changes, comments)
+    $body = $this->filterCollaboration->process($body, NULL);
+    $previousBody = $this->filterCollaboration->process($previousBody, NULL);
+
     if (!empty($previousBody)) {
       $difference = $this->ckeditor5Diff->getDiff($previousBody, $body);
 
-      $event->setOriginalContent($this->ckeditor5Diff->getDiffContext());
+      $changeContext = $this->ckeditor5Diff->getDiffContext();
+
+      if (empty($changeContext)) {
+        return;
+      }
+
+      $event->setOriginalContent($changeContext);
     } else {
       $difference = $body;
     }
 
-    if (!$body || empty($difference)) {
+    if (empty($body) && empty($difference) && empty($changeContext)) {
       return;
     }
 
+    if (!empty($difference)) {
+      $mentions = $this->collaboratorsService->getBodyMentions($difference);
+      if (!empty($mentions)) {
+        $users = $this->collaboratorsService->getUserIdsByNames($mentions);
+        $users = array_diff($users, [$this->currentUser->id()]);
+        if (!empty($users)) {
+          $mentionEvent = clone $event;
+          $mentionEvent->setOriginalContent($this->ckeditor5Diff->getDiffAddedContext());
 
-    $mentions = $this->collaboratorsService->getBodyMentions($difference);
-    if (!empty($mentions)) {
-      $users = $this->collaboratorsService->getUserIdsByNames($mentions);
-      $users = array_diff($users, [$this->currentUser->id()]);
-      if (!empty($users)) {
-        $this->notificationSender->sendNotification(
-          NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT,
-          $users,
-          $event
-        );
+          $this->notificationSender->sendNotification(
+            NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT,
+            $users,
+            $mentionEvent
+          );
+        }
       }
     }
+
     $otherAuthorsList = $this->collaboratorsService->getCollaborators($collaborationEntity, $event->getAccount()->id());
 
     if (empty($otherAuthorsList)) {
