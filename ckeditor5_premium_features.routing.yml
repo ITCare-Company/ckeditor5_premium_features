@@ -34,12 +34,3 @@ ckeditor5_premium_features.media_tags:
   requirements:
     _permission: 'view media'
     _format: json
-
-ckeditor5_premium_features.php_diff:
-  path: '/php-diff-test'
-  defaults:
-    _controller: 'Drupal\ckeditor5_premium_features\Controller\PhpDiffController::index'
-  methods:  [GET]
-  requirements:
-    # TODO: To be verified if any permission will be required for this.
-    _access: 'TRUE'

@@ -6,7 +6,6 @@ use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
-use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -198,7 +197,15 @@ class NotificationContextHelper {
     return $snippets;
   }
 
-  public function getHighlightedDocumentChanges(string $context, $onlyInserts = FALSE): array {
+  /**
+   * Prepares a render array with highlighted document detected changes.
+   *
+   * @param string $context
+   *   Document content.
+   * @param bool $onlyInserts
+   *   Flag for determining type of changes to be selected.
+   */
+  public function getHighlightedDocumentChanges(string $context, bool $onlyInserts = FALSE): array {
     $query = "//ins" . ($onlyInserts ? '' : '|//del');
 
     $snippets = [];
@@ -214,8 +221,15 @@ class NotificationContextHelper {
     ];
   }
 
-
-  public function getDocumentChangesContext(string $context, $onlyInserts = FALSE): array {
+  /**
+   * Returns an array of strings with document detected changes.
+   *
+   * @param string $context
+   *   Document content.
+   * @param bool $onlyInserts
+   *   Flag for determining type of changes to be selected.
+   */
+  public function getDocumentChangesContext(string $context, bool $onlyInserts = FALSE): array {
     $query = "//ins" . ($onlyInserts ? '' : '|//del');
 
     $snippets = [];
@@ -307,14 +321,24 @@ class NotificationContextHelper {
     return $contextParts;
   }
 
+  /**
+   * Checks passed element parent nodes and returns the that is enough to representing its context.
+   *
+   * @param \DOMElement $element
+   *   Element to search the best parent node.
+   *
+   * @return \DOMElement|\DOMNode
+   *   Returns element parent node or element itself if no parent node found.
+   */
   protected function selectElementParentNode(\DOMElement $element) {
     $acceptingParentNodeTypes = array_flip([
       'div',
       'p',
       'table'
     ]);
+
     $parentNode = $element->parentNode;
-    while (true) {
+    while ($parentNode) {
       if (isset($acceptingParentNodeTypes[$parentNode->nodeName]) || $parentNode->parentNode == NULL) {
         break;
       }
@@ -323,6 +347,10 @@ class NotificationContextHelper {
         break;
       }
       $parentNode = $parentNode->parentNode;
+    }
+
+    if (!$parentNode) {
+      return $element;
     }
 
     return $parentNode;

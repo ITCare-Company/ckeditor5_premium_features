@@ -63,4 +63,3 @@ services:
     class: Drupal\ckeditor5_premium_features_notifications\Diff\Ckeditor5Diff
     arguments:
       - '@ckeditor5_premium_features_notifications.notification_context_helper'
-      - '@renderer'

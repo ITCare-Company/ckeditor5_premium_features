@@ -5,8 +5,14 @@ namespace Drupal\ckeditor5_premium_features_notifications\Diff;
 use Caxy\HtmlDiff\HtmlDiff;
 use Drupal\Component\Utility\Html;
 
+/**
+ * Ckeditor5 extension of an external library for detecting string changes.
+ */
 class Ckeditor5HtmlDiff extends HtmlDiff {
 
+  /**
+   * Returns a string containing joined new content parts, added to the compared document.
+   */
   public function getAddedContent(): string {
     $addedParts = [];
     $operations = $this->operations();
@@ -24,9 +30,26 @@ class Ckeditor5HtmlDiff extends HtmlDiff {
       }
     }
 
-    $tempRes = implode(PHP_EOL, $addedParts);
+    $allNewContentParts = implode(PHP_EOL, $addedParts);
 
-    $document = Html::load($tempRes);
+    return $this->fixHtmlWithPotentiallyImproperHtml($allNewContentParts);
+  }
+
+  /**
+   * Returns string representing document with marked detected changes.
+   */
+  public function getContext() :string {
+    return $this->content;
+  }
+
+  /**
+   * Process passed HTML to try to fix bad HTML.
+   *
+   * @param $htmlString
+   *   String to be processed using \DOMDocument.
+   */
+  protected function fixHtmlWithPotentiallyImproperHtml($htmlString): string {
+    $document = Html::load($htmlString);
 
     $xpath = new \DOMXPath( $document);
     $bodyElement = $xpath->query('//body')->item(0);
@@ -40,7 +63,4 @@ class Ckeditor5HtmlDiff extends HtmlDiff {
     return $htmlRes;
   }
 
-  public function getContext() :string {
-    return $this->content;
-  }
 }

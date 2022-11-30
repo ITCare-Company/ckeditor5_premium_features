@@ -3,15 +3,27 @@
 namespace Drupal\ckeditor5_premium_features_notifications\Diff;
 
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextHelper;
-use Drupal\Core\Render\Renderer;
 
+/**
+ * Ckeditor5 helper class for detecting document changes.
+ */
 class Ckeditor5Diff implements Ckeditor5DiffInterface {
 
+  /**
+   * String representing recently processed document with all changes marked.
+   *
+   * @var string
+   */
   protected string $context;
 
+  /**
+   * Constructor.
+   *
+   * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextHelper $contextHelper
+   *   Context detecting helper service.
+   */
   public function __construct(
     protected NotificationContextHelper $contextHelper,
-    protected Renderer $renderer
   ) {
   }
 
