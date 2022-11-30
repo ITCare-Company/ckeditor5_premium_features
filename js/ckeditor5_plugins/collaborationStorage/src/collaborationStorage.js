@@ -15,18 +15,18 @@ class CollaborationStorage {
    */
   processCollaborationCommandDisable(commandName) {
     if (!this.isCollaborationDisabled()) {
-      return false;
+      return FALSE;
     }
 
     const command = this.editor.commands._commands.get( commandName );
 
     if (typeof command == 'undefined') {
-      return true;
+      return TRUE;
     }
 
     command.forceDisabled( 'premium-features-module' );
 
-    return true;
+    return TRUE;
   }
 
   /**
@@ -37,15 +37,15 @@ class CollaborationStorage {
    */
   processRevisionDisable() {
     if (!this.isCollaborationDisabled()) {
-      return false;
+      return FALSE;
     }
 
     if (this.editor.plugins.has( 'RevisionTracker' )) {
 
-      this.editor.plugins.get( 'RevisionTracker' ).isEnabled = false;
+      this.editor.plugins.get( 'RevisionTracker' ).isEnabled = FALSE;
     }
 
-    return true;
+    return TRUE;
   }
 
   /**
@@ -57,7 +57,7 @@ class CollaborationStorage {
   isCollaborationDisabled() {
     return typeof drupalSettings.ckeditor5Premium != 'undefined' &&
       typeof drupalSettings.ckeditor5Premium.disableCollaboration != "undefined" &&
-      drupalSettings.ckeditor5Premium.disableCollaboration === true;
+      drupalSettings.ckeditor5Premium.disableCollaboration === TRUE;
   }
 
   /**
@@ -79,7 +79,7 @@ class CollaborationStorage {
     }
 
     if (!editorElement || typeof editorElement === "undefined") {
-      return null;
+      return NULL;
     }
 
     // We get parentElement one more time to be able to search for all related
@@ -96,7 +96,7 @@ class CollaborationStorage {
     };
 
     const cssClass = types[type] + '-data';
-    const dataAttribute = `[data-ckeditor5-premium-element-id="${this.elementId}"]`;
+    const dataAttribute = `[data - ckeditor5 - premium - element - id = "${this.elementId}"]`;
 
     return cssClass + dataAttribute;
   }

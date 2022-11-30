@@ -8,6 +8,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Url;
 use Drupal\Core\Asset\LibraryDiscoveryInterface;
+
 /**
  * Provides the utility service for handling the stored settings configuration.
  */
@@ -32,6 +33,8 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory service.
+   * @param \Drupal\Core\Asset\LibraryDiscoveryInterface $library_discovery
+   *   Library discovery service.
    */
   public function __construct(protected ConfigFactoryInterface $configFactory, protected LibraryDiscoveryInterface $library_discovery) {
     $this->config = $this->configFactory->get('ckeditor5_premium_features.settings');

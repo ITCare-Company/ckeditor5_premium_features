@@ -69,6 +69,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   The user data storage.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaborationSettings
    *   Collaboration settings helper.
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
+   *   Event dispatcher service.
+   * @param \Drupal\Core\Session\AccountInterface $currentUser
+   *   Current user.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -141,7 +145,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $element['track_changes']['#attributes']['class'] = ['track-changes-data'];
 
     // Setup the comments.
-    $comments = $entity ? $this->commentsStorage->loadByEntity($entity, $id)  : [];
+    $comments = $entity ? $this->commentsStorage->loadByEntity($entity, $id) : [];
 
     $element['comments'] = [
       '#default_value' => $this->commentsStorage->serializeCollection($comments),
@@ -153,7 +157,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $form_state->set(static::STORAGE_KEY, $items);
 
     // Setup the revision history.
-    $revisions = $entity ? $this->revisionStorage->loadByEntity($entity, $id)  : [];
+    $revisions = $entity ? $this->revisionStorage->loadByEntity($entity, $id) : [];
 
     $element['revision_history'] = [
       '#default_value' => $this->revisionStorage->serializeCollection($revisions),
@@ -288,12 +292,12 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Form state object.
-   * @param $item_parents
+   * @param array $item_parents
    *   Form item parents.
-   * @param $key
+   * @param string $key
    *   Type of the data stored.
    */
-  private function getFormElementSourceData(FormStateInterface $form_state, $item_parents, $key): array {
+  private function getFormElementSourceData(FormStateInterface $form_state, array $item_parents, string $key): array {
     $source = $form_state->getValue([...$item_parents, $key]);
 
     return (array) json_decode($source, TRUE);
@@ -306,8 +310,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   Form array.
    * @param array $item_parents
    *   Array defining path to the field.
-   *
-   * @return array|mixed|null
    */
   private function getFormElementOriginalValue(array $form, array $item_parents) {
     $result_path = [];
@@ -338,10 +340,12 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   /**
    * Dispatches document update event for specified field.
    *
-   * @param FieldableEntityInterface $entity
-   *   Source entity
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
+   *   Source entity.
    * @param string $key
    *   Key value for source field.
+   * @param string|null $original_value
+   *   Optional original document value.
    */
   protected function dispatchDocumentUpdateEvent(FieldableEntityInterface $entity, string $key, string $original_value = NULL): void {
     $event = new CollaborationEventBase(
@@ -359,4 +363,5 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       CollaborationEventBase::DOCUMENT_UPDATED
     );
   }
+
 }

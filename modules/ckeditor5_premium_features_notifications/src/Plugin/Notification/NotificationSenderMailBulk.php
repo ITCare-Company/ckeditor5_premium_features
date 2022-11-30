@@ -18,8 +18,14 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
   const BULK_MAIL_TYPE = 'ckeditor5_premium_features_notifications_bulk';
 
   /**
-   * {@inheritdoc }
+   * Constructor.
    *
+   * @param array $configuration
+   *   Configuration.
+   * @param string $plugin_id
+   *   Plugin ID.
+   * @param mixed $plugin_definition
+   *   Plugin definition.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager.
    */
@@ -57,7 +63,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
       $messageQueueStorage = $this->entityTypeManager->getStorage(Message::ENTITY_TYPE_ID);
 
       foreach ($userIds as $userId) {
-        /** @var Message $messageQueueEntity */
+        /** @var \Drupal\ckeditor5_premium_features_notifications\Entity\Message $messageQueueEntity */
         $messageQueueEntity = $messageQueueStorage->getMessageForUserAndDocument($userId, $documentId, $documentType);
         if (!$messageQueueEntity) {
           $messageQueueEntity = $messageQueueStorage->createMessage($userId, $documentId, $documentType);

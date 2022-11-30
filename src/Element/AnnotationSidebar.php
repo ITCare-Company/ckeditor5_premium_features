@@ -16,7 +16,7 @@ class AnnotationSidebar {
    *
    * @param array $element
    *   The form element.
-   * @param CommonCollaborationSettingsInterface $collaboration_settings
+   * @param \Drupal\ckeditor5_premium_features\Utility\CommonCollaborationSettingsInterface $collaboration_settings
    *   Settings service.
    *
    * @return array

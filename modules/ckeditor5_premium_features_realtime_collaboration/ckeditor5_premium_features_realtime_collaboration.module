@@ -9,9 +9,6 @@ declare(strict_types = 1);
 
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat;
-use Drupal\Component\Utility\Crypt;
-use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Entity\EntityFormInterface;
 
 /**
  * Implements hook_library_info_build().
@@ -47,4 +44,3 @@ function ckeditor5_premium_features_realtime_collaboration_element_info_alter(ar
     $info['text_format']['#process'][] = [TextFormat::class, 'process'];
   }
 }
-

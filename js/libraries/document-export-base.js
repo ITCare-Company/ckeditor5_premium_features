@@ -1,7 +1,7 @@
 (function ($, Drupal) {
   Drupal.CKEditor5PremiumFeatures = {
 
-    editorContentExportProcessor: async function(editor, enableHighlighting = true) {
+    editorContentExportProcessor: async function (editor, enableHighlighting = true) {
       this.editor = editor;
 
       let editorContent = this.getEditorContent(enableHighlighting);
@@ -15,7 +15,7 @@
       return editorContent;
     },
 
-    getEditorContent(enableHighlighting = true) {
+    getEditorContent(enableHighlighting = TRUE) {
       return this.editor.getData( {
         showSuggestionHighlights: enableHighlighting,
       });

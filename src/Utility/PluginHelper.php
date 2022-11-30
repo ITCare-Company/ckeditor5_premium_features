@@ -7,8 +7,11 @@ namespace Drupal\ckeditor5_premium_features\Utility;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 
-class PluginHelper
-{
+/**
+ * Helper class for getting the editor toolbar plugins.
+ */
+class PluginHelper {
+
   /**
    * Returns an array of enabled toolbar plugins names.
    *
@@ -31,4 +34,5 @@ class PluginHelper
 
     return (array) json_decode($toolbars_raw);
   }
+
 }

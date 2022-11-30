@@ -11,8 +11,9 @@ use Drupal\Core\Plugin\Factory\ContainerFactory;
 /**
  * Defines a plugin manager to deal with notification_senders.
  *
- * Modules can define notification_senders in a MODULE_NAME.notification_senders.yml file contained
- * in the module's base directory. Each notification_sender has the following structure:
+ * Modules can define notification_senders in a
+ * MODULE_NAME.notification_senders.yml file contained in the module's
+ * base directory. Each notification_sender has the following structure:
  *
  * @code
  *   MACHINE_NAME:

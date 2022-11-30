@@ -137,8 +137,6 @@ class RevisionStorage extends SqlContentEntityStorage implements
       ->setDiffData($data->get('diff_data'))
       ->setPreviousVersion($data->get('previous_version'))
       ->setCurrentVersion($data->get('current_version'))
-      // When updating, we should avoid  overwriting the author id.
-    //      ->setAuthor($this->user)
       ->save();
 
     // Set the 'draft' attribute if the creator is empty.

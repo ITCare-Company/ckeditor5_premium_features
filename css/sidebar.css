@@ -72,7 +72,7 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after,
 .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
   font-size: 26px;
-  color: var(--ck-color-toolbar-border)
+  color: var(--ck-color-toolbar-border);
 }
 .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
   content: '«';

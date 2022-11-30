@@ -36,7 +36,7 @@ class RealtimeAdapter {
 
     if (!presenceListConfig.container) {
       let editorParent = this.storage.getEditorParentContainer(this.editor.sourceElement.id)
-      if (editorParent !== null) {
+      if (editorParent !== NULL) {
         presenceListConfig.container = editorParent.querySelector('.ck-presence-list-container')
       }
     }

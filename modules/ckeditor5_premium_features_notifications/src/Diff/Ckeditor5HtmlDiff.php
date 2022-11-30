@@ -11,14 +11,14 @@ use Drupal\Component\Utility\Html;
 class Ckeditor5HtmlDiff extends HtmlDiff {
 
   /**
-   * Returns a string containing joined new content parts, added to the compared document.
+   * Returns a string with content parts, added to the compared document.
    */
   public function getAddedContent(): string {
     $addedParts = [];
     $operations = $this->operations();
     foreach ($operations as $operation) {
       switch ($operation->action) {
-        case 'insert' :
+        case 'insert':
         case 'replace':
           $newWordsImploded = implode('', array_slice(
             $this->newWords,
@@ -45,13 +45,13 @@ class Ckeditor5HtmlDiff extends HtmlDiff {
   /**
    * Process passed HTML to try to fix bad HTML.
    *
-   * @param $htmlString
+   * @param string $htmlString
    *   String to be processed using \DOMDocument.
    */
-  protected function fixHtmlWithPotentiallyImproperHtml($htmlString): string {
+  protected function fixHtmlWithPotentiallyImproperHtml(string $htmlString): string {
     $document = Html::load($htmlString);
 
-    $xpath = new \DOMXPath( $document);
+    $xpath = new \DOMXPath($document);
     $bodyElement = $xpath->query('//body')->item(0);
 
     $htmlRes = '';

@@ -39,6 +39,8 @@ class SettingsForm extends ConfigFormBase {
    *   Config factory service.
    * @param \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $configHandler
    *   Module settings handler.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
+   *   Module handler service.
    */
   public function __construct(ConfigFactoryInterface $config_factory,
                               protected SettingsConfigHandlerInterface $configHandler,
@@ -186,9 +188,9 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Organization ID'),
       '#required' => $this->isRealtimeSettingsRequired(),
       '#description' =>
-        $this->t('The organization ID can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-        . '<br>'
-        . $this->t('Required for Real-time collaboration and API requests.'),
+      $this->t('The organization ID can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+      . '<br>'
+      . $this->t('Required for Real-time collaboration and API requests.'),
     ];
 
     $configuration['api_key'] = [
@@ -196,9 +198,9 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('API Key'),
       '#required' => $this->isRealtimeSettingsRequired(),
       '#description' =>
-        $this->t('The API Key can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-        . '<br>'
-        . $this->t('Required for Real-time collaboration and API requests.'),
+      $this->t('The API Key can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+      . '<br>'
+      . $this->t('Required for Real-time collaboration and API requests.'),
     ];
 
     $this->setDefaultValues($configuration);
@@ -223,9 +225,9 @@ class SettingsForm extends ConfigFormBase {
         'placeholder' => $this->configHandler->getDefaultWebSocketUrl(),
       ],
       '#description' =>
-        $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-        . '<br />'
-        . 'You can leave this field empty - system will automatically generate this URL using Organization ID field',
+      $this->t('The web socket url can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+      . '<br />'
+      . 'You can leave this field empty - system will automatically generate this URL using Organization ID field',
     ];
 
     $advanced['api_url'] = [
@@ -236,16 +238,18 @@ class SettingsForm extends ConfigFormBase {
         'placeholder' => $this->configHandler->getDefaultApiUrl(),
       ],
       '#description' =>
-        $this->t('The API base URL can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
-        . '<br />'
-        . 'You can leave this field empty - system will automatically generate this URL using Organization ID and Environment ID fields',
+      $this->t('The API base URL can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
+      . '<br />'
+      . 'You can leave this field empty - system will automatically generate this URL using Organization ID and Environment ID fields',
     ];
 
     $advanced['dll_location'] = [
       '#type' => 'textfield',
       '#title' => $this->t('DLL packages location'),
       '#description' => $this->t('Leave this field empty unless you know what you are doing. The path must end by "/"
-<br />This field supports additional token: "' .SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN . '" - replaced dynamically with the version of your CKEditor.'),
+<br />This field supports additional token: "@token" - replaced dynamically with the version of your CKEditor.', [
+    '@token' => SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN,
+]),
       '#default_value' => $this->configHandler->getDefaultDllLocation(),
       '#attributes' => [
         'placeholder' => $this->configHandler->getDefaultDllLocation(),
@@ -275,20 +279,32 @@ class SettingsForm extends ConfigFormBase {
     $min_length_message = '@name length is invalid (minimum @num characters required)';
 
     if (!empty($license_key) && strlen($license_key) < self::LICENSE_KEY_MIN_LENGTH) {
-      $form_state->setErrorByName('license_key', $this->t($min_length_message, ['@name' => 'License key', '@num' => self::LICENSE_KEY_MIN_LENGTH]));
+      $form_state->setErrorByName('license_key', $this->t($min_length_message, [
+        '@name' => 'License key',
+        '@num' => self::LICENSE_KEY_MIN_LENGTH,
+      ]));
     }
 
     if ($auth_type == 'key') {
       if (!empty($env) && strlen($env) != self::ENVIRONMENT_ID_LENGTH) {
-        $form_state->setErrorByName('env', $this->t($length_message, ['@name' => 'Environment ID', '@num' => self::ENVIRONMENT_ID_LENGTH]));
+        $form_state->setErrorByName('env', $this->t($length_message, [
+          '@name' => 'Environment ID',
+          '@num' => self::ENVIRONMENT_ID_LENGTH,
+        ]));
       }
 
       if (!empty($access_key) && strlen($access_key) != self::API_SECRET_LENGTH) {
-        $form_state->setErrorByName('access_key', $this->t($length_message, ['@name' => 'Access key', '@num' => self::API_SECRET_LENGTH]));
+        $form_state->setErrorByName('access_key', $this->t($length_message, [
+          '@name' => 'Access key',
+          '@num' => self::API_SECRET_LENGTH,
+        ]));
       }
     }
 
-    if ($this->isRealtimeSettingsRequired() && !in_array($auth_type, ['key', 'dev_token'])) {
+    if ($this->isRealtimeSettingsRequired() && !in_array($auth_type, [
+      'key',
+      'dev_token',
+    ])) {
       $form_state->setErrorByName('auth_type', $this->t('You need to choose the authorization type in order to use Realtime Collaboration features'));
     }
 

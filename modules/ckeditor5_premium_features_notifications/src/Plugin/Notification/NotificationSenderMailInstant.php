@@ -13,21 +13,32 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class NotificationSenderMailInstant extends NotificationSenderBase implements ContainerFactoryPluginInterface {
 
   /**
+   * Database connection.
+   *
    * @var \Drupal\Core\Database\Connection
    */
   protected Connection $dbConnection;
 
   /**
+   * Mail manager service.
+   *
    * @var \Drupal\Core\Mail\MailManagerInterface
    */
   protected MailManagerInterface $mailManager;
 
   /**
+   * Constructor.
+   *
    * @param array $configuration
-   * @param $plugin_id
-   * @param $plugin_definition
+   *   Configuration.
+   * @param string $plugin_id
+   *   Plugin ID.
+   * @param mixed $plugin_definition
+   *   Plugin definition.
    * @param \Drupal\Core\Database\Connection $dbConnection
+   *   Database connection.
    * @param \Drupal\Core\Mail\MailManagerInterface $mailManager
+   *   Mail manager service.
    */
   public function __construct(array $configuration,
                               $plugin_id,
@@ -85,8 +96,10 @@ class NotificationSenderMailInstant extends NotificationSenderBase implements Co
    * Returns a list of user emails.
    *
    * @param array $userIds
+   *   List of user IDs.
    *
    * @return array
+   *   List of user emails.
    */
   protected function getUserMails(array $userIds): array {
     if (empty($userIds)) {

@@ -9,11 +9,26 @@ use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\Notifica
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager;
 use Drupal\Core\Database\Connection;
 
+/**
+ * Class responsible for sending instant notifications.
+ */
 class NotificationSender {
 
   const NOTIFICATION_OPT_OUT_FIELD_TABLE = 'user__field_ck5_premium_notifications';
   const NOTIFICATION_OPT_OUT_FIELD_VALUE = 'field_ck5_premium_notifications_value';
 
+  /**
+   * Constructor.
+   *
+   * @param \Drupal\Core\Database\Connection $dbConnection
+   *   Database connection.
+   * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings $notificationSettings
+   *   Notification settings.
+   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager $senderPluginManager
+   *   Notification sender plugin manager.
+   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager $messageFactoryPluginManager
+   *   Notification message factory plugin manager.
+   */
   public function __construct(protected Connection $dbConnection,
                               protected NotificationSettings $notificationSettings,
                               protected NotificationSenderPluginManager $senderPluginManager,
@@ -24,10 +39,15 @@ class NotificationSender {
    * Sends notification mail.
    *
    * @param string $messageType
+   *   Message type.
    * @param array $recipientIds
+   *   List of user IDs.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   *   Collaboration event.
    *
    * @return bool|array
+   *   Sending status or info array.
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function sendNotification(string $messageType, array $recipientIds, CollaborationEventBase $event): bool|array {
@@ -56,7 +76,8 @@ class NotificationSender {
     if ($messageType == NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT ||
       $messageType == NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT) {
       return $this->mentionsSender($sender, $messageFactory, $recipientIds, $event, $messageType);
-    } else {
+    }
+    else {
       return $this->basicSender($sender, $messageFactory, $recipientIds, $event, $messageType);
     }
   }
@@ -65,15 +86,15 @@ class NotificationSender {
    * Internal method for executing notification sending for a mention event.
    *
    * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface $sender
-   *   Sender plugin
+   *   Sender plugin.
    * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory
-   *   Message factory plugin
+   *   Message factory plugin.
    * @param array $recipientIds
    *   User IDs.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
    *   Event entity.
    * @param string $messageType
-   *   Type of message
+   *   Type of message.
    */
   protected function mentionsSender(NotificationSenderInterface $sender,
                                     NotificationMessageFactoryInterface $messageFactory,
@@ -95,15 +116,15 @@ class NotificationSender {
    * Internal method for executing primary notification sending.
    *
    * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface $sender
-   *   Sender plugin
+   *   Sender plugin.
    * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory
-   *   Message factory plugin
+   *   Message factory plugin.
    * @param array $recipientIds
    *   User IDs.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
    *   Event entity.
    * @param string $messageType
-   *   Type of message
+   *   Type of message.
    */
   protected function basicSender(NotificationSenderInterface $sender,
                                  NotificationMessageFactoryInterface $messageFactory,
@@ -123,8 +144,10 @@ class NotificationSender {
    * Returns a list of user ids with notification consent.
    *
    * @param array $userIds
+   *   List of user IDs.
    *
    * @return array
+   *   List of user IDs.
    */
   protected function filterRecipients(array $userIds): array {
     if (empty($userIds)) {

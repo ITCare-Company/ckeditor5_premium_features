@@ -12,12 +12,20 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * Controller handling mention requests.
+ */
 class MentionAutocompleteController extends ControllerBase {
 
   /**
+   * Constructor.
+   *
    * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userProvider
+   *   User data provider.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaborationSettings
+   *   Collaboration settings.
    * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   Request stack.
    */
   public function __construct(
     protected UserDataProvider $userProvider,
@@ -40,13 +48,12 @@ class MentionAutocompleteController extends ControllerBase {
   /**
    * Method returning a json response with users matching query criteria.
    *
-   * @return \Drupal\Core\Ajax\AjaxResponse|\Symfony\Component\HttpFoundation\JsonResponse
    * @throws \Drupal\Core\Entity\EntityMalformedException
    */
   public function annotation() {
     $args = $this->requestStack->getCurrentRequest()->query;
 
-    if (empty($args->get('query')) ) {
+    if (empty($args->get('query'))) {
       return new JsonResponse([]);
     }
 

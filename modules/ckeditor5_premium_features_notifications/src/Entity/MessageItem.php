@@ -15,6 +15,8 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\user\UserInterface;
 
 /**
+ * Defines notification message item entity.
+ *
  * @ContentEntityType(
  *   id = "ckeditor5_message_item",
  *   label = @Translation("CKEditor5 Message Item"),
@@ -46,7 +48,7 @@ class MessageItem extends ContentEntityBase implements MessageItemInterface {
       ->setRequired(TRUE);
 
     $fields['entity_type'] = BaseFieldDefinition::create('string')
-      ->setLabel(t(' Item entity type'))
+      ->setLabel(t('Item entity type'))
       ->setRequired(TRUE)
       ->setSetting('machine_name', TRUE)
       ->setDescription(t('The target entity type.'));
@@ -147,7 +149,8 @@ class MessageItem extends ContentEntityBase implements MessageItemInterface {
       return $this->entityTypeManager()
         ->getStorage($this->getRelatedEntityType())
         ->load($this->getRelatedEntityId());
-    } catch (\Exception) {
+    }
+    catch (\Exception) {
       return NULL;
     }
   }
@@ -167,7 +170,8 @@ class MessageItem extends ContentEntityBase implements MessageItemInterface {
       return $this->entityTypeManager()
         ->getStorage('user')
         ->load($this->getUid());
-    } catch (\Exception) {
+    }
+    catch (\Exception) {
       return NULL;
     }
   }

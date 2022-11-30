@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Element;
 
-use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
-use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\EntityFormInterface;
 
+/**
+ * Ckeditor text format interface.
+ */
 interface Ckeditor5TextFormatInterface {
 
   public const STORAGE_KEY = 'ckeditor5-premium';
@@ -76,4 +74,5 @@ interface Ckeditor5TextFormatInterface {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function completeFormSubmit(array &$form, FormStateInterface $form_state): void;
+
 }

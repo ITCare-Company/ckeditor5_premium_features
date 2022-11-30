@@ -25,6 +25,9 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
    */
   protected SuggestionStorage $suggestionStorage;
 
+  /**
+   * Constructor.
+   */
   public function __construct(array $configuration,
                               $pluginId,
                               $pluginDefinition,
@@ -88,14 +91,14 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
    */
   public static function getSupportedMessageTypes(): array {
     return [
-      self::CKEDITOR5_MESSAGE_DEFAULT => 'Default (any update made)',
-      self::CKEDITOR5_MESSAGE_MENTION_COMMENT => 'Mentioned in a comment',
-      self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT => 'Mentioned in a document',
-      self::CKEDITOR5_MESSAGE_COMMENT_ADDED => 'New comment added',
-      self::CKEDITOR5_MESSAGE_THREAD_REPLY => 'Reply in a thread',
-      self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY => 'Reply to a suggestion',
-      self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => 'Suggestion status change',
-      self::CKEDITOR5_MESSAGE_SUGGESTION_ADDED => 'New Suggestion added',
+      self::CKEDITOR5_MESSAGE_DEFAULT => self::t('Default (any update made)'),
+      self::CKEDITOR5_MESSAGE_MENTION_COMMENT => self::t('Mentioned in a comment'),
+      self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT => self::t('Mentioned in a document'),
+      self::CKEDITOR5_MESSAGE_COMMENT_ADDED => self::t('New comment added'),
+      self::CKEDITOR5_MESSAGE_THREAD_REPLY => self::t('Reply in a thread'),
+      self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY => self::t('Reply to a suggestion'),
+      self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => self::t('Suggestion status change'),
+      self::CKEDITOR5_MESSAGE_SUGGESTION_ADDED => self::t('New Suggestion added'),
     ];
   }
 
@@ -108,10 +111,16 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
   }
 
   /**
+   * Returns message parameters.
+   *
    * @param string $messageType
+   *   Type of message.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   *   Collaboration event.
    *
    * @return array
+   *   List of parameters for a message.
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
@@ -123,7 +132,7 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
 
     $relatedEntity = $event->getRelatedEntity();
 
-    // Set the "document_type" parameter - in most cases the "node"
+    // Set the "document_type" parameter - in most cases the "node".
     if (method_exists($relatedEntity, 'getEntityTypeTargetId')) {
       $parameters[$relatedEntity->getEntityTypeTargetId()] = $relatedEntity->getReferencedEntity();
     }
@@ -144,7 +153,7 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
       case self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT:
         $user = User::load($event->getReferencedUserId());
         $parameters['marker'] = $user->getAccountName();
-      break;
+        break;
 
       case self::CKEDITOR5_MESSAGE_DEFAULT:
         $parameters['is_default'] = TRUE;

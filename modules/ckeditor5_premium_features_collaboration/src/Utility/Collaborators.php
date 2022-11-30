@@ -33,9 +33,14 @@ class Collaborators {
   protected CommentsStorage $commentsStorage;
 
   /**
+   * Constructor.
+   *
    * @param \Drupal\Core\Database\Connection $connection
+   *   Database connection.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   Entity type manager.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaborationSettings
+   *   Collaboration settings.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -112,7 +117,7 @@ class Collaborators {
   }
 
   /**
-   * Checks if the comment is a reply to a suggestion and returns the suggestion author ID.
+   * Returns suggestion author ID if comment is a suggestion reply.
    *
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment
    *   Comment to be checked.
@@ -189,7 +194,10 @@ class Collaborators {
   }
 
   /**
+   * Checks if passed thread is a thread for a suggestion entity.
+   *
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface[] $comments
+   *   Comments thread to be verified.
    */
   protected function isSuggestionThread(array $comments): bool {
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $threadComment */
@@ -223,7 +231,13 @@ class Collaborators {
     return [];
   }
 
-  public function getBodyMentions(String $body): array {
+  /**
+   * Get mentions list detected in a body.
+   *
+   * @param string $body
+   *   String body.
+   */
+  public function getBodyMentions(string $body): array {
     $marker = $this->collaborationSettings->getMentionsMarker();
     $minCharCount = $this->collaborationSettings->getMentionMinimalCharactersCount();
 

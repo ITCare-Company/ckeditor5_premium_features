@@ -2,7 +2,6 @@
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Event;
 
-use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextHelper;
 use Drupal\Component\EventDispatcher\Event;
@@ -47,7 +46,7 @@ class CollaborationEventBase extends Event {
   /**
    * Collaboration event constructor.
    *
-   * @param ContentEntityBase $relatedEntity
+   * @param \Drupal\Core\Entity\ContentEntityBase $relatedEntity
    *   Event entity.
    * @param \Drupal\Core\Session\AccountInterface $account
    *   Event account.
@@ -69,16 +68,14 @@ class CollaborationEventBase extends Event {
    * Sets related entity property.
    *
    * @param \Drupal\Core\Entity\ContentEntityBase $relatedEntity
+   *   Related entity.
    */
   public function setRelatedEntity(ContentEntityBase $relatedEntity): void {
     $this->relatedEntity = $relatedEntity;
   }
 
   /**
-   * Returns related document. It can be the same as getRelatedEntity result
-   * for some events.
-   *
-   * @return \Drupal\Core\Entity\ContentEntityBase|NULL
+   * Returns related document. It can be the same as getRelatedEntity result.
    */
   public function getRelatedDocument(): ContentEntityBase|NULL {
     $relatedEntity = $this->getRelatedEntity();
@@ -90,13 +87,14 @@ class CollaborationEventBase extends Event {
     try {
       return $relatedEntity->getReferencedEntity();
     }
-    catch (\Exception) { }
+    catch (\Exception) {
+    }
 
     return NULL;
   }
 
   /**
-   * Returns "key" attribute from the related collaboration entity or NULL if not found.
+   * Returns "key" attribute from the related collaboration entity or NULL.
    */
   public function getRelatedDocumentFieldId(): string|null {
     $relatedEntity = $this->getRelatedEntity();
@@ -111,7 +109,7 @@ class CollaborationEventBase extends Event {
   /**
    * Returns content of the proper field from related content entity.
    */
-  public function getRelatedDocumentContent(): string|NULL {
+  public function getRelatedDocumentContent(): string|null {
     if ($this->getEventType() == self::SUGGESTION_DISCARD || $this->getEventType() == self::SUGGESTION_ACCEPT) {
       return $this->getOriginalContent();
     }
@@ -139,7 +137,7 @@ class CollaborationEventBase extends Event {
    * @param bool $filterEventAuthor
    *   Flag if the current user should be filtered out of the list of users.
    */
-  public function getRelatedDocumentAuthors(bool $filterEventAuthor = true): array {
+  public function getRelatedDocumentAuthors(bool $filterEventAuthor = TRUE): array {
     $relatedDocument = $this->getRelatedDocument();
 
     $authors = [];
@@ -202,8 +200,8 @@ class CollaborationEventBase extends Event {
    */
   public static function getEventLabel(string $eventType): string {
     $supportedTypes = [
-      self::SUGGESTION_ACCEPT => 'accepted',
-      self::SUGGESTION_DISCARD => 'rejected',
+      self::SUGGESTION_ACCEPT => self::trans('accepted'),
+      self::SUGGESTION_DISCARD => self::trans('rejected'),
     ];
     if (!isset($supportedTypes[$eventType])) {
       throw new \Exception('Unsupported event type');

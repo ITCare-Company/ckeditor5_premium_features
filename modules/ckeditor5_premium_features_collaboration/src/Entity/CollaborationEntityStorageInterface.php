@@ -36,7 +36,7 @@ interface CollaborationEntityStorageInterface {
   public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface|NULL;
 
   /**
-   * Returns a list of collaboration entities attributes generated from collaboration source array.
+   * Returns a list of collaboration entities attributes.
    *
    * @param array $source_data
    *   Collaboration source array.

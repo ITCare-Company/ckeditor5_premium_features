@@ -1,4 +1,4 @@
-! function(t) {
+! function (t) {
   const e = t.en = t.en || {};
   e.dictionary = Object.assign(e.dictionary || {}, {
     "Import from Word": "Import from Word"
@@ -16,7 +16,7 @@
             Z: () => i
           });
           var o = r(758),
-            n = r.n(o)()((function(t) {
+            n = r.n(o)()((function (t) {
               return t[1]
             }));
           n.push([t.id, ":root{--ck-toolbar-spinner-size:18px}.ck-importword_status-pending{position:relative}.ck.ck-importword__spinner-container{display:none}.ck.ck-importword__spinner{border:2px solid var(--ck-color-text);border-radius:50%;border-top:2px solid transparent;height:var(--ck-toolbar-spinner-size);left:0;margin:0 auto;position:absolute;right:0;top:50%;transform:translateY(-50%);width:var(--ck-toolbar-spinner-size);z-index:1}.ck-importword_status-pending .ck.ck-importword__spinner-container{animation:rotate 1.5s linear infinite;display:block;height:var(--ck-toolbar-spinner-size);position:absolute;width:var(--ck-toolbar-spinner-size)}.ck-importword_status-pending .ck.ck-button__icon{color:transparent}@keyframes rotate{to{transform:rotate(1turn)}}", ""]);
@@ -24,23 +24,24 @@
         },
         758: t => {
           "use strict";
-          t.exports = function(t) {
+          t.exports = function (t) {
             var e = [];
-            return e.toString = function() {
-              return this.map((function(e) {
+            return e.toString = function () {
+              return this.map((function (e) {
                 var r = t(e);
                 return e[2] ? "@media ".concat(e[2], " {").concat(r, "}") : r
               })).join("")
-            }, e.i = function(t, r, o) {
+            }, e.i = function (t, r, o) {
               "string" == typeof t && (t = [
-                [null, t, ""]
+                [NULL, t, ""]
               ]);
               var n = {};
-              if (o)
+              if (o) {
                 for (var i = 0; i < this.length; i++) {
                   var s = this[i][0];
-                  null != s && (n[s] = !0)
+                  NULL != s && (n[s] = !0)
                 }
+              }
               for (var a = 0; a < t.length; a++) {
                 var c = [].concat(t[a]);
                 o && n[c[0]] || (r && (c[2] ? c[2] = "".concat(r, " and ").concat(c[2]) : c[2] = r), e.push(c))
@@ -50,18 +51,19 @@
         },
         278: (t, e, r) => {
           "use strict";
-          var o, n = function() {
+          var o, n = function () {
               return void 0 === o && (o = Boolean(window && document && document.all && !window.atob)), o
             },
-            i = function() {
+            i = function () {
               var t = {};
-              return function(e) {
+              return function (e) {
                 if (void 0 === t[e]) {
                   var r = document.querySelector(e);
-                  if (window.HTMLIFrameElement && r instanceof window.HTMLIFrameElement) try {
+                  if (window.HTMLIFrameElement && r instanceof window.HTMLIFrameElement) { try {
                     r = r.contentDocument.head
                   } catch (t) {
-                    r = null
+                    r = NULL
+                  }
                   }
                   t[e] = r
                 }
@@ -71,11 +73,12 @@
             s = [];
 
           function a(t) {
-            for (var e = -1, r = 0; r < s.length; r++)
+            for (var e = -1, r = 0; r < s.length; r++) {
               if (s[r].identifier === t) {
                 e = r;
                 break
-              } return e
+              }
+            } return e
           }
 
           function c(t, e) {
@@ -106,24 +109,25 @@
               var n = r.nc;
               n && (o.nonce = n)
             }
-            if (Object.keys(o).forEach((function(t) {
+            if (Object.keys(o).forEach((function (t) {
               e.setAttribute(t, o[t])
-            })), "function" == typeof t.insert) t.insert(e);
-            else {
+            })), "function" == typeof t.insert) { t.insert(e);
+            } else {
               var s = i(t.insert || "head");
-              if (!s) throw new Error("Couldn't find a style target. This probably means that the value for the 'insert' parameter is invalid.");
+              if (!s) { throw new Error("Couldn't find a style target. This probably means that the value for the 'insert' parameter is invalid.");
+              }
               s.appendChild(e)
             }
             return e
           }
-          var d, u = (d = [], function(t, e) {
+          var d, u = (d = [], function (t, e) {
             return d[t] = e, d.filter(Boolean).join("\n")
           });
 
           function p(t, e, r, o) {
             var n = r ? "" : o.media ? "@media ".concat(o.media, " {").concat(o.css, "}") : o.css;
-            if (t.styleSheet) t.styleSheet.cssText = u(e, n);
-            else {
+            if (t.styleSheet) { t.styleSheet.cssText = u(e, n);
+            } else {
               var i = document.createTextNode(n),
                 s = t.childNodes;
               s[e] && t.removeChild(s[e]), s.length ? t.insertBefore(i, s[e]) : t.appendChild(i)
@@ -134,38 +138,43 @@
             var o = r.css,
               n = r.media,
               i = r.sourceMap;
-            if (n ? t.setAttribute("media", n) : t.removeAttribute("media"), i && "undefined" != typeof btoa && (o += "\n/*# sourceMappingURL=data:application/json;base64,".concat(btoa(unescape(encodeURIComponent(JSON.stringify(i)))), " */")), t.styleSheet) t.styleSheet.cssText = o;
-            else {
-              for (; t.firstChild;) t.removeChild(t.firstChild);
+            if (n ? t.setAttribute("media", n) : t.removeAttribute("media"), i && "undefined" != typeof btoa && (o += "\n/*# sourceMappingURL=data:application/json;base64,".concat(btoa(unescape(encodeURIComponent(JSON.stringify(i)))), " */")), t.styleSheet) { t.styleSheet.cssText = o;
+            } else {
+              for (; t.firstChild;) { t.removeChild(t.firstChild);
+              }
               t.appendChild(document.createTextNode(o))
             }
           }
-          var f = null,
+          var f = NULL,
             m = 0;
 
           function g(t, e) {
             var r, o, n;
             if (e.singleton) {
               var i = m++;
-              r = f || (f = l(e)), o = p.bind(null, r, i, !1), n = p.bind(null, r, i, !0)
-            } else r = l(e), o = h.bind(null, r, e), n = function() {
-              ! function(t) {
-                if (null === t.parentNode) return !1;
+              r = f || (f = l(e)), o = p.bind(NULL, r, i, !1), n = p.bind(NULL, r, i, !0)
+            } else { r = l(e), o = h.bind(NULL, r, e), n = function () {
+              ! function (t) {
+                if (NULL === t.parentNode) { return !1;
+                }
                 t.parentNode.removeChild(t)
               }(r)
             };
+            }
             return o(t),
-              function(e) {
+              function (e) {
                 if (e) {
-                  if (e.css === t.css && e.media === t.media && e.sourceMap === t.sourceMap) return;
+                  if (e.css === t.css && e.media === t.media && e.sourceMap === t.sourceMap) { return;
+                  }
                   o(t = e)
-                } else n()
+                } else { n()
               }
+                }
           }
-          t.exports = function(t, e) {
+          t.exports = function (t, e) {
             (e = e || {}).singleton || "boolean" == typeof e.singleton || (e.singleton = n());
             var r = c(t = t || [], e);
-            return function(t) {
+            return function (t) {
               if (t = t || [], "[object Array]" === Object.prototype.toString.call(t)) {
                 for (var o = 0; o < r.length; o++) {
                   var n = a(r[o]);
@@ -207,7 +216,8 @@
 
     function r(o) {
       var n = e[o];
-      if (void 0 !== n) return n.exports;
+      if (void 0 !== n) { return n.exports;
+      }
       var i = e[o] = {
         id: o,
         exports: {}
@@ -220,7 +230,7 @@
         a: e
       }), e
     }, r.d = (t, e) => {
-      for (var o in e) r.o(e, o) && !r.o(t, o) && Object.defineProperty(t, o, {
+      for (var o in e) { r.o(e, o) && !r.o(t, o) && Object.defineProperty(t, o, {
         enumerable: !0,
         get: e[o]
       })
@@ -231,6 +241,7 @@
         value: !0
       })
     }, r.nc = void 0;
+      }
     var o = {};
     (() => {
       "use strict";
@@ -299,7 +310,7 @@
         p = r(492);
       class h extends t.Command {
         constructor(t) {
-          super(t), this.set("isBusy", !1), this._importMarker = null, this._undoStepBatch = null, this._abortController = null, this.on("dataInsert", ((e, r) => {
+          super(t), this.set("isBusy", !1), this._importMarker = NULL, this._undoStepBatch = NULL, this._abortController = NULL, this.on("dataInsert", ((e, r) => {
             const o = new DataTransfer;
             o.setData("text/html", r.html);
             const n = this._importMarker.getRange();
@@ -316,7 +327,8 @@
           this.isEnabled = this.i()
         }
         execute(t, e = {}) {
-          if (this.isBusy) return;
+          if (this.isBusy) { return;
+          }
           const r = this.editor.config.get("importWord"),
             o = {
               url: r.converterUrl,
@@ -329,7 +341,8 @@
           return this.s(), this.o(o).then(this.h.bind(this)).catch(this.l.bind(this)).finally(this.p.bind(this))
         }
         i() {
-          if (this.isBusy) return !1;
+          if (this.isBusy) { return !1;
+          }
           const t = this.editor.model,
             e = t.schema,
             r = t.document.selection,
@@ -360,7 +373,7 @@
           const t = this.editor.model;
           t.markers.has(this._importMarker) && t.enqueueChange(this._undoStepBatch, (t => {
             t.removeMarker(this._importMarker)
-          })), this._importMarker = null, this._undoStepBatch = null, this._abortController = null, this.isBusy = !1, this.refresh()
+          })), this._importMarker = NULL, this._undoStepBatch = NULL, this._abortController = NULL, this.isBusy = !1, this.refresh()
         }
         o({
             url: t,
@@ -386,7 +399,8 @@
           })) : Promise.reject()
         }
         l() {
-          if (this._abortController.signal.aborted) return void(0, u.logWarning)("import-word-plugin-import-cancelled");
+          if (this._abortController.signal.aborted) { return void(0, u.logWarning)("import-word-plugin-import-cancelled");
+          }
           const t = this.editor,
             e = (0, t.t)("An error occurred while importing the Word file.");
           t.plugins.get("Notification").showWarning(e), (0, u.logError)("import-word-plugin-conversion-failed")
@@ -395,10 +409,11 @@
       const f = ["config", "requires", "cloudServices.tokenUrl", "ImportWordEditing", "plugins", "init", "add", "token", "get", "CloudServices", "importWord", "editor", "createToken", "getToken", "pluginName", "define", "importWord.tokenUrl"];
       var m, g;
       m = f, g = 387,
-        function(t) {
-          for (; --t;) m.push(m.shift())
-        }(++g);
-      const v = function(t, e) {
+        function (t) {
+          for (; --t;) { m.push(m.shift())
+        }
+          }(++g);
+      const v = function (t, e) {
         return f[t -= 0]
       };
       class b extends t.Plugin {
@@ -409,7 +424,7 @@
           return [e.Notification, d.ClipboardPipeline, v("0xd")]
         }
         constructor(t) {
-          super(t), this.m = null
+          super(t), this.m = NULL
         }
         async [v("0x9")]() {
           const t = this[v("0xf")];
@@ -417,7 +432,8 @@
             converterUrl: "https://docx-converter.cke-cs.com/v2/convert/docx-html",
             tokenUrl: t[v("0x4")][v("0xc")]("cloudServices.tokenUrl"),
             defaultStyles: !1
-          }), !t[v("0x4")][v("0xc")](v("0x3"))) throw new u.CKEditorError("import-word-plugin-missing-token-url", null);
+          }), !t[v("0x4")][v("0xc")](v("0x3"))) { throw new u.CKEditorError("import-word-plugin-missing-token-url", NULL);
+          }
           const e = t[v("0x4")].get(v("0x3")),
             r = t.config.get(v("0x6"));
           this.m = e === r ? t[v("0x8")][v("0xc")](v("0xd"))[v("0xb")] : await t[v("0x8")].get("CloudServicesCore")[v("0x10")](e)[v("0x9")](), t.commands[v("0xa")](v("0xe"), new h(t))
@@ -427,10 +443,11 @@
       }
       var x, w, k = ["requires", "pluginName", "ImportWord"];
       x = k, w = 207,
-        function(t) {
-          for (; --t;) x.push(x.shift())
-        }(++w);
-      var y = function(t, e) {
+        function (t) {
+          for (; --t;) { x.push(x.shift())
+        }
+          }(++w);
+      var y = function (t, e) {
         return k[t -= 0]
       };
       class _ extends t.Plugin {

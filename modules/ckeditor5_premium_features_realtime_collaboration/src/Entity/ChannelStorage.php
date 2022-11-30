@@ -18,12 +18,14 @@ class ChannelStorage extends SqlContentEntityStorage {
   /**
    * Creates a new channel entity.
    *
-   * @param $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity item.
    * @param string $channel_id
    *   Channel ID.
    *
    * @return \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface
+   *   Channel entity.
+   *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function createChannel(EntityInterface $entity, string $channel_id): ChannelInterface {
@@ -43,7 +45,7 @@ class ChannelStorage extends SqlContentEntityStorage {
   /**
    * Returns a channel entity referencing passed entity.
    *
-   * @param $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity item.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException

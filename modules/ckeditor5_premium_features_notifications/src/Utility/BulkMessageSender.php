@@ -7,7 +7,6 @@ namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 use Drupal\ckeditor5_premium_features_notifications\Entity\Message;
 use Drupal\ckeditor5_premium_features_notifications\Entity\MessageStorage;
 use Drupal\ckeditor5_premium_features_notifications\Entity\MessageInterface;
-use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderMailBulk;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Mail\MailManagerInterface;
@@ -15,6 +14,9 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\user\Entity\User;
 use Drupal\Core\Render\RendererInterface;
 
+/**
+ * Class responsible for preparing and sending bulk messages.
+ */
 class BulkMessageSender {
 
   use StringTranslationTrait;
@@ -27,10 +29,16 @@ class BulkMessageSender {
   protected MessageStorage $messageStorage;
 
   /**
+   * Constructor.
+   *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
    * @param \Drupal\Core\Mail\MailManagerInterface $mailManager
    *   Mail manager.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   Renderer service.
+   * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings $notificationSettings
+   *   Notification settings service.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -43,20 +51,23 @@ class BulkMessageSender {
   }
 
   /**
-   * @param $message
+   * Prepares mail content.
+   *
+   * @param \Drupal\ckeditor5_premium_features_notifications\Entity\Message $message
    *   Message entity.
    *
    * @return string
-   *   Return rendered body of message.
+   *   Rendered body of message.
    *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function prepareContent(Message $message): string {
-    /** @var NotificationMessageFactoryInterface $messageFactory */
+    /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory */
     $messageFactory = $this->notificationSettings->getMessageFactoryPlugin();
 
-    $messageItems = $message->getItems(); //message entity id
+    // Message entity id.
+    $messageItems = $message->getItems();
     $body = [];
 
     foreach ($messageItems as $messageItem) {
@@ -78,12 +89,12 @@ class BulkMessageSender {
     $messageOuterWrapper = [
       '#theme' => 'notification_message_bulk',
       '#title' => $this->t('Document "@title" recent activities', [
-        '@title' => $message->getTitle()
+        '@title' => $message->getTitle(),
       ]),
       '#items' => $body,
     ];
 
-    return (String)$this->renderer->renderPlain($messageOuterWrapper);
+    return (String) $this->renderer->renderPlain($messageOuterWrapper);
   }
 
   /**
@@ -115,15 +126,14 @@ class BulkMessageSender {
   }
 
   /**
+   * Sends mail.
    *
    * @param string $title
    *   Title of message.
    * @param array $body
-   *  Body of message.
-   * @param User $user
+   *   Body of message.
+   * @param \Drupal\user\Entity\User $user
    *   User entity.
-   *
-   * @return void
    */
   private function sendMail(string $title, array $body, User $user): void {
     $params["subject"] = $title;

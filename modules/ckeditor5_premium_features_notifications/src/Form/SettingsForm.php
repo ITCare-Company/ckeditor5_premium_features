@@ -20,6 +20,16 @@ class SettingsForm extends SharedBuildConfigFormBase {
 
   const NOTIFICATION_CONFIG = 'ckeditor5_premium_features_notifications.settings';
 
+  /**
+   * Constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   Config factory.
+   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager $messageFactoryPluginManager
+   *   Notification message factory manager.
+   * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager $senderPluginManager
+   *   Notification sender plugin manager.
+   */
   public function __construct(ConfigFactoryInterface $configFactory,
                               protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager,
                               protected NotificationSenderPluginManager $senderPluginManager) {
@@ -101,7 +111,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
     $form['additional_info'] = [
       [
         '#markup' => 'The "Message body" field supports tokens that will be dynamically replaced by corresponding values.
-      Ckeditor5_premium_features module adds a special token, that is design to store notification context: <br />'
+      Ckeditor5_premium_features module adds a special token, that is design to store notification context: <br />',
       ],
       'list1' => [
         '#theme' => 'item_list',
@@ -146,7 +156,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
       // Create a grouping element using a fieldset.
       $form[$groupKey] = [
         '#type' => 'details',
-        '#title' => $this->t($messageTitle),
+        '#title' => $messageTitle,
         '#group' => 'verticaltabs',
       ];
 
@@ -192,13 +202,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
   /**
    * Returns additional description specific for passed message type.
    *
-   * @param $messageType
+   * @param string $messageType
    *   Type of message.
    *
    * @return array
    *   Render array with additional info.
    */
-  protected function getNotificationAdditionalInstruction($messageType): array {
+  protected function getNotificationAdditionalInstruction(string $messageType): array {
     return match ($messageType) {
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => [
         '#type' => 'container',
@@ -224,12 +234,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
   /**
    * Get predefined title for the notification message.
    *
-   * @param $messageType
+   * @param string $messageType
    *   Type of message.
+   *
    * @return string
    *   Predefined title.
    */
-  protected function getPredefinedTitle($messageType): String {
+  protected function getPredefinedTitle(string $messageType): String {
     return match ($messageType) {
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT => 'The document was updated.',
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT => 'You were mentioned in a comment.',
@@ -246,12 +257,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
   /**
    * Get predefined body for the notification message.
    *
-   * @param $messageType
+   * @param string $messageType
    *   Type of message.
+   *
    * @return string
    *   Predefined body.
    */
-  protected function getPredefinedBodyMessage($messageType): String {
+  protected function getPredefinedBodyMessage(string $messageType): String {
     return match ($messageType) {
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT => '<h3>Update notification</h3>
         <p>

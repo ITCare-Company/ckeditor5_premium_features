@@ -1,4 +1,3 @@
-
 import CollaborationStorage
   from "../../../../../../js/ckeditor5_plugins/collaborationStorage/src/collaborationStorage";
 
@@ -61,19 +60,19 @@ class TrackChangesAdapter {
   updateStorage(plugin, storageElement) {
     // We collect all suggestions, because we need to pass them to the backend
     // in order to be able to delete some of them.
-    var suggestions = plugin.getSuggestions({skipNotAttached: false});
+    var suggestions = plugin.getSuggestions({skipNotAttached: FALSE});
 
     for (let i in suggestions) {
-      if (suggestions[i].head != null && (suggestions[i].next != null || suggestions[i].previous != null) ) {
+      if (suggestions[i].head != NULL && (suggestions[i].next != NULL || suggestions[i].previous != NULL) ) {
         suggestions[i].setAttribute('head', suggestions[i].head.id);
       }
       if (this.trackedSuggestion.has(suggestions[i].id)) {
-        if (suggestions[i].isInContent == true) {
+        if (suggestions[i].isInContent == TRUE) {
           suggestions[i].removeAttribute('status');
         }
         continue;
       }
-      if (suggestions[i].isInContent == false) {
+      if (suggestions[i].isInContent == FALSE) {
         // Here we have a case of suggestion that was accepted/rejected before storing in DB.
         this.editor.model.document.fire('trackchanges:change:data');
         continue;

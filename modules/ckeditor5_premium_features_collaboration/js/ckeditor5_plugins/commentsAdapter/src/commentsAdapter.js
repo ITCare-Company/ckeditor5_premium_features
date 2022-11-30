@@ -1,4 +1,3 @@
-
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
@@ -85,9 +84,9 @@ class CommentsAdapter {
 
   updateStorage(plugin, storageElement) {
     storageElement.value = JSON.stringify(plugin.getCommentThreads({
-      skipNotAttached: true,
-      skipEmpty: true,
-      toJSON: true
+      skipNotAttached: TRUE,
+      skipEmpty: TRUE,
+      toJSON: TRUE
     }));
   }
 }

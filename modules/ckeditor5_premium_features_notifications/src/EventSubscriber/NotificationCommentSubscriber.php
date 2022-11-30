@@ -29,7 +29,7 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     protected NotificationSender $notificationSender,
     protected Collaborators $collaboratorsService,
     protected AccountInterface $currentUser,
-  ) { }
+  ) {}
 
   /**
    * {@inheritdoc}

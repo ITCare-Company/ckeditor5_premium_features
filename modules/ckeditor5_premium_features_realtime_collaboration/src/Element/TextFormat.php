@@ -54,7 +54,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function __construct (
+  public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
     protected CollaborationSettings $collaborationSettings,
     protected ApiAdapter $apiAdapter,
@@ -64,8 +64,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
   /**
    * {@inheritdoc}
-   *
-   * @throws \Drupal\ckeditor5_premium_features_realtime_collaboration\Ckeditor5ChannelHandlingException
    */
   public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array {
     $this->generalProcessElement($element, $form_state, $complete_form, $this->collaborationSettings);
@@ -89,10 +87,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $form_object = $form_state->getFormObject();
 
     if ($this->isFormTypeSupported($form_object)) {
-      /** @var EntityInterface $entity */
+      /** @var \Drupal\Core\Entity\EntityInterface $entity */
       $entity = $form_object->getEntity();
 
-      $channel_id =  NestedArray::getValue(
+      $channel_id = NestedArray::getValue(
         $form_state->getUserInput(),
         [...$element['#parents'], 'entity_channel']
       ) ?? $this->getChannelId($entity->uuid() . $element_unique_id);
@@ -102,7 +100,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
         if ($channel instanceof ChannelInterface) {
           $channel_id = $channel->id();
-        } else {
+        }
+        else {
           throw new Ckeditor5ChannelHandlingException("Problem occured while creating Ckeditor5 Channel Entity");
         }
       }
@@ -113,7 +112,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         '#type' => 'hidden',
         '#value' => $channel_id,
       ];
-    } else {
+    }
+    else {
       $channel_id = $this->getChannelId($element_drupal_id . random_bytes(5));
     }
 
@@ -165,7 +165,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @param string $entity_channel
    *   Desired entity channel ID.
    *
-   * @return \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface
+   * @return \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface|null
+   *   Channel entity if exists.
+   *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
@@ -176,7 +178,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     try {
       return $this->channelStorage->createChannel($entity, $entity_channel);
-    } catch (EntityStorageException) {
+    }
+    catch (EntityStorageException) {
       return $this->channelStorage->loadByEntity($entity);
     }
   }
@@ -184,13 +187,13 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   /**
    * Generate unique channel ID value.
    *
-   * @param String $uuid
+   * @param string $uuid
    *   The node uuid.
    *
    * @return string
    *   The channelID.
    */
-  private function getChannelId(String $uuid): string {
+  private function getChannelId(string $uuid): string {
     return substr(Crypt::hashBase64($uuid), 0, 36);
   }
 

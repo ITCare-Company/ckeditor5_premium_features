@@ -13,11 +13,20 @@ use Drupal\Core\Config\ImmutableConfig;
  */
 class NotificationSettings {
 
+  /**
+   * Config object.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
   private ImmutableConfig $notificationSettings;
 
   /**
+   * Constructor.
+   *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   Config factory.
    * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager $messageFactoryPluginManager
+   *   Message factory plugin manager.
    */
   public function __construct(ConfigFactoryInterface $configFactory,
                               protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager) {
@@ -27,30 +36,30 @@ class NotificationSettings {
   /**
    * Returns message subject for specified notification type.
    *
-   * @param $messageType
+   * @param string $messageType
    *   Type of message.
    */
-  public function getMessageSubject($messageType): string {
+  public function getMessageSubject(string $messageType): string {
     return $this->notificationSettings->get($messageType . '__subject');
   }
 
   /**
    * Returns message body for specified notification type.
    *
-   * @param $messageType
+   * @param string $messageType
    *   Type of message.
    */
-  public function getMessageBody($messageType): string {
+  public function getMessageBody(string $messageType): string {
     return $this->notificationSettings->get($messageType . '__message')['value'];
   }
 
   /**
    * Returns TRUE if specified message type is enabled.
    *
-   * @param $messageType
+   * @param string $messageType
    *   Type of message.
    */
-  public function isMessageEnabled($messageType): bool {
+  public function isMessageEnabled(string $messageType): bool {
     return (bool) $this->notificationSettings->get($messageType . '__enabled');
   }
 
@@ -62,7 +71,11 @@ class NotificationSettings {
   }
 
   /**
+   * Returns selected notification message factory plugin.
+   *
    * @return \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface|null
+   *   Notification message factory plugin.
+   *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function getMessageFactoryPlugin(): ?NotificationMessageFactoryInterface {
@@ -87,4 +100,5 @@ class NotificationSettings {
   public function getBulkNotificationsInterval(): int {
     return $this->notificationSettings->get('sender_bulk_interval') ?? 0;
   }
+
 }
