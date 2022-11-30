@@ -51,7 +51,7 @@ class MentionsIntegration {
         data: {
           query: queryText,
         },
-        success: function (result) {
+        success: function(result) {
           resolve( result );
         }
       });

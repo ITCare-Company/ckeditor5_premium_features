@@ -1,3 +1,4 @@
+
 import CollaborationStorage
   from "../../../../../../js/ckeditor5_plugins/collaborationStorage/src/collaborationStorage";
 
@@ -25,10 +26,10 @@ class RevisionHistoryAdapter {
       return;
     }
 
-    const addRevisionOnSubmit = drupalSettings.ckeditor5Premium.addRevisionOnSubmit ? ? FALSE;
+    const addRevisionOnSubmit = drupalSettings.ckeditor5Premium.addRevisionOnSubmit ?? false;
     const revisionHistoryConfig = this.editor.config._config.revisionHistory;
     let revisionHistoryContainer = document.querySelector(this.storage.getSourceDataSelector('revisionHistoryContainer'));
-    if (revisionHistoryContainer === NULL) {
+    if (revisionHistoryContainer === null) {
       revisionHistoryContainer = revisionHistoryConfig.viewerEditorElement.parentNode;
     }
 
@@ -61,7 +62,7 @@ class RevisionHistoryAdapter {
       await tracker.saveRevision({name: 'Entity save'});
     }
     storageElement.value = JSON.stringify(plugin.getRevisions({
-      toJSON: TRUE
+      toJSON: true
     }));
   }
 }

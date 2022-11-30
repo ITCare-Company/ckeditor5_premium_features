@@ -9,7 +9,7 @@ class DisableCollaborationMarkersInCaption {
     const commentCommand = editor.commands.get( 'addCommentThread' );
     const trackChangesCommand = editor.commands.get( 'trackChanges' );
 
-    editor.set( 'disabledCommands', FALSE );
+    editor.set( 'disabledCommands', false );
 
     if ( editor.plugins.has( 'DrupalImage' ) && editor.plugins.has('TrackChangesEditing') ) {
       const tcEditing = editor.plugins.get( 'TrackChangesEditing' );
@@ -40,18 +40,18 @@ class DisableCollaborationMarkersInCaption {
       if ( ancestor.name == 'caption' ) {
         commentCommand.forceDisabled( 'drupal-premium-features' );
         trackChangesCommand.forceDisabled( 'drupal-premium-features' );
-        trackChangesCommand.value = FALSE;
+        trackChangesCommand.value = false;
 
-        editor.set( 'disabledCommands', TRUE );
+        editor.set( 'disabledCommands', true );
       } else {
         if ( editor.disabledCommands ) {
           commentCommand.clearForceDisabled( 'drupal-premium-features' );
           trackChangesCommand.clearForceDisabled( 'drupal-premium-features' );
 
-          editor.set( 'disabledCommands', FALSE );
+          editor.set( 'disabledCommands', false );
 
           if ( tcOriginalValue ) {
-            trackChangesCommand.value = TRUE;
+            trackChangesCommand.value = true;
           }
         }
       }

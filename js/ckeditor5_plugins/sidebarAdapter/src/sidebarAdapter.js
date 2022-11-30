@@ -5,7 +5,7 @@ class SidebarAdapter {
     this.editor = editor;
     this.storage = new CollaborationStorage(editor);
     this.toolbar = this.editor.ui._toolbarConfig.items
-    this.sidebarMode = drupalSettings.ckeditor5SidebarMode ? ? 'auto';
+    this.sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'auto';
     this.resizeThreshold = 0;
 
     let sidebar_column = this.getSidebarWrapper(this.editor.sourceElement.id);
@@ -59,7 +59,7 @@ class SidebarAdapter {
   }
 
   destroy() {
-    this.sidebarVisibilityModify(TRUE);
+    this.sidebarVisibilityModify(true);
     let toggle = this.getSidebarToggle()
     if (toggle) {
       toggle.remove();
@@ -79,7 +79,7 @@ class SidebarAdapter {
     let editorParent = this.storage.getEditorParentContainer(elementId);
 
     if (!editorParent) {
-      return NULL;
+      return null;
     }
 
     return editorParent.querySelector('.ck-sidebar-wrapper');
@@ -133,7 +133,7 @@ class SidebarAdapter {
    */
   getSidebarToggle() {
     if (!this.sidebar || typeof this.sidebar === 'undefined') {
-      return NULL;
+      return null;
     }
     return this.sidebar.querySelector(".ck-sidebar-auto-toggle");
   }
@@ -160,7 +160,7 @@ class SidebarAdapter {
   /**
    * Setup sidebar mode depends on resolution.
    */
-  updateCkeditorMode = function () {
+  updateCkeditorMode = function() {
     // TODO: move to config?
     let w = document.documentElement.clientWidth;
     let newMode = w >= 1200 ? 'wideSidebar' : (w >= 500 ? 'narrowSidebar' : 'inline');

@@ -23,22 +23,22 @@ Object.entries(entries).forEach((mapping) => {
   const bc = {
     mode: 'production',
     optimization: {
-      minimize: TRUE,
+      minimize: true,
       minimizer: [
         new TerserPlugin({
           terserOptions: {
             format: {
-              comments: FALSE,
+              comments: false,
             },
           },
           test: /\.js(\?.*)?$/i,
-          extractComments: FALSE,
+          extractComments: false,
         }),
       ],
       moduleIds: 'named',
     },
     entry: {
-      path: dir + `${name} / src / index.js`,
+      path: dir + `${name}/src/index.js`,
     },
     output: {
       path: path.resolve(dir, '../build'),

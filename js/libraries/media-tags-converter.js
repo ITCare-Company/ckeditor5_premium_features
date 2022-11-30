@@ -58,7 +58,7 @@
       return new Promise( resolve => {
         $.post('/ck5/api/media-tags/' + format, {
           media: JSON.stringify(elementAttributes),
-        }).done(function (result) {
+        }).done(function(result) {
           resolve(result);
         });
       });

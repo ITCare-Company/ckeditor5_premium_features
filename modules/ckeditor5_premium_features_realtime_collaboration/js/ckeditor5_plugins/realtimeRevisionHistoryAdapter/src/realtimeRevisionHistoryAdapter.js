@@ -20,7 +20,7 @@ class RealtimeRevisionHistoryAdapter {
     this.elementId = this.editor.sourceElement.dataset.ckeditor5PremiumElementId;
     const revisionHistoryConfig = this.editor.config._config.revisionHistory;
 
-    revisionHistoryConfig.viewerContainer = document.querySelector(`.revision - history - container - data[data - ckeditor5 - premium - element - id = "${this.elementId}"]`);
+    revisionHistoryConfig.viewerContainer = document.querySelector(`.revision-history-container-data[data-ckeditor5-premium-element-id="${this.elementId}"]`);
     revisionHistoryConfig.viewerEditorElement = revisionHistoryConfig.viewerContainer.querySelector('.revision-viewer-editor');
     revisionHistoryConfig.viewerSidebarContainer = revisionHistoryConfig.viewerContainer.querySelector('.revision-viewer-sidebar');
     revisionHistoryConfig.editorContainer = revisionHistoryConfig.viewerContainer.parentElement.querySelector('.ck-editor-sidebar-wrapper');
