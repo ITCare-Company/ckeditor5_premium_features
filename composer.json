@@ -24,6 +24,7 @@
         "php": "^8.0",
         "ext-dom": "*",
         "drupal/core": "^9.3 || ^10.0",
-        "firebase/php-jwt": "^6.0"
+        "firebase/php-jwt": "^6.0",
+        "caxy/php-htmldiff": "~0.1.14"
     }
 }

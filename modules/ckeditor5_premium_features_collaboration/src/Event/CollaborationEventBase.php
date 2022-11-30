@@ -215,8 +215,8 @@ class CollaborationEventBase extends Event {
   /**
    * Returns the original document content string.
    */
-  public function getOriginalContent(): string {
-    return $this->originalContent;
+  public function getOriginalContent(): ?string {
+    return $this->originalContent ?? NULL;
   }
 
   /**

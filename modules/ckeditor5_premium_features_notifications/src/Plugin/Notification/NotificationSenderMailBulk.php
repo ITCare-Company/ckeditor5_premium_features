@@ -49,6 +49,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
     $documentType = $message->getSourceEvent()->getRelatedDocument()->getEntityTypeId();
 
     $documentContent = $message->getSourceEvent()->getRelatedDocumentContent();
+    $originalContent = $message->getSourceEvent()->getOriginalContent();
 
     try {
 
@@ -71,7 +72,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
           $message->getSourceEvent()->getRelatedEntity()->id(),
           $message->getType(),
           $message->getSourceEvent()->getEventType(),
-          $documentContent,
+          empty($originalContent) ? $documentContent : $originalContent,
           $message->getSourceEvent()->getAccount()->id(),
           $message->getSourceEvent()->getRelatedDocumentFieldId(),
           $message->getSourceEvent()->getReferencedUserId()

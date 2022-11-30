@@ -197,7 +197,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     ];
 
     foreach ($items as $item_key => $item_parents) {
-      $this->dispatchDocumentUpdateEvent($entity, $item_key);
+      $source_original_data = $this->getFormElementOriginalValue($form, $item_parents);
+      $this->dispatchDocumentUpdateEvent($entity, $item_key, $source_original_data);
 
       $suggestion_source_data = $this->getFormElementSourceData($form_state, $item_parents, 'track_changes');
       $suggestion_ids = $this->suggestionStorage->getSuggestionEntityIDs($suggestion_source_data);
@@ -205,7 +206,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
       foreach ($features as $key => $storage) {
         $source_data = $this->getFormElementSourceData($form_state, $item_parents, $key);
-        $source_original_data = $this->getFormElementOriginalValue($form, $item_parents);
 
         if ($source_original_data) {
           $storage->setDocumentOriginalValue($source_original_data);
@@ -343,13 +343,16 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @param string $key
    *   Key value for source field.
    */
-  protected function dispatchDocumentUpdateEvent(FieldableEntityInterface $entity, string $key): void {
+  protected function dispatchDocumentUpdateEvent(FieldableEntityInterface $entity, string $key, string $original_value = NULL): void {
     $event = new CollaborationEventBase(
       $entity,
       User::load($this->currentUser->id()),
       CollaborationEventBase::DOCUMENT_UPDATED
     );
     $event->setRelatedDocumentKey($key);
+    if (!empty($original_value)) {
+      $event->setOriginalContent($original_value);
+    }
 
     $this->eventDispatcher->dispatch(
       $event,

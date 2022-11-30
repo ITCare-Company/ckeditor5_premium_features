@@ -37,6 +37,8 @@ services:
       - '@ckeditor5_premium_features_notifications.notification_sender'
       - '@ckeditor5_premium_features_collaboration.collaborators'
       - '@current_user'
+      - '@ckeditor5_premium_features_notifications.diff'
+      - '@plugin.manager.filter'
     tags:
       - { name: 'event_subscriber' }
 
@@ -56,3 +58,8 @@ services:
 
   ckeditor5_premium_features_notifications.notification_context_helper:
     class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextHelper
+
+  ckeditor5_premium_features_notifications.diff:
+    class: Drupal\ckeditor5_premium_features_notifications\Diff\Ckeditor5Diff
+    arguments:
+      - '@ckeditor5_premium_features_notifications.notification_context_helper'

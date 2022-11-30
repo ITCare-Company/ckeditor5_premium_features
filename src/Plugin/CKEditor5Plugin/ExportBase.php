@@ -256,6 +256,9 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     ];
     foreach ($adds as $placement) {
       unset($config[$placement]['actions']);
+      if (!isset($config[$placement])) {
+        continue;
+      }
       if (is_array($config[$placement])) {
         foreach ($config[$placement] as $key => $item) {
           if ($item['html'] == '') {

@@ -258,6 +258,9 @@ class SettingsForm extends SharedBuildConfigFormBase {
           I need to tell you that node <a href="[node:url]"><strong>[node:title]</strong></a> was modified by [user:name] (at [node:changed])
         </p>
         <p>
+            [ckeditor5_premium_notification:context]
+        </p>
+        <p>
           Best regards,
         </p>',
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT => '<h3>You were mentioned in a comment</h3>

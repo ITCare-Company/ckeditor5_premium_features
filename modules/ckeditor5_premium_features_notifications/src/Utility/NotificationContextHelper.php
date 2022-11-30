@@ -71,8 +71,8 @@ class NotificationContextHelper {
    * @param string $mentionMarker
    *   Mention marker that should be found in a document.
    */
-  public function getDocumentMentionContext(FieldableEntityInterface $document, string $key, string $mentionMarker): array {
-    $context = self::getDocumentFieldContent($document, $key);
+  public function getDocumentMentionContext(FieldableEntityInterface $document, string $key, string $mentionMarker, string $originalContent = NULL): array {
+    $context = !empty($originalContent) ? $originalContent : self::getDocumentFieldContent($document, $key);
 
     $snippets = $this->getHighlightedDocumentMention($context, $mentionMarker);
 
@@ -127,7 +127,7 @@ class NotificationContextHelper {
 
     $result = [];
 
-    foreach ($this->getHighlightedContext($context, $query) as $markup) {
+    foreach ($this->getMatchingContext($context, $query) as $markup) {
       $fixedMarkup = str_replace('</comment-start>', '', $markup);
       $fixedMarkup = str_replace('<comment-end', '<span', $fixedMarkup);
       $fixedMarkup = str_replace('</comment-end>', '</comment-start>', $fixedMarkup);
@@ -149,7 +149,7 @@ class NotificationContextHelper {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
    *   Suggestion to be highlighted.
    */
-  public function getHighlightedSuggestion(string $context, SuggestionInterface $suggestion): array  {
+  public function getHighlightedSuggestion(string $context, SuggestionInterface $suggestion): array {
     $suggestionChain = $suggestion->getChain();
 
     $queryOrParts = [];
@@ -161,7 +161,7 @@ class NotificationContextHelper {
 
     $result = [];
 
-    foreach ($this->getHighlightedContext($context, $query) as $markup) {
+    foreach ($this->getMatchingContext($context, $query) as $markup) {
       $fixedMarkup = str_replace('</suggestion-start>', '', $markup);
       $fixedMarkup = str_replace('<suggestion-end', '<span', $fixedMarkup);
       $fixedMarkup = str_replace('</suggestion-end>', '</suggestion-start>', $fixedMarkup);
@@ -188,10 +188,53 @@ class NotificationContextHelper {
     $query = "//span[contains(@data-mention,'$mentionMarker')]";
 
     $snippets = [];
-    foreach ($this->getHighlightedContext($context, $query) as $markup) {
+    foreach ($this->getMatchingContext($context, $query) as $markup) {
       $snippets[] = [
         '#markup' => $markup,
       ];
+    }
+
+    return $snippets;
+  }
+
+  /**
+   * Prepares a render array with highlighted document detected changes.
+   *
+   * @param string $context
+   *   Document content.
+   * @param bool $onlyInserts
+   *   Flag for determining type of changes to be selected.
+   */
+  public function getHighlightedDocumentChanges(string $context, bool $onlyInserts = FALSE): array {
+    $query = "//ins" . ($onlyInserts ? '' : '|//del');
+
+    $snippets = [];
+    foreach ($this->getMatchingContext($context, $query, FALSE) as $markup) {
+      $snippets[] = [
+        '#markup' => $markup,
+      ];
+    }
+
+    return [
+      '#theme' => 'notification_message_single',
+      '#context' => $snippets,
+    ];
+  }
+
+  /**
+   * Returns an array of strings with document detected changes.
+   *
+   * @param string $context
+   *   Document content.
+   * @param bool $onlyInserts
+   *   Flag for determining type of changes to be selected.
+   */
+  public function getDocumentChangesContext(string $context, bool $onlyInserts = FALSE): array {
+    $query = "//ins" . ($onlyInserts ? '' : '|//del');
+
+    $snippets = [];
+    foreach ($this->getMatchingContext($context, $query, FALSE) as $markup) {
+      $snippets[] = $markup;
     }
 
     return $snippets;
@@ -231,16 +274,17 @@ class NotificationContextHelper {
   }
 
   /**
-   * Returns matching HTML elements list with addition class used for highlighting matched element.
+   * Returns matching HTML elements list with optional addition class used for highlighting matched element.
    *
-   * @param $context
+   * @param string $context
    *   Source HTML content.
-   * @param $query
+   * @param string $query
    *   XPATH query that will be used for selecting matching HTML part.
+   * @param bool $highlight
    *
    * @return array
    */
-  protected function getHighlightedContext($context, $query): array {
+  protected function getMatchingContext(string $context, string $query, bool $highlight = TRUE): array {
     $document = Html::load($context);
 
     $contextParts = [];
@@ -250,13 +294,66 @@ class NotificationContextHelper {
     if (!empty($matchingElements)) {
       /** @var \DOMElement $element */
       foreach ($matchingElements as $element) {
-        $element->setAttribute('class', $element->getAttribute('class') . ' highlight-item');
-
-        $contextParts[] = $element->ownerDocument->saveXML($element->parentNode);
+        if ($highlight) {
+          $element->setAttribute('class', $element->getAttribute('class') . ' highlight-item');
+        }
+        // Let's prevent selecting same parent node several times (when several changes were made in the same paragraph tag).
+        $parentNode = $this->selectElementParentNode($element);
+        $parentPath = $parentNode->getNodePath();
+        $matched = FALSE;
+        foreach ($contextParts as $nodePath => $html) {
+          if (stripos($nodePath, $parentPath) !== FALSE) {
+            // Let's prefer to choose parent node instead of it;s children.
+            unset($contextParts[$nodePath]);
+          }
+          elseif (stripos($parentPath, $nodePath) !== FALSE) {
+            // Let's also detect a situation when we select a child of a parent that we already selected.
+            $matched = TRUE;
+            break;
+          }
+        }
+        if (!$matched) {
+          $contextParts[$parentPath] = $element->ownerDocument->saveXML($parentNode);
+        }
       }
     }
 
     return $contextParts;
+  }
+
+  /**
+   * Checks passed element parent nodes and returns the that is enough to representing its context.
+   *
+   * @param \DOMElement $element
+   *   Element to search the best parent node.
+   *
+   * @return \DOMElement|\DOMNode
+   *   Returns element parent node or element itself if no parent node found.
+   */
+  protected function selectElementParentNode(\DOMElement $element) {
+    $acceptingParentNodeTypes = array_flip([
+      'div',
+      'p',
+      'table'
+    ]);
+
+    $parentNode = $element->parentNode;
+    while ($parentNode) {
+      if (isset($acceptingParentNodeTypes[$parentNode->nodeName]) || $parentNode->parentNode == NULL) {
+        break;
+      }
+      $value = $parentNode->nodeValue;
+      if (mb_strlen(strip_tags($value)) > 255) {
+        break;
+      }
+      $parentNode = $parentNode->parentNode;
+    }
+
+    if (!$parentNode) {
+      return $element;
+    }
+
+    return $parentNode;
   }
 
 }
