@@ -9,14 +9,18 @@ use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Utility\Token;
 use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Contracts\Translation\TranslatorTrait;
 
 /**
  * Default class used for notification_messages_factory plugins.
  */
 class NotificationMessageFactoryDefault extends PluginBase implements NotificationMessageFactoryInterface, ContainerFactoryPluginInterface {
+
+  use TranslatorTrait;
 
   /**
    * Suggestion entities storage.
@@ -91,14 +95,14 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
    */
   public static function getSupportedMessageTypes(): array {
     return [
-      self::CKEDITOR5_MESSAGE_DEFAULT => self::t('Default (any update made)'),
-      self::CKEDITOR5_MESSAGE_MENTION_COMMENT => self::t('Mentioned in a comment'),
-      self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT => self::t('Mentioned in a document'),
-      self::CKEDITOR5_MESSAGE_COMMENT_ADDED => self::t('New comment added'),
-      self::CKEDITOR5_MESSAGE_THREAD_REPLY => self::t('Reply in a thread'),
-      self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY => self::t('Reply to a suggestion'),
-      self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => self::t('Suggestion status change'),
-      self::CKEDITOR5_MESSAGE_SUGGESTION_ADDED => self::t('New Suggestion added'),
+      self::CKEDITOR5_MESSAGE_DEFAULT => new TranslatableMarkup('Default (any update made)'),
+      self::CKEDITOR5_MESSAGE_MENTION_COMMENT => new TranslatableMarkup('Mentioned in a comment'),
+      self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT => new TranslatableMarkup('Mentioned in a document'),
+      self::CKEDITOR5_MESSAGE_COMMENT_ADDED => new TranslatableMarkup('New comment added'),
+      self::CKEDITOR5_MESSAGE_THREAD_REPLY => new TranslatableMarkup('Reply in a thread'),
+      self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY => new TranslatableMarkup('Reply to a suggestion'),
+      self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS => new TranslatableMarkup('Suggestion status change'),
+      self::CKEDITOR5_MESSAGE_SUGGESTION_ADDED => new TranslatableMarkup('New Suggestion added'),
     ];
   }
 

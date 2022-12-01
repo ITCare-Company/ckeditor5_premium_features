@@ -246,10 +246,9 @@ class SettingsForm extends ConfigFormBase {
     $advanced['dll_location'] = [
       '#type' => 'textfield',
       '#title' => $this->t('DLL packages location'),
-      '#description' => $this->t('Leave this field empty unless you know what you are doing. The path must end by "/"
-<br />This field supports additional token: "@token" - replaced dynamically with the version of your CKEditor.', [
-    '@token' => SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN,
-]),
+      '#description' => $this->t('Leave this field empty unless you know what you are doing. The path must end by "/"<br />This field supports additional token: "@token" - replaced dynamically with the version of your CKEditor.', [
+        '@token' => SettingsConfigHandlerInterface::DLL_PATH_VERSION_TOKEN,
+      ]),
       '#default_value' => $this->configHandler->getDefaultDllLocation(),
       '#attributes' => [
         'placeholder' => $this->configHandler->getDefaultDllLocation(),
@@ -274,12 +273,8 @@ class SettingsForm extends ConfigFormBase {
     $auth_type = $form_state->getValue('auth_type');
     $license_key = $form_state->getValue('license_key');
 
-    // Below is the validation of credential fields value length.
-    $length_message = '@name length is invalid (@num characters required)';
-    $min_length_message = '@name length is invalid (minimum @num characters required)';
-
     if (!empty($license_key) && strlen($license_key) < self::LICENSE_KEY_MIN_LENGTH) {
-      $form_state->setErrorByName('license_key', $this->t($min_length_message, [
+      $form_state->setErrorByName('license_key', $this->t('@name length is invalid (minimum @num characters required)', [
         '@name' => 'License key',
         '@num' => self::LICENSE_KEY_MIN_LENGTH,
       ]));
@@ -287,14 +282,14 @@ class SettingsForm extends ConfigFormBase {
 
     if ($auth_type == 'key') {
       if (!empty($env) && strlen($env) != self::ENVIRONMENT_ID_LENGTH) {
-        $form_state->setErrorByName('env', $this->t($length_message, [
+        $form_state->setErrorByName('env', $this->t('@name length is invalid (@num characters required)', [
           '@name' => 'Environment ID',
           '@num' => self::ENVIRONMENT_ID_LENGTH,
         ]));
       }
 
       if (!empty($access_key) && strlen($access_key) != self::API_SECRET_LENGTH) {
-        $form_state->setErrorByName('access_key', $this->t($length_message, [
+        $form_state->setErrorByName('access_key', $this->t('@name length is invalid (@num characters required)', [
           '@name' => 'Access key',
           '@num' => self::API_SECRET_LENGTH,
         ]));
