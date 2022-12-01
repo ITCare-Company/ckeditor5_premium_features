@@ -19,7 +19,8 @@ function ckeditor5_premium_features_collaboration_requirements($phase): array {
         'description' => t('You cannot install CKEditor 5 Realtime Collaboration and CKEditor 5 Non-realtime Collaboration modules at the same time.'),
         'severity' => REQUIREMENT_ERROR,
       ];
-    } else {
+    }
+    else {
       define('COLLABORATION_INSTALLING', TRUE);
     }
   }

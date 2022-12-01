@@ -75,7 +75,7 @@ class UserDataProvider {
   }
 
   /**
-   * Returns users matching specified query with privilege to be mentioned in annotations.
+   * Returns users matching specified query with privilege to be mentioned.
    *
    * @param string $query
    *   Username query phrase.

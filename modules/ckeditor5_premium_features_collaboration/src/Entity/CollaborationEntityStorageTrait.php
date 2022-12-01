@@ -26,13 +26,13 @@ trait CollaborationEntityStorageTrait {
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The context entity.
-   * @param $item_key_filter
+   * @param string|null $item_key_filter
    *   Key attribute that is used to filter results with different values.
    *
    * @return array|\Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface[]
    *   The entities matching the given entity.
    */
-  public function loadByEntity(EntityInterface $entity, $item_key_filter = NULL): array {
+  public function loadByEntity(EntityInterface $entity, string $item_key_filter = NULL): array {
     if (!$entity->id()) {
       return [];
     }
@@ -66,7 +66,7 @@ trait CollaborationEntityStorageTrait {
   }
 
   /**
-   * Returns a list of collaboration entities attributes generated from collaboration source array.
+   * Returns a list of collaboration entities attributes.
    *
    * @param array $source_data
    *   Collaboration source array.
@@ -109,8 +109,6 @@ trait CollaborationEntityStorageTrait {
 
   /**
    * Returns stored document original value or NULL if not set.
-   *
-   * @return string|null
    */
   public function getDocumentOriginalValue(): ?string {
     return $this->originalDocument ?? NULL;

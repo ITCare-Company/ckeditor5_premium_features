@@ -161,7 +161,8 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
 
     if (!$override_global) {
       $config->initWithData(['converter_options' => $global_options]);
-    } else {
+    }
+    else {
       $config->initWithData($this->configuration);
     }
 
@@ -208,13 +209,14 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $this->processConfigCleanup($format_config);
 
     /*
-     * Here we are merging two configurations, from the custom settings form nad from the text format plugin page.
-     * The current order, means that the plugin settings will overwrite the custom settings form values.
+     * Here we are merging two configurations, from the custom settings form
+     * and from the text format plugin page. The current order, means that
+     * the plugin settings will overwrite the custom settings form values.
      */
     $merged_config = NestedArray::mergeDeepArray([
-        $global_config,
-        $format_config,
-      ], TRUE);
+      $global_config,
+      $format_config,
+    ], TRUE);
 
     $adds = [
       'header',

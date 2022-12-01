@@ -34,7 +34,8 @@ interface NotificationMessageFactoryInterface {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
    *   Collaboration event object.
    *
-   * @return \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageInterface|NULL
+   * @return \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageInterface|null
+   *   Notification message entity.
    */
   public function getMessage(string $messageType, CollaborationEventBase $event): NotificationMessageInterface|NULL;
 
@@ -45,4 +46,5 @@ interface NotificationMessageFactoryInterface {
    *   Type of the message.
    */
   public static function isMessageTypeSupported(string $messageType): bool;
+
 }

@@ -24,8 +24,6 @@ class NotificationContextHelper {
    *   Unique key ID to collect document value from.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $entity
    *   Collaboration entity.
-   *
-   * @return array
    */
   public function getFullContext(FieldableEntityInterface $document, string $key, CollaborationEntityInterface $entity): array {
     $context = self::getDocumentFieldContent($document, $key);
@@ -40,8 +38,6 @@ class NotificationContextHelper {
    *   A string with a document content.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $entity
    *   Collaboration entity.
-   *
-   * @return array
    */
   public function getFullContextFromDocument(string $context, CollaborationEntityInterface $entity): array {
     $thread = $this->renderEntityThread($entity);
@@ -70,6 +66,8 @@ class NotificationContextHelper {
    *   Unique key ID to collect document value from.
    * @param string $mentionMarker
    *   Mention marker that should be found in a document.
+   * @param string|null $originalContent
+   *   Alternative document content that should be used if present.
    */
   public function getDocumentMentionContext(FieldableEntityInterface $document, string $key, string $mentionMarker, string $originalContent = NULL): array {
     $context = !empty($originalContent) ? $originalContent : self::getDocumentFieldContent($document, $key);
@@ -89,8 +87,6 @@ class NotificationContextHelper {
    *   Document entity with fields.
    * @param string $key
    *   Unique field key.
-   *
-   * @return mixed|null
    */
   public static function getDocumentFieldContent(FieldableEntityInterface $document, string $key): ?string {
     if (!$key) {
@@ -120,10 +116,10 @@ class NotificationContextHelper {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface $comment
    *   Comment to be highlighted.
    */
-  public function getHighlightedComment(string $context, CommentInterface $comment): array  {
+  public function getHighlightedComment(string $context, CommentInterface $comment): array {
     $threadID = $comment->getThreadId();
 
-    $query="//comment-start[contains(@name,'$threadID')]";
+    $query = "//comment-start[contains(@name,'$threadID')]";
 
     $result = [];
 
@@ -133,7 +129,7 @@ class NotificationContextHelper {
       $fixedMarkup = str_replace('</comment-end>', '</comment-start>', $fixedMarkup);
 
       $result[] = [
-        '#markup' =>  $fixedMarkup,
+        '#markup' => $fixedMarkup,
         '#allowed_tags' => self::getNotificationAllowedTags(),
       ];
     }
@@ -157,7 +153,7 @@ class NotificationContextHelper {
       $chainSuggestionId = $suggestion->id();
       $queryOrParts[] = "contains(@name,'$chainSuggestionId')";
     }
-    $query='//suggestion-start[' . implode(' or ', $queryOrParts) . ']';
+    $query = '//suggestion-start[' . implode(' or ', $queryOrParts) . ']';
 
     $result = [];
 
@@ -167,7 +163,7 @@ class NotificationContextHelper {
       $fixedMarkup = str_replace('</suggestion-end>', '</suggestion-start>', $fixedMarkup);
 
       $result[] = [
-        '#markup' =>  $fixedMarkup,
+        '#markup' => $fixedMarkup,
         '#allowed_tags' => self::getNotificationAllowedTags(),
       ];
     }
@@ -247,6 +243,7 @@ class NotificationContextHelper {
    *   Collaboration entity that is a part of a thread.
    *
    * @return array
+   *   List of render arrays representing collaboration thread.
    */
   public function renderEntityThread(CollaborationEntityInterface $entity): array {
     $result = [];
@@ -263,9 +260,10 @@ class NotificationContextHelper {
    * Returns a list of additional collaboration tags.
    *
    * @return array
+   *   List of allowed tags for notification contexts.
    */
   public static function getNotificationAllowedTags(): array {
-    return  array_merge(Xss::getAdminTagList(), [
+    return array_merge(Xss::getAdminTagList(), [
       'suggestion-start',
       'suggestion-end',
       'comment-start',
@@ -274,22 +272,24 @@ class NotificationContextHelper {
   }
 
   /**
-   * Returns matching HTML elements list with optional addition class used for highlighting matched element.
+   * Returns elements list with optional class for highlighting matched element.
    *
    * @param string $context
    *   Source HTML content.
    * @param string $query
    *   XPATH query that will be used for selecting matching HTML part.
    * @param bool $highlight
+   *   Flag to determine if a found element should receive highlight class.
    *
    * @return array
+   *   List of string representing matching element context.
    */
   protected function getMatchingContext(string $context, string $query, bool $highlight = TRUE): array {
     $document = Html::load($context);
 
     $contextParts = [];
 
-    $xpath = new \DOMXPath( $document);
+    $xpath = new \DOMXPath($document);
     $matchingElements = $xpath->query($query);
     if (!empty($matchingElements)) {
       /** @var \DOMElement $element */
@@ -297,7 +297,8 @@ class NotificationContextHelper {
         if ($highlight) {
           $element->setAttribute('class', $element->getAttribute('class') . ' highlight-item');
         }
-        // Let's prevent selecting same parent node several times (when several changes were made in the same paragraph tag).
+        // Let's prevent selecting same parent node several times (when several
+        // changes were made in the same paragraph tag).
         $parentNode = $this->selectElementParentNode($element);
         $parentPath = $parentNode->getNodePath();
         $matched = FALSE;
@@ -307,7 +308,8 @@ class NotificationContextHelper {
             unset($contextParts[$nodePath]);
           }
           elseif (stripos($parentPath, $nodePath) !== FALSE) {
-            // Let's also detect a situation when we select a child of a parent that we already selected.
+            // Let's also detect a situation when we select a child of a parent
+            // that we already selected.
             $matched = TRUE;
             break;
           }
@@ -322,7 +324,7 @@ class NotificationContextHelper {
   }
 
   /**
-   * Checks passed element parent nodes and returns the that is enough to representing its context.
+   * Checks element parents and returns one that is suitable for a context.
    *
    * @param \DOMElement $element
    *   Element to search the best parent node.
@@ -334,7 +336,7 @@ class NotificationContextHelper {
     $acceptingParentNodeTypes = array_flip([
       'div',
       'p',
-      'table'
+      'table',
     ]);
 
     $parentNode = $element->parentNode;

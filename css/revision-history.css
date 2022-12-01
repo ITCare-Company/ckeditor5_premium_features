@@ -1,14 +1,14 @@
 .revision-viewer-container-data,
 .revision-history-container-data {
-    display: none;
+  display: none;
 }
 
 .editor-container {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    position: relative;
-    width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  position: relative;
+  width: 100%;
 }
 
 .ck-editor__main .ck-content:not(.ck-comment__input *) {
@@ -16,7 +16,7 @@
 }
 
 .revision-history-container-data > .editor-container > .ck-editor {
-    width: 75%;
+  width: 75%;
 }
 
 .revision-viewer-sidebar {
@@ -33,7 +33,7 @@
   border: none;
 }
 
-.revision-history-container-data .ck.ck-editor__main{
+.revision-history-container-data .ck.ck-editor__main {
   border-top: 1px solid var(--ck-color-toolbar-border);
 }
 

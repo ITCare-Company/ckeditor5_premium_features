@@ -23,11 +23,16 @@ interface NotificationMessageInterface {
    * Returns the message body array.
    *
    * @return string[]
+   *   Message body strings list.
    */
   public function getMessageBody(): array;
 
   /**
+   * Returns source collaboration event.
+   *
    * @return \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
+   *   Collaboration event.
    */
   public function getSourceEvent(): CollaborationEventBase;
+
 }

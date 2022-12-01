@@ -17,6 +17,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
 
+  /**
+   * Collaboration filter.
+   *
+   * @var \Drupal\ckeditor5_premium_features\Plugin\Filter\FilterCollaboration
+   */
   protected FilterCollaboration $filterCollaboration;
 
   /**
@@ -28,6 +33,12 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
    *   Collaborators service.
    * @param \Drupal\Core\Session\AccountInterface $currentUser
    *   Current user.
+   * @param \Drupal\ckeditor5_premium_features_notifications\Diff\Ckeditor5DiffInterface $ckeditor5Diff
+   *   Ckeditor5 diff service.
+   * @param \Drupal\filter\FilterPluginManager $filterPluginManager
+   *   Filter plugin manager.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function __construct(
     protected NotificationSender $notificationSender,
@@ -59,7 +70,8 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
     $body = $event->getRelatedDocumentContent();
     $previousBody = $event->getOriginalContent();
 
-    // Let's cleanup the incoming body, to not send notifications about added collaboration tags (track changes, comments)
+    // Let's cleanup the incoming body, to not send notifications
+    // about added collaboration tags (track changes, comments)
     $body = $this->filterCollaboration->process($body, NULL);
     $previousBody = $this->filterCollaboration->process($previousBody, NULL);
 
@@ -73,7 +85,8 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
       }
 
       $event->setOriginalContent($changeContext);
-    } else {
+    }
+    else {
       $difference = $body;
     }
 

@@ -1,6 +1,5 @@
 <?php
 
-
 declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Plugin\CKEditor5Plugin;
@@ -12,7 +11,6 @@ use Drupal\ckeditor5_premium_features\Utility\PluginHelper;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
-use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -34,7 +32,8 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
    *   The parent plugin arguments.
    */
   public function __construct(
-    protected PluginHelper $pluginHelper, ...$parent_arguments
+    protected PluginHelper $pluginHelper,
+  ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
   }
@@ -107,4 +106,3 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
   }
 
 }
-

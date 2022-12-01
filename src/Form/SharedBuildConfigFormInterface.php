@@ -31,4 +31,5 @@ interface SharedBuildConfigFormInterface {
    * Returns route name for the settings page.
    */
   public static function getSettingsRouteName(): string;
+
 }

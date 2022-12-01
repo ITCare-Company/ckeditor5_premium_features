@@ -11,8 +11,9 @@ use Drupal\Core\Plugin\Factory\ContainerFactory;
 /**
  * Defines a plugin manager to deal with notification_messages_factory.
  *
- * Modules can define notification_messages in a MODULE_NAME.notification_messages_factory.yml file contained
- * in the module's base directory. Each notification_message has the following structure:
+ * Modules can define notification_messages in a
+ * MODULE_NAME.notification_messages_factory.yml file contained in the module's
+ * base directory. Each notification_message has the following structure:
  *
  * @code
  *   MACHINE_NAME:

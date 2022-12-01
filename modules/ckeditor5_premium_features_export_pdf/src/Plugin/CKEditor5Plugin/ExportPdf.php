@@ -24,19 +24,19 @@ class ExportPdf extends ExportBase {
         'format' => NULL,
         'margin_top' => [
           'value' => NULL,
-          'units' => NULL
+          'units' => NULL,
         ],
         'margin_bottom' => [
           'value' => NULL,
-          'units' => NULL
+          'units' => NULL,
         ],
         'margin_left' => [
           'value' => NULL,
-          'units' => NULL
+          'units' => NULL,
         ],
         'margin_right' => [
           'value' => NULL,
-          'units' => NULL
+          'units' => NULL,
         ],
         'page_orientation' => NULL,
         'header_html' => NULL,

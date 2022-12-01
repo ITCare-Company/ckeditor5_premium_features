@@ -30,8 +30,6 @@ interface CommentInterface {
 
   /**
    * Returns comment thread that the current entity is a part of.
-   *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface[]
    */
   public function getThread(): array;
 
@@ -45,8 +43,6 @@ interface CommentInterface {
 
   /**
    * Returns content without HTML markup.
-   *
-   * @return string|null
    */
   public function getContentPlain(): string|null;
 
@@ -70,6 +66,7 @@ interface CommentInterface {
    * Sets the is_reply attribute value.
    *
    * @param bool $is_reply
+   *   Is reply flag.
    */
   public function setIsReply(bool $is_reply): void;
 

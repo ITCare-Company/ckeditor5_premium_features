@@ -157,4 +157,5 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
 
     return $attributes['position'] ?? -1;
   }
+
 }

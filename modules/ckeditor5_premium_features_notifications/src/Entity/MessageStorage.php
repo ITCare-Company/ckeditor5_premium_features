@@ -47,7 +47,7 @@ class MessageStorage extends SqlContentEntityStorage {
       'uid' => $userId,
       'entity_id' => $documentId,
       'entity_type' => $documentType,
-      'sent' => 0
+      'sent' => 0,
     ]);
 
     if (empty($result)) {
@@ -57,11 +57,24 @@ class MessageStorage extends SqlContentEntityStorage {
     return reset($result);
   }
 
-  public function createMessage($userID, $entityId, $entityType) {
+  /**
+   * Creates message entity.
+   *
+   * @param string $userID
+   *   User ID.
+   * @param string $entityId
+   *   Entity ID.
+   * @param string $entityType
+   *   Entity type.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface|mixed
+   *   Returns created entity.
+   */
+  public function createMessage(string $userID, string $entityId, string $entityType) {
     return parent::create([
       'uid' => $userID,
       'entity_type' => $entityType,
-      'entity_id' => $entityId
+      'entity_id' => $entityId,
     ]);
   }
 
@@ -70,6 +83,9 @@ class MessageStorage extends SqlContentEntityStorage {
    *
    * @param int $range
    *   Max quantity of getting messages.
+   * @param int $timeInterval
+   *   Time interval in minutes.
+   *
    * @return array
    *   Array of message entities.
    */
@@ -85,7 +101,7 @@ class MessageStorage extends SqlContentEntityStorage {
         $desiredTimestamp = new \DateTime();
         $desiredTimestamp->sub(new \DateInterval('PT' . $timeInterval . 'M'));
 
-        $query->condition( 'updated',  $desiredTimestamp->getTimestamp(), '<=');
+        $query->condition('updated', $desiredTimestamp->getTimestamp(), '<=');
       }
       catch (\Exception $e) {
         $this->error("Exception occurred when searching for bulk messages: @error <br /> <br /><pre>@trace</pre>", [
@@ -126,4 +142,5 @@ class MessageStorage extends SqlContentEntityStorage {
       $item->delete();
     }
   }
+
 }

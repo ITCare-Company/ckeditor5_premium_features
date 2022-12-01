@@ -130,8 +130,6 @@ interface CollaborationEntityInterface {
 
   /**
    * Returns key attribute value.
-   *
-   * @return string|null
    */
   public function getKey(): string|null;
 

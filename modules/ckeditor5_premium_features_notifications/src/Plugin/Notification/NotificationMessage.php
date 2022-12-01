@@ -10,12 +10,16 @@ use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
 class NotificationMessage implements NotificationMessageInterface {
 
   /**
+   * Constructor.
+   *
    * @param string $type
    *   Type of message.
    * @param string $subject
    *   Message subject.
    * @param string $body
    *   Message body.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $sourceEvent
+   *   Collaboration source event.
    */
   public function __construct(
     protected string $type,

@@ -198,4 +198,5 @@ class Suggestion extends CollaborationEntityBase implements SuggestionInterface 
     );
 
   }
+
 }

@@ -6,7 +6,7 @@ use Drupal\editor\EditorXssFilter\Standard;
 use Drupal\filter\FilterFormatInterface;
 
 /**
- * Extends the standard text editor XSS filter in order to keep collaboration attributes in the HTML.
+ * Ckeditor XSS filter class to keep collaboration attributes in the HTML.
  */
 class CollaborationXSSFilter extends Standard {
 
@@ -53,7 +53,7 @@ class CollaborationXSSFilter extends Standard {
       'suggestion-start',
       'suggestion-end',
       'comment-start',
-      'comment-end'
+      'comment-end',
     ];
 
     $attributePattern = '[^<>]+name=[^<>]+';

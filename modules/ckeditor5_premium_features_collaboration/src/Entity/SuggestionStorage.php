@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
-use Drupal\ckeditor5_premium_features_collaboration\Event\SuggestionEvent;
 use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Access\AccessException;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -25,8 +24,10 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
    *
    * @param \Drupal\Core\Session\AccountProxyInterface $user
    *   THe current user object.
+   * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher
+   *   Event dispatcher service.
    * @param mixed ...$parent_arguments
-   *   The parent paramters.
+   *   The parent parameters.
    */
   public function __construct(
     protected AccountProxyInterface $user,
@@ -77,7 +78,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
 
     $raw_attributes = $data->get('attributes');
     if (!empty($raw_attributes['status'])) {
-      // Here we skip adding the entity, because it was already accepted/rejected.
+      // Skip adding the entity, because it was already accepted/rejected.
       return NULL;
     }
 
