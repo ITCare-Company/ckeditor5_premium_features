@@ -19,12 +19,12 @@ trait CKeditorDateFormatterTrait {
   /**
    * Formats time in the described format.
    *
-   * @param string $time
+   * @param int $time
    *   Time to be formatted.
    * @param string $format
    *   Format name.
    */
-  public function format(string $time, string $format = 'medium'): string {
+  public function format(int $time, string $format = 'medium'): string {
     if (!$this->dateFormatter) {
       $this->dateFormatter = \Drupal::service('date.formatter');
     }
