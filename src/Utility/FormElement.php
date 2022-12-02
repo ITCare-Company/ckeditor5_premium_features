@@ -38,6 +38,7 @@ class FormElement {
         'B4' => new TranslatableMarkup('B4'),
         'B5' => new TranslatableMarkup('B5'),
       ],
+      '#ajax' => FALSE,
     ];
   }
 
@@ -58,6 +59,7 @@ class FormElement {
         'portrait' => new TranslatableMarkup('Portrait'),
         'landscape' => new TranslatableMarkup('Landscape'),
       ],
+      '#ajax' => FALSE,
     ];
   }
 
@@ -93,12 +95,14 @@ class FormElement {
         '#title' => 'HTML',
         '#default_value' => $options[$index]['html'] ?? NULL,
         '#prefix' => $index > 0 ? '<br />' : '',
+        '#ajax' => FALSE,
       ];
 
       $fieldset[$index]['css'] = [
         '#type' => 'textarea',
         '#title' => 'CSS',
         '#default_value' => $options[$index]['css'] ?? NULL,
+        '#ajax' => FALSE,
       ];
 
       $fieldset[$index]['type'] = [
@@ -111,6 +115,7 @@ class FormElement {
           'odd' => new TranslatableMarkup('Odd'),
           'first' => new TranslatableMarkup('First'),
         ],
+        '#ajax' => FALSE,
       ];
     }
 
@@ -166,10 +171,10 @@ class FormElement {
    *   Form element.
    * @param string $type
    *   Type of margin field to be added.
-   * @param array|string $margin_config
+   * @param array|string|null $margin_config
    *   Current margin configuration values.
    */
-  public static function marginElement(array &$element, string $type, array|string $margin_config): void {
+  public static function marginElement(array &$element, string $type, array|string $margin_config = NULL): void {
     $matching_keys = [];
     if (!is_array($margin_config)) {
       if (preg_match('/(\d+)([^\s]+)/', $margin_config ?? '', $matching_keys)) {
@@ -216,6 +221,7 @@ class FormElement {
         '#wrapper_attributes' => [
           'style' => 'margin-top: 0; margin-bottom: 0;',
         ],
+        '#ajax' => FALSE,
       ],
     ];
   }
