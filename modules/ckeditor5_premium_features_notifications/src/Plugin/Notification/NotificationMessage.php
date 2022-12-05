@@ -3,6 +3,7 @@
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\Core\Render\Markup;
 
 /**
  * Used for storing basic information about notification message.
@@ -39,7 +40,7 @@ class NotificationMessage implements NotificationMessageInterface {
    * {@inheritdoc}
    */
   public function getMessageBody(): array {
-    return [$this->body];
+    return [Markup::create($this->body)];
   }
 
   /**
