@@ -1,5 +1,5 @@
 mention users:
-  title: 'Permission to mention uses.'
+  title: 'Permission to mention users.'
   description: 'Permission to mention privileged users.'
 
 to be mentioned:
