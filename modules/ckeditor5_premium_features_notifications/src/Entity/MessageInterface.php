@@ -43,7 +43,7 @@ interface MessageInterface {
                              string $messageContent,
                              string $uid,
                              string $key,
-                             string $refUid): int;
+                             string $refUid = NULL): int;
 
   /**
    * Returns related message items.
