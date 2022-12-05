@@ -58,9 +58,6 @@ services:
 
   ckeditor5_premium_features_notifications.notification_context_helper:
     class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextHelper
-    arguments:
-      - '@url_generator'
-      - '@language_manager'
 
   ckeditor5_premium_features_notifications.diff:
     class: Drupal\ckeditor5_premium_features_notifications\Diff\Ckeditor5Diff

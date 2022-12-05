@@ -9,25 +9,11 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Language\LanguageManagerInterface;
-use Drupal\Core\Routing\UrlGeneratorInterface;
 
 /**
  * Class offering helper methods for collecting notification context.
  */
 class NotificationContextHelper {
-
-  /**
-   * NotificationContextHelper constructor.
-   *
-   * @param \Drupal\Core\Routing\UrlGeneratorInterface $urlGenerator
-   *   Url generator.
-   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
-   *   Language Manager.
-   */
-  public function __construct(protected UrlGeneratorInterface $urlGenerator,
-                              protected LanguageManagerInterface $languageManager) {
-  }
 
   /**
    * Collects a context for a collaboration entity using a document entity.
@@ -299,8 +285,6 @@ class NotificationContextHelper {
    *   List of string representing matching element context.
    */
   protected function getMatchingContext(string $context, string $query, bool $highlight = TRUE): array {
-    $this->changeContextRelativeUrlsToAbsolute($context);
-
     $document = Html::load($context);
 
     $contextParts = [];
@@ -313,7 +297,6 @@ class NotificationContextHelper {
         if ($highlight) {
           $element->setAttribute('class', $element->getAttribute('class') . ' highlight-item');
         }
-
         // Let's prevent selecting same parent node several times (when several
         // changes were made in the same paragraph tag).
         $parentNode = $this->selectElementParentNode($element);
@@ -373,22 +356,6 @@ class NotificationContextHelper {
     }
 
     return $parentNode;
-  }
-
-  /**
-   * Converts all root-relative URLs to absolute URLs.
-   *
-   * @param string $context
-   *   Document content.
-   */
-  protected function changeContextRelativeUrlsToAbsolute(string &$context): void {
-    $urlOptions = [
-      'absolute' => TRUE,
-      'language' => $this->languageManager->getCurrentLanguage(),
-    ];
-    $hostUrl = $this->urlGenerator->generateFromRoute('<front>', [], $urlOptions);
-    $hostUrl = rtrim($hostUrl, "/");
-    $context = HTML::transformRootRelativeUrlsToAbsolute($context, $hostUrl);
   }
 
 }
