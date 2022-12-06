@@ -101,7 +101,9 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
         $users = array_diff($users, [$this->currentUser->id()]);
         if (!empty($users)) {
           $mentionEvent = clone $event;
-          $mentionEvent->setOriginalContent($this->ckeditor5Diff->getDiffAddedContext());
+          $mentionEvent->setOriginalContent(
+            $this->ckeditor5Diff->getDiffAddedContext()
+          );
 
           $this->notificationSender->sendNotification(
             NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT,

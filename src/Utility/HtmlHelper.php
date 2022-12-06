@@ -95,7 +95,8 @@ class HtmlHelper {
     $startingElement = $xpath->query($queryStart)->item(0);
     $endingElement = $xpath->query($queryEnd)->item(0);
 
-    if ($startingElement->parentNode->getNodePath() === $endingElement->parentNode->getNodePath()) {
+    if (!isset($startingElement->parentNode) || !isset($endingElement->parentNode) ||
+      $startingElement->parentNode->getNodePath() === $endingElement->parentNode->getNodePath()) {
       return;
     }
 

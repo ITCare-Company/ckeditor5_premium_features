@@ -175,17 +175,34 @@ class NotificationContextHelper {
       $chainSuggestionId = $suggestion->id();
       $queryOrParts[] = "contains(@name,'$chainSuggestionId')";
     }
-    $query = '//suggestion-start[' . implode(' or ', $queryOrParts) . ']';
+    $matchingSelectRule = implode(' or ', $queryOrParts);
 
+    $document = Html::load($context);
+
+    $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'suggestion', $matchingSelectRule);
+
+    foreach ($queryOrParts as $chainPart) {
+      $this->htmlHelper->convertCollaborationTagsWrappings($document, 'suggestion', $chainPart);
+    }
+
+    $fixedMarkup = $this->htmlHelper->getInnerHtml($document);
+
+    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*insertion[^<>]*></suggestion-start>#si', '<ins>', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*insertion[^<>]*></suggestion-end>#si', '</ins>', $fixedMarkup);
+
+    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*deletion[^<>]*></suggestion-start>#si', '<del>', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*deletion[^<>]*></suggestion-end>#si', '</del>', $fixedMarkup);
+
+    $fixedMarkup = preg_replace('#<ins>\s*</ins>#si', '', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<del>\s*</del>#si', '', $fixedMarkup);
+
+
+    $query = '//ins|//del';
     $result = [];
 
-    foreach ($this->getMatchingContext($context, $query) as $markup) {
-      $fixedMarkup = str_replace('</suggestion-start>', '', $markup);
-      $fixedMarkup = str_replace('<suggestion-end', '<span', $fixedMarkup);
-      $fixedMarkup = str_replace('</suggestion-end>', '</suggestion-start>', $fixedMarkup);
-
+    foreach ($this->getMatchingContext($fixedMarkup, $query, FALSE) as $markup) {
       $result[] = [
-        '#markup' => $fixedMarkup,
+        '#markup' => $markup,
         '#allowed_tags' => self::getNotificationAllowedTags(),
       ];
     }

@@ -30,7 +30,7 @@ interface MessageInterface {
    *   ID of the message item author.
    * @param string $key
    *   ID of the field with related document.
-   * @param string $refUid
+   * @param string|null $refUid
    *   ID of optionally referenced user.
    *
    * @return int

@@ -83,7 +83,7 @@ class BulkMessageSender {
         ],
       ];
 
-      $messageItem->delete();
+//      $messageItem->delete();
     }
 
     $messageOuterWrapper = [
@@ -118,10 +118,10 @@ class BulkMessageSender {
         $this->sendMail($message->getTitle(), [$body], $user);
       }
 
-      $message->set('sent', 1);
-      $message->save();
-
-      $this->messageStorage->cleanMessageItems($message);
+//      $message->set('sent', 1);
+//      $message->save();
+//
+//      $this->messageStorage->cleanMessageItems($message);
     }
   }
 
