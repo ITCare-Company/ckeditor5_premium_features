@@ -217,7 +217,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         if ($storage instanceof CollaborationSuggestionDependingStorageInterface) {
           $storage->setSuggestionIds($suggestion_ids);
         }
-        if ($storage instanceof CollaborationContentFilteringStorageInterface) {
+        if ($storage instanceof CollaborationContentFilteringStorageInterface
+            && $filter_format instanceof FilterFormatInterface) {
           $storage->setSourceFilterFormat($filter_format);
         }
 
@@ -298,7 +299,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   Type of the data stored.
    */
   private function getFormElementSourceData(FormStateInterface $form_state, array $item_parents, string $key): array {
-    $source = $form_state->getValue([...$item_parents, $key]);
+    $source = $form_state->getValue([...$item_parents, $key]) ?? '';
 
     return (array) json_decode($source, TRUE);
   }
