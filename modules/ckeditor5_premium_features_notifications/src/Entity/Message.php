@@ -100,7 +100,7 @@ class Message extends ContentEntityBase implements MessageInterface {
                              string $messageContent,
                              string $uid,
                              string $key,
-                             string|null $refUid = NULL): int {
+                             string $refUid = NULL): int {
     $saveResult = $this->entityTypeManager()->getStorage(MessageItemInterface::ENTITY_TYPE_ID)
       ->create([
         'message_id' => $this->id(),
@@ -145,6 +145,7 @@ class Message extends ContentEntityBase implements MessageInterface {
             if (!$entity) {
               break;
             }
+
             if (isset($groupedMessageItems[$entity->getThreadId()])) {
               /** @var \Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface $previousMessageItem */
               $previousMessageItem = $groupedMessageItems[$entity->getThreadId()];

@@ -40,7 +40,7 @@ class NotificationContextHelper {
   public function getFullContext(FieldableEntityInterface $document, string $key, CollaborationEntityInterface $entity): array {
     $context = self::getDocumentFieldContent($document, $key);
 
-    return $this->getFullContextFromDocument($context, $entity);
+    return is_string($context) ? $this->getFullContextFromDocument($context, $entity) : [];
   }
 
   /**

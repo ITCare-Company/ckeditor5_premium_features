@@ -73,18 +73,21 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#type' => 'textarea',
       '#title' => t('Header'),
       '#default_value' => $config->get($options_key . '.header_html'),
+      '#ajax' => FALSE,
     ];
 
     $options['footer_html'] = [
       '#type' => 'textarea',
       '#title' => t('Footer'),
       '#default_value' => $config->get($options_key . '.footer_html'),
+      '#ajax' => FALSE,
     ];
 
     $options['header_and_footer_css'] = [
       '#type' => 'textarea',
       '#title' => t('Header and footer css'),
       '#default_value' => $config->get($options_key . '.header_and_footer_css'),
+      '#ajax' => FALSE,
     ];
 
     return $form;
