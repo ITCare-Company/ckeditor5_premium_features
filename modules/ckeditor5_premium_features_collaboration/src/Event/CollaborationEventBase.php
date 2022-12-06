@@ -7,6 +7,7 @@ use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextH
 use Drupal\Component\EventDispatcher\Event;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
 /**
@@ -200,8 +201,8 @@ class CollaborationEventBase extends Event {
    */
   public static function getEventLabel(string $eventType): string {
     $supportedTypes = [
-      self::SUGGESTION_ACCEPT => self::trans('accepted'),
-      self::SUGGESTION_DISCARD => self::trans('rejected'),
+      self::SUGGESTION_ACCEPT => new TranslatableMarkup('accepted'),
+      self::SUGGESTION_DISCARD => new TranslatableMarkup('rejected'),
     ];
     if (!isset($supportedTypes[$eventType])) {
       throw new \Exception('Unsupported event type');
