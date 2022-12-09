@@ -3,6 +3,7 @@
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
+use Drupal\ckeditor5_premium_features\Utility\HtmlHelper;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
@@ -14,6 +15,17 @@ use Drupal\Core\Entity\FieldableEntityInterface;
  * Class offering helper methods for collecting notification context.
  */
 class NotificationContextHelper {
+
+  /**
+   * Constructor.
+   *
+   * @param \Drupal\ckeditor5_premium_features\Utility\HtmlHelper $htmlHelper
+   *   Collaboration HTML helper.
+   */
+  public function __construct(
+    protected HtmlHelper $htmlHelper
+  ) {
+  }
 
   /**
    * Collects a context for a collaboration entity using a document entity.
@@ -119,17 +131,27 @@ class NotificationContextHelper {
   public function getHighlightedComment(string $context, CommentInterface $comment): array {
     $threadID = $comment->getThreadId();
 
-    $query = "//comment-start[contains(@name,'$threadID')]";
+    $matchingSelectRule = "contains(@name,'$threadID')";
+
+    $document = Html::load($context);
+
+    $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'comment', $matchingSelectRule);
+
+    $this->htmlHelper->convertCollaborationTagsWrappings($document, 'comment', $matchingSelectRule);
+
+    $fixedMarkup = $this->htmlHelper->getInnerHtml($document);
+
+    $fixedMarkup = preg_replace('#<comment-start[^<>]*></comment-start>#si', '<comment>', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<comment-end[^<>]*></comment-end>#si', '</comment>', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<comment>\s*</comment>#si', '', $fixedMarkup);
+
+    $query = "//comment";
 
     $result = [];
 
-    foreach ($this->getMatchingContext($context, $query) as $markup) {
-      $fixedMarkup = str_replace('</comment-start>', '', $markup);
-      $fixedMarkup = str_replace('<comment-end', '<span', $fixedMarkup);
-      $fixedMarkup = str_replace('</comment-end>', '</comment-start>', $fixedMarkup);
-
+    foreach ($this->getMatchingContext($fixedMarkup, $query, FALSE) as $markup) {
       $result[] = [
-        '#markup' => $fixedMarkup,
+        '#markup' => $markup,
         '#allowed_tags' => self::getNotificationAllowedTags(),
       ];
     }
@@ -153,17 +175,34 @@ class NotificationContextHelper {
       $chainSuggestionId = $suggestion->id();
       $queryOrParts[] = "contains(@name,'$chainSuggestionId')";
     }
-    $query = '//suggestion-start[' . implode(' or ', $queryOrParts) . ']';
+    $matchingSelectRule = implode(' or ', $queryOrParts);
 
+    $document = Html::load($context);
+
+    $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'suggestion', $matchingSelectRule);
+
+    foreach ($queryOrParts as $chainPart) {
+      $this->htmlHelper->convertCollaborationTagsWrappings($document, 'suggestion', $chainPart);
+    }
+
+    $fixedMarkup = $this->htmlHelper->getInnerHtml($document);
+
+    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*insertion[^<>]*></suggestion-start>#si', '<ins>', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*insertion[^<>]*></suggestion-end>#si', '</ins>', $fixedMarkup);
+
+    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*deletion[^<>]*></suggestion-start>#si', '<del>', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*deletion[^<>]*></suggestion-end>#si', '</del>', $fixedMarkup);
+
+    $fixedMarkup = preg_replace('#<ins>\s*</ins>#si', '', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<del>\s*</del>#si', '', $fixedMarkup);
+
+
+    $query = '//ins|//del';
     $result = [];
 
-    foreach ($this->getMatchingContext($context, $query) as $markup) {
-      $fixedMarkup = str_replace('</suggestion-start>', '', $markup);
-      $fixedMarkup = str_replace('<suggestion-end', '<span', $fixedMarkup);
-      $fixedMarkup = str_replace('</suggestion-end>', '</suggestion-start>', $fixedMarkup);
-
+    foreach ($this->getMatchingContext($fixedMarkup, $query, FALSE) as $markup) {
       $result[] = [
-        '#markup' => $fixedMarkup,
+        '#markup' => $markup,
         '#allowed_tags' => self::getNotificationAllowedTags(),
       ];
     }
@@ -268,6 +307,9 @@ class NotificationContextHelper {
       'suggestion-end',
       'comment-start',
       'comment-end',
+      'comment',
+      'del',
+      'ins',
     ]);
   }
 
@@ -299,7 +341,7 @@ class NotificationContextHelper {
         }
         // Let's prevent selecting same parent node several times (when several
         // changes were made in the same paragraph tag).
-        $parentNode = $this->selectElementParentNode($element);
+        $parentNode = $this->htmlHelper->selectElementParentNode($element);
         $parentPath = $parentNode->getNodePath();
         $matched = FALSE;
         foreach ($contextParts as $nodePath => $html) {
@@ -321,41 +363,6 @@ class NotificationContextHelper {
     }
 
     return $contextParts;
-  }
-
-  /**
-   * Checks element parents and returns one that is suitable for a context.
-   *
-   * @param \DOMElement $element
-   *   Element to search the best parent node.
-   *
-   * @return \DOMElement|\DOMNode
-   *   Returns element parent node or element itself if no parent node found.
-   */
-  protected function selectElementParentNode(\DOMElement $element) {
-    $acceptingParentNodeTypes = array_flip([
-      'div',
-      'p',
-      'table',
-    ]);
-
-    $parentNode = $element->parentNode;
-    while ($parentNode) {
-      if (isset($acceptingParentNodeTypes[$parentNode->nodeName]) || $parentNode->parentNode == NULL) {
-        break;
-      }
-      $value = $parentNode->nodeValue;
-      if (mb_strlen(strip_tags($value)) > 255) {
-        break;
-      }
-      $parentNode = $parentNode->parentNode;
-    }
-
-    if (!$parentNode) {
-      return $element;
-    }
-
-    return $parentNode;
   }
 
 }

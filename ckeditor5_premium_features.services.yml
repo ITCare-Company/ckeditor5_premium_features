@@ -29,6 +29,9 @@ services:
   ckeditor5_premium_features.plugin_helper:
     class: \Drupal\ckeditor5_premium_features\Utility\PluginHelper
 
+  ckeditor5_premium_features.html_helper:
+    class: \Drupal\ckeditor5_premium_features\Utility\HtmlHelper
+
   ckeditor5_premium_features.api_adapter:
     class: Drupal\ckeditor5_premium_features\Utility\ApiAdapter
     arguments:

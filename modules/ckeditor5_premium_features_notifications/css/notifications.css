@@ -16,6 +16,8 @@
   --ck-color-suggestion-widget-deletion-background-active: hsla(345, 71%, 45%, .07);
   --ck-color-suggestion-widget-format-background: hsla(191, 90%, 40%, .09);
   --ck-color-suggestion-widget-format-background-active: hsla(191, 90%, 40%, .16);
+  --ck-color-comment-marker: hsl(55, 98%, 83%);
+  --ck-color-comment-marker-active: hsl(55, 98%, 68%);
 }
 
 .message-inner-wrapper {
@@ -63,4 +65,14 @@ ins {
   background: var(--ck-color-suggestion-marker-insertion-background);
   border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
   border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
+}
+comment {
+  /* Match size with suggestion markers */
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+}
+
+comment,
+comment * {
+  background: var(--ck-color-comment-marker);
 }
