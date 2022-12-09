@@ -196,7 +196,6 @@ class NotificationContextHelper {
     $fixedMarkup = preg_replace('#<ins>\s*</ins>#si', '', $fixedMarkup);
     $fixedMarkup = preg_replace('#<del>\s*</del>#si', '', $fixedMarkup);
 
-
     $query = '//ins|//del';
     $result = [];
 

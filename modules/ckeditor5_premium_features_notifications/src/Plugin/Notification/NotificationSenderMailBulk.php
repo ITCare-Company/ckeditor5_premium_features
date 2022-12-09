@@ -50,7 +50,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
   /**
    * {@inheritdoc}
    */
-  public function send(NotificationMessageInterface $message, array $userIds): bool|array {
+  public function send(NotificationMessageInterface $message, array $userIds): bool {
     $documentId = $message->getSourceEvent()->getRelatedDocument()->id();
     $documentType = $message->getSourceEvent()->getRelatedDocument()->getEntityTypeId();
 
@@ -88,10 +88,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
       return TRUE;
     }
     catch (\Exception $e) {
-      $this->error("Suggestion notification sending error: @error <br /> <br /><pre>@trace</pre>", [
-        '@error' => $e->getMessage(),
-        '@trace' => $e->getTraceAsString(),
-      ]);
+      $this->logException('Suggestion notification sending error', $e);
     }
 
     return FALSE;

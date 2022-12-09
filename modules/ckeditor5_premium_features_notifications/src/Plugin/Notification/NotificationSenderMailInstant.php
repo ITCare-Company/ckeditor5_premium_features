@@ -66,30 +66,29 @@ class NotificationSenderMailInstant extends NotificationSenderBase implements Co
   /**
    * {@inheritdoc}
    */
-  public function send(NotificationMessageInterface $message, array $userIds): bool|array {
+  public function send(NotificationMessageInterface $message, array $userIds): bool {
     $mails = $this->getUserMails($userIds);
 
     if (empty($mails)) {
       return FALSE;
     }
 
-    $mainMail = array_pop($mails);
-    if (count($mails) > 0) {
-      $parameters['headers']['cc'] = implode(',', $mails);
-    }
-
     $parameters['subject'] = $message->getMessageTitle();
     $parameters['body'] = $message->getMessageBody();
 
-    return $this->mailManager->mail(
+    foreach ($mails as $targetMail) {
+      $this->mailManager->mail(
         'ckeditor5_premium_features_notifications',
         $message->getType(),
-        $mainMail,
+        $targetMail,
         NULL,
         $parameters,
         NULL,
         TRUE
       );
+    }
+
+    return TRUE;
   }
 
   /**

@@ -23,9 +23,9 @@ interface NotificationSenderInterface {
    * @param array $userIds
    *   List of recipients.
    *
-   * @return bool|array
-   *   Notification sending result. FALSE if not send, ARRAY otherwise.
+   * @return bool
+   *   Notification sending result. FALSE if nothing ws send.
    */
-  public function send(NotificationMessageInterface $message, array $userIds): bool|array;
+  public function send(NotificationMessageInterface $message, array $userIds): bool;
 
 }

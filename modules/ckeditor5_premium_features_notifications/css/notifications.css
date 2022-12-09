@@ -18,6 +18,8 @@
   --ck-color-suggestion-widget-format-background-active: hsla(191, 90%, 40%, .16);
   --ck-color-comment-marker: hsl(55, 98%, 83%);
   --ck-color-comment-marker-active: hsl(55, 98%, 68%);
+  --ck-color-mention-background: rgba(153,0,48,.1);
+  --ck-color-mention-text: #990030;
 }
 
 .message-inner-wrapper {
@@ -75,4 +77,9 @@ comment {
 comment,
 comment * {
   background: var(--ck-color-comment-marker);
+}
+
+span.mention {
+  background: var(--ck-color-mention-background);
+  color: var(--ck-color-mention-text);
 }
