@@ -23,6 +23,13 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
   use CKeditorPremiumLoggerChannelTrait;
 
   /**
+   * Collaboration filter.
+   *
+   * @var \Drupal\ckeditor5_premium_features\Plugin\Filter\FilterCollaboration
+   */
+  protected FilterCollaboration $filterCollaboration;
+
+  /**
    * Constructor.
    *
    * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationSender
@@ -50,13 +57,6 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
   ) {
     $this->filterCollaboration = $filterPluginManager->createInstance('ckeditor5_premium_features_collaboration_filter');
   }
-
-  /**
-   * Collaboration filter.
-   *
-   * @var \Drupal\ckeditor5_premium_features\Plugin\Filter\FilterCollaboration
-   */
-  protected FilterCollaboration $filterCollaboration;
 
   /**
    * {@inheritdoc}
