@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
@@ -180,11 +182,9 @@ class NotificationContextHelper {
     $document = Html::load($context);
 
     $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'suggestion', $matchingSelectRule);
-    $temp = $document->saveHTML();
 
     foreach ($queryOrParts as $chainPart) {
       $this->htmlHelper->convertCollaborationTagsWrappings($document, 'suggestion', $chainPart);
-      $temp = $document->saveHTML();
     }
 
     $fixedMarkup = $this->htmlHelper->getInnerHtml($document);

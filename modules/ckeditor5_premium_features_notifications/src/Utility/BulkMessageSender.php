@@ -83,7 +83,7 @@ class BulkMessageSender {
         ],
       ];
 
-//      $messageItem->delete();
+      $messageItem->delete();
     }
 
     $messageOuterWrapper = [
@@ -101,6 +101,7 @@ class BulkMessageSender {
    * Callback from cron job.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
@@ -118,10 +119,10 @@ class BulkMessageSender {
         $this->sendMail($message->getTitle(), [$body], $user);
       }
 
-//      $message->set('sent', 1);
-//      $message->save();
-//
-//      $this->messageStorage->cleanMessageItems($message);
+      $message->set('sent', 1);
+      $message->save();
+
+      $this->messageStorage->cleanMessageItems($message);
     }
   }
 

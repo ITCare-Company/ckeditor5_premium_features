@@ -9,6 +9,7 @@ use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationContentFilteringStorageInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityEventDispatcher;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationSuggestionDependingStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
@@ -276,16 +277,31 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   The related type storage.
    */
   private function doStorageOperations(array $entities_data, object $storage): void {
+    $added = [];
+    $updated = [];
     foreach ($entities_data as $element_data) {
-
       $data_entity = $storage->load($element_data['id']);
       if ($data_entity instanceof EntityInterface) {
-        $storage->update($data_entity, $element_data);
+        $updated[] = [
+          'old' => clone $data_entity,
+          'new' => $storage->update($data_entity, $element_data),
+        ];
       }
       else {
-        $storage->add($element_data);
+        $added[] = $storage->add($element_data);
       }
     }
+    if (!$storage instanceof CollaborationEntityEventDispatcher) {
+      return;
+    }
+
+    foreach ($added as $added_entity) {
+      $storage->dispatchNewEntity($added_entity);
+    }
+    foreach ($updated as $upd_info) {
+      $storage->dispatchUpdatedEntity($upd_info['old'], $upd_info['new']);
+    }
+
   }
 
   /**
