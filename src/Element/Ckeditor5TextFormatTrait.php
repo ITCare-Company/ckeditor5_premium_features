@@ -133,6 +133,9 @@ trait Ckeditor5TextFormatTrait {
       if (!is_array($element)) {
         continue;
       }
+      if (empty($form['#type'])) {
+        continue;
+      }
       $this->addSubmitCallback($element);
     }
   }

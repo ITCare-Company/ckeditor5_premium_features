@@ -180,9 +180,11 @@ class NotificationContextHelper {
     $document = Html::load($context);
 
     $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'suggestion', $matchingSelectRule);
+    $temp = $document->saveHTML();
 
     foreach ($queryOrParts as $chainPart) {
       $this->htmlHelper->convertCollaborationTagsWrappings($document, 'suggestion', $chainPart);
+      $temp = $document->saveHTML();
     }
 
     $fixedMarkup = $this->htmlHelper->getInnerHtml($document);

@@ -112,16 +112,17 @@ class HtmlHelper {
     $commonParentPath = implode('/', $intersectedPart);
 
     while ($startingElement->parentNode && $startingElement->parentNode->getNodePath() !== $commonParentPath) {
-      $startingElement->parentNode->appendChild($document->createElement($closingElement));
+//      $startingElement->parentNode->appendChild($endingElement->cloneNode(TRUE));
+      $startingElement->parentNode->appendChild($endingElement->cloneNode(TRUE));
 
       if ($startingElement->parentNode->nextSibling) {
         $startingElement->parentNode->parentNode->insertBefore(
-          $document->createElement($openingElement),
+          $startingElement->cloneNode(TRUE),
           $startingElement->parentNode->nextSibling
         );
       }
       elseif ($startingElement->parentNode->parentNode) {
-        $startingElement->parentNode->parentNode->appendChild($document->createElement($openingElement));
+        $startingElement->parentNode->parentNode->appendChild($startingElement->cloneNode(TRUE));
       }
 
       if ($startingElement->parentNode->parentNode == NULL || $startingElement->parentNode->parentNode->getNodePath() == $commonParentPath) {
@@ -132,11 +133,11 @@ class HtmlHelper {
 
     while ($endingElement->parentNode && $endingElement->parentNode->getNodePath() !== $commonParentPath) {
       $endingElement->parentNode->insertBefore(
-        $document->createElement($openingElement),
+        $startingElement->cloneNode(TRUE),
         $endingElement->parentNode->firstChild
       );
 
-      $endingElement->parentNode->parentNode->insertBefore($document->createElement($closingElement), $endingElement->parentNode);
+      $endingElement->parentNode->parentNode->insertBefore($endingElement->cloneNode(TRUE), $endingElement->parentNode);
 
       if ($endingElement->parentNode->parentNode == NULL || $endingElement->parentNode->parentNode->getNodePath() == $commonParentPath) {
         break;

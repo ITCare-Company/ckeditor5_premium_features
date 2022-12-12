@@ -131,12 +131,16 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
     if (!$entity->access('update')) {
       throw new AccessException();
     }
+    if (!$entity instanceof SuggestionInterface) {
+      return NULL;
+    }
 
     $raw_data = Suggestion::normalize($raw_data);
     $data = new ParameterBag($raw_data);
     $has_comments = $data->getBoolean('has_comments');
     $suggestion_data = $data->get('data') ?? [];
     $suggestion_attributes = $data->get('attributes') ?? [];
+    $head_id = $suggestion_attributes['head'] ?? NULL;
 
     if (!empty($suggestion_attributes['status']) && $suggestion_attributes['status'] != $entity->getStatus()) {
       $this->dispatchSuggestionStateEvent($entity, $suggestion_attributes['status']);
@@ -146,6 +150,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
       ->setCommentState($has_comments)
       ->setData($suggestion_data)
       ->setAttributes($suggestion_attributes)
+      ->setChainId($head_id)
       ->save();
 
     return $entity;
