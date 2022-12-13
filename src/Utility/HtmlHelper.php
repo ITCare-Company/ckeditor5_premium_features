@@ -25,14 +25,15 @@ class HtmlHelper {
 
     $parentNode = $element->parentNode;
     while ($parentNode) {
-      if (isset($acceptingParentNodeTypes[$parentNode->nodeName]) || $parentNode->parentNode == NULL) {
+      $grandParentNode = $parentNode->parentNode;
+      if (isset($acceptingParentNodeTypes[$parentNode->nodeName]) || $grandParentNode == NULL || ($grandParentNode && $grandParentNode->nodeName == 'body')) {
         break;
       }
       $value = $parentNode->nodeValue;
       if (mb_strlen(strip_tags($value)) > 255) {
         break;
       }
-      $parentNode = $parentNode->parentNode;
+      $parentNode = $grandParentNode;
     }
 
     if (!$parentNode) {
