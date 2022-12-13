@@ -189,7 +189,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements
     }
 
     if ($oldEntity->getStatus() == $newEntity->getStatus() ||
-      $newEntity->isInChain() && $newEntity->isHeadOfChain()) {
+      $newEntity->isInChain() && !$newEntity->isHeadOfChain()) {
       return;
     }
 
