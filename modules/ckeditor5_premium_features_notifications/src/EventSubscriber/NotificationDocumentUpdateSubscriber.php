@@ -78,6 +78,10 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
     $body = $event->getRelatedDocumentContent();
     $previousBody = $event->getOriginalContent();
 
+    if (empty($previousBody)) {
+      return;
+    }
+
     $body = $this->filterDocument($body);
     $previousBody = $this->filterDocument($previousBody);
 
