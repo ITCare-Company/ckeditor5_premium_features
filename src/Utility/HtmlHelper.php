@@ -97,8 +97,6 @@ class HtmlHelper {
       $startingElement->parentNode->getNodePath() === $endingElement->parentNode->getNodePath()) {
       return;
     }
-    $openingElement = $startingElement->cloneNode(TRUE);
-    $closingElement = $endingElement->cloneNode(TRUE);
 
     $startingElementPath = explode('/', $startingElement->getNodePath());
     $endingElementPath = explode('/', $endingElement->getNodePath());
@@ -112,16 +110,16 @@ class HtmlHelper {
     $commonParentPath = implode('/', $intersectedPart);
 
     while ($startingElement->parentNode && $startingElement->parentNode->getNodePath() !== $commonParentPath) {
-      $startingElement->parentNode->appendChild($closingElement);
+      $startingElement->parentNode->appendChild($endingElement->cloneNode(TRUE));
 
       if ($startingElement->parentNode->nextSibling) {
         $startingElement->parentNode->parentNode->insertBefore(
-          $openingElement,
+          $startingElement->cloneNode(TRUE),
           $startingElement->parentNode->nextSibling
         );
       }
       elseif ($startingElement->parentNode->parentNode) {
-        $startingElement->parentNode->parentNode->appendChild($openingElement);
+        $startingElement->parentNode->parentNode->appendChild($startingElement->cloneNode(TRUE));
       }
 
       if ($startingElement->parentNode->parentNode == NULL || $startingElement->parentNode->parentNode->getNodePath() == $commonParentPath) {
@@ -132,11 +130,11 @@ class HtmlHelper {
 
     while ($endingElement->parentNode && $endingElement->parentNode->getNodePath() !== $commonParentPath) {
       $endingElement->parentNode->insertBefore(
-        $openingElement,
+        $startingElement->cloneNode(TRUE),
         $endingElement->parentNode->firstChild
       );
 
-      $endingElement->parentNode->parentNode->insertBefore($closingElement, $endingElement->parentNode);
+      $endingElement->parentNode->parentNode->insertBefore($endingElement->cloneNode(TRUE), $endingElement->parentNode);
 
       if ($endingElement->parentNode->parentNode == NULL || $endingElement->parentNode->parentNode->getNodePath() == $commonParentPath) {
         break;

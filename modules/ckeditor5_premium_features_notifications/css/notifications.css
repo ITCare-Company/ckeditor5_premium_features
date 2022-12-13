@@ -68,6 +68,12 @@ ins > p {
   border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
   border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
 }
+
+ins > p {
+  /* This should make paragraphs with background looks better (not full page width). */
+  display: table;
+}
+
 comment {
   /* Match size with suggestion markers */
   border-top: 3px solid transparent;
