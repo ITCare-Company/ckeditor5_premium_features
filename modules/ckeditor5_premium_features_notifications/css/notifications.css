@@ -69,6 +69,7 @@ ins > p {
   border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
 }
 
+del > p,
 ins > p {
   /* This should make paragraphs with background looks better (not full page width). */
   display: table;
