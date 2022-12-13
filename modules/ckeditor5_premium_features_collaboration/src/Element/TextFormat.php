@@ -9,7 +9,7 @@ use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationContentFilteringStorageInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityEventDispatcher;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityEventDispatcherInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationSuggestionDependingStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
@@ -291,7 +291,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         $added[] = $storage->add($element_data);
       }
     }
-    if (!$storage instanceof CollaborationEntityEventDispatcher) {
+    if (!$storage instanceof CollaborationEntityEventDispatcherInterface) {
       return;
     }
 

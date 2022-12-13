@@ -16,8 +16,10 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 /**
  * Provides the storage class for the Suggestion entity.
  */
-class SuggestionStorage extends SqlContentEntityStorage implements CollaborationEntityStorageInterface,
-  EditorDataStorageProviderInterface, CollaborationEntityEventDispatcher {
+class SuggestionStorage extends SqlContentEntityStorage implements
+    CollaborationEntityStorageInterface,
+    EditorDataStorageProviderInterface,
+    CollaborationEntityEventDispatcherInterface {
 
   use CollaborationEntityStorageTrait;
 
@@ -161,7 +163,10 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
     }, $source_data);
   }
 
-  public function dispatchNewEntity(CollaborationEntityInterface $entity) {
+  /**
+   * {@inheritdoc}
+   */
+  public function dispatchNewEntity(CollaborationEntityInterface $entity): void {
     if (!$entity instanceof SuggestionInterface) {
       return;
     }
@@ -175,7 +180,10 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
     );
   }
 
-  public function dispatchUpdatedEntity(CollaborationEntityInterface $oldEntity, CollaborationEntityInterface $newEntity) {
+  /**
+   * {@inheritdoc}
+   */
+  public function dispatchUpdatedEntity(CollaborationEntityInterface $oldEntity, CollaborationEntityInterface $newEntity): void {
     if (!$oldEntity instanceof SuggestionInterface || !$newEntity instanceof SuggestionInterface) {
       return;
     }

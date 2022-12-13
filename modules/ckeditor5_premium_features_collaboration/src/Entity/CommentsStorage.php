@@ -25,7 +25,8 @@ class CommentsStorage extends SqlContentEntityStorage implements
     CollaborationEntityStorageInterface,
     EditorDataStorageProviderInterface,
     CollaborationSuggestionDependingStorageInterface,
-    CollaborationContentFilteringStorageInterface, CollaborationEntityEventDispatcher {
+    CollaborationContentFilteringStorageInterface,
+    CollaborationEntityEventDispatcherInterface {
 
   use CollaborationEntityStorageTrait;
   use CKeditorPremiumLoggerChannelTrait;
@@ -225,11 +226,17 @@ class CommentsStorage extends SqlContentEntityStorage implements
     return $entity;
   }
 
-  public function dispatchUpdatedEntity(CollaborationEntityInterface $oldEntity, CollaborationEntityInterface $newEntity) {
+  /**
+   * {@inheritdoc}
+   */
+  public function dispatchUpdatedEntity(CollaborationEntityInterface $oldEntity, CollaborationEntityInterface $newEntity): void {
     // Comment Storage does not supports comment updates events.
   }
 
-  public function dispatchNewEntity(CollaborationEntityInterface $entity) {
+  /**
+   * {@inheritdoc}
+   */
+  public function dispatchNewEntity(CollaborationEntityInterface $entity): void {
     $this->event_dispatcher->dispatch(
       new CollaborationEventBase($entity, $this->user, CollaborationEventBase::COMMENT_ADDED),
       CollaborationEventBase::COMMENT_ADDED
