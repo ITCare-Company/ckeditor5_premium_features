@@ -191,7 +191,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
    */
   protected function getSuggestionData(array $current_data, ParameterBag $data): array {
     $object_data = [
-      'uid' => $this->user->id(),
+      'uid' => $data->getInt('authorId'),
     ] + $current_data;
 
     $attributes = $data->get('attributes');
