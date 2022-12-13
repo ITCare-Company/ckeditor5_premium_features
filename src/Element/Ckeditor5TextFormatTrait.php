@@ -18,6 +18,13 @@ use Drupal\Core\Entity\EntityFormInterface;
 trait Ckeditor5TextFormatTrait {
 
   /**
+   * Counter for nesting.
+   *
+   * @var int
+   */
+  protected int $nestingCounter = 0;
+
+  /**
    * Common text element preprocessing.
    *
    * @param array $element
@@ -133,8 +140,18 @@ trait Ckeditor5TextFormatTrait {
       if (!is_array($element)) {
         continue;
       }
+
+      // Here we are checking if nesting is not too deep to prevent loops,
+      // or some unexpected errors with nesting.
+      if ($this->nestingCounter > Ckeditor5TextFormatInterface::NESTING_COUNTER_LIMIT) {
+        continue;
+      }
+
+      $this->nestingCounter++;
       $this->addSubmitCallback($element);
     }
+
+    $this->nestingCounter--;
   }
 
   /**
