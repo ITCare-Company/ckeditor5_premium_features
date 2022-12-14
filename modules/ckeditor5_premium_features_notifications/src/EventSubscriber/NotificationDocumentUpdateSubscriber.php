@@ -75,30 +75,32 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
    *   Suggestion event object.
    */
   public function documentUpdated(CollaborationEventBase $event): void {
-    $body = $event->getRelatedDocumentContent();
-    $previousBody = $event->getOriginalContent();
+    $body = $event->getRelatedDocumentContent() ?? '';
+    $previousBody = $event->getOriginalContent() ?? '';
+    $relatedDocumentEntity = $event->getRelatedDocument();
 
-    if (empty($previousBody)) {
-      return;
-    }
-
-    $body = $this->filterDocument($body);
-    $previousBody = $this->filterDocument($previousBody);
-
-    if (empty($previousBody) || empty($body)) {
-      return;
-    }
-    $difference = $this->ckeditor5Diff->getDiff($previousBody, $body);
-
-    $changeContext = $this->ckeditor5Diff->getDiffContext();
-
-    if (empty($changeContext) || empty($difference)) {
+    if (!$relatedDocumentEntity || $relatedDocumentEntity->isNew() || empty($previousBody) && empty($body)) {
       return;
     }
 
     $recipients = $event->getRelatedDocumentAuthors();
 
     if (empty($recipients)) {
+      return;
+    }
+
+    if (!empty($body)) {
+      $body = $this->filterDocument($body);
+    }
+    if (!empty($previousBody)) {
+      $previousBody = $this->filterDocument($previousBody);
+    }
+
+    $this->ckeditor5Diff->getDiff($previousBody, $body);
+
+    $changeContext = $this->ckeditor5Diff->getDiffContext();
+
+    if (empty($changeContext)) {
       return;
     }
 
