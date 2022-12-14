@@ -203,10 +203,7 @@ class Message extends ContentEntityBase implements MessageInterface {
       }
     }
     catch (EntityStorageException $e) {
-      $this->error("Exception occurred when searching for a related entity: @error <br /> <br /><pre>@trace</pre>", [
-        '@error' => $e->getMessage(),
-        '@trace' => $e->getTraceAsString(),
-      ]);
+      $this->logException("Exception occurred when searching for a related entity.", $e);
     }
 
     return $this->t('New activity in a document')->render();
