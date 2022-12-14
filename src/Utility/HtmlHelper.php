@@ -22,11 +22,18 @@ class HtmlHelper {
       'p',
       'table',
     ]);
+    $topLevelTags = array_flip([
+      'body',
+      'html',
+    ]);
 
     $parentNode = $element->parentNode;
     while ($parentNode) {
       $grandParentNode = $parentNode->parentNode;
-      if (isset($acceptingParentNodeTypes[$parentNode->nodeName]) || $grandParentNode == NULL || ($grandParentNode && $grandParentNode->nodeName == 'body')) {
+      if (isset($acceptingParentNodeTypes[$parentNode->nodeName]) || $grandParentNode == NULL) {
+        break;
+      }
+      if (isset($topLevelTags[$grandParentNode->nodeName])) {
         break;
       }
       $value = $parentNode->nodeValue;
@@ -36,7 +43,7 @@ class HtmlHelper {
       $parentNode = $grandParentNode;
     }
 
-    if (!$parentNode) {
+    if (!$parentNode || ($parentNode && isset($topLevelTags[$parentNode->nodeName]))) {
       return $element;
     }
 
