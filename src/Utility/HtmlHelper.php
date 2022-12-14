@@ -24,20 +24,28 @@ class HtmlHelper {
       'p',
       'table',
     ]);
+    $topLevelTags = array_flip([
+      'body',
+      'html',
+    ]);
 
     $parentNode = $element->parentNode;
     while ($parentNode) {
-      if (isset($acceptingParentNodeTypes[$parentNode->nodeName]) || $parentNode->parentNode == NULL) {
+      $grandParentNode = $parentNode->parentNode;
+      if (isset($acceptingParentNodeTypes[$parentNode->nodeName]) || $grandParentNode == NULL) {
+        break;
+      }
+      if (isset($topLevelTags[$grandParentNode->nodeName])) {
         break;
       }
       $value = $parentNode->nodeValue;
       if (mb_strlen(strip_tags($value)) > 255) {
         break;
       }
-      $parentNode = $parentNode->parentNode;
+      $parentNode = $grandParentNode;
     }
 
-    if (!$parentNode) {
+    if (!$parentNode || ($parentNode && isset($topLevelTags[$parentNode->nodeName]))) {
       return $element;
     }
 
