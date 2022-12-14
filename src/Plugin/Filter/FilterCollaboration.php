@@ -111,9 +111,12 @@ class FilterCollaboration extends FilterBase {
         }
         else {
           try {
+            if (!$suggestion->parentNode) {
+              continue;
+            }
             $suggestion->remove();
           }
-          catch (\Error $e) {
+          catch (\Exception) {
           }
         }
       }
