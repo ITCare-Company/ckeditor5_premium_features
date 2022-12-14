@@ -48,8 +48,37 @@
   background-color: yellow;
 }
 
+.thread {
+  border: 1px solid lightgrey;
+  padding: 15px;
+  border-radius: 30px;
+}
+
+.thread-wrapper {
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.thread-wrapper .info {
+  padding: 10px;
+}
+
 .thread-wrapper .author {
   font-weight: bold;
+}
+
+.thread-wrapper .date {
+  color: #808080;
+}
+
+.thread-wrapper .content {
+  padding: 5px;
+  border: 1px solid #d8d8d8;
+  border-radius: 5px;
+}
+
+.thread-wrapper .content p {
+  margin: 10px;
 }
 
 del {
