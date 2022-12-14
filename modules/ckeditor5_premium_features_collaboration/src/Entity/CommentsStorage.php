@@ -159,10 +159,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
         $this->delete($stored_comments);
       }
       catch (EntityStorageException $e) {
-        $this->error("Comment storage error while deleting old entities: @error <br /> <br /><pre>@trace</pre>", [
-          '@error' => $e->getMessage(),
-          '@trace' => $e->getTraceAsString(),
-        ]);
+        $this->logException("Comment storage error while deleting old entities.", $e);
       }
     }
 

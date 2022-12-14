@@ -104,10 +104,7 @@ class MessageStorage extends SqlContentEntityStorage {
         $query->condition('updated', $desiredTimestamp->getTimestamp(), '<=');
       }
       catch (\Exception $e) {
-        $this->error("Exception occurred when searching for bulk messages: @error <br /> <br /><pre>@trace</pre>", [
-          '@error' => $e->getMessage(),
-          '@trace' => $e->getTraceAsString(),
-        ]);
+        $this->logException("Exception occurred when searching for bulk messages.", $e);
         return [];
       }
     }

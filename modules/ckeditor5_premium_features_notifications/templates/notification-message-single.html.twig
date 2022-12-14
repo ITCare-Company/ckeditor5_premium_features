@@ -6,6 +6,7 @@
   {% endif %}
 
   {% if thread is defined and thread is not empty %}
+    <h3>{{ "Comments"|t }}</h3>
     <div class="thread comment-thread-wrapper">
       {{ thread|render }}
     </div>

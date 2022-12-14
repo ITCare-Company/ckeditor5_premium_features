@@ -25,6 +25,21 @@ trait CKeditorPremiumLoggerChannelTrait {
   }
 
   /**
+   * Logs an error message along with details about passed Exception.
+   *
+   * @param string $message
+   *   Shor message describing source of an exception.
+   * @param \Drupal\ckeditor5_premium_features\Exception $e
+   *   Exception to be logged.
+   */
+  protected function logException(string $message, Exception $e): void {
+    $this->error($message . "<br /> @error <br /> <br /><pre>@trace</pre>", [
+      '@error' => $e->getMessage(),
+      '@trace' => $e->getTraceAsString(),
+    ]);
+  }
+
+  /**
    * Returns the logger name.
    */
   public static function getLoggerName(): string {

@@ -18,6 +18,8 @@
   --ck-color-suggestion-widget-format-background-active: hsla(191, 90%, 40%, .16);
   --ck-color-comment-marker: hsl(55, 98%, 83%);
   --ck-color-comment-marker-active: hsl(55, 98%, 68%);
+  --ck-color-mention-background: rgba(153,0,48,.1);
+  --ck-color-mention-text: #990030;
 }
 
 .message-inner-wrapper {
@@ -48,8 +50,37 @@
   background-color: yellow;
 }
 
+.thread {
+  border: 1px solid lightgrey;
+  padding: 15px;
+  border-radius: 30px;
+}
+
+.thread-wrapper {
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.thread-wrapper .info {
+  padding: 10px;
+}
+
 .thread-wrapper .author {
   font-weight: bold;
+}
+
+.thread-wrapper .date {
+  color: #808080;
+}
+
+.thread-wrapper .content {
+  padding: 5px;
+  border: 1px solid #d8d8d8;
+  border-radius: 5px;
+}
+
+.thread-wrapper .content p {
+  margin: 10px;
 }
 
 del,
@@ -77,4 +108,9 @@ comment {
 comment,
 comment * {
   background: var(--ck-color-comment-marker);
+}
+
+span.mention {
+  background: var(--ck-color-mention-background);
+  color: var(--ck-color-mention-text);
 }
