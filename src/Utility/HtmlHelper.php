@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\ckeditor5_premium_features\Utility;
 
 /**
@@ -81,14 +83,10 @@ class HtmlHelper {
    *   Type of elements to search for.
    * @param string $selector
    *   Selector used for filtering matching elements.
-   *
-   * @throws \DOMException
    */
   public function convertCollaborationTagsWrappings(\DOMDocument $document, string $elementType, string $selector): void {
     $queryStart = "//$elementType-start[$selector]";
     $queryEnd = "//$elementType-end[$selector]";
-    $openingElement = "$elementType-start";
-    $closingElement = "$elementType-end";
 
     $xpath = new \DOMXPath($document);
 
@@ -99,6 +97,8 @@ class HtmlHelper {
       $startingElement->parentNode->getNodePath() === $endingElement->parentNode->getNodePath()) {
       return;
     }
+    $openingElement = $startingElement->cloneNode(TRUE);
+    $closingElement = $endingElement->cloneNode(TRUE);
 
     $startingElementPath = explode('/', $startingElement->getNodePath());
     $endingElementPath = explode('/', $endingElement->getNodePath());
@@ -112,16 +112,16 @@ class HtmlHelper {
     $commonParentPath = implode('/', $intersectedPart);
 
     while ($startingElement->parentNode && $startingElement->parentNode->getNodePath() !== $commonParentPath) {
-      $startingElement->parentNode->appendChild($document->createElement($closingElement));
+      $startingElement->parentNode->appendChild($closingElement);
 
       if ($startingElement->parentNode->nextSibling) {
         $startingElement->parentNode->parentNode->insertBefore(
-          $document->createElement($openingElement),
+          $openingElement,
           $startingElement->parentNode->nextSibling
         );
       }
       elseif ($startingElement->parentNode->parentNode) {
-        $startingElement->parentNode->parentNode->appendChild($document->createElement($openingElement));
+        $startingElement->parentNode->parentNode->appendChild($openingElement);
       }
 
       if ($startingElement->parentNode->parentNode == NULL || $startingElement->parentNode->parentNode->getNodePath() == $commonParentPath) {
@@ -132,11 +132,11 @@ class HtmlHelper {
 
     while ($endingElement->parentNode && $endingElement->parentNode->getNodePath() !== $commonParentPath) {
       $endingElement->parentNode->insertBefore(
-        $document->createElement($openingElement),
+        $openingElement,
         $endingElement->parentNode->firstChild
       );
 
-      $endingElement->parentNode->parentNode->insertBefore($document->createElement($closingElement), $endingElement->parentNode);
+      $endingElement->parentNode->parentNode->insertBefore($closingElement, $endingElement->parentNode);
 
       if ($endingElement->parentNode->parentNode == NULL || $endingElement->parentNode->parentNode->getNodePath() == $commonParentPath) {
         break;

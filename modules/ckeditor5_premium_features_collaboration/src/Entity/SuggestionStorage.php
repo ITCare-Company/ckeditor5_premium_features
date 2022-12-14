@@ -16,7 +16,11 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 /**
  * Provides the storage class for the Suggestion entity.
  */
-class SuggestionStorage extends SqlContentEntityStorage implements CollaborationEntityStorageInterface, EditorDataStorageProviderInterface {
+class SuggestionStorage extends SqlContentEntityStorage implements
+    CollaborationEntityStorageInterface,
+    EditorDataStorageProviderInterface,
+    CollaborationEntityEventDispatcherInterface {
+
   use CollaborationEntityStorageTrait;
 
   /**
@@ -116,11 +120,6 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
 
     $suggestion->save();
 
-    $this->event_dispatcher->dispatch(
-      new CollaborationEventBase($suggestion, $this->user, CollaborationEventBase::SUGGESTION_ADDED),
-      CollaborationEventBase::SUGGESTION_ADDED
-    );
-
     return $suggestion;
   }
 
@@ -131,21 +130,22 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
     if (!$entity->access('update')) {
       throw new AccessException();
     }
+    if (!$entity instanceof SuggestionInterface) {
+      return NULL;
+    }
 
     $raw_data = Suggestion::normalize($raw_data);
     $data = new ParameterBag($raw_data);
     $has_comments = $data->getBoolean('has_comments');
     $suggestion_data = $data->get('data') ?? [];
     $suggestion_attributes = $data->get('attributes') ?? [];
-
-    if (!empty($suggestion_attributes['status']) && $suggestion_attributes['status'] != $entity->getStatus()) {
-      $this->dispatchSuggestionStateEvent($entity, $suggestion_attributes['status']);
-    }
+    $head_id = $suggestion_attributes['head'] ?? NULL;
 
     $entity
       ->setCommentState($has_comments)
       ->setData($suggestion_data)
       ->setAttributes($suggestion_attributes)
+      ->setChainId($head_id)
       ->save();
 
     return $entity;
@@ -161,6 +161,61 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
     return array_map(function ($value) {
       return $value['id'];
     }, $source_data);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function dispatchNewEntity(CollaborationEntityInterface $entity): void {
+    if (!$entity instanceof SuggestionInterface) {
+      return;
+    }
+    if ($entity->isInChain() && !$entity->isHeadOfChain()) {
+      return;
+    }
+
+    $this->event_dispatcher->dispatch(
+      new CollaborationEventBase($entity, $this->user, CollaborationEventBase::SUGGESTION_ADDED),
+      CollaborationEventBase::SUGGESTION_ADDED
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function dispatchUpdatedEntity(CollaborationEntityInterface $oldEntity, CollaborationEntityInterface $newEntity): void {
+    if (!$oldEntity instanceof SuggestionInterface || !$newEntity instanceof SuggestionInterface) {
+      return;
+    }
+
+    if ($oldEntity->getStatus() == $newEntity->getStatus() ||
+      $newEntity->isInChain() && !$newEntity->isHeadOfChain()) {
+      return;
+    }
+
+    switch ($newEntity->getStatus()) {
+      case SuggestionInterface::SUGGESTION_ACCEPTED:
+        $event_type = CollaborationEventBase::SUGGESTION_ACCEPT;
+        break;
+
+      case SuggestionInterface::SUGGESTION_REJECTED:
+        $event_type = CollaborationEventBase::SUGGESTION_DISCARD;
+        break;
+    }
+
+    if (!isset($event_type)) {
+      return;
+    }
+
+    $event = new CollaborationEventBase($newEntity, $this->user, $event_type);
+    if ($originalContent = $this->getDocumentOriginalValue()) {
+      $event->setOriginalContent($originalContent);
+    }
+
+    $this->event_dispatcher->dispatch(
+      $event,
+      $event_type
+    );
   }
 
   /**
@@ -231,40 +286,6 @@ class SuggestionStorage extends SqlContentEntityStorage implements Collaboration
       $suggestion->getAttributes(),
       $suggestion->getType(),
     ];
-  }
-
-  /**
-   * Dispatches the suggestion state change event.
-   *
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
-   *   Suggestion entity.
-   * @param string $suggestion_status
-   *   Suggestion new status.
-   */
-  protected function dispatchSuggestionStateEvent(SuggestionInterface $suggestion, string $suggestion_status): void {
-    switch ($suggestion_status) {
-      case SuggestionInterface::SUGGESTION_ACCEPTED:
-        $event_type = CollaborationEventBase::SUGGESTION_ACCEPT;
-        break;
-
-      case SuggestionInterface::SUGGESTION_REJECTED:
-        $event_type = CollaborationEventBase::SUGGESTION_DISCARD;
-        break;
-    }
-
-    if (!isset($event_type)) {
-      return;
-    }
-
-    $event = new CollaborationEventBase($suggestion, $this->user, $event_type);
-    if ($originalContent = $this->getDocumentOriginalValue()) {
-      $event->setOriginalContent($originalContent);
-    }
-
-    $this->event_dispatcher->dispatch(
-      $event,
-      $event_type
-    );
   }
 
 }

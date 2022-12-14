@@ -83,7 +83,8 @@
   margin: 10px;
 }
 
-del {
+del,
+del > p {
   background: var(--ck-color-suggestion-marker-deletion-background);
   border-bottom: 3px solid var(--ck-color-suggestion-marker-deletion-border);
   border-top: 3px solid var(--ck-color-suggestion-marker-deletion-border);
@@ -92,7 +93,8 @@ del {
   text-decoration-thickness: 3px;
 }
 
-ins {
+ins,
+ins > p {
   background: var(--ck-color-suggestion-marker-insertion-background);
   border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
   border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
