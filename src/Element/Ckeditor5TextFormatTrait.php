@@ -104,8 +104,10 @@ trait Ckeditor5TextFormatTrait {
    *
    * @param array $form
    *   The form structure.
+   * @param int $nestingCounter
+   *   Nesting counter.
    */
-  private function addSubmitCallback(array &$form): void {
+  private function addSubmitCallback(array &$form, int $nestingCounter = 0): void {
     $submitCallback = [static::class, 'onCompleteFormSubmit'];
     $keys = [
       ['#submit'],
@@ -133,8 +135,16 @@ trait Ckeditor5TextFormatTrait {
       if (!is_array($element)) {
         continue;
       }
-      $this->addSubmitCallback($element);
+
+      // Here we are checking if nesting is not too deep to prevent loops,
+      // or some unexpected errors with nesting.
+      if ($nestingCounter > Ckeditor5TextFormatInterface::NESTING_COUNTER_LIMIT) {
+        continue;
+      }
+
+      $this->addSubmitCallback($element, $nestingCounter + 1);
     }
+
   }
 
   /**

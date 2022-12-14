@@ -13,6 +13,8 @@ interface Ckeditor5TextFormatInterface {
 
   public const STORAGE_KEY = 'ckeditor5-premium';
 
+  public const NESTING_COUNTER_LIMIT = 10;
+
   /**
    * The complete form submit callback.
    *
