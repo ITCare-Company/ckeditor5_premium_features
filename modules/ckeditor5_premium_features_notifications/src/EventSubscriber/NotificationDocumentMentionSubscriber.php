@@ -77,12 +77,12 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
     $documentAuthors = $event->getRelatedDocumentAuthors();
 
     $body = $event->getRelatedDocumentContent();
-    $previousBody = $event->getOriginalContent();
+    $previousBody = $event->getOriginalContent() ?? '';
 
     $bodyWithoutCollaborationTags = $this->filterCollaboration->process($body, NULL);
-    $previousBodyWithoutCollaborationTags = $this->filterCollaboration->process($previousBody, NULL);
+    $previousBodyWithoutCollaborationTags = $this->filterCollaboration->process($previousBody, NULL) ?? '';
 
-    if (!empty($previousBody)) {
+    if (!empty($previousBody) && !empty($body)) {
       $difference = $this->ckeditor5Diff->getDiff($previousBody, $body);
 
       $addedContentContext = $this->ckeditor5Diff->getDiffAddedContext();
@@ -93,10 +93,14 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
       $difference = $body;
     }
 
-    if (!empty($previousBodyWithoutCollaborationTags)) {
-      $differenceWithoutSuggestion = $this->ckeditor5Diff->getDiff($previousBodyWithoutCollaborationTags, $bodyWithoutCollaborationTags);
+    if (!empty($bodyWithoutCollaborationTags)) {
+      if (!empty($previousBodyWithoutCollaborationTags)) {
+        $differenceWithoutSuggestion = $this->ckeditor5Diff->getDiff($previousBodyWithoutCollaborationTags, $bodyWithoutCollaborationTags);
 
-      $addedContentContextWithoutSuggestions = $this->ckeditor5Diff->getDiffAddedContext();
+        $addedContentContextWithoutSuggestions = $this->ckeditor5Diff->getDiffAddedContext();
+      } else {
+        $differenceWithoutSuggestion = $bodyWithoutCollaborationTags;
+      }
     }
 
     if (empty($body) || empty($difference)) {
