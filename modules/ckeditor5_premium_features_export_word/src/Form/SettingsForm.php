@@ -86,7 +86,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
     }
 
     foreach (['header' => $num_headers, 'footer' => $num_footers] as $type => $type_count) {
-      FormElement::headingFooter($options, $type, $config->get("$options_key.$type"), $type_count);
+      FormElement::headingFooter($options, $type, $config->get("$options_key.$type") ?? [], $type_count);
     }
 
     return $form;
