@@ -1,3 +1,27 @@
+:root {
+  --ck-color-suggestion-marker-insertion-border: hsla(128, 71%, 40%, .35);
+  --ck-color-suggestion-marker-insertion-border-active: hsla(128, 71%, 25%, .5);
+  --ck-color-suggestion-marker-insertion-background: hsla(128, 71%, 65%, .35);
+  --ck-color-suggestion-marker-insertion-background-active: hsla(128, 71%, 50%, .5);
+  --ck-color-suggestion-marker-deletion-border: hsla(345, 71%, 40%, .35);
+  --ck-color-suggestion-marker-deletion-border-active: hsla(345, 71%, 25%, .5);
+  --ck-color-suggestion-marker-deletion-background: hsla(345, 71%, 65%, .35);
+  --ck-color-suggestion-marker-deletion-background-active: hsla(345, 71%, 50%, .5);
+  --ck-color-suggestion-marker-deletion-stroke: hsla(345, 71%, 20%, .5);
+  --ck-color-suggestion-marker-format-border: hsla(191, 90%, 40%, .4);
+  --ck-color-suggestion-marker-format-border-active: hsla(191, 90%, 40%, .65);
+  --ck-color-suggestion-widget-insertion-background: hsla(128, 71%, 65%, .05);
+  --ck-color-suggestion-widget-insertion-background-active: hsla(128, 71%, 50%, .07);
+  --ck-color-suggestion-widget-deletion-background: hsla(345, 71%, 65%, .05);
+  --ck-color-suggestion-widget-deletion-background-active: hsla(345, 71%, 45%, .07);
+  --ck-color-suggestion-widget-format-background: hsla(191, 90%, 40%, .09);
+  --ck-color-suggestion-widget-format-background-active: hsla(191, 90%, 40%, .16);
+  --ck-color-comment-marker: hsl(55, 98%, 83%);
+  --ck-color-comment-marker-active: hsl(55, 98%, 68%);
+  --ck-color-mention-background: rgba(153,0,48,.1);
+  --ck-color-mention-text: #990030;
+}
+
 .message-inner-wrapper {
   margin: 0 auto;
   width: 60%;
@@ -26,6 +50,74 @@
   background-color: yellow;
 }
 
+.thread {
+  border: 1px solid lightgrey;
+  padding: 15px;
+  border-radius: 30px;
+}
+
+.thread-wrapper {
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.thread-wrapper .info {
+  padding: 10px;
+}
+
 .thread-wrapper .author {
   font-weight: bold;
+}
+
+.thread-wrapper .date {
+  color: #808080;
+}
+
+.thread-wrapper .content {
+  padding: 5px;
+  border: 1px solid #d8d8d8;
+  border-radius: 5px;
+}
+
+.thread-wrapper .content p {
+  margin: 10px;
+}
+
+del,
+del > p {
+  background: var(--ck-color-suggestion-marker-deletion-background);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-deletion-border);
+  border-top: 3px solid var(--ck-color-suggestion-marker-deletion-border);
+  text-decoration: line-through;
+  text-decoration-color: var(--ck-color-suggestion-marker-deletion-stroke);
+  text-decoration-thickness: 3px;
+}
+
+ins,
+ins > p {
+  background: var(--ck-color-suggestion-marker-insertion-background);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
+  border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
+}
+
+del > p,
+ins > p {
+  /* This should make paragraphs with background looks better (not full page width). */
+  display: table;
+}
+
+comment {
+  /* Match size with suggestion markers */
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+}
+
+comment,
+comment * {
+  background: var(--ck-color-comment-marker);
+}
+
+span.mention {
+  background: var(--ck-color-mention-background);
+  color: var(--ck-color-mention-text);
 }

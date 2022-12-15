@@ -2,17 +2,33 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
+use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
+use Drupal\ckeditor5_premium_features\Plugin\Filter\FilterCollaboration;
+use Drupal\ckeditor5_premium_features_notifications\Diff\Ckeditor5DiffInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
+use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings;
+use Drupal\Component\Plugin\Exception\PluginException;
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\filter\FilterPluginManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Comment notification subscriber class.
  */
 class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
+
+  use CKeditorPremiumLoggerChannelTrait;
+
+  /**
+   * Collaboration filter.
+   *
+   * @var \Drupal\ckeditor5_premium_features\Plugin\Filter\FilterCollaboration
+   */
+  protected FilterCollaboration $filterCollaboration;
 
   /**
    * Constructor.
@@ -23,12 +39,25 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
    *   Collaborators service.
    * @param \Drupal\Core\Session\AccountInterface $currentUser
    *   Current user.
+   * @param \Drupal\ckeditor5_premium_features_notifications\Diff\Ckeditor5DiffInterface $ckeditor5Diff
+   *   Ckeditor5 diff service.
+   * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings $notificationSettings
+   *   Notifications settings helper.
+   * @param \Drupal\filter\FilterPluginManager $filterPluginManager
+   *   Filter plugin manager.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function __construct(
     protected NotificationSender $notificationSender,
     protected Collaborators $collaboratorsService,
     protected AccountInterface $currentUser,
-  ) { }
+    protected Ckeditor5DiffInterface $ckeditor5Diff,
+    protected NotificationSettings $notificationSettings,
+    FilterPluginManager $filterPluginManager
+  ) {
+    $this->filterCollaboration = $filterPluginManager->createInstance('ckeditor5_premium_features_collaboration_filter');
+  }
 
   /**
    * {@inheritdoc}
@@ -46,35 +75,71 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
    *   Suggestion event object.
    */
   public function documentUpdated(CollaborationEventBase $event): void {
-    $collaborationEntity = $event->getRelatedEntity();
-    $body = $event->getRelatedDocumentContent();
-    if (!$body) {
+    $body = $event->getRelatedDocumentContent() ?? '';
+    $previousBody = $event->getOriginalContent() ?? '';
+    $relatedDocumentEntity = $event->getRelatedDocument();
+
+    if (!$relatedDocumentEntity || $relatedDocumentEntity->isNew() || empty($previousBody) && empty($body)) {
       return;
     }
 
-    $mentions = $this->collaboratorsService->getBodyMentions($body);
-    if (!empty($mentions)) {
-      $users = $this->collaboratorsService->getUserIdsByNames($mentions);
-      $users = array_diff($users, [$this->currentUser->id()]);
-      if (!empty($users)) {
-        $this->notificationSender->sendNotification(
-          NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT,
-          $users,
-          $event
-        );
-      }
-    }
-    $otherAuthorsList = $this->collaboratorsService->getCollaborators($collaborationEntity, $event->getAccount()->id());
+    $recipients = $event->getRelatedDocumentAuthors();
 
-    if (empty($otherAuthorsList)) {
+    if (empty($recipients)) {
       return;
     }
 
-    $this->notificationSender->sendNotification(
-      NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT,
-      $otherAuthorsList,
-      $event
-    );
+    if (!empty($body)) {
+      $body = $this->filterDocument($body);
+    }
+    if (!empty($previousBody)) {
+      $previousBody = $this->filterDocument($previousBody);
+    }
+
+    $this->ckeditor5Diff->getDiff($previousBody, $body);
+
+    $changeContext = $this->ckeditor5Diff->getDiffContext();
+
+    if (empty($changeContext)) {
+      return;
+    }
+
+    $localEvent = clone $event;
+    $localEvent->setOriginalContent($changeContext);
+
+    try {
+      $this->notificationSender->sendNotification(
+        NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT,
+        $recipients,
+        $localEvent
+      );
+    }
+    catch (PluginException $e) {
+      $this->logException('An error occurred while sending Document Update notification', $e);
+    }
+  }
+
+  /**
+   * Filters unwanted collaboration content from the document.
+   *
+   * @param string $document
+   *   Document to be processed.
+   *
+   * @return string
+   *   Filtered document.
+   */
+  protected function filterDocument(string $document): string {
+    $dom = Html::load($document);
+    $xpath = new \DOMXPath($dom);
+
+    $this->filterCollaboration->filterComments($xpath);
+    if ($this->notificationSettings->isMessageEnabled(NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED)) {
+      $this->filterCollaboration->filterSuggestionsTags($xpath);
+      $this->filterCollaboration->filterSuggestionsAttributes($xpath);
+    }
+
+    $dom->saveHTML();
+    return Html::serialize($dom);
   }
 
 }

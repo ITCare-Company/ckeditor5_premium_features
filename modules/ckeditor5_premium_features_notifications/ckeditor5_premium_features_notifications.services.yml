@@ -37,6 +37,21 @@ services:
       - '@ckeditor5_premium_features_notifications.notification_sender'
       - '@ckeditor5_premium_features_collaboration.collaborators'
       - '@current_user'
+      - '@ckeditor5_premium_features_notifications.diff'
+      - '@ckeditor5_premium_features_notifications.notification_settings'
+      - '@plugin.manager.filter'
+    tags:
+      - { name: 'event_subscriber' }
+
+  ckeditor5_premium_features_notifications.event.subscriber.document_mention:
+    class: '\Drupal\ckeditor5_premium_features_notifications\EventSubscriber\NotificationDocumentMentionSubscriber'
+    arguments:
+      - '@ckeditor5_premium_features_notifications.notification_sender'
+      - '@ckeditor5_premium_features_collaboration.collaborators'
+      - '@current_user'
+      - '@ckeditor5_premium_features_notifications.diff'
+      - '@ckeditor5_premium_features_notifications.notification_settings'
+      - '@plugin.manager.filter'
     tags:
       - { name: 'event_subscriber' }
 
@@ -56,3 +71,10 @@ services:
 
   ckeditor5_premium_features_notifications.notification_context_helper:
     class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextHelper
+    arguments:
+      - '@ckeditor5_premium_features.html_helper'
+
+  ckeditor5_premium_features_notifications.diff:
+    class: Drupal\ckeditor5_premium_features_notifications\Diff\Ckeditor5Diff
+    arguments:
+      - '@ckeditor5_premium_features_notifications.notification_context_helper'

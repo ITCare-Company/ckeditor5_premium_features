@@ -85,4 +85,5 @@ interface MessageItemInterface {
    * Returns a related collaboration entity thread.
    */
   public function getThread(): array;
+
 }

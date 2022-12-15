@@ -15,7 +15,7 @@ use Drupal\Core\Entity\EntityFormInterface;
 /**
  * Trait providing scripts with common preprocessing te input text element.
  */
-trait Ckeditor5TextFormatTrait  {
+trait Ckeditor5TextFormatTrait {
 
   /**
    * Common text element preprocessing.
@@ -58,9 +58,11 @@ trait Ckeditor5TextFormatTrait  {
       $items[$elementUniqueId] = $element['#parents'];
       $formState->set(Ckeditor5TextFormatInterface::STORAGE_KEY, $items);
 
-      // We need to attach the submit just in case the entity was created before the rtc module was enabled.
+      // We need to attach the submit just in case the entity was created
+      // before the rtc module was enabled.
       $this->addSubmitCallback($completeForm);
-    } else {
+    }
+    else {
       // We still need to process in order to stop our integration from
       // throwing exceptions in console, but we'll block editor toolbar buttons.
       $element['#attached']['drupalSettings']['ckeditor5Premium']['disableCollaboration'] = TRUE;
@@ -102,8 +104,10 @@ trait Ckeditor5TextFormatTrait  {
    *
    * @param array $form
    *   The form structure.
+   * @param int $nestingCounter
+   *   Nesting counter.
    */
-  private function addSubmitCallback(array &$form): void {
+  private function addSubmitCallback(array &$form, int $nestingCounter = 0): void {
     $submitCallback = [static::class, 'onCompleteFormSubmit'];
     $keys = [
       ['#submit'],
@@ -124,14 +128,23 @@ trait Ckeditor5TextFormatTrait  {
       }
     }
 
-    // Here we are diving in the form to find potential #submit elements that are placed deeper in the form.
-    // Such case can be observed using Gin admin theme, which is wrapping action bar in another container.
+    // Here we are diving in the form to find potential #submit elements that
+    // are placed deeper in the form. Such case can be observed using Gin admin
+    // theme, which is wrapping action bar in another container.
     foreach ($form as &$element) {
       if (!is_array($element)) {
         continue;
       }
-      $this->addSubmitCallback($element);
+
+      // Here we are checking if nesting is not too deep to prevent loops,
+      // or some unexpected errors with nesting.
+      if ($nestingCounter > Ckeditor5TextFormatInterface::NESTING_COUNTER_LIMIT) {
+        continue;
+      }
+
+      $this->addSubmitCallback($element, $nestingCounter + 1);
     }
+
   }
 
   /**

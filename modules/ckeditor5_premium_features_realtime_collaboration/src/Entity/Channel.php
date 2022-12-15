@@ -8,7 +8,6 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 
-
 /**
  * Defines the CKEditor5 Premium features "Channel" entity.
  *

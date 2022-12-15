@@ -12,9 +12,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderMailBulk;
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Render\BubbleableMetadata;
-use Drupal\Core\Render\RendererInterface;
 
 /**
  * Implements hook_mail().
@@ -61,8 +59,9 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
   $key = $data['key_id'] ?? NULL;
   $marker = $data['marker'] ?? NULL;
   $originalContent = $data['original_content'] ?? NULL;
+  $isDefaultContextRequired = $data['is_default'] ?? FALSE;
 
-  /** @var RendererInterface $renderer */
+  /** @var \Drupal\Core\Render\RendererInterface $renderer */
   $renderer = Drupal::service('renderer');
   /** @var \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextHelper $contextHelper */
   $contextHelper = Drupal::service('ckeditor5_premium_features_notifications.notification_context_helper');
@@ -75,11 +74,14 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
         case 'status':
           $replacements[$original] = $suggestionEvent->getEventType();
           break;
+
         case 'status-label':
           try {
-            $replacements[$original] = t(CollaborationEventBase::getEventLabel($suggestionEvent->getEventType()));
+            $replacements[$original] = CollaborationEventBase::getEventLabel($suggestionEvent->getEventType());
           }
-          catch (Exception) {}
+          catch (Exception) {
+
+          }
           break;
       }
     }
@@ -100,7 +102,7 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
       }
     }
   }
-  else if ($comment instanceof CommentInterface) {
+  elseif ($comment instanceof CommentInterface) {
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'context':
@@ -117,10 +119,22 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
         case 'context':
           if ($comment instanceof CommentInterface) {
             $result = $contextHelper->getFullContext($node, $key, $comment);
-          } else {
-            $result = $contextHelper->getDocumentMentionContext($node, $key, $marker);
+          }
+          else {
+            $result = $contextHelper->getDocumentMentionContext($node, $key, $marker, $originalContent);
           }
 
+          $replacements[$original] = $renderer->renderPlain($result);
+          break;
+      }
+    }
+  }
+
+  if ($isDefaultContextRequired && !empty($originalContent)) {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'context':
+          $result = $contextHelper->getHighlightedDocumentChanges($originalContent);
           $replacements[$original] = $renderer->renderPlain($result);
           break;
       }
@@ -145,17 +159,17 @@ function ckeditor5_premium_features_notifications_theme($existing, $type, $theme
   return [
     'notification_thread_wrapper' => [
       'variables' => [
-        'items' => NULL
+        'items' => NULL,
       ],
     ],
     'notification_thread_comment' => [
       'variables' => [
-        'comment' => NULL
+        'comment' => NULL,
       ],
     ],
     'notification_thread_default' => [
       'variables' => [
-        'item' => NULL
+        'item' => NULL,
       ],
     ],
     'notification_message_bulk' => [

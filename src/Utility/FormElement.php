@@ -38,6 +38,7 @@ class FormElement {
         'B4' => new TranslatableMarkup('B4'),
         'B5' => new TranslatableMarkup('B5'),
       ],
+      '#ajax' => FALSE,
     ];
   }
 
@@ -50,7 +51,7 @@ class FormElement {
    * @param array $options
    *   The additional options to merged into element.
    */
-  public static function pageOrientation(array &$element, array $options = [] ): void {
+  public static function pageOrientation(array &$element, array $options = []): void {
     $element['page_orientation'] = $options + [
       '#type' => 'select',
       '#title' => new TranslatableMarkup('Page orientation'),
@@ -58,6 +59,7 @@ class FormElement {
         'portrait' => new TranslatableMarkup('Portrait'),
         'landscape' => new TranslatableMarkup('Landscape'),
       ],
+      '#ajax' => FALSE,
     ];
   }
 
@@ -69,10 +71,12 @@ class FormElement {
    *   should be added.
    * @param string $type
    *   The type: footer or header.
-   * @param $options
+   * @param array $options
    *   The additional options to merged into element.
+   * @param int $items_length
+   *   Number of items to add.
    */
-  public static function headingFooter(array &$element, string $type = 'header', $options = [], $items_length = 1): void {
+  public static function headingFooter(array &$element, string $type = 'header', array $options = [], int $items_length = 1): void {
     $actions = [
       '#type' => 'container',
     ];
@@ -91,12 +95,14 @@ class FormElement {
         '#title' => 'HTML',
         '#default_value' => $options[$index]['html'] ?? NULL,
         '#prefix' => $index > 0 ? '<br />' : '',
+        '#ajax' => FALSE,
       ];
 
       $fieldset[$index]['css'] = [
         '#type' => 'textarea',
         '#title' => 'CSS',
-        '#default_value' => $options[$index]['css'] ?? NULL
+        '#default_value' => $options[$index]['css'] ?? NULL,
+        '#ajax' => FALSE,
       ];
 
       $fieldset[$index]['type'] = [
@@ -109,12 +115,15 @@ class FormElement {
           'odd' => new TranslatableMarkup('Odd'),
           'first' => new TranslatableMarkup('First'),
         ],
+        '#ajax' => FALSE,
       ];
     }
 
     $actions['add_' . $type] = [
       '#type' => 'submit',
-      '#value' => new TranslatableMarkup('Add one more ' . $type),
+      '#value' => new TranslatableMarkup('Add one more @type', [
+        '@type' => $type,
+      ]),
       '#submit' => [
         [
           static::class,
@@ -133,7 +142,9 @@ class FormElement {
     if ($items_length > 1) {
       $actions['remove_' . $type] = [
         '#type' => 'submit',
-        '#value' => new TranslatableMarkup('Remove one ' . $type),
+        '#value' => new TranslatableMarkup('Remove one @type', [
+          '@type' => $type,
+        ]),
         '#submit' => [
           [
             static::class,
@@ -160,10 +171,10 @@ class FormElement {
    *   Form element.
    * @param string $type
    *   Type of margin field to be added.
-   * @param $margin_config
+   * @param array|string|null $margin_config
    *   Current margin configuration values.
    */
-  public static function marginElement(array &$element, string $type, $margin_config): void {
+  public static function marginElement(array &$element, string $type, array|string $margin_config = NULL): void {
     $matching_keys = [];
     if (!is_array($margin_config)) {
       if (preg_match('/(\d+)([^\s]+)/', $margin_config ?? '', $matching_keys)) {
@@ -171,7 +182,8 @@ class FormElement {
           'value' => $matching_keys[1],
           'units' => $matching_keys[2],
         ];
-      } else {
+      }
+      else {
         $margin_config = [
           'value' => 1,
           'units' => 'cm',
@@ -189,7 +201,9 @@ class FormElement {
       ],
       'value' => [
         '#type' => 'number',
-        '#title' => t("Margin $type"),
+        '#title' => t("Margin @type", [
+          '@type' => $type,
+        ]),
         '#default_value' => $margin_config['value'] ?? '1cm',
         '#wrapper_attributes' => [
           'style' => 'margin-top: 0; margin-bottom: 0;',
@@ -207,19 +221,20 @@ class FormElement {
         '#wrapper_attributes' => [
           'style' => 'margin-top: 0; margin-bottom: 0;',
         ],
+        '#ajax' => FALSE,
       ],
     ];
   }
 
   /**
-   * Sets form element placeholders if corresponding key is found in the placeholders array.
+   * Sets element placeholders if corresponding key is found in $placeholders.
    *
    * @param array $form
    *   Form to be processed.
    * @param array $placeholders
    *   Array containing placeholders to be used.
    */
-  static function setPlaceholders(array &$form, array $placeholders): void {
+  public static function setPlaceholders(array &$form, array $placeholders): void {
     foreach ($form as $name => &$item) {
       if (!is_array($item)) {
         continue;
@@ -238,10 +253,10 @@ class FormElement {
   /**
    * Walks through the form and disables all fields and buttons.
    *
-   * @param $form
+   * @param array $form
    *   Form to be processed.
    */
-  static function disableFormFields(&$form): void {
+  public static function disableFormFields(array &$form): void {
     foreach ($form as $key => &$item) {
       if (!is_array($item) || $key == 'override_global') {
         continue;
@@ -258,7 +273,7 @@ class FormElement {
   /**
    * Callback for export to Word header buttons (add/remove).
    */
-  static function headerAddMoreWordCallback(array &$form, FormStateInterface $form_state): ?array {
+  public static function headerAddMoreWordCallback(array &$form, FormStateInterface $form_state): ?array {
     $settings_element = $form['editor']['settings']['subform']['plugins']['ckeditor5_premium_features_export_word__export_word'] ?? $form;
 
     return $settings_element['converter_options']['header'] ?? NULL;
@@ -267,7 +282,7 @@ class FormElement {
   /**
    * Callback for export to Word footer buttons (add/remove).
    */
-  static function footerAddMoreWordCallback(array &$form, FormStateInterface $form_state): ?array {
+  public static function footerAddMoreWordCallback(array &$form, FormStateInterface $form_state): ?array {
     $settings_element = $form['editor']['settings']['subform']['plugins']['ckeditor5_premium_features_export_word__export_word'] ?? $form;
 
     return $settings_element['converter_options']['footer'] ?? NULL;
@@ -276,28 +291,28 @@ class FormElement {
   /**
    * Submit handler for the header "add-one-more" button.
    */
-  static function headerAddOne(array &$form, FormStateInterface $form_state): void {
+  public static function headerAddOne(array &$form, FormStateInterface $form_state): void {
     static::modifyItemCounter($form_state, 'num_headers', 1);
   }
 
   /**
    * Submit handler for the footer "add-one-more" button.
    */
-  static function footerAddOne(array &$form, FormStateInterface $form_state) : void {
+  public static function footerAddOne(array &$form, FormStateInterface $form_state) : void {
     static::modifyItemCounter($form_state, 'num_footers', 1);
   }
 
   /**
    * Submit handler for the header "remove-one" button.
    */
-  static function headerRemoveCallback(array &$form, FormStateInterface $form_state): void {
+  public static function headerRemoveCallback(array &$form, FormStateInterface $form_state): void {
     static::modifyItemCounter($form_state, 'num_headers');
   }
 
   /**
    * Submit handler for the footer "remove-one" button.
    */
-  static function footerRemoveCallback(array &$form, FormStateInterface $form_state): void {
+  public static function footerRemoveCallback(array &$form, FormStateInterface $form_state): void {
     static::modifyItemCounter($form_state, 'num_footers');
   }
 
@@ -310,10 +325,8 @@ class FormElement {
    *   Name of property to modify.
    * @param int $modifier
    *   Value to modify the counter.
-   *
-   * @return void
    */
-  static function modifyItemCounter(FormStateInterface $form_state, string $counter_name, int $modifier = -1): void {
+  public static function modifyItemCounter(FormStateInterface $form_state, string $counter_name, int $modifier = -1): void {
     $name_field = $form_state->get($counter_name);
     if ($modifier > 0 || $name_field > abs($modifier)) {
       $remove_button = $name_field + $modifier;

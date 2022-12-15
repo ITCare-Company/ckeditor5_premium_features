@@ -25,12 +25,24 @@ class CommentsStorage extends SqlContentEntityStorage implements
     CollaborationEntityStorageInterface,
     EditorDataStorageProviderInterface,
     CollaborationSuggestionDependingStorageInterface,
-    CollaborationContentFilteringStorageInterface {
+    CollaborationContentFilteringStorageInterface,
+    CollaborationEntityEventDispatcherInterface {
 
   use CollaborationEntityStorageTrait;
   use CKeditorPremiumLoggerChannelTrait;
 
-  protected array $suggestion_ids;
+  /**
+   * Suggestion IDs list.
+   *
+   * @var array
+   */
+  protected array $suggestionIds;
+
+  /**
+   * Filter format.
+   *
+   * @var \Drupal\filter\FilterFormatInterface
+   */
   protected FilterFormatInterface $filterFormat;
 
   /**
@@ -38,6 +50,8 @@ class CommentsStorage extends SqlContentEntityStorage implements
    *
    * @param \Drupal\Core\Session\AccountProxyInterface $user
    *   THe current user object.
+   * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher
+   *   Event dispatcher service.
    * @param mixed ...$parent_arguments
    *   The parent parameters.
    */
@@ -134,7 +148,8 @@ class CommentsStorage extends SqlContentEntityStorage implements
 
         $entity_list[] = $element_data;
 
-        // This way, in a result, we'll have a list of Comment entities that we are storing, but were deleted by the user.
+        // This way, in a result, we'll have a list of Comment entities that
+        // we are storing, but were deleted by the user.
         unset($stored_comments[$element_data['commentId']]);
       }
     }
@@ -142,11 +157,9 @@ class CommentsStorage extends SqlContentEntityStorage implements
     if (!empty($stored_comments)) {
       try {
         $this->delete($stored_comments);
-      } catch (EntityStorageException $e) {
-        $this->error("Comment storage error while deleting old entities: @error <br /> <br /><pre>@trace</pre>", [
-          '@error' => $e->getMessage(),
-          '@trace' => $e->getTraceAsString(),
-        ]);
+      }
+      catch (EntityStorageException $e) {
+        $this->logException("Comment storage error while deleting old entities.", $e);
       }
     }
 
@@ -186,11 +199,6 @@ class CommentsStorage extends SqlContentEntityStorage implements
 
     $comment->save();
 
-    $this->event_dispatcher->dispatch(
-      new CollaborationEventBase($comment, $this->user, CollaborationEventBase::COMMENT_ADDED),
-      CollaborationEventBase::COMMENT_ADDED
-    );
-
     return $comment;
   }
 
@@ -218,54 +226,32 @@ class CommentsStorage extends SqlContentEntityStorage implements
   /**
    * {@inheritdoc}
    */
+  public function dispatchUpdatedEntity(CollaborationEntityInterface $oldEntity, CollaborationEntityInterface $newEntity): void {
+    // Comment Storage does not supports comment updates events.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function dispatchNewEntity(CollaborationEntityInterface $entity): void {
+    $this->event_dispatcher->dispatch(
+      new CollaborationEventBase($entity, $this->user, CollaborationEventBase::COMMENT_ADDED),
+      CollaborationEventBase::COMMENT_ADDED
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function setSuggestionIds(array $suggestion_ids): void {
-    $this->suggestion_ids = $suggestion_ids;
+    $this->suggestionIds = $suggestion_ids;
   }
 
   /**
    * {@inheritdoc}
    */
   public function hasSuggestionId(string $suggestion_id): bool {
-    return in_array($suggestion_id, $this->suggestion_ids);
-  }
-
-  public function getCommentById($id):Comment|NULL {
-    $result = $this->loadByProperties([
-      'id' =>$id,
-    ]);
-
-    if (empty($result)) {
-      return NULL;
-    }
-
-    return reset($result);
-  }
-
-  /**
-   * @param $id
-   *   ID of comment.
-   * @return array
-   */
-  public function getCommentTree($id): array {
-    $comment = $this->load($id);
-    if (!$comment) {
-      return [];
-    }
-    $comments = $this->loadByProperties(
-      [
-        'thread_id' => $comment->getThreadId(),
-      ]
-    );
-
-    foreach ($comments as $singleComment) {
-      $thread[$singleComment->getPosition()] = $singleComment->id();
-    }
-    ksort($thread);
-
-    if ($thread) {
-      return $thread;
-    }
-    return [];
+    return in_array($suggestion_id, $this->suggestionIds);
   }
 
   /**
@@ -287,7 +273,15 @@ class CommentsStorage extends SqlContentEntityStorage implements
 
     $allowed_tags = !empty($restrictions['allowed']) ? array_keys($restrictions['allowed']) : Xss::getHtmlTagList();
 
-    $allowed_tags =  array_merge($allowed_tags, ['p', 'li', 'ol', 'ul', 'strong', 'i', 'span']);
+    $allowed_tags = array_merge($allowed_tags, [
+      'p',
+      'li',
+      'ol',
+      'ul',
+      'strong',
+      'i',
+      'span',
+    ]);
 
     foreach ($source_data as &$thread_data) {
       foreach ($thread_data['comments'] as &$element_data) {
@@ -299,14 +293,14 @@ class CommentsStorage extends SqlContentEntityStorage implements
   /**
    * Returns a list of comments that belong to the same thread.
    *
-   * @param $entityType
+   * @param string $entityType
    *   Type of source entity.
-   * @param $entityId
+   * @param string $entityId
    *   Source entity ID.
-   * @param $threadId
+   * @param string $threadId
    *   Thread ID.
    */
-  public function getCommentsThread($entityType, $entityId, $threadId): array {
+  public function getCommentsThread(string $entityType, string $entityId, string $threadId): array {
     $query = $this->getQuery()
       ->accessCheck(TRUE)
       ->condition('entity_type', $entityType)

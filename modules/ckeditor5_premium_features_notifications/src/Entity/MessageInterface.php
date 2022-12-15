@@ -16,32 +16,40 @@ interface MessageInterface {
   /**
    * Stores new message item related to current message.
    *
-   * @param $itemEntityType
+   * @param string $itemEntityType
    *   Type of the message item entity.
-   * @param $itemEntityId
+   * @param string $itemEntityId
    *   ID of the message item entity.
-   * @param $messageType
+   * @param string $messageType
    *   Type of message.
-   * @param $eventType
+   * @param string $eventType
    *   Type of event.
-   * @param $messageContent
+   * @param string $messageContent
    *   Content of the document.
-   * @param $uid
+   * @param string $uid
    *   ID of the message item author.
-   * @param $key
+   * @param string $key
    *   ID of the field with related document.
-   * @param , $refUid
+   * @param string|null $refUid
    *   ID of optionally referenced user.
    *
    * @return int
-   *   Either SAVED_NEW or SAVED_UPDATED, depending on the operation performed
+   *   Either SAVED_NEW or SAVED_UPDATED, depending on the operation performed.
    */
-  public function appendItem($itemEntityType, $itemEntityId, $messageType, $eventType, $messageContent, $uid, $key, $refUid): int;
+  public function appendItem(string $itemEntityType,
+                             string $itemEntityId,
+                             string $messageType,
+                             string $eventType,
+                             string $messageContent,
+                             string $uid,
+                             string $key,
+                             string $refUid = NULL): int;
 
   /**
    * Returns related message items.
    *
    * @return \Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface[]
+   *   Message items list.
    */
   public function getItems();
 
@@ -49,6 +57,7 @@ interface MessageInterface {
    * Returns message recipient.
    *
    * @return \Drupal\user\UserInterface|null
+   *   User entity if found.
    */
   public function getUser(): ?UserInterface;
 
@@ -56,4 +65,5 @@ interface MessageInterface {
    * Returns message title.
    */
   public function getTitle(): string;
+
 }

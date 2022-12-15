@@ -2,6 +2,9 @@
 
 namespace Drupal\ckeditor5_premium_features\Utility;
 
+/**
+ * Interface describing common collaboration settings methods.
+ */
 interface CommonCollaborationSettingsInterface {
 
   /**

@@ -1,9 +1,9 @@
 <?php
 
 /**
-* @file
-* Install and update hooks for the CKEditor 5 Premium Features module.
-*/
+ * @file
+ * Install and update hooks for the CKEditor 5 Premium Features module.
+ */
 
 use Drupal\Core\Database\Database;
 

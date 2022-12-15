@@ -75,10 +75,10 @@ interface SuggestionInterface extends ContentEntityInterface {
   /**
    * Sets chain_id value.
    *
-   * @param string $chain_id
-   *   Chain ID.
+   * @param string|null $chain_id
+   *   Chain ID or NULL if not in chain.
    */
-  public function setChainId(string $chain_id): static;
+  public function setChainId(string $chain_id = NULL): static;
 
   /**
    * Checks if the entity is part of the suggestion chain.
@@ -99,18 +99,17 @@ interface SuggestionInterface extends ContentEntityInterface {
   public function getChain(): array;
 
   /**
-   * Returns suggestion status if was approved or rejected, otherwise NULL if only created.
+   * Returns suggestion status if was approved or rejected, otherwise NULL.
    *
-   * @return string|NULL
+   * @return string|null
    *   One of: SuggestionInterface::SUGGESTION_REJECTED,
-   * SuggestionInterface::SUGGESTION_ACCEPTED or NULL.
+   *   SuggestionInterface::SUGGESTION_ACCEPTED or NULL.
    */
   public function getStatus(): string|NULL;
 
   /**
    * Returns comment thread that replied to the current entity.
-   *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface[]
    */
   public function getThread(): array;
+
 }

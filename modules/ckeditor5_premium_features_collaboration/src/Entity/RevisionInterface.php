@@ -14,7 +14,7 @@ interface RevisionInterface {
   /**
    * Gets the revision name.
    *
-   * @return string|null The name.
+   * @return string|null
    *   The name.
    */
   public function getName(): ?string;
@@ -24,8 +24,6 @@ interface RevisionInterface {
    *
    * @param string|null $name
    *   The name.
-   *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface
    */
   public function setName(?string $name): static;
 

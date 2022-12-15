@@ -12,10 +12,18 @@ use Drupal\Core\Config\ImmutableConfig;
  */
 class CollaborationSettings implements CommonCollaborationSettingsInterface {
 
+  /**
+   * Settings object.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
   private ImmutableConfig $collaborationSettings;
 
   /**
+   * Constructor.
+   *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   Config factory.
    */
   public function __construct(ConfigFactoryInterface $configFactory) {
     $this->collaborationSettings = $configFactory->get(SettingsForm::COLLABORATION_SETTINGS_ID);

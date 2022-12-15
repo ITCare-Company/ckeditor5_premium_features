@@ -18,8 +18,14 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
   const BULK_MAIL_TYPE = 'ckeditor5_premium_features_notifications_bulk';
 
   /**
-   * {@inheritdoc }
+   * Constructor.
    *
+   * @param array $configuration
+   *   Configuration.
+   * @param string $plugin_id
+   *   Plugin ID.
+   * @param mixed $plugin_definition
+   *   Plugin definition.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager.
    */
@@ -44,11 +50,12 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
   /**
    * {@inheritdoc}
    */
-  public function send(NotificationMessageInterface $message, array $userIds): bool|array {
+  public function send(NotificationMessageInterface $message, array $userIds): bool {
     $documentId = $message->getSourceEvent()->getRelatedDocument()->id();
     $documentType = $message->getSourceEvent()->getRelatedDocument()->getEntityTypeId();
 
     $documentContent = $message->getSourceEvent()->getRelatedDocumentContent();
+    $originalContent = $message->getSourceEvent()->getOriginalContent();
 
     try {
 
@@ -56,7 +63,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
       $messageQueueStorage = $this->entityTypeManager->getStorage(Message::ENTITY_TYPE_ID);
 
       foreach ($userIds as $userId) {
-        /** @var Message $messageQueueEntity */
+        /** @var \Drupal\ckeditor5_premium_features_notifications\Entity\Message $messageQueueEntity */
         $messageQueueEntity = $messageQueueStorage->getMessageForUserAndDocument($userId, $documentId, $documentType);
         if (!$messageQueueEntity) {
           $messageQueueEntity = $messageQueueStorage->createMessage($userId, $documentId, $documentType);
@@ -71,7 +78,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
           $message->getSourceEvent()->getRelatedEntity()->id(),
           $message->getType(),
           $message->getSourceEvent()->getEventType(),
-          $documentContent,
+          empty($originalContent) ? $documentContent : $originalContent,
           $message->getSourceEvent()->getAccount()->id(),
           $message->getSourceEvent()->getRelatedDocumentFieldId(),
           $message->getSourceEvent()->getReferencedUserId()
@@ -81,10 +88,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
       return TRUE;
     }
     catch (\Exception $e) {
-      $this->error("Suggestion notification sending error: @error <br /> <br /><pre>@trace</pre>", [
-        '@error' => $e->getMessage(),
-        '@trace' => $e->getTraceAsString(),
-      ]);
+      $this->logException('Suggestion notification sending error', $e);
     }
 
     return FALSE;

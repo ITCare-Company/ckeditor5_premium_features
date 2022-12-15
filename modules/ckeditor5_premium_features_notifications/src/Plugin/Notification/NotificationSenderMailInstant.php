@@ -13,21 +13,32 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class NotificationSenderMailInstant extends NotificationSenderBase implements ContainerFactoryPluginInterface {
 
   /**
+   * Database connection.
+   *
    * @var \Drupal\Core\Database\Connection
    */
   protected Connection $dbConnection;
 
   /**
+   * Mail manager service.
+   *
    * @var \Drupal\Core\Mail\MailManagerInterface
    */
   protected MailManagerInterface $mailManager;
 
   /**
+   * Constructor.
+   *
    * @param array $configuration
-   * @param $plugin_id
-   * @param $plugin_definition
+   *   Configuration.
+   * @param string $plugin_id
+   *   Plugin ID.
+   * @param mixed $plugin_definition
+   *   Plugin definition.
    * @param \Drupal\Core\Database\Connection $dbConnection
+   *   Database connection.
    * @param \Drupal\Core\Mail\MailManagerInterface $mailManager
+   *   Mail manager service.
    */
   public function __construct(array $configuration,
                               $plugin_id,
@@ -55,38 +66,39 @@ class NotificationSenderMailInstant extends NotificationSenderBase implements Co
   /**
    * {@inheritdoc}
    */
-  public function send(NotificationMessageInterface $message, array $userIds): bool|array {
+  public function send(NotificationMessageInterface $message, array $userIds): bool {
     $mails = $this->getUserMails($userIds);
 
     if (empty($mails)) {
       return FALSE;
     }
 
-    $mainMail = array_pop($mails);
-    if (count($mails) > 0) {
-      $parameters['headers']['cc'] = implode(',', $mails);
-    }
-
     $parameters['subject'] = $message->getMessageTitle();
     $parameters['body'] = $message->getMessageBody();
 
-    return $this->mailManager->mail(
+    foreach ($mails as $targetMail) {
+      $this->mailManager->mail(
         'ckeditor5_premium_features_notifications',
         $message->getType(),
-        $mainMail,
+        $targetMail,
         NULL,
         $parameters,
         NULL,
         TRUE
       );
+    }
+
+    return TRUE;
   }
 
   /**
    * Returns a list of user emails.
    *
    * @param array $userIds
+   *   List of user IDs.
    *
    * @return array
+   *   List of user emails.
    */
   protected function getUserMails(array $userIds): array {
     if (empty($userIds)) {

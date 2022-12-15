@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Controller exposing an endpoint for rendering media entities in a selected text editor format.
+ * Controller exposing an endpoint for rendering media entities.
  */
 class MediaTagConverterController extends ControllerBase {
 
@@ -26,7 +26,9 @@ class MediaTagConverterController extends ControllerBase {
    * Constructor.
    *
    * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   Renderer service.
    * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   Request stack.
    */
   public function __construct(
     protected RendererInterface $renderer,
@@ -52,7 +54,6 @@ class MediaTagConverterController extends ControllerBase {
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   Current request object.
    *
-   * @return \Drupal\Core\Ajax\AjaxResponse|\Symfony\Component\HttpFoundation\JsonResponse
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
@@ -90,7 +91,7 @@ class MediaTagConverterController extends ControllerBase {
   }
 
   /**
-   * Returns a media default view used to render entity or NULL if format not exists.
+   * Returns a media default view used to render entity or NULL.
    *
    * @param string $format
    *   Text editor format.
@@ -128,12 +129,12 @@ class MediaTagConverterController extends ControllerBase {
    *   Request object.
    *
    * @return array
-   *   Associative array where media type is a key, and a value is a list of media IDs.
+   *   An array where media type is a key, and values is a list of media IDs.
    */
   protected function getMediaIdsWithTypes(Request $request): array {
     $args = $request->request;
 
-    if (empty($args->get('media')) ) {
+    if (empty($args->get('media'))) {
       throw new BadRequestHttpException('Missing required parameters');
     }
 
@@ -146,4 +147,5 @@ class MediaTagConverterController extends ControllerBase {
 
     return $entityTypes;
   }
+
 }
