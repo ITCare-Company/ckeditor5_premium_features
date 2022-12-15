@@ -93,13 +93,14 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
       $difference = $body;
     }
 
-    if (!empty($previousBodyWithoutCollaborationTags) && !empty($bodyWithoutCollaborationTags)) {
-      $differenceWithoutSuggestion = $this->ckeditor5Diff->getDiff($previousBodyWithoutCollaborationTags, $bodyWithoutCollaborationTags);
+    if (!empty($bodyWithoutCollaborationTags)) {
+      if (!empty($previousBodyWithoutCollaborationTags)) {
+        $differenceWithoutSuggestion = $this->ckeditor5Diff->getDiff($previousBodyWithoutCollaborationTags, $bodyWithoutCollaborationTags);
 
-      $addedContentContextWithoutSuggestions = $this->ckeditor5Diff->getDiffAddedContext();
-    }
-    elseif (!empty($bodyWithoutCollaborationTags)) {
-      $differenceWithoutSuggestion = $bodyWithoutCollaborationTags;
+        $addedContentContextWithoutSuggestions = $this->ckeditor5Diff->getDiffAddedContext();
+      } else {
+        $differenceWithoutSuggestion = $bodyWithoutCollaborationTags;
+      }
     }
 
     if (empty($body) || empty($difference)) {
