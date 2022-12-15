@@ -118,6 +118,15 @@ comment * {
 }
 
 span.mention {
-  background: var(--ck-color-mention-background);
   color: var(--ck-color-mention-text);
+}
+
+.highlight-item-wrapper [data-mention] {
+  background-color: transparent;
+}
+
+[data-mention] ins {
+  border-bottom: none;
+  border-top: none;
+  background: var(--ck-color-mention-background);
 }
