@@ -11,6 +11,8 @@ use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\Notifica
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\filter\Entity\FilterFormat;
+use Drupal\filter\FilterFormatInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -188,7 +190,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
         '#title' => $this->t('Message body'),
         '#description' => $this->t('Body of the message sent to the users that collaborated on the updated node.'),
         '#default_value' => $messageConfig['value'] ?? $this->getPredefinedBodyMessage($messageType),
-        '#format' => $messageConfig['test_format'] ?? 'full_html',
+        '#format' => $messageConfig['test_format'] ?? $this->getTextFormatId('full_html'),
       ] + $visibility;
 
       if ($additional = $this->getNotificationAdditionalInstruction($messageType)) {
@@ -348,6 +350,23 @@ class SettingsForm extends SharedBuildConfigFormBase {
       default => 'CKEditor5 notification default body. If you want to change it please go to configuration page.',
     };
 
+  }
+
+  /**
+   * Check if full_html format is enabled.
+   *
+   * @param string $format
+   *   Format.
+   *
+   * @return int|string|null
+   *   Format id.
+   */
+  protected function getTextFormatId(string $format): int|string|null {
+    $format = FilterFormat::load($format);
+    if ($format instanceof FilterFormatInterface && $format->status()) {
+      return $format->getOriginalId();
+    }
+    return NULL;
   }
 
 }
