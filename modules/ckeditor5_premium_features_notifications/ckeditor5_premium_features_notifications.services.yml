@@ -19,6 +19,7 @@ services:
     class: '\Drupal\ckeditor5_premium_features_notifications\EventSubscriber\NotificationSuggestionSubscriber'
     arguments:
       - '@ckeditor5_premium_features_notifications.notification_sender'
+      - '@current_user'
     tags:
       - { name: 'event_subscriber' }
 
