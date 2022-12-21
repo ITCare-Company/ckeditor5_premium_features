@@ -353,7 +353,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
   }
 
   /**
-   * Check if full_html format is enabled.
+   * Check if the given text format is enabled and return its id.
    *
    * @param string $format
    *   Format.
