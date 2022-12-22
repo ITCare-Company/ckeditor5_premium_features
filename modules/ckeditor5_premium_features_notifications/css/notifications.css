@@ -112,9 +112,13 @@ comment {
   border-bottom: 3px solid transparent;
 }
 
-comment,
+comment:not(:has(img)),
 comment * {
   background: var(--ck-color-comment-marker);
+}
+comment > img {
+  background: none;
+  outline: var(--ck-color-comment-marker) solid;
 }
 
 span.mention {
