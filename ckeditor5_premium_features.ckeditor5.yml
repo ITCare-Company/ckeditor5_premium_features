@@ -13,6 +13,7 @@ ckeditor5_premium_features__collaboration_integration_base:
       - disableCollaborationMarkersInCaption.DisableCollaborationMarkersInCaption
       - sidebarAdapter.SidebarAdapter
       - removeIncorrectCollaborationMarkers.RemoveIncorrectCollaborationMarkers
+      - commentsAdapter.CommentsAdapter
   drupal:
     label: The load & save integration of collaboration tools.
     library: ckeditor5_premium_features/collaboration-integration-base

@@ -2,7 +2,6 @@ ckeditor5_premium_features_collaboration__track_changes:
   ckeditor5:
     plugins:
       - comments.Comments
-      - commentsAdapter.CommentsAdapter
       - sidebarAdapter.SidebarAdapter
       - trackChanges.TrackChanges
       - trackChangesAdapter.TrackChangesAdapter
@@ -22,7 +21,6 @@ ckeditor5_premium_features_collaboration__comments:
   ckeditor5:
     plugins:
       - comments.Comments
-      - commentsAdapter.CommentsAdapter
   drupal:
     label: Comments
     library: ckeditor5_premium_features_collaboration/collaboration
