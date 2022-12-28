@@ -52,20 +52,10 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    $mentions = $this->collaboratorsService->getCommentMentions($collaborationEntity);
-    if (!empty($mentions)) {
-      $users = $this->collaboratorsService->getUserIdsByNames($mentions);
-      $this->notificationSender->sendNotification(
-        NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT,
-        $users,
-        $event
-      );
-    }
-
     $participators = $this->collaboratorsService->getParticipators($collaborationEntity);
     $threadSuggestionAuthor = $this->collaboratorsService->getThreadSuggestionAuthor($collaborationEntity);
     $participators = array_diff($participators, [$threadSuggestionAuthor]);
-
+    $replyRecipients = [];
     if (!$collaborationEntity->isReply()) {
       $authors = $event->getRelatedDocumentAuthors();
       $replyRecipients = array_merge($participators, $authors);
@@ -98,6 +88,40 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
         [$threadSuggestionAuthor],
         $event
       );
+    }
+
+    $mentions = $this->collaboratorsService->getCommentMentions($collaborationEntity);
+    if (!empty($mentions)) {
+      $users = $this->collaboratorsService->getUserIdsByNames($mentions);
+      $this->checkIfNotificationAlreadySentToUsers(
+        $users,
+        array_merge($replyRecipients, $participators, [$threadSuggestionAuthor])
+      );
+      if (!empty($users)) {
+        $this->notificationSender->sendNotification(
+          NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT,
+          $users,
+          $event
+        );
+      }
+    }
+  }
+
+  /**
+   * Check if notification was sent to user.
+   *
+   * Don't send a notification about a mention to the user
+   * if received a notification about the comment
+   * where the mention is placed.
+   *
+   * @param array $users
+   *   Array with mentioned users.
+   * @param array $recipients
+   *   Array with users who already have received notification.
+   */
+  protected function checkIfNotificationAlreadySentToUsers(array &$users, array $recipients): void {
+    if (!empty($recipients)) {
+      $users = array_filter($users, fn($x) => !in_array($x, $recipients));
     }
   }
 
