@@ -163,7 +163,8 @@ class Message extends ContentEntityBase implements MessageInterface {
             if (!$entity) {
               break;
             }
-            $groupedMessageItems[$entity->getChainId() ?? $entity->id()] = $item;
+            $key = !empty($entity->getChainId()) ? $entity->getChainId() : $entity->id();
+            $groupedMessageItems[$key] = $item;
             break;
 
           default:
