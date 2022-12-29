@@ -83,7 +83,7 @@ class CollaborationEntityAccessControlHandler extends EntityAccessControlHandler
    * {@inheritdoc}
    */
   public function createAccess($entity_bundle = NULL, AccountInterface $account = NULL, array $context = [], $return_as_object = FALSE) {
-    // Since currently there is no policy limiting access to
+    // Since currently there is no policy limiting access to.
     $result = AccessResult::allowed();
     return $return_as_object ? $result : $result->isAllowed();
   }

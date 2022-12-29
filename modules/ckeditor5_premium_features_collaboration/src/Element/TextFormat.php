@@ -177,7 +177,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   }
 
   /**
-   * Process entity form to handle collaboration storage data after paragraphs collapsing.
+   * Process entity form to handle collaboration data after paragraphs collapse.
    *
    * @param array $form
    *   Form to be altered.
@@ -347,6 +347,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   ID of the document field.
    *
    * @return array
+   *   Returns a decoded array of JSON object.
    */
   private function getFormElementSourceData(FormStateInterface $form_state, array $item_parents, string $key, string $element_id): array {
     $source = $form_state->getValue([...$item_parents, $key]) ?? '';
@@ -367,28 +368,27 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Form state object.
-   * @param $elementId
+   * @param string $element_id
    *   ID of the document field.
    */
-  private function processTemporaryStorageRevisionData(FormStateInterface $form_state, $elementId): void {
+  private function processTemporaryStorageRevisionData(FormStateInterface $form_state, string $element_id): void {
     $collaboration_storage = $form_state->get(static::STORAGE_KEY_COLLABORATION);
 
-    if (!empty ($collaboration_storage[$elementId]['revision_history'])) {
-      $source_data = json_decode($collaboration_storage[$elementId]['revision_history'], TRUE);
+    if (!empty($collaboration_storage[$element_id]['revision_history'])) {
+      $source_data = json_decode($collaboration_storage[$element_id]['revision_history'], TRUE);
       foreach ($source_data as &$rev_data) {
         if (empty($rev_data['creatorId'])) {
           $rev_data['attributes']['new_draft_req'] = TRUE;
         }
       }
-      $collaboration_storage[$elementId]['revision_history'] = json_encode($source_data);
+      $collaboration_storage[$element_id]['revision_history'] = json_encode($source_data);
 
       $form_state->set(static::STORAGE_KEY_COLLABORATION, $collaboration_storage);
     }
   }
 
   /**
-   * Stores collaboration entities data in the form state object for later
-   * processing.
+   * Stores collaboration entities in the form state for later processing.
    *
    * @param array $items
    *   List of document fields info.

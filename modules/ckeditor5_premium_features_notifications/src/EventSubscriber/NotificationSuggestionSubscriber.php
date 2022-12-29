@@ -19,6 +19,8 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
    *
    * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationSender
    *   Notification sender service.
+   * @param \Drupal\Core\Session\AccountInterface $currentUser
+   *   Current user object.
    */
   public function __construct(
     protected NotificationSender $notificationSender,
@@ -81,7 +83,7 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
 
     $recipients = $event->getRelatedDocumentAuthors();
 
-    /** @var Suggestion $suggestion */
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion $suggestion */
     $suggestion = $event->getRelatedEntity();
     $suggestionAuthor = $suggestion->getAuthorId();
 
