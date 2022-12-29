@@ -205,6 +205,7 @@ class FormElement {
           '@type' => $type,
         ]),
         '#default_value' => $margin_config['value'] ?? '1cm',
+        '#min' => 0,
         '#wrapper_attributes' => [
           'style' => 'margin-top: 0; margin-bottom: 0;',
         ],
