@@ -56,6 +56,8 @@ class SidebarAdapter {
     this.sidebarVisibilityModify(sidebarHide);
 
     this.handleSidebarMode();
+
+    this.checkIfInsideTab();
   }
 
   destroy() {
@@ -96,11 +98,7 @@ class SidebarAdapter {
 
     this.updateCkeditorMode();
 
-    // Check if there is a label right above the editor.
-    let label = this.sidebar.querySelector('label');
-    if (label && typeof label !== 'undefined' && !label.classList.contains('visually-hidden')) {
-      this.sidebarColumn.style.marginTop = label.clientHeight + "px";
-    }
+    this.checkEditorLabel();
 
     let toggle = this.getSidebarToggle();
 
@@ -164,9 +162,86 @@ class SidebarAdapter {
     // TODO: move to config?
     let w = document.documentElement.clientWidth;
     let newMode = w >= 1200 ? 'wideSidebar' : (w >= 500 ? 'narrowSidebar' : 'inline');
-
+    // Check editor container width
+    if (this.sidebar.clientWidth < 720) {
+      newMode = this.sidebar.clientWidth >= 500 ? 'narrowSidebar' : 'inline'
+    }
     this.setCkEditorSidebarMode(newMode);
   }
+
+  /**
+   * Check if there is a label right above the editor.
+   */
+  checkEditorLabel() {
+    let label = this.sidebar.querySelector('label');
+    if (label && typeof label !== 'undefined' && !label.classList.contains('visually-hidden')) {
+      this.sidebarColumn.style.marginTop = label.clientHeight + "px";
+    }
+  }
+
+  /**
+   * Check if editor is inside the tab
+   */
+  checkIfInsideTab() {
+    const tab = this.sidebar.closest('.field-group-tab');
+    if (tab && typeof tab !== 'undefined') {
+      this.checkParentTabs(tab)
+    }
+  }
+
+  /**
+   * Check if there are nested tabs
+   * @param element
+   */
+  checkParentTabs(element) {
+    const parent = element.parentElement.closest('.field-group-tab');
+
+    if (parent && typeof parent !== 'undefined' && element !== parent) {
+      // We have to check the display style and 'horizontal-tab-hidden' class to verify if the tab is
+      // inside group of tabs.
+      if (!parent.open || parent.style.display === "none" || parent.classList.contains('horizontal-tab-hidden')) {
+        this.setObserverToElement(parent)
+      } else {
+        this.checkParentTabs(parent)
+      }
+    }
+    // If the element is closed or contains horizontal-tab-hidden class then set observer.
+    if (!element.open || element.classList.contains('horizontal-tab-hidden')) {
+      this.setObserverToElement(element)
+    }
+  }
+
+  /**
+   * Set observer to tab and update editor when the tab is opened.
+   * @param element
+   */
+  setObserverToElement(element) {
+    this.setObserver(element).then(() => {
+      this.updateCkeditorMode();
+      this.checkEditorLabel();
+    });
+  }
+
+  /**
+   * Set observer
+   * @param element
+   * @returns {Promise<unknown>}
+   */
+  setObserver(element) {
+    return new Promise(resolve => {
+      const observer = new MutationObserver(mutations => {
+        if (element.open && element.style.display !== 'none' && !element.classList.contains('horizontal-tab-hidden')) {
+          resolve();
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    });
+  }
+
 }
 
 

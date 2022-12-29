@@ -24,6 +24,9 @@ class HtmlHelper {
       'p',
       'table',
     ]);
+    $overParentNodesTypes = array_flip([
+      'blockquote',
+    ]);
     $topLevelTags = array_flip([
       'body',
       'html',
@@ -32,6 +35,10 @@ class HtmlHelper {
     $parentNode = $element->parentNode;
     while ($parentNode) {
       $grandParentNode = $parentNode->parentNode;
+      if (isset($overParentNodesTypes[$grandParentNode->nodeName])) {
+        $parentNode = $grandParentNode;
+        break;
+      }
       if (isset($acceptingParentNodeTypes[$parentNode->nodeName]) || $grandParentNode == NULL) {
         break;
       }

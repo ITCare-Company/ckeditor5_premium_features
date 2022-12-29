@@ -54,6 +54,20 @@ class RealtimeAdapter {
   afterInit() {
     this.storage.processCollaborationCommandDisable("trackChanges");
     this.storage.processCollaborationCommandDisable("addCommentThread");
+    this.checkIfInitialDataChanged();
+  }
+
+  /**
+   *  Check if the editor's initial data is different from the data from CS.
+   *  If so, set "data-editor-value-is-changed" attribute to TRUE.
+   */
+  checkIfInitialDataChanged() {
+    const initialData = this.editor.config._config.initialData;
+    this.editor.on('ready', () => {
+      if (initialData !== this.editor.getData()) {
+        this.editor.sourceElement.setAttribute('data-editor-value-is-changed', true);
+      }
+    } );
   }
 
 }
