@@ -176,12 +176,14 @@ class NotificationContextHelper {
     foreach ($suggestionChain as $suggestion) {
       $chainSuggestionId = $suggestion->id();
       $queryOrParts[] = "contains(@name,'$chainSuggestionId')";
+      $queryOrParts[] = "contains(@data-suggestion-start-before,'$chainSuggestionId')";
     }
     $matchingSelectRule = implode(' or ', $queryOrParts);
 
     $document = Html::load($context);
 
     $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'suggestion', $matchingSelectRule);
+    $this->htmlHelper->removeNotRequiredCollaborationElementsWithSuggestionAttributes($document, $matchingSelectRule);
 
     foreach ($queryOrParts as $chainPart) {
       $this->htmlHelper->convertCollaborationTagsWrappings($document, 'suggestion', $chainPart);
@@ -195,10 +197,17 @@ class NotificationContextHelper {
     $fixedMarkup = preg_replace('#<suggestion-start[^<>]*deletion[^<>]*></suggestion-start>#si', '<del>', $fixedMarkup);
     $fixedMarkup = preg_replace('#<suggestion-end[^<>]*deletion[^<>]*></suggestion-end>#si', '</del>', $fixedMarkup);
 
+    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*formatInline[^<>]*></suggestion-start>#si', '<format>', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatInline[^<>]*></suggestion-end>#si', '</format>', $fixedMarkup);
+
+    $fixedMarkup = preg_replace('#data-suggestion-start-before="formatBlock[^"]*"#si', 'data-format-change', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatBlock[^<>]*></suggestion-end>#si', '', $fixedMarkup);
+
     $fixedMarkup = preg_replace('#<ins>\s*</ins>#si', '', $fixedMarkup);
     $fixedMarkup = preg_replace('#<del>\s*</del>#si', '', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<format>\s*</format>#si', '', $fixedMarkup);
 
-    $query = '//ins|//del';
+    $query = '//ins|//del|//format|//*[@data-format-change]';
     $result = [];
 
     foreach ($this->getMatchingContext($fixedMarkup, $query, FALSE) as $markup) {
@@ -311,6 +320,7 @@ class NotificationContextHelper {
       'comment',
       'del',
       'ins',
+      'format',
     ]);
   }
 
