@@ -171,7 +171,7 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function getReferencedEntity(): EntityInterface {
+  public function getReferencedEntity(): ?EntityInterface {
     return $this->entityTypeManager()
       ->getStorage($this->getEntityTypeTargetId())
       ->load($this->getEntityId());

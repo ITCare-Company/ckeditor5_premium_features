@@ -191,7 +191,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
       ->setContent($data->get('content'))
       ->setIsReply($raw_data['is_reply']);
 
-    if (!$comment->access('update')) {
+    if (!$comment->access('create')) {
       throw new AccessException();
     }
 

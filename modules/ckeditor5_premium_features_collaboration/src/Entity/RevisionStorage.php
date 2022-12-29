@@ -112,7 +112,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
     }
     $revision->setAttributes($attributes);
 
-    if (!$revision->access('update')) {
+    if (!$revision->access('create')) {
       throw new AccessException();
     }
 
@@ -127,6 +127,9 @@ class RevisionStorage extends SqlContentEntityStorage implements
     if (!$entity->access('update')) {
       throw new AccessException();
     }
+    if (!$entity instanceof Revision) {
+      return NULL;
+    }
 
     $raw_data = Revision::normalize($raw_data);
     $data = new ParameterBag($raw_data);
@@ -135,16 +138,10 @@ class RevisionStorage extends SqlContentEntityStorage implements
       ->setName($data->get('name'))
       ->setAuthors($data->get('authors'))
       ->setDiffData($data->get('diff_data'))
+      ->setAttributes($data->get('attributes'))
       ->setPreviousVersion($data->get('previous_version'))
       ->setCurrentVersion($data->get('current_version'))
       ->save();
-
-    // Set the 'draft' attribute if the creator is empty.
-    if (!$data->get('creator')) {
-      $entity->setAttributes([
-        'draft' => TRUE,
-      ]);
-    }
 
     return $entity;
   }
