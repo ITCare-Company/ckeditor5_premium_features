@@ -18,7 +18,7 @@ use Drupal\Core\Entity\FieldableEntityInterface;
  */
 class NotificationContextHelper {
 
-  const COMMENTS_LIMIT_IN_THREAD = 6;
+  const COMMENTS_LIMIT_IN_THREAD = 5;
 
   /**
    * Constructor.
