@@ -14,7 +14,11 @@
           <div class="dots"></div>
           <div class="comments-text">
             <span>
-              {{ threadCounter ~ " " }} {% if threadCounter > 1 %}{{ "hidden comments"|t }}{% else %}{{ "hidden comment"|t }}{% endif %}
+              {% trans %}
+                {{ threadCounter }} hidden comment
+              {% plural threadCounter %}
+                {{ threadCounter }} hidden comments
+              {% endtrans %}
             </span>
           </div>
           <div class="dots"></div>
