@@ -3,6 +3,7 @@ collaboration-integration-base:
   css:
     theme:
       css/sidebar.css: { }
+      css/general.css: { }
   js:
     js/build/sidebarAdapter.js: { minified: true }
     js/build/disableGhsTableIntegration.js: { minified: true }
