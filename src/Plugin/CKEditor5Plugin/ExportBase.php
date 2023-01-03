@@ -14,6 +14,7 @@ use Drupal\ckeditor5_premium_features\Utility\CssStyleProvider;
 use Drupal\ckeditor5_premium_features\Utility\FormElement;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
@@ -28,6 +29,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfigurableInterface, ContainerFactoryPluginInterface {
   use CKEditor5PluginConfigurableTrait;
+
+  const CUSTOM_CSS_DIRECTORY_PATH = 'public://styles/ckeditor5/export/';
 
   /**
    * The settings form object.
@@ -67,6 +70,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     protected ExportFeaturesConfigHandlerInterface $settingsConfigHandler,
     protected FileNameGeneratorInterface $fileNameGenerator,
     protected CssStyleProvider $cssStyleProvider,
+    protected FileUrlGeneratorInterface $fileUrlGenerator,
     ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
@@ -87,6 +91,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       $container->get('ckeditor5_premium_features.config_handler.export_settings')->setConfig($config['configuration']),
       $container->get('ckeditor5_premium_features.file_name_generator'),
       $container->get('ckeditor5_premium_features.css_style_provider'),
+      $container->get('file_url_generator'),
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -130,6 +135,10 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $this->fileNameGenerator->addExtensionFile($file_name, $file_extension);
     $static_plugin_config[$plugin]['fileName'] = $file_name;
     $static_plugin_config[$plugin]['stylesheets'] = $this->cssStyleProvider->getFormattedListOfCssFiles();
+    $customCss = $this->getCustomStyleCssPath($editor->getOriginalId());
+    if ($customCss) {
+      $static_plugin_config[$plugin]['stylesheets'][] = $customCss;
+    }
 
     return $static_plugin_config;
   }
@@ -148,6 +157,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $config = $this->configFactory->get($this->getPluginId());
 
     $global_options = $this->settingsConfigHandler->getConverterOptions();
+    $global_custom_css = $this->settingsConfigHandler->getConverterCustomCss();
     $override_global = $this->configuration['override_global'] ?? FALSE;
 
     $form['override_global'] = [
@@ -160,7 +170,10 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     ];
 
     if (!$override_global) {
-      $config->initWithData(['converter_options' => $global_options]);
+      $config->initWithData([
+        'custom_css' => $global_custom_css,
+        'converter_options' => $global_options,
+      ]);
     }
     else {
       $config->initWithData($this->configuration);
@@ -274,6 +287,43 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     }
 
     $config = array_filter($config);
+  }
+
+  /**
+   * Get the file with custom css.
+   *
+   * @param string $editorId
+   *   The Editor id.
+   *
+   * @return string|null
+   *   The file path for custom css or null.
+   */
+  protected function getCustomStyleCssPath(string $editorId): ?string {
+    if (empty($this->configuration['override_global'])) {
+      $customCss = $this->settingsConfigHandler->getConverterCustomCss();
+      $filePath = self::CUSTOM_CSS_DIRECTORY_PATH . $this->getPluginId() . '.css';
+    }
+    else {
+      $customCss = $this->configuration['custom_css'] ?? '';
+      $filePath = self::CUSTOM_CSS_DIRECTORY_PATH . $this->getPluginId() . '-' . $editorId . '.css';
+    }
+    if ($customCss) {
+      /* First check if file directory exist */
+      if (!file_exists(self::CUSTOM_CSS_DIRECTORY_PATH)) {
+        mkdir(self::CUSTOM_CSS_DIRECTORY_PATH, 0755, TRUE);
+      }
+
+      if (!file_exists($filePath)) {
+        file_put_contents($filePath, $customCss);
+      }
+      else {
+        if ($customCss !== file_get_contents($filePath)) {
+          file_put_contents($filePath, $customCss);
+        }
+      }
+      return $this->fileUrlGenerator->generateString($filePath);
+    }
+    return NULL;
   }
 
 }

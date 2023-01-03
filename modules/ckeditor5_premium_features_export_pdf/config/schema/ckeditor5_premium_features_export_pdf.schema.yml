@@ -6,6 +6,12 @@ ckeditor5.plugin.ckeditor5_premium_features_export_pdf__export_pdf:
     converter_url:
       type: string
       label: 'Converter URL'
+    override_global:
+      type: integer
+      label: 'Override global settings'
+    custom_css:
+      type: string
+      label: 'Custom css'
     converter_options:
       type: mapping
       label: 'Converter options'
@@ -73,6 +79,9 @@ ckeditor5_premium_features_export_pdf.settings:
     converter_url:
       type: string
       label: 'Converter URL'
+    custom_css:
+      type: string
+      label: 'Custom css'
     converter_options:
       type: mapping
       label: 'Converter options'

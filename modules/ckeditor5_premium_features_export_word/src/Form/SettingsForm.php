@@ -39,6 +39,12 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#default_value' => $config->get('converter_url'),
     ];
 
+    $form['custom_css'] = [
+      '#type' => 'textarea',
+      '#title' => t('Custom css'),
+      '#default_value' => $config->get('custom_css'),
+    ];
+
     $options_key = 'converter_options';
     $form[$options_key] = [
       '#type' => 'details',

@@ -6,6 +6,12 @@ ckeditor5.plugin.ckeditor5_premium_features_export_word__export_word:
     converter_url:
       type: string
       label: 'Converter URL'
+    override_global:
+      type: integer
+      label: 'Override global settings'
+    custom_css:
+      type: string
+      label: 'Custom css'
     converter_options:
       type: mapping
       label: 'Converter options'
@@ -53,6 +59,9 @@ ckeditor5.plugin.ckeditor5_premium_features_export_word__export_word:
             units:
               type: string
               label: 'Units'
+        page_orientation:
+          type: string
+          label: 'Page orientation'
         header:
           type: sequence
           label: 'Header'
@@ -91,6 +100,9 @@ ckeditor5_premium_features_export_word.settings:
     converter_url:
       type: string
       label: 'Converter URL'
+    custom_css:
+      type: string
+      label: 'Custom css'
     converter_options:
       type: mapping
       label: 'Converter options'
@@ -138,6 +150,9 @@ ckeditor5_premium_features_export_word.settings:
             units:
               type: string
               label: 'Units'
+        page_orientation:
+          type: string
+          label: 'Page orientation'
         header:
           type: sequence
           label: 'Header'

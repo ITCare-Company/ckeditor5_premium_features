@@ -54,6 +54,7 @@ class ExportWord extends ExportBase {
           ],
         ],
       ],
+      'custom_css' => NULL,
     ];
   }
 
