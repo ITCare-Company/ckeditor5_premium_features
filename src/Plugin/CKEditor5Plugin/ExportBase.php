@@ -135,7 +135,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $this->fileNameGenerator->addExtensionFile($file_name, $file_extension);
     $static_plugin_config[$plugin]['fileName'] = $file_name;
     $static_plugin_config[$plugin]['stylesheets'] = $this->cssStyleProvider->getFormattedListOfCssFiles();
-    $customCss = $this->getCustomStyleCssPath($editor->getOriginalId());
+    $customCss = $this->getCustomCssFilePath($editor->getOriginalId());
     if ($customCss) {
       $static_plugin_config[$plugin]['stylesheets'][] = $customCss;
     }
@@ -298,7 +298,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    * @return string|null
    *   The file path for custom css or null.
    */
-  protected function getCustomStyleCssPath(string $editorId): ?string {
+  protected function getCustomCssFilePath(string $editorId): ?string {
     if (empty($this->configuration['override_global'])) {
       $customCss = $this->settingsConfigHandler->getConverterCustomCss();
       $filePath = self::CUSTOM_CSS_DIRECTORY_PATH . $this->getPluginId() . '.css';
