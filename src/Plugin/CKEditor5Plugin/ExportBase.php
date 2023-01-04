@@ -14,6 +14,7 @@ use Drupal\ckeditor5_premium_features\Utility\CssStyleProvider;
 use Drupal\ckeditor5_premium_features\Utility\FormElement;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -71,6 +72,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     protected FileNameGeneratorInterface $fileNameGenerator,
     protected CssStyleProvider $cssStyleProvider,
     protected FileUrlGeneratorInterface $fileUrlGenerator,
+    protected FileSystemInterface $fileSystem,
     ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
@@ -92,6 +94,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       $container->get('ckeditor5_premium_features.file_name_generator'),
       $container->get('ckeditor5_premium_features.css_style_provider'),
       $container->get('file_url_generator'),
+      $container->get('file_system'),
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -299,30 +302,22 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    *   The file path for custom css or null.
    */
   protected function getCustomCssFilePath(string $editorId): ?string {
+    $directoryPath = self::CUSTOM_CSS_DIRECTORY_PATH;
     if (empty($this->configuration['override_global'])) {
       $customCss = $this->settingsConfigHandler->getConverterCustomCss();
-      $filePath = self::CUSTOM_CSS_DIRECTORY_PATH . $this->getPluginId() . '.css';
+      $filePath = $directoryPath . $this->getPluginId() . '.css';
     }
     else {
       $customCss = $this->configuration['custom_css'] ?? '';
-      $filePath = self::CUSTOM_CSS_DIRECTORY_PATH . $this->getPluginId() . '-' . $editorId . '.css';
+      $filePath = $directoryPath . $this->getPluginId() . '-' . $editorId . '.css';
     }
-    if ($customCss) {
-      /* First check if file directory exist */
-      if (!file_exists(self::CUSTOM_CSS_DIRECTORY_PATH)) {
-        mkdir(self::CUSTOM_CSS_DIRECTORY_PATH, 0755, TRUE);
-      }
 
-      if (!file_exists($filePath)) {
-        file_put_contents($filePath, $customCss);
-      }
-      else {
-        if ($customCss !== file_get_contents($filePath)) {
-          file_put_contents($filePath, $customCss);
-        }
-      }
+    if ($customCss) {
+      $this->fileSystem->prepareDirectory($directoryPath, FileSystemInterface::CREATE_DIRECTORY);
+      $this->fileSystem->saveData($customCss, $filePath, FileSystemInterface::EXISTS_REPLACE);
       return $this->fileUrlGenerator->generateString($filePath);
     }
+
     return NULL;
   }
 
