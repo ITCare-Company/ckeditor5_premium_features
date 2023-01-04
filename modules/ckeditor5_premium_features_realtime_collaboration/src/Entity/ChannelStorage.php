@@ -6,6 +6,7 @@ namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Entity;
 
 use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 
 /**
@@ -40,7 +41,22 @@ class ChannelStorage extends SqlContentEntityStorage {
     ];
 
     $channel = parent::create($properties);
-    $channel->save();
+    try {
+      $channel->save();
+    }
+    catch (EntityStorageException) {
+      $channel_stored = $this->load($channel_id);
+
+      // Below is only a backward compatibility with sites using the Channel
+      // entities, but before adding the `key_id` property.
+      if ($channel_stored instanceof Channel && $channel_stored->hasField('key_id') &&
+        empty($channel_stored->get('key_id')->getString())) {
+        $channel_stored->set('key_id', $element_id);
+        $channel_stored->save();
+
+        return $channel_stored;
+      }
+    }
 
     return $channel;
   }

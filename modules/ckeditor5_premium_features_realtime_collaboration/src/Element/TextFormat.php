@@ -141,17 +141,18 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    */
   public function completeFormSubmit(array &$form, FormStateInterface $form_state): void {
     $form_object = $form_state->getFormObject();
-    if (!$this->isFormTypeSupported($form_object)) {
-      // Do not process anything, the entity is missing.
+    if (!$this->isFormTypeSupported($form_object) || $form_state->isRebuilding()) {
+      // Do not process anything, the entity is missing or form is rebuilding.
       return;
     }
     $entity = $form_object->getEntity();
-    $items = $form_state->get(static::STORAGE_KEY) ?? [];
     $storage = $form_state->get(self::STORAGE_KEY_COLLABORATION);
 
-    foreach ($items as $element_key => $values) {
-      $channel_id = $storage['channels'][$element_key] ?? NULL;
+    if (empty($storage['channels'])) {
+      return;
+    }
 
+    foreach ($storage['channels'] as $element_key => $channel_id) {
       $this->handleEntityChannel($entity, $channel_id, $element_key);
     }
   }
@@ -180,7 +181,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     try {
       return $this->channelStorage->createChannel($entity, $entity_channel, $element_id);
     }
-    catch (EntityStorageException) {
+    catch (EntityStorageException $e) {
       return $this->channelStorage->loadByEntity($entity, $element_id);
     }
   }
