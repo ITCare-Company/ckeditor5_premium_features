@@ -5,6 +5,7 @@
  * Contains CKEditor 5 Premium Features Realtime module install functions.
  */
 
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Url;
 
 /**
@@ -50,4 +51,24 @@ function ckeditor5_premium_features_realtime_collaboration_requirements($phase):
   }
 
   return $requirements;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function ckeditor5_premium_features_realtime_collaboration_update_10000() {
+  $storageDefinition = BaseFieldDefinition::create('string')
+    ->setLabel(t('Field Key ID'));
+
+  $entityDefinition = \Drupal::entityDefinitionUpdateManager();
+  $rtChannel = $entityDefinition->getEntityType('ckeditor5_channel');
+
+  if ($rtChannel && !$rtChannel->hasKey('key_id')) {
+    $entityDefinition->installFieldStorageDefinition(
+      'key_id',
+      'ckeditor5_channel',
+      'ckeditor5_channel',
+      $storageDefinition
+    );
+  }
 }

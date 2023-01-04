@@ -13,7 +13,6 @@ use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInter
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\CollaborationSettings;
 use Drupal\Component\Utility\Crypt;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
@@ -90,13 +89,12 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       /** @var \Drupal\Core\Entity\EntityInterface $entity */
       $entity = $form_object->getEntity();
 
-      $channel_id = NestedArray::getValue(
-        $form_state->getUserInput(),
-        [...$element['#parents'], 'entity_channel']
-      ) ?? $this->getChannelId($entity->uuid() . $element_unique_id);
+      $storage = $form_state->get(self::STORAGE_KEY_COLLABORATION);
+      $channel_id = $storage['channels'][$element_unique_id] ??
+        $this->getChannelId($entity->uuid() . $element_unique_id);
 
       if (!$entity->isNew()) {
-        $channel = $this->handleEntityChannel($entity, $channel_id);
+        $channel = $this->handleEntityChannel($entity, $channel_id, $element_unique_id);
 
         if ($channel instanceof ChannelInterface) {
           $channel_id = $channel->id();
@@ -108,10 +106,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
       $this->apiAdapter->validateLibraryVersion($channel_id);
 
-      $element['entity_channel'] = [
-        '#type' => 'hidden',
-        '#value' => $channel_id,
-      ];
+      $storage['channels'][$element_unique_id] = $channel_id;
+      $form_state->set(static::STORAGE_KEY_COLLABORATION, $storage);
     }
     else {
       $channel_id = $this->getChannelId($element_drupal_id . random_bytes(5));
@@ -149,12 +145,15 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       // Do not process anything, the entity is missing.
       return;
     }
-    $items = $form_state->get(static::STORAGE_KEY) ?? [];
-    $entity_channel = $form_state->getValue([...reset($items), 'entity_channel']);
-
     $entity = $form_object->getEntity();
+    $items = $form_state->get(static::STORAGE_KEY) ?? [];
+    $storage = $form_state->get(self::STORAGE_KEY_COLLABORATION);
 
-    $this->handleEntityChannel($entity, $entity_channel);
+    foreach ($items as $element_key => $values) {
+      $channel_id = $storage['channels'][$element_key] ?? NULL;
+
+      $this->handleEntityChannel($entity, $channel_id, $element_key);
+    }
   }
 
   /**
@@ -164,6 +163,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   Referenced entity.
    * @param string $entity_channel
    *   Desired entity channel ID.
+   * @param string $element_id
+   *   ID of the field element.
    *
    * @return \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface|null
    *   Channel entity if exists.
@@ -171,16 +172,16 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  private function handleEntityChannel(EntityInterface $entity, string $entity_channel): ?ChannelInterface {
-    if ($channel = $this->channelStorage->loadByEntity($entity)) {
+  private function handleEntityChannel(EntityInterface $entity, string $entity_channel, string $element_id): ?ChannelInterface {
+    if ($channel = $this->channelStorage->loadByEntity($entity, $element_id)) {
       return $channel;
     }
 
     try {
-      return $this->channelStorage->createChannel($entity, $entity_channel);
+      return $this->channelStorage->createChannel($entity, $entity_channel, $element_id);
     }
     catch (EntityStorageException) {
-      return $this->channelStorage->loadByEntity($entity);
+      return $this->channelStorage->loadByEntity($entity, $element_id);
     }
   }
 

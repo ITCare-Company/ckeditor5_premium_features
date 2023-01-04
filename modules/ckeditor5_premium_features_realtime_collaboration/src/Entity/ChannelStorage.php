@@ -22,18 +22,21 @@ class ChannelStorage extends SqlContentEntityStorage {
    *   The entity item.
    * @param string $channel_id
    *   Channel ID.
+   * @param string $element_id
+   *   ID of the field element.
    *
    * @return \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface
    *   Channel entity.
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function createChannel(EntityInterface $entity, string $channel_id): ChannelInterface {
+  public function createChannel(EntityInterface $entity, string $channel_id, string $element_id): ChannelInterface {
     $properties = [
       'id' => $channel_id,
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->uuid(),
       'created' => time(),
+      'key_id' => $element_id,
     ];
 
     $channel = parent::create($properties);
@@ -47,14 +50,17 @@ class ChannelStorage extends SqlContentEntityStorage {
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity item.
+   * @param string $element_id
+   *   ID of the field element.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function loadByEntity(EntityInterface $entity): ?ChannelInterface {
+  public function loadByEntity(EntityInterface $entity, string $element_id): ?ChannelInterface {
     $properties = [
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->uuid(),
+      'key_id' => $element_id,
     ];
 
     $channel = $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID)
