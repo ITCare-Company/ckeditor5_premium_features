@@ -75,11 +75,48 @@ class HtmlHelper {
       'start',
       'end',
     ];
-    $xpath = new \DOMXPath($document);
 
     foreach ($postfix as $type) {
       $removeQueries[] = "//$elementType-$type" . "[not($selector)]";
     }
+
+    $this->doRemoveElements($document, $removeQueries);
+  }
+
+  /**
+   * Removes collaboration entities having data-suggestion- prefixed attributes
+   * not matching passed selector.
+   *
+   * @param \DOMDocument $document
+   *   Document to be processed.
+   * @param string $selector
+   *   Selector used for filtering not matching elements.
+   */
+  public function removeNotRequiredCollaborationElementsWithSuggestionAttributes(\DOMDocument $document, string $selector): void {
+    $removeQueries = [];
+    $attributes = [
+      'data-suggestion-start-before',
+      'data-suggestion-end-after',
+    ];
+
+    foreach ($attributes as $attribute) {
+      $removeQueries[] = "//*[@$attribute]" . "[not($selector)]";
+    }
+
+    $this->doRemoveElements($document, $removeQueries);
+  }
+
+  /**
+   * Removes collaboration entities matching passed queries.
+   *
+   * @param \DOMDocument $document
+   *   Document to be processed.
+   * @param array $removeQueries
+   *   Array of queries defining entities ro remove.
+   */
+  private function doRemoveElements(\DOMDocument $document, array $removeQueries): void {
+    $xpath = new \DOMXPath($document);
+
     foreach ($removeQueries as $queryR) {
       $commentsToRemove = $xpath->query($queryR);
       /** @var \DOMElement $elementToRemove */

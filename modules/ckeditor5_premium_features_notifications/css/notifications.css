@@ -121,6 +121,18 @@ comment > img {
   outline: var(--ck-color-comment-marker) solid;
 }
 
+format,
+format * {
+  border-top: 3px solid var(--ck-color-suggestion-marker-format-border);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-format-border);
+}
+
+[data-format-change] {
+  background: none;
+  border: 0;
+  box-shadow: -7px 0 0 0 #fff,-10px 0 0 0 var(--ck-color-suggestion-marker-format-border);
+}
+
 span.mention {
   color: var(--ck-color-mention-text);
 }
