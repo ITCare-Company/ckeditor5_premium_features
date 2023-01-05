@@ -46,6 +46,27 @@
   margin-top: 15px;
 }
 
+.comments-count-wrapper {
+  padding: 10px;
+  margin: auto;
+}
+
+.comments-count-wrapper .comments-text {
+  text-align: center;
+  padding: 5px;
+}
+
+.comments-count-wrapper .comments-text > span {
+  color: #909090;
+  font-weight: 600;
+}
+
+.comments-count-wrapper .dots {
+  height: 40px;
+  background-image: radial-gradient(circle, #909090 3px, transparent 3px);
+  background-size: 100% 50%;
+}
+
 .highlight-item-wrapper .highlight-item {
   background-color: yellow;
 }
@@ -112,9 +133,25 @@ comment {
   border-bottom: 3px solid transparent;
 }
 
-comment,
+comment:not(:has(img)),
 comment * {
   background: var(--ck-color-comment-marker);
+}
+comment > img {
+  background: none;
+  outline: var(--ck-color-comment-marker) solid;
+}
+
+format,
+format * {
+  border-top: 3px solid var(--ck-color-suggestion-marker-format-border);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-format-border);
+}
+
+[data-format-change] {
+  background: none;
+  border: 0;
+  box-shadow: -7px 0 0 0 #fff,-10px 0 0 0 var(--ck-color-suggestion-marker-format-border);
 }
 
 span.mention {
@@ -125,10 +162,20 @@ span.mention {
   background-color: transparent;
 }
 
-[data-mention] > ins {
+span.mention.highlight-item > ins {
   border-bottom: none;
   border-top: none;
   background: var(--ck-color-mention-background);
+}
+
+blockquote {
+  border-left: 5px solid #ccc;
+  font-style: italic;
+  margin-left: 0;
+  margin-right: 0;
+  overflow: hidden;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
 }
 
 pre {

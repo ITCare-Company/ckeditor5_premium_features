@@ -32,7 +32,6 @@ collaboration:
 collaboration-integration:
   js:
     js/build/userAdapter.js: { minified: true }
-    js/build/commentsAdapter.js: { minified: true }
     js/build/trackChangesAdapter.js: { minified: true }
 
 mention-integration:
