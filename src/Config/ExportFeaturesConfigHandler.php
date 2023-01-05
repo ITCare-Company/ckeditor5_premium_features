@@ -63,11 +63,4 @@ class ExportFeaturesConfigHandler implements ExportFeaturesConfigHandlerInterfac
     return array_filter($options);
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getConverterCustomCss(): ?string {
-    return $this->config->get('custom_css');
-  }
-
 }

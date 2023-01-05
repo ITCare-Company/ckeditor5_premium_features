@@ -8,6 +8,7 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableInterface;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandlerInterface;
+use Drupal\ckeditor5_premium_features\Form\BaseExportSettingsForm;
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormInterface;
 use Drupal\ckeditor5_premium_features\Generator\FileNameGeneratorInterface;
 use Drupal\ckeditor5_premium_features\Utility\CssStyleProvider;
@@ -71,7 +72,6 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     protected ExportFeaturesConfigHandlerInterface $settingsConfigHandler,
     protected FileNameGeneratorInterface $fileNameGenerator,
     protected CssStyleProvider $cssStyleProvider,
-    protected FileUrlGeneratorInterface $fileUrlGenerator,
     protected FileSystemInterface $fileSystem,
     ...$parent_arguments
   ) {
@@ -93,7 +93,6 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       $container->get('ckeditor5_premium_features.config_handler.export_settings')->setConfig($config['configuration']),
       $container->get('ckeditor5_premium_features.file_name_generator'),
       $container->get('ckeditor5_premium_features.css_style_provider'),
-      $container->get('file_url_generator'),
       $container->get('file_system'),
       $configuration,
       $plugin_id,
@@ -138,11 +137,10 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $this->fileNameGenerator->addExtensionFile($file_name, $file_extension);
     $static_plugin_config[$plugin]['fileName'] = $file_name;
     $static_plugin_config[$plugin]['stylesheets'] = $this->cssStyleProvider->getFormattedListOfCssFiles();
-    $customCss = $this->getCustomCssFilePath($editor->getOriginalId());
-    if ($customCss) {
-      $static_plugin_config[$plugin]['stylesheets'][] = $customCss;
+    $customCssFile = $this->getCustomCssFilePath($editor->getOriginalId());
+    if ($customCssFile) {
+      $static_plugin_config[$plugin]['stylesheets'][] = $customCssFile;
     }
-
     return $static_plugin_config;
   }
 
@@ -160,7 +158,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $config = $this->configFactory->get($this->getPluginId());
 
     $global_options = $this->settingsConfigHandler->getConverterOptions();
-    $global_custom_css = $this->settingsConfigHandler->getConverterCustomCss();
+    $global_custom_css = $this->configuration['custom_css'] ?? NULL;
     $override_global = $this->configuration['override_global'] ?? FALSE;
 
     $form['override_global'] = [
@@ -205,6 +203,14 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->configuration = $form_state->cleanValues()->getValues();
+
+    if (!empty($this->configuration['override_global']) &&
+        $this->settingsForm instanceof BaseExportSettingsForm) {
+      $formObject = $form_state->getFormObject();
+      $editor = $formObject->getEntity();
+      $fileName = $this->settingsForm->getCustomCssFileName() . '-' . $editor->getOriginalId();
+      $this->cssStyleProvider->updateCustomCssFile($this->configuration['custom_css'], $fileName);
+    }
 
     unset($this->configuration['converter_options']['header']['actions']);
     unset($this->configuration['converter_options']['footer']['actions']);
@@ -298,27 +304,22 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    * @param string $editorId
    *   The Editor id.
    *
-   * @return string|null
+   * @return string|bool
    *   The file path for custom css or null.
    */
-  protected function getCustomCssFilePath(string $editorId): ?string {
-    $directoryPath = self::CUSTOM_CSS_DIRECTORY_PATH;
-    if (empty($this->configuration['override_global'])) {
-      $customCss = $this->settingsConfigHandler->getConverterCustomCss();
-      $filePath = $directoryPath . $this->getPluginId() . '.css';
+  protected function getCustomCssFilePath(string $editorId): bool|string {
+    if (!$this->settingsForm instanceof BaseExportSettingsForm) {
+      return FALSE;
+    }
+
+    if (!empty($this->configuration['override_global'])) {
+      $fileName = $this->settingsForm->getCustomCssFileName() . '-' . $editorId;
     }
     else {
-      $customCss = $this->configuration['custom_css'] ?? '';
-      $filePath = $directoryPath . $this->getPluginId() . '-' . $editorId . '.css';
+      $fileName = $this->settingsForm->getCustomCssFileName();
     }
 
-    if ($customCss) {
-      $this->fileSystem->prepareDirectory($directoryPath, FileSystemInterface::CREATE_DIRECTORY);
-      $this->fileSystem->saveData($customCss, $filePath, FileSystemInterface::EXISTS_REPLACE);
-      return $this->fileUrlGenerator->generateString($filePath);
-    }
-
-    return NULL;
+    return $this->cssStyleProvider->getCustomCssFile($fileName);
   }
 
 }

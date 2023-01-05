@@ -36,12 +36,4 @@ interface ExportFeaturesConfigHandlerInterface {
    */
   public function getConverterOptions(): array;
 
-  /**
-   * Gets the converter custom css.
-   *
-   * @return string|null
-   *   The custom css or null.
-   */
-  public function getConverterCustomCss(): ?string;
-
 }
