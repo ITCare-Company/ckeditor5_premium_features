@@ -46,6 +46,27 @@
   margin-top: 15px;
 }
 
+.comments-count-wrapper {
+  padding: 10px;
+  margin: auto;
+}
+
+.comments-count-wrapper .comments-text {
+  text-align: center;
+  padding: 5px;
+}
+
+.comments-count-wrapper .comments-text > span {
+  color: #909090;
+  font-weight: 600;
+}
+
+.comments-count-wrapper .dots {
+  height: 40px;
+  background-image: radial-gradient(circle, #909090 3px, transparent 3px);
+  background-size: 100% 50%;
+}
+
 .highlight-item-wrapper .highlight-item {
   background-color: yellow;
 }
