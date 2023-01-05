@@ -129,7 +129,7 @@ span.mention {
   background-color: transparent;
 }
 
-[data-mention] > ins {
+span.mention.highlight-item > ins {
   border-bottom: none;
   border-top: none;
   background: var(--ck-color-mention-background);
