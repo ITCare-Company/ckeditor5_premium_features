@@ -295,6 +295,17 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       return;
     }
 
+    if ($storage instanceof CommentsStorage) {
+      $threadIds = [];
+      $added = array_filter($added, function ($comment) use (&$threadIds) {
+        $uniqueThread = !in_array($comment->getThreadId(), $threadIds);
+        if ($uniqueThread) {
+          $threadIds[] = $comment->getThreadId();
+        }
+        return $uniqueThread;
+      });
+    }
+
     foreach ($added as $added_entity) {
       $storage->dispatchNewEntity($added_entity);
     }
