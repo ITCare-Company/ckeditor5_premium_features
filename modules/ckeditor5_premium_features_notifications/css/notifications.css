@@ -177,3 +177,28 @@ blockquote {
   padding-left: 1.5em;
   padding-right: 1.5em;
 }
+
+pre {
+  background: hsla(0,0%,78%,.3);
+  border: 1px solid #c4c4c4;
+  border-radius: 2px;
+  color: #353535;
+  direction: ltr;
+  font-style: normal;
+  min-width: 200px;
+  padding: 1em;
+  tab-size: 4;
+  text-align: left;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+td,
+th {
+  border: 1px solid #bfbfbf;
+  min-width: 2em;
+  padding: .4em;
+}
