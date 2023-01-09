@@ -66,6 +66,10 @@ class NotificationContextHelper {
       $snippets = $this->getHighlightedSuggestion($context, $entity);
     }
 
+    if (empty($snippets)) {
+      return [];
+    }
+
     $fullContext = [
       '#theme' => 'notification_message_single',
       '#context' => $snippets,
