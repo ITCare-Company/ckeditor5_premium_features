@@ -185,7 +185,7 @@ class FormElement {
       }
       else {
         $margin_config = [
-          'value' => 1,
+          'value' => '1',
           'units' => 'cm',
         ];
       }
