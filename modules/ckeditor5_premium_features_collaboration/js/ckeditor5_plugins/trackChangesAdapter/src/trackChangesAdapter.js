@@ -70,6 +70,10 @@ class TrackChangesAdapter {
       if (this.trackedSuggestion.has(suggestions[i].id)) {
         if (suggestions[i].isInContent == true) {
           suggestions[i].removeAttribute('status');
+        } else {
+          if (typeof suggestions[i].attributes.status === 'undefined') {
+            this.trackedSuggestion.delete(suggestions[i].id)
+          }
         }
         continue;
       }
