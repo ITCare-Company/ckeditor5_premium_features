@@ -22,6 +22,7 @@ class ExportWord extends ExportBase {
     return [
       'converter_url' => NULL,
       'converter_options' => [
+        'custom_css' => NULL,
         'format' => NULL,
         'margin_top' => [
           'value' => NULL,
@@ -54,7 +55,6 @@ class ExportWord extends ExportBase {
           ],
         ],
       ],
-      'custom_css' => NULL,
     ];
   }
 

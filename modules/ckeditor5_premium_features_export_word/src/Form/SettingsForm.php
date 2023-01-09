@@ -46,12 +46,6 @@ class SettingsForm extends BaseExportSettingsForm {
       '#default_value' => $config->get('converter_url'),
     ];
 
-    $form['custom_css'] = [
-      '#type' => 'textarea',
-      '#title' => t('Custom css'),
-      '#default_value' => $config->get('custom_css'),
-    ];
-
     $options_key = 'converter_options';
     $form[$options_key] = [
       '#type' => 'details',
@@ -61,6 +55,12 @@ class SettingsForm extends BaseExportSettingsForm {
     ];
 
     $options = &$form[$options_key];
+
+    $options['custom_css'] = [
+      '#type' => 'textarea',
+      '#title' => t('Custom css'),
+      '#default_value' => $config->get($options_key . '.custom_css'),
+    ];
 
     FormElement::format($options, [
       '#default_value' => $config->get($options_key . '.format') ?? 'A4',

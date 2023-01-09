@@ -158,7 +158,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $config = $this->configFactory->get($this->getPluginId());
 
     $global_options = $this->settingsConfigHandler->getConverterOptions();
-    $global_custom_css = $this->configuration['custom_css'] ?? NULL;
+    $global_custom_css = $global_options['custom_css'] ?? NULL;
     $override_global = $this->configuration['override_global'] ?? FALSE;
 
     $form['override_global'] = [
@@ -209,7 +209,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       $formObject = $form_state->getFormObject();
       $editor = $formObject->getEntity();
       $fileName = $this->settingsForm->getCustomCssFileName() . '-' . $editor->getOriginalId();
-      $this->cssStyleProvider->updateCustomCssFile($this->configuration['custom_css'], $fileName);
+      $this->cssStyleProvider->updateCustomCssFile($this->configuration['converter_options']['custom_css'], $fileName);
     }
 
     unset($this->configuration['converter_options']['header']['actions']);

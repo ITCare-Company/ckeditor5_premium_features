@@ -46,7 +46,8 @@ abstract class BaseExportSettingsForm extends SharedBuildConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $this->cssStyleProvider->updateCustomCssFile($form_state->getValue('custom_css'), $this->getCustomCssFileName());
+    $customCss = $form_state->getValue('converter_options')['custom_css'] ?? NULL;
+    $this->cssStyleProvider->updateCustomCssFile($customCss, $this->getCustomCssFileName());
     parent::submitForm($form, $form_state);
   }
 

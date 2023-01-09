@@ -9,13 +9,13 @@ ckeditor5.plugin.ckeditor5_premium_features_export_word__export_word:
     override_global:
       type: integer
       label: 'Override global settings'
-    custom_css:
-      type: string
-      label: 'Custom css'
     converter_options:
       type: mapping
       label: 'Converter options'
       mapping:
+        custom_css:
+          type: string
+          label: 'Custom css'
         format:
           type: string
           label: 'Page format'
@@ -100,13 +100,13 @@ ckeditor5_premium_features_export_word.settings:
     converter_url:
       type: string
       label: 'Converter URL'
-    custom_css:
-      type: string
-      label: 'Custom css'
     converter_options:
       type: mapping
       label: 'Converter options'
       mapping:
+        custom_css:
+          type: string
+          label: 'Custom css'
         format:
           type: string
           label: 'Page format'
