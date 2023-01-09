@@ -56,12 +56,6 @@ class SettingsForm extends BaseExportSettingsForm {
 
     $options = &$form[$options_key];
 
-    $options['custom_css'] = [
-      '#type' => 'textarea',
-      '#title' => t('Custom css'),
-      '#default_value' => $config->get($options_key . '.custom_css'),
-    ];
-
     FormElement::format($options, [
       '#default_value' => $config->get($options_key . '.format') ?? 'A4',
     ]);
@@ -81,6 +75,12 @@ class SettingsForm extends BaseExportSettingsForm {
     FormElement::pageOrientation($options, [
       '#default_value' => $config->get($options_key . '.page_orientation') ?? 'portrait',
     ]);
+
+    $options['custom_css'] = [
+      '#type' => 'textarea',
+      '#title' => t('Custom css'),
+      '#default_value' => $config->get($options_key . '.custom_css'),
+    ];
 
     $num_headers = $form_state->get('num_headers');
     $num_footers = $form_state->get('num_footers');
