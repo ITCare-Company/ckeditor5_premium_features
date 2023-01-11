@@ -2,6 +2,7 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
@@ -154,6 +155,16 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
         break;
 
       case self::CKEDITOR5_MESSAGE_MENTION_COMMENT:
+        // Check if mention is in suggestion comment.
+        // If so, then set suggestion in $parameters.
+        // This will provide valid context in notification.
+        if ($relatedEntity instanceof CommentInterface) {
+          $relatedSuggestion = $this->suggestionStorage->load($relatedEntity->getThreadId());
+          if ($relatedSuggestion) {
+            $parameters[$relatedSuggestion->getEntityTypeId()] = $relatedSuggestion;
+            break;
+          }
+        }
       case self::CKEDITOR5_MESSAGE_MENTION_DOCUMENT:
         $user = User::load($event->getReferencedUserId());
         $parameters['marker'] = $user->getAccountName();

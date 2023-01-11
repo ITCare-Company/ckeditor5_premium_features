@@ -126,10 +126,7 @@ class Collaborators {
    *   Returns author ID or NULL if no suggestion matches the comment.
    */
   public function getThreadSuggestionAuthor(Comment $comment): int|NULL {
-    // Get thread.
-    $commentsInThread = $this->getCommentsThread($comment->getThreadId());
-
-    if (!$this->isSuggestionThread($commentsInThread)) {
+    if (!$this->isCommentInSuggestionThread($comment)) {
       return NULL;
     }
 
@@ -268,6 +265,25 @@ class Collaborators {
     catch (\Exception $e) {
       return [];
     }
+  }
+
+  /**
+   * Check if the comment is placed in a suggestion thread.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment
+   *   Comment entity.
+   *
+   * @return bool
+   *   Return true if the comment is in the suggestion tread.
+   */
+  public function isCommentInSuggestionThread(Comment $comment): bool {
+    // Get thread.
+    $commentsInThread = $this->getCommentsThread($comment->getThreadId());
+
+    if (!$this->isSuggestionThread($commentsInThread)) {
+      return FALSE;
+    }
+    return TRUE;
   }
 
 }

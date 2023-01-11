@@ -54,7 +54,11 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
 
     $participators = $this->collaboratorsService->getParticipators($collaborationEntity);
     $threadSuggestionAuthor = $this->collaboratorsService->getThreadSuggestionAuthor($collaborationEntity);
-    $participators = array_diff($participators, [$threadSuggestionAuthor]);
+    if ($threadSuggestionAuthor) {
+      $participators[] = $threadSuggestionAuthor;
+    }
+    $isSuggestionReplay = $this->collaboratorsService->isCommentInSuggestionThread($collaborationEntity);
+    $participators = array_unique($participators);
     $replyRecipients = [];
     if (!$collaborationEntity->isReply()) {
       $authors = $event->getRelatedDocumentAuthors();
@@ -72,7 +76,7 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
       );
     }
 
-    if (!empty($participators)) {
+    if (!empty($participators) && !$isSuggestionReplay) {
       // Send notification to users participated in a thread.
       $this->notificationSender->sendNotification(
         NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY,
@@ -81,11 +85,11 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
       );
     }
 
-    if ($threadSuggestionAuthor > 0) {
+    if (!empty($participators) && $isSuggestionReplay) {
       // Send notification to the suggestion author.
       $this->notificationSender->sendNotification(
         NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY,
-        [$threadSuggestionAuthor],
+        $participators,
         $event
       );
     }
@@ -95,7 +99,7 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
       $users = $this->collaboratorsService->getUserIdsByNames($mentions);
       $this->checkIfNotificationAlreadySentToUsers(
         $users,
-        array_merge($replyRecipients, $participators, [$threadSuggestionAuthor])
+        array_merge($replyRecipients, $participators)
       );
       if (!empty($users)) {
         $this->notificationSender->sendNotification(
