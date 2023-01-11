@@ -114,7 +114,7 @@ class FilterCollaboration extends FilterBase {
             if (!$suggestion || !$suggestion->parentNode) {
               continue;
             }
-            $suggestion->remove();
+            $suggestion->replaceWith(' ');
           }
           catch (\Throwable) {
             continue;
