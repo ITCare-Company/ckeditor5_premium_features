@@ -189,6 +189,7 @@ function ckeditor5_premium_features_notifications_theme($existing, $type, $theme
         'thread' => NULL,
         'threadCounter' => NULL,
         'firstComment' => NULL,
+        'formattingChange' => NULL,
       ],
     ],
     'notification_context' => [

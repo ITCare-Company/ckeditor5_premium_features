@@ -104,6 +104,10 @@
   margin: 10px;
 }
 
+.context-title {
+  font-style: italic;
+}
+
 del,
 del > p {
   background: var(--ck-color-suggestion-marker-deletion-background);
