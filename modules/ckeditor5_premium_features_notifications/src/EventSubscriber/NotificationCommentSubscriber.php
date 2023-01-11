@@ -79,7 +79,7 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     if (!empty($participators) && !$isSuggestionReplay) {
       $this->checkIfNotificationAlreadySentToUsers(
         $participators,
-        array_merge($replyRecipients, $participators)
+        $replyRecipients
       );
       // Send notification to users participated in a thread.
       $this->notificationSender->sendNotification(
