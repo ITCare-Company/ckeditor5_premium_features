@@ -5,6 +5,7 @@ ckeditor5_premium_features_realtime_collaboration__comment:
       - realtimeAdapter.RealtimeAdapter
       - realTimeCollaboration.PresenceList
       - comments.Comments
+      - commentsAdapter.CommentsAdapter
       - realTimeCollaboration.RealTimeCollaborativeComments
   drupal:
     label: Comments

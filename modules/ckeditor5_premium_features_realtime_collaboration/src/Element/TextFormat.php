@@ -96,7 +96,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       ) ?? $this->getChannelId($entity->uuid() . $element_unique_id);
 
       if (!$entity->isNew()) {
-        $channel = $this->handleEntityChannel($entity, $channel_id);
+        $channel = $this->handleEntityChannel($entity, $channel_id, $element_unique_id);
 
         if ($channel instanceof ChannelInterface) {
           $channel_id = $channel->id();
@@ -145,16 +145,18 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    */
   public function completeFormSubmit(array &$form, FormStateInterface $form_state): void {
     $form_object = $form_state->getFormObject();
-    if (!$this->isFormTypeSupported($form_object)) {
-      // Do not process anything, the entity is missing.
+    if (!$this->isFormTypeSupported($form_object) || $form_state->isRebuilding()) {
+      // Do not process anything, the entity is missing or form is rebuilding.
       return;
     }
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
-    $entity_channel = $form_state->getValue([...reset($items), 'entity_channel']);
 
     $entity = $form_object->getEntity();
 
-    $this->handleEntityChannel($entity, $entity_channel);
+    foreach ($items as $element_key => $element_parents) {
+      $entity_channel = $form_state->getValue([...$element_parents, 'entity_channel']);
+      $this->handleEntityChannel($entity, $entity_channel, $element_key);
+    }
   }
 
   /**
@@ -164,6 +166,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   Referenced entity.
    * @param string $entity_channel
    *   Desired entity channel ID.
+   * @param string $element_id
+   *   ID of the field element.
    *
    * @return \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface|null
    *   Channel entity if exists.
@@ -171,16 +175,16 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  private function handleEntityChannel(EntityInterface $entity, string $entity_channel): ?ChannelInterface {
-    if ($channel = $this->channelStorage->loadByEntity($entity)) {
+  private function handleEntityChannel(EntityInterface $entity, string $entity_channel, string $element_id): ?ChannelInterface {
+    if ($channel = $this->channelStorage->loadByEntity($entity, $element_id)) {
       return $channel;
     }
 
     try {
-      return $this->channelStorage->createChannel($entity, $entity_channel);
+      return $this->channelStorage->createChannel($entity, $entity_channel, $element_id);
     }
-    catch (EntityStorageException) {
-      return $this->channelStorage->loadByEntity($entity);
+    catch (EntityStorageException $e) {
+      return $this->channelStorage->loadByEntity($entity, $element_id);
     }
   }
 

@@ -18,6 +18,8 @@ use Drupal\Core\Entity\FieldableEntityInterface;
  */
 class NotificationContextHelper {
 
+  const COMMENTS_LIMIT_IN_THREAD = 5;
+
   /**
    * Constructor.
    *
@@ -64,11 +66,18 @@ class NotificationContextHelper {
       $snippets = $this->getHighlightedSuggestion($context, $entity);
     }
 
-    return [
+    if (empty($snippets)) {
+      return [];
+    }
+
+    $fullContext = [
       '#theme' => 'notification_message_single',
       '#context' => $snippets,
       '#thread' => $thread,
     ];
+
+    $this->setCommentsLimitInThread($fullContext, $thread);
+    return $fullContext;
   }
 
   /**
@@ -176,12 +185,14 @@ class NotificationContextHelper {
     foreach ($suggestionChain as $suggestion) {
       $chainSuggestionId = $suggestion->id();
       $queryOrParts[] = "contains(@name,'$chainSuggestionId')";
+      $queryOrParts[] = "contains(@data-suggestion-start-before,'$chainSuggestionId')";
     }
     $matchingSelectRule = implode(' or ', $queryOrParts);
 
     $document = Html::load($context);
 
     $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'suggestion', $matchingSelectRule);
+    $this->htmlHelper->removeNotRequiredCollaborationElementsWithSuggestionAttributes($document, $matchingSelectRule);
 
     foreach ($queryOrParts as $chainPart) {
       $this->htmlHelper->convertCollaborationTagsWrappings($document, 'suggestion', $chainPart);
@@ -195,10 +206,17 @@ class NotificationContextHelper {
     $fixedMarkup = preg_replace('#<suggestion-start[^<>]*deletion[^<>]*></suggestion-start>#si', '<del>', $fixedMarkup);
     $fixedMarkup = preg_replace('#<suggestion-end[^<>]*deletion[^<>]*></suggestion-end>#si', '</del>', $fixedMarkup);
 
+    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*formatInline[^<>]*></suggestion-start>#si', '<format>', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatInline[^<>]*></suggestion-end>#si', '</format>', $fixedMarkup);
+
+    $fixedMarkup = preg_replace('#data-suggestion-start-before="formatBlock[^"]*"#si', 'data-format-change', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatBlock[^<>]*></suggestion-end>#si', '', $fixedMarkup);
+
     $fixedMarkup = preg_replace('#<ins>\s*</ins>#si', '', $fixedMarkup);
     $fixedMarkup = preg_replace('#<del>\s*</del>#si', '', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<format>\s*</format>#si', '', $fixedMarkup);
 
-    $query = '//ins|//del';
+    $query = '//ins|//del|//format|//*[@data-format-change]';
     $result = [];
 
     foreach ($this->getMatchingContext($fixedMarkup, $query, FALSE) as $markup) {
@@ -311,6 +329,7 @@ class NotificationContextHelper {
       'comment',
       'del',
       'ins',
+      'format',
     ]);
   }
 
@@ -364,6 +383,28 @@ class NotificationContextHelper {
     }
 
     return $contextParts;
+  }
+
+  /**
+   * Set a display limit for comments in the thread.
+   *
+   * If there are more than 6 comments,
+   * the first one and last 5 will be displayed in the notification.
+   *
+   * @param array $fullContext
+   *   Full context.
+   * @param array $thread
+   *   Thread.
+   */
+  protected function setCommentsLimitInThread(array &$fullContext, array $thread): void {
+    if (count($thread) > self::COMMENTS_LIMIT_IN_THREAD) {
+      $firstComment[] = current($thread);
+      $threadCounter = count($thread) - self::COMMENTS_LIMIT_IN_THREAD;
+      $thread = array_slice($thread, -(self::COMMENTS_LIMIT_IN_THREAD - 1));
+      $fullContext['#thread'] = $thread;
+      $fullContext['#threadCounter'] = $threadCounter;
+      $fullContext['#firstComment'] = $firstComment;
+    }
   }
 
 }

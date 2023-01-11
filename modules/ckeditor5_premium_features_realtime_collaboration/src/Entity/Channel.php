@@ -54,6 +54,9 @@ class Channel extends ContentEntityBase implements ChannelInterface {
       ->setLabel(t('Created'))
       ->setDescription(t('The time that the suggestion was created.'));
 
+    $fields['key_id'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Field Key ID'));
+
     return $fields;
   }
 
