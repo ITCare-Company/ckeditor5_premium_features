@@ -4,6 +4,8 @@ namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
 use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
 use Drupal\ckeditor5_premium_features\Plugin\Filter\FilterCollaboration;
+use Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator;
+use Drupal\ckeditor5_premium_features_mentions\Utility\MentionsHelper;
 use Drupal\ckeditor5_premium_features_notifications\Diff\Ckeditor5DiffInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
@@ -30,6 +32,13 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
   protected FilterCollaboration $filterCollaboration;
 
   /**
+   * Mentions helper utility.
+   *
+   * @var \Drupal\ckeditor5_premium_features_mentions\Utility\MentionsHelper|null
+   */
+  protected MentionsHelper $mentionsHelper;
+
+  /**
    * Constructor.
    *
    * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationSender
@@ -44,6 +53,8 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
    *   Notifications settings helper.
    * @param \Drupal\filter\FilterPluginManager $filterPluginManager
    *   Filter plugin manager.
+   * @param \Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator $mentionsIntegrator
+   *   Mentions integrator helper.
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
@@ -53,9 +64,14 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
     protected AccountInterface $currentUser,
     protected Ckeditor5DiffInterface $ckeditor5Diff,
     protected NotificationSettings $notificationSettings,
-    FilterPluginManager $filterPluginManager
+    FilterPluginManager $filterPluginManager,
+    protected MentionsIntegrator $mentionsIntegrator
   ) {
     $this->filterCollaboration = $filterPluginManager->createInstance('ckeditor5_premium_features_collaboration_filter');
+
+    if ($this->mentionsIntegrator->isMentionInstalled()) {
+      $this->mentionsHelper = $this->mentionsIntegrator->getMentionHelperService();
+    }
   }
 
   /**
@@ -74,6 +90,10 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
    *   Suggestion event object.
    */
   public function documentUpdated(CollaborationEventBase $event): void {
+    if (!$this->mentionsIntegrator->isMentionInstalled()) {
+      return;
+    }
+
     $documentAuthors = $event->getRelatedDocumentAuthors();
 
     $body = $event->getRelatedDocumentContent();
@@ -98,7 +118,8 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
         $differenceWithoutSuggestion = $this->ckeditor5Diff->getDiff($previousBodyWithoutCollaborationTags, $bodyWithoutCollaborationTags);
 
         $addedContentContextWithoutSuggestions = $this->ckeditor5Diff->getDiffAddedContext();
-      } else {
+      }
+      else {
         $differenceWithoutSuggestion = $bodyWithoutCollaborationTags;
       }
     }
@@ -108,7 +129,7 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
     }
 
     // All mentioned users (in basic and collaboration text).
-    $mentions = $this->collaboratorsService->getBodyMentions($difference);
+    $mentions = $this->mentionsHelper->getMentions($difference);
     if (empty($mentions)) {
       return;
     }
@@ -130,7 +151,7 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
     //    are disabled.
     // 2. Mention occurred in a new content added to the document, but the
     //    Document Update notification is disabled.
-    $mentionsOutsideSuggestions = empty($differenceWithoutSuggestion) ? [] : $this->collaboratorsService->getBodyMentions($differenceWithoutSuggestion);
+    $mentionsOutsideSuggestions = empty($differenceWithoutSuggestion) ? [] : $this->mentionsHelper->getMentions($differenceWithoutSuggestion);
 
     $usersMentionedOutsideSuggestions = empty($mentionsOutsideSuggestions) ? [] : $this->collaboratorsService->getUserIdsByNames($mentionsOutsideSuggestions);
     $authorsMentionedOutsideSuggestions = array_intersect($usersMentionedOutsideSuggestions, $documentAuthors);

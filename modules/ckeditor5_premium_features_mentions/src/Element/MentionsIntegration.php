@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_collaboration\Element;
+namespace Drupal\ckeditor5_premium_features_mentions\Element;
 
-use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
-use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
+use Drupal\ckeditor5_premium_features_mentions\Utility\MentionSettings;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -20,20 +18,14 @@ class MentionsIntegration {
   /**
    * Creates the mentions integration element instance.
    *
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface $editorStorageHandler
-   *   The editor storage handler.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userDataProvider
-   *   The user data storage.
    * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
    *   Current user.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaborationSettings
+   * @param \Drupal\ckeditor5_premium_features_mentions\Utility\MentionSettings $mentionSettings
    *   Collaboration settings helper.
    */
   public function __construct(
-    protected EditorStorageHandlerInterface $editorStorageHandler,
-    protected UserDataProvider $userDataProvider,
     protected AccountProxyInterface $currentUser,
-    protected CollaborationSettings $collaborationSettings,
+    protected MentionSettings $mentionSettings,
   ) {}
 
   /**
@@ -50,12 +42,6 @@ class MentionsIntegration {
    *   The element data.
    */
   public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-    if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element)) {
-      // Don't process as the editor does not have
-      // any collaboration features enabled.
-      return $element;
-    }
-
     $form_object = $form_state->getFormObject();
     if (!$form_object instanceof EntityFormInterface || !$form_object->getEntity() instanceof EntityInterface) {
       // Do not process anything, the entity is missing.
@@ -66,9 +52,9 @@ class MentionsIntegration {
       return $element;
     }
 
-    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['minCharacter'] = $this->collaborationSettings->getMentionMinimalCharactersCount();
-    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['dropdownLimit'] = $this->collaborationSettings->getMentionAutocompleteListLength();
-    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['marker'] = $this->collaborationSettings->getMentionsMarker();
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['minCharacter'] = $this->mentionSettings->getMentionMinimalCharactersCount();
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['dropdownLimit'] = $this->mentionSettings->getMentionAutocompleteListLength();
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['mentions']['marker'] = $this->mentionSettings->getMentionsMarker();
 
     return $element;
   }
@@ -90,8 +76,7 @@ class MentionsIntegration {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-    /** @var \Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat $service */
-    $service = \Drupal::service('ckeditor5_premium_features_collaboration.element.mentions_integration');
+    $service = \Drupal::service('ckeditor5_premium_features_mentions.element.mentions_integration');
     return $service->processElement($element, $form_state, $complete_form);
   }
 

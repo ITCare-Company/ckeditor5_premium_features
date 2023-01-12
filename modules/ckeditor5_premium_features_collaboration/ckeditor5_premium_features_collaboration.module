@@ -10,7 +10,6 @@ declare(strict_types=1);
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Element\MentionsIntegration;
 use Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat;
 
 /**
@@ -24,7 +23,6 @@ function ckeditor5_premium_features_collaboration_library_info_build(): array {
     'track-changes',
     'comments',
     'revision-history',
-    'mention',
   ];
 
   $definitions = [];
@@ -70,6 +68,5 @@ function ckeditor5_premium_features_collaboration_field_widget_single_element_fo
 function ckeditor5_premium_features_collaboration_element_info_alter(array &$info): void {
   if (isset($info['text_format'])) {
     $info['text_format']['#process'][] = [TextFormat::class, 'process'];
-    $info['text_format']['#process'][] = [MentionsIntegration::class, 'process'];
   }
 }

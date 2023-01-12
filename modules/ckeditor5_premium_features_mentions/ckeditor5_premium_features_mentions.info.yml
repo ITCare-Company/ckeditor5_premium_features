@@ -1,0 +1,8 @@
+name: CKEditor 5 Mentions
+type: module
+description: "Provides Mentions features."
+package: CKEditor 5 Premium
+core_version_requirement: ^9.4 || ^10.0
+configure: ckeditor5_premium_features_mentions.form.settings
+dependencies:
+  - ckeditor5_premium_features:ckeditor5_premium_features

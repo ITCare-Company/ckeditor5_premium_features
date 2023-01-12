@@ -5,12 +5,3 @@ ckeditor5_premium_features_collaboration.form.settings:
     _form: 'Drupal\ckeditor5_premium_features_collaboration\Form\SettingsForm'
   requirements:
     _permission: 'administer site configuration'
-
-ckeditor5_premium_features_collaboration.annotations:
-  path: '/ck5/api/annotations'
-  defaults:
-    _controller: 'Drupal\ckeditor5_premium_features_collaboration\Controller\MentionAutocompleteController::annotation'
-  methods:  [GET]
-  requirements:
-    _permission: 'mention users'
-    _format: json

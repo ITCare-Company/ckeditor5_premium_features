@@ -30,28 +30,6 @@ class CollaborationSettings implements CommonCollaborationSettingsInterface {
   }
 
   /**
-   * Returns mentions marker config.
-   */
-  public function getMentionsMarker(): string {
-    return $this->collaborationSettings->get('mention_marker') ?? '#';
-  }
-
-  /**
-   * Returns mentions minimal character count config.
-   */
-  public function getMentionMinimalCharactersCount(): int {
-    return (int) ($this->collaborationSettings->get('mention_min_character') ?? 1);
-  }
-
-  /**
-   * Returns mentions autocomplete list length config.
-   */
-  public function getMentionAutocompleteListLength(): int {
-
-    return (int) ($this->collaborationSettings->get('mention_dropdown_limit') ?? 4);
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function getAnnotationSidebarType(): string {
@@ -59,7 +37,7 @@ class CollaborationSettings implements CommonCollaborationSettingsInterface {
   }
 
   /**
-   * Returns mentions revision history on submit config.
+   * Returns revision history on submit config.
    */
   public function isRevisionHistoryOnSubmit(): bool {
     return (bool) ($this->collaborationSettings->get('add_revision_on_submit') ?? TRUE);
