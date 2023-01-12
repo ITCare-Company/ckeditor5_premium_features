@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Implements hooks for the CKEditor 5 Premium Features Collaboration module.
+ * Implements hooks for the CKEditor 5 Premium Features Mentions module.
  */
 
 declare(strict_types=1);

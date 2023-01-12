@@ -11,7 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 
 /**
- * Defines the Text Format utility class for handling the collaboration data.
+ * Defines the Text Format utility class for handling the Mention data.
  */
 class MentionsIntegration {
 
@@ -21,7 +21,7 @@ class MentionsIntegration {
    * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
    *   Current user.
    * @param \Drupal\ckeditor5_premium_features_mentions\Utility\MentionSettings $mentionSettings
-   *   Collaboration settings helper.
+   *   Mention settings helper.
    */
   public function __construct(
     protected AccountProxyInterface $currentUser,

@@ -9,7 +9,7 @@ use Drupal\Core\Config\Config;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Provides the configuration form of the "Collaboration" feature.
+ * Provides the configuration form of the "Mention" feature.
  */
 class SettingsForm extends SharedBuildConfigFormBase {
   const MENTION_SETTINGS_ID = 'ckeditor5_premium_features_mentions.settings';

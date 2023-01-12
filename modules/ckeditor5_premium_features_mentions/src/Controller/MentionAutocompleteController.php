@@ -23,7 +23,7 @@ class MentionAutocompleteController extends ControllerBase {
    * @param \Drupal\ckeditor5_premium_features_mentions\DataProvider\MentionDataProvider $mentionsProvider
    *   User data provider.
    * @param \Drupal\ckeditor5_premium_features_mentions\Utility\MentionSettings $mentionSettings
-   *   Collaboration settings.
+   *   Mention settings.
    * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
    *   Request stack.
    */

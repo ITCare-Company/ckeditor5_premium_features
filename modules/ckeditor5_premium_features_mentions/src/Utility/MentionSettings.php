@@ -7,7 +7,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 
 /**
- * Class for accessing collaboration config values.
+ * Class for accessing Mention config values.
  */
 class MentionSettings {
 
@@ -16,7 +16,7 @@ class MentionSettings {
    *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
-  private ImmutableConfig $collaborationSettings;
+  private ImmutableConfig $mentionSettings;
 
   /**
    * Constructor.
@@ -25,21 +25,21 @@ class MentionSettings {
    *   Config factory.
    */
   public function __construct(ConfigFactoryInterface $configFactory) {
-    $this->collaborationSettings = $configFactory->get(SettingsForm::MENTION_SETTINGS_ID);
+    $this->mentionSettings = $configFactory->get(SettingsForm::MENTION_SETTINGS_ID);
   }
 
   /**
    * Returns mentions marker config.
    */
   public function getMentionsMarker(): string {
-    return $this->collaborationSettings->get('mention_marker') ?? '#';
+    return $this->mentionSettings->get('mention_marker') ?? '#';
   }
 
   /**
    * Returns mentions minimal character count config.
    */
   public function getMentionMinimalCharactersCount(): int {
-    return (int) ($this->collaborationSettings->get('mention_min_character') ?? 1);
+    return (int) ($this->mentionSettings->get('mention_min_character') ?? 1);
   }
 
   /**
@@ -47,7 +47,7 @@ class MentionSettings {
    */
   public function getMentionAutocompleteListLength(): int {
 
-    return (int) ($this->collaborationSettings->get('mention_dropdown_limit') ?? 4);
+    return (int) ($this->mentionSettings->get('mention_dropdown_limit') ?? 4);
   }
 
 }
