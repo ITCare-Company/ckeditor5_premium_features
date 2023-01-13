@@ -72,10 +72,19 @@ class CollaborationEntityAccessControlHandler extends EntityAccessControlHandler
 
       $result = $related_entity->access($operation, $account, TRUE);
     }
-    catch (\Throwable $exception) {
+    catch (\Throwable) {
       $result = AccessResult::forbidden("Invalid entity type defined. The access can't be verified.");
     }
 
+    return $return_as_object ? $result : $result->isAllowed();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function createAccess($entity_bundle = NULL, AccountInterface $account = NULL, array $context = [], $return_as_object = FALSE) {
+    // Since currently there is no policy limiting access to.
+    $result = AccessResult::allowed();
     return $return_as_object ? $result : $result->isAllowed();
   }
 

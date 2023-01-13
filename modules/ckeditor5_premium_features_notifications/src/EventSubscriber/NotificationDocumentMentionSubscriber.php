@@ -98,7 +98,8 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
         $differenceWithoutSuggestion = $this->ckeditor5Diff->getDiff($previousBodyWithoutCollaborationTags, $bodyWithoutCollaborationTags);
 
         $addedContentContextWithoutSuggestions = $this->ckeditor5Diff->getDiffAddedContext();
-      } else {
+      }
+      else {
         $differenceWithoutSuggestion = $bodyWithoutCollaborationTags;
       }
     }

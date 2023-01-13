@@ -114,7 +114,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements
       ->setData($suggestion_data)
       ->setAttributes($attributes);
 
-    if (!$suggestion->access('update')) {
+    if (!$suggestion->access('create')) {
       throw new AccessException();
     }
 

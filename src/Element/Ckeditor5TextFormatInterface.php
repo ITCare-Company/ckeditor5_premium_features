@@ -12,6 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 interface Ckeditor5TextFormatInterface {
 
   public const STORAGE_KEY = 'ckeditor5-premium';
+  public const STORAGE_KEY_COLLABORATION = 'ckeditor5-premium-collaboration';
 
   public const NESTING_COUNTER_LIMIT = 10;
 
