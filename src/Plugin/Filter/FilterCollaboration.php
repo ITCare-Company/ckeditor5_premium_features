@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features\Plugin\Filter;
 
 use Drupal\ckeditor5_premium_features\Utility\DomSuggestion;
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
 
@@ -18,6 +18,7 @@ use Drupal\filter\Plugin\FilterBase;
  * @Filter(
  *   id = "ckeditor5_premium_features_collaboration_filter",
  *   title = @Translation("Removes the collaboration (suggestions, comments) data from the markup so that the content displayed to your end users did not contain comments/suggestions for content editors."),
+ *   description = @Translation("This filter should be executed as soon as possible. If you encounter missing whitespaces near words that contains suggestions please move it up in the filter processing order."),
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
  *   weight = -100
  * )
@@ -114,7 +115,7 @@ class FilterCollaboration extends FilterBase {
             if (!$suggestion || !$suggestion->parentNode) {
               continue;
             }
-            $suggestion->replaceWith(' ');
+            $suggestion->remove();
           }
           catch (\Throwable) {
             continue;

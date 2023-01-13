@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Generator;
 
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**

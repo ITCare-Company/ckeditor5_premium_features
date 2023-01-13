@@ -121,7 +121,7 @@ class HtmlHelper {
       $commentsToRemove = $xpath->query($queryR);
       /** @var \DOMElement $elementToRemove */
       foreach ($commentsToRemove as $elementToRemove) {
-        $elementToRemove->replaceWith(' ');
+        $elementToRemove->parentNode->removeChild($elementToRemove);
       }
     }
   }
