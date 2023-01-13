@@ -217,7 +217,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
 
     $object_data = [
       'id' => $data->getAlnum('id'),
-      'uid' => $this->user->id(),
+      'uid' => $data->getInt('authorId'),
       'entity_id' => $data->getInt('entity_id'),
     ];
     $attributes = [
@@ -233,7 +233,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
       ->setContent($data->get('content'))
       ->setIsReply($raw_data['is_reply']);
 
-    if (!$comment->access('update')) {
+    if (!$comment->access('create')) {
       throw new AccessException();
     }
 

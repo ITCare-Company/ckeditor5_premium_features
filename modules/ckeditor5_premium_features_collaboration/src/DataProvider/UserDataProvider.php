@@ -59,11 +59,20 @@ class UserDataProvider {
     $users = [];
     foreach ($entities as $entity) {
       $user = $entity->getAuthor();
-      if ($user) {
+      if ($user && $user->id() > 0) {
         $users[$user->id()] = $user;
       }
-      else {
+      elseif ($entity->hasField('uid') && $entity->get('uid')->target_id > 0) {
         $users[$entity->get('uid')->target_id] = NULL;
+      }
+      if ($entity->hasField('authors')) {
+        $authors = $entity->get('authors')->value;
+        if (!empty($authors)) {
+          $decoded_authors = (array) unserialize($authors);
+          foreach ($decoded_authors as $author_id) {
+            $users[$author_id] = NULL;
+          }
+        }
       }
     }
 
@@ -71,6 +80,13 @@ class UserDataProvider {
       $users[$this->account->id()] = $this->userStorage->load($this->account->id());
     }
 
+    $missing_users = array_filter($users, fn($item) => !$item);
+    if (!empty($missing_users)) {
+      $missing_users_data = $this->userStorage->loadMultiple(array_keys($missing_users));
+      foreach ($missing_users_data as $id => $user) {
+        $users[$id] = $user;
+      }
+    }
     return $this->getData($users);
   }
 

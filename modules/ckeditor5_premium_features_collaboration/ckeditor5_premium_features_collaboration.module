@@ -73,3 +73,10 @@ function ckeditor5_premium_features_collaboration_element_info_alter(array &$inf
     $info['text_format']['#process'][] = [MentionsIntegration::class, 'process'];
   }
 }
+
+/**
+ * Implements hook_form_alter().
+ */
+function ckeditor5_premium_features_collaboration_form_alter(&$form, FormStateInterface $form_state) {
+  TextFormat::processFormWithCollaborationStorage($form, $form_state);
+}

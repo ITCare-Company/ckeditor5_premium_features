@@ -88,13 +88,18 @@ class RevisionStorage extends SqlContentEntityStorage implements
 
     $object_data = [
       'id' => $data->get('id'),
-      'uid' => $this->user->id(),
+      'uid' => $data->getInt('creator'),
       'entity_id' => $data->getInt('entity_id'),
       'created' => $data->getInt('created'),
     ];
     $attributes = [
       'key' => $raw_data['key'],
     ] + $data->get('attributes') ?? [];
+
+    $authors = $data->get('authors');
+    if (!empty($authors) && $data->getInt('creator') > 0 && !in_array($data->getInt('creator'), $authors)) {
+      $object_data['uid'] = reset($authors);
+    }
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Revision $revision */
     $revision = $this->create($object_data);
@@ -112,7 +117,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
     }
     $revision->setAttributes($attributes);
 
-    if (!$revision->access('update')) {
+    if (!$revision->access('create')) {
       throw new AccessException();
     }
 
@@ -127,6 +132,9 @@ class RevisionStorage extends SqlContentEntityStorage implements
     if (!$entity->access('update')) {
       throw new AccessException();
     }
+    if (!$entity instanceof Revision) {
+      return NULL;
+    }
 
     $raw_data = Revision::normalize($raw_data);
     $data = new ParameterBag($raw_data);
@@ -135,16 +143,10 @@ class RevisionStorage extends SqlContentEntityStorage implements
       ->setName($data->get('name'))
       ->setAuthors($data->get('authors'))
       ->setDiffData($data->get('diff_data'))
+      ->setAttributes($data->get('attributes'))
       ->setPreviousVersion($data->get('previous_version'))
       ->setCurrentVersion($data->get('current_version'))
       ->save();
-
-    // Set the 'draft' attribute if the creator is empty.
-    if (!$data->get('creator')) {
-      $entity->setAttributes([
-        'draft' => TRUE,
-      ]);
-    }
 
     return $entity;
   }

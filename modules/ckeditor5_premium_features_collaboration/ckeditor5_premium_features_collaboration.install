@@ -20,6 +20,7 @@ function ckeditor5_premium_features_collaboration_requirements($phase): array {
   $requirements = [];
 
   if (($phase === 'install')) {
+    // phpcs:ignore
     if (\Drupal::moduleHandler()->moduleExists('ckeditor5_premium_features_realtime_collaboration') || defined('COLLABORATION_INSTALLING')) {
       $requirements[] = [
         'description' => t('You cannot install CKEditor 5 Realtime Collaboration and CKEditor 5 Non-realtime Collaboration modules at the same time.'),
@@ -27,6 +28,7 @@ function ckeditor5_premium_features_collaboration_requirements($phase): array {
       ];
     }
     else {
+      // phpcs:ignore
       define('COLLABORATION_INSTALLING', TRUE);
     }
   }

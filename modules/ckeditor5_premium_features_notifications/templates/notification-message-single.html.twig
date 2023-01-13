@@ -1,5 +1,8 @@
 <div class="highlight-item-wrapper">
   {% if context is defined and context is not empty %}
+    {% if formattingChange is defined and formattingChange %}
+      <div class="context-title">{{ 'Formatting changed:'|t }}</div>
+    {% endif %}
     <div class="context-content">
       {{ context|render }}
     </div>
