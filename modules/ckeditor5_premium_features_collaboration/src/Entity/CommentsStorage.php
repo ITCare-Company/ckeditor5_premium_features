@@ -10,6 +10,7 @@ use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessException;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
@@ -28,7 +29,10 @@ class CommentsStorage extends SqlContentEntityStorage implements
     CollaborationContentFilteringStorageInterface,
     CollaborationEntityEventDispatcherInterface {
 
-  use CollaborationEntityStorageTrait;
+  use CollaborationEntityStorageTrait {
+    loadByEntity as public traitLoadByEntity;
+  }
+
   use CKeditorPremiumLoggerChannelTrait;
 
   /**
@@ -79,6 +83,43 @@ class CommentsStorage extends SqlContentEntityStorage implements
       $container->get('entity_type.bundle.info'),
       $container->get('entity_type.manager')
     );
+  }
+
+  /**
+   * Sorts Comment using created time and their position.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment[] $entities
+   */
+  public static function sortComments(array &$entities): void {
+    $sorting_entities = [];
+    foreach ($entities as $id => $ent) {
+      $sorting_entities[$id] = $ent->getCreatedTime() . '.' . $ent->getPosition();
+    }
+    asort($sorting_entities);
+    foreach ($entities as $id => $ent) {
+      $sorting_entities[$id] = $ent;
+    }
+    $entities = $sorting_entities;
+  }
+
+  /**
+   * Returns a list of comment for the related entity filtered by key.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Source entity.
+   * @param string|NULL $item_key_filter
+   *   Field key ID.
+   *
+   * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment[]
+   *   A list of Comment entities for the specified source entity.
+   */
+  public function loadByEntity(EntityInterface $entity, string $item_key_filter = NULL): array {
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment[] $entities */
+    $entities = $this->traitLoadByEntity($entity, $item_key_filter);
+
+    self::sortComments($entities);
+
+    return $entities;
   }
 
   /**
@@ -303,9 +344,9 @@ class CommentsStorage extends SqlContentEntityStorage implements
   public function getCommentsThread(string $entityType, string $entityId, string $threadId): array {
     $query = $this->getQuery()
       ->accessCheck(TRUE)
-      ->condition('entity_type', $entityType)
-      ->condition('entity_id', $entityId)
       ->condition('thread_id', $threadId)
+      ->condition('entity_id', $entityId)
+      ->condition('entity_type', $entityType)
       ->sort('created');
 
     $entity_ids = $query->execute();
@@ -314,7 +355,11 @@ class CommentsStorage extends SqlContentEntityStorage implements
       return [];
     }
 
-    return $this->loadMultiple($entity_ids);
+    $thread = $this->loadMultiple($entity_ids);
+
+    self::sortComments($thread);
+
+    return $thread;
   }
 
 }

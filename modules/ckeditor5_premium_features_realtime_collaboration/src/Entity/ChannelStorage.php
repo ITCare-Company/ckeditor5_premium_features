@@ -74,8 +74,8 @@ class ChannelStorage extends SqlContentEntityStorage {
    */
   public function loadByEntity(EntityInterface $entity, string $element_id): ?ChannelInterface {
     $properties = [
-      'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->uuid(),
+      'entity_type' => $entity->getEntityTypeId(),
       'key_id' => $element_id,
     ];
 
