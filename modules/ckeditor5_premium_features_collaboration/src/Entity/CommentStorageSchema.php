@@ -24,4 +24,5 @@ class CommentStorageSchema extends CollaborationStorageSchema {
 
     return $schema;
   }
+
 }

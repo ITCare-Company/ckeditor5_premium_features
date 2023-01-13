@@ -24,4 +24,5 @@ class SuggestionStorageSchema extends CollaborationStorageSchema {
 
     return $schema;
   }
+
 }

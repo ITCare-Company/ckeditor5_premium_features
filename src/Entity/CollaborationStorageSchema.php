@@ -24,4 +24,5 @@ class CollaborationStorageSchema extends SqlContentEntityStorageSchema {
 
     return $schema;
   }
+
 }

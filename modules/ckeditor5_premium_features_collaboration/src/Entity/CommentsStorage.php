@@ -89,6 +89,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
    * Sorts Comment using created time and their position.
    *
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment[] $entities
+   *   List of comments to be sorted.
    */
   public static function sortComments(array &$entities): void {
     $sorting_entities = [];
@@ -107,7 +108,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   Source entity.
-   * @param string|NULL $item_key_filter
+   * @param string|null $item_key_filter
    *   Field key ID.
    *
    * @return \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment[]
