@@ -60,8 +60,9 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     $isSuggestionReplay = $this->collaboratorsService->isCommentInSuggestionThread($collaborationEntity);
     $participators = array_unique($participators);
     $replyRecipients = [];
+    $authors = $event->getRelatedDocumentAuthors();
+
     if (!$collaborationEntity->isReply()) {
-      $authors = $event->getRelatedDocumentAuthors();
       $replyRecipients = array_merge($participators, $authors);
 
       if (empty($replyRecipients)) {
@@ -76,31 +77,32 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
       );
     }
 
-    if (!empty($participators) && !$isSuggestionReplay) {
-      $this->checkIfNotificationAlreadySentToUsers(
-        $participators,
-        $replyRecipients
-      );
-      // Send notification to users participated in a thread.
-      $this->notificationSender->sendNotification(
-        NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY,
-        $participators,
-        $event
-      );
-    }
-
-    if (!empty($participators) && $isSuggestionReplay) {
-      // Send notification to the suggestion author.
-      $this->notificationSender->sendNotification(
-        NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY,
-        $participators,
-        $event
-      );
+    if (!empty($participators) && empty($replyRecipients)) {
+      if (!$isSuggestionReplay) {
+        // Send notification to users participated in a thread.
+        $this->notificationSender->sendNotification(
+          NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_THREAD_REPLY,
+          $participators,
+          $event
+        );
+      } else {
+        // Send notification to the suggestion author.
+        $this->notificationSender->sendNotification(
+          NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY,
+          $participators,
+          $event
+        );
+      }
     }
 
     $mentions = $this->collaboratorsService->getCommentMentions($collaborationEntity);
     if (!empty($mentions)) {
       $users = $this->collaboratorsService->getUserIdsByNames($mentions);
+
+      if ($isSuggestionReplay && empty($participators)) {
+        $users = array_diff($users, $authors);
+      }
+
       $this->checkIfNotificationAlreadySentToUsers(
         $users,
         array_merge($replyRecipients, $participators)
