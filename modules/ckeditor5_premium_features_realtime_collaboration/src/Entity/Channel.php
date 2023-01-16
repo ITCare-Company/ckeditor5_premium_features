@@ -60,4 +60,13 @@ class Channel extends ContentEntityBase implements ChannelInterface {
     return $fields;
   }
 
+  public function getKeyId(): ?string {
+    return (string) $this->get('key_id')->value;
+  }
+
+  public function setKeyId(string $value): static {
+    $this->set('key_id', $value);
+
+    return $this;
+  }
 }
