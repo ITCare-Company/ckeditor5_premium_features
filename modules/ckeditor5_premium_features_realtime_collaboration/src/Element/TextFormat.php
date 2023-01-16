@@ -190,8 +190,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     if (!empty($new_element_id) && $channel instanceof Channel
       && $channel->getKeyId() !== $new_element_id) {
 
-      $channel->setKeyId($new_element_id)
-        ->save();
+      $channel->setKeyId($new_element_id)->save();
     }
 
     if ($channel) {
@@ -221,22 +220,49 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
   private function detectOrderChange(FormState $form_state, $items) {
     $field_storage = $form_state->get('field_storage');
-    $field_storage_fields = $field_storage['#parents']['#fields'] ?? [];
+    $field_storage_parents = $field_storage['#parents'] ?? [];
 
     $change_order = [];
 
-    $element_ids = array_keys($items);
+    foreach ($items as $itemKey => $field_parents) {
+      $newElementId = $this->getOriginalParentsPath($field_parents, $field_storage_parents);
 
-    foreach ($items as $fieldId => $field_parents) {
-      $field_current_delta = array_pop($field_parents);
-      $old_delta = NestedArray::getValue($field_storage_fields, [...$field_parents, 'original_deltas', $field_current_delta]);
-
-      if ($old_delta !== NULL && $field_current_delta !== $old_delta) {
-        $change_order[$element_ids[$old_delta]] = $element_ids[$field_current_delta];
+      if ($newElementId !== NULL && $newElementId != $itemKey ) {
+        $change_order[$itemKey] = $newElementId;
       }
     }
 
     return $change_order;
+  }
+
+  private function getOriginalParentsPath($parentsPath, $fieldsStorage) {
+    $processedParents = [];
+    $wasModifiedDelta = FALSE;
+    for ($currentKey = 0; $currentKey < count($parentsPath); $currentKey++) {
+      $parent = $parentsPath[$currentKey];
+      if (!isset($parentsPath[$currentKey+1]) || ($parentsPath[$currentKey+1] !== 0 && (int)$parentsPath[$currentKey+1] == 0)) {
+        $processedParents[] = $parent;
+        continue;
+      }
+
+      $currentDelta = $parentsPath[$currentKey+1];
+      $oldDelta = NestedArray::getValue($fieldsStorage, [...array_slice($parentsPath, 0, $currentKey), '#fields', $parent, 'original_deltas', $currentDelta]);
+
+      $processedParents[] = $parent;
+      if ($oldDelta === NULL || $oldDelta === $currentDelta) {
+        continue;
+      }
+      $wasModifiedDelta = TRUE;
+      $processedParents[] = $oldDelta;
+      ++$currentKey;
+    }
+
+    if ($wasModifiedDelta) {
+      $newElementId = 'edit-' . implode('-', $processedParents);
+      return CKeditorFieldKeyHelper::getElementUniqueId($newElementId);
+    }
+
+    return NULL;
   }
 
 }
