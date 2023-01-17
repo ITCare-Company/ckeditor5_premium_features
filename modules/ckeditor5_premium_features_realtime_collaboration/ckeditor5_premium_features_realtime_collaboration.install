@@ -7,6 +7,8 @@
 
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Url;
+use Drupal\ckeditor5_premium_features\Entity\CollaborationStorageSchema;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
 
 /**
  * Implements hook_requirements().
@@ -73,4 +75,16 @@ function ckeditor5_premium_features_realtime_collaboration_update_10000() {
       $storageDefinition
     );
   }
+}
+
+/**
+ * Implements hook_update().
+ */
+function ckeditor5_premium_features_realtime_collaboration_update_10001() {
+  $entityDefinition = \Drupal::entityDefinitionUpdateManager();
+
+  $channelEntity = $entityDefinition->getEntityType(ChannelInterface::ENTITY_TYPE_ID);
+  $channelEntity->setHandlerClass('storage_schema', CollaborationStorageSchema::class);
+
+  $entityDefinition->updateEntityType($channelEntity);
 }
