@@ -46,7 +46,6 @@ class SettingsForm extends BaseExportSettingsForm {
       '#default_value' => $config->get('converter_url'),
     ];
 
-
     $options_key = 'converter_options';
     $form[$options_key] = [
       '#type' => 'details',

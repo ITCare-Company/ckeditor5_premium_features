@@ -154,7 +154,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $entity = $form_object->getEntity();
 
     foreach ($items as $element_key => $element_parents) {
-      $entity_channel = $form_state->getValue([...$element_parents, 'entity_channel']);
+      $entity_channel = $form_state->getValue([
+        ...$element_parents,
+        'entity_channel',
+      ]);
       $this->handleEntityChannel($entity, $entity_channel, $element_key);
     }
   }

@@ -16,7 +16,6 @@ use Drupal\ckeditor5_premium_features\Utility\FormElement;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
@@ -45,7 +44,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    * Creates the plugin instance.
    *
    * @param string $featurePlugin
-   *   The id of the faeture plugin.
+   *   The id of the feature plugin.
    * @param string $settingsFormClass
    *   The settings form class namespace.
    *   The generator filename service.
@@ -59,6 +58,8 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    *   The file name generator service.
    * @param \Drupal\ckeditor5_premium_features\Utility\CssStyleProvider $cssStyleProvider
    *   The style css list provider service.
+   * @param \Drupal\Core\File\FileSystemInterface $fileSystem
+   *   File system service.
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    *
