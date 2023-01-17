@@ -161,6 +161,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     foreach ($items as $element_key => $element_parents) {
       $entity_channel = $form_state->getValue([...$element_parents, 'entity_channel']);
+      if (!$entity_channel) {
+        continue;
+      }
       $this->handleEntityChannel($entity, $entity_channel, $element_key, $order_switch[$element_key] ?? NULL);
     }
   }
@@ -183,14 +186,19 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
   private function handleEntityChannel(EntityInterface $entity, string $entity_channel, string $element_id, string $new_element_id = NULL): ?ChannelInterface {
-    if (!$channel = $this->channelStorage->load($entity_channel)) {
-      $channel = $this->channelStorage->loadByEntity($entity, $element_id);
+    $channel = $this->channelStorage->load($entity_channel);
+
+    if (!$channel) {
+      $channel = $this->channelStorage->loadByEntity($entity, $new_element_id ?? $element_id);
     }
 
-    if (!empty($new_element_id) && $channel instanceof Channel
-      && $channel->getKeyId() !== $new_element_id) {
-
-      $channel->setKeyId($new_element_id)->save();
+    if ($channel instanceof Channel && $channel->getKeyId() !== $new_element_id) {
+      if (!empty($new_element_id)) {
+        $channel->setKeyId($new_element_id)->save();
+      } else {
+        $entity_channel = $this->getChannelId($entity->uuid() . $element_id . time());
+        $channel = NULL;
+      }
     }
 
     if ($channel) {
