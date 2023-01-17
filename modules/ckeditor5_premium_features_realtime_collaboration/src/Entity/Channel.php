@@ -23,6 +23,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   },
  *   handlers = {
  *     "storage" = "Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage",
+ *     "storage_schema" = "Drupal\ckeditor5_premium_features\Entity\CollaborationStorageSchema",
  *   }
  * )
  */

@@ -22,6 +22,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   },
  *   handlers = {
  *     "storage" = "Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage",
+ *     "storage_schema" = "Drupal\ckeditor5_premium_features_collaboration\Entity\CommentStorageSchema",
  *     "access" = "Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityAccessControlHandler",
  *   }
  * )

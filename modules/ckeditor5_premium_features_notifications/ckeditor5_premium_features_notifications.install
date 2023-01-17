@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\ckeditor5_premium_features_notifications\Entity\MessageItemInterface;
+use Drupal\ckeditor5_premium_features_notifications\Entity\MessageInterface;
 
 /**
  * Implements hook_install().
@@ -106,4 +107,15 @@ function ckeditor5_premium_features_notifications_update_9002() {
       $storageDefinitionRefUid
     );
   }
+}
+
+/**
+ * Implements hook_update().
+ */
+function ckeditor5_premium_features_notifications_update_10000() {
+  $entityDefinition = \Drupal::entityDefinitionUpdateManager();
+
+  $messageEntity = $entityDefinition->getEntityType(MessageInterface::ENTITY_TYPE_ID);
+
+  $entityDefinition->updateEntityType($messageEntity);
 }
