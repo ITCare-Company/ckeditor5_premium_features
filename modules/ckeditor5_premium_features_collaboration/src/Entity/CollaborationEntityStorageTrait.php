@@ -45,7 +45,7 @@ trait CollaborationEntityStorageTrait {
 
     return array_filter($entities, function ($item) use ($item_key_filter) {
       $attributes = $item->getAttributes();
-      return $item->access('view') && ($item_key_filter == NULL || $attributes['key'] == $item_key_filter);
+      return $item->access('view') && isset($attributes['key']) && ($item_key_filter == NULL || $attributes['key'] == $item_key_filter);
     });
   }
 
