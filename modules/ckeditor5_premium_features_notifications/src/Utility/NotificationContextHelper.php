@@ -75,7 +75,7 @@ class NotificationContextHelper {
       '#theme' => 'notification_message_single',
       '#context' => $snippets,
       '#thread' => $thread,
-      '#formattingChange' => $isFormattingSuggestion
+      '#formattingChange' => $isFormattingSuggestion,
     ];
 
     $this->setCommentsLimitInThread($fullContext, $thread);
@@ -179,6 +179,8 @@ class NotificationContextHelper {
    *   Document content.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
    *   Suggestion to be highlighted.
+   * @param bool $formattingSuggestionDetected
+   *   Returns boolean determining if the script detected formatting suggestion.
    */
   public function getHighlightedSuggestion(string $context, SuggestionInterface $suggestion, bool &$formattingSuggestionDetected = FALSE): array {
     $suggestionChain = $suggestion->getChain();

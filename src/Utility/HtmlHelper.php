@@ -84,8 +84,7 @@ class HtmlHelper {
   }
 
   /**
-   * Removes collaboration entities having data-suggestion- prefixed attributes
-   * not matching passed selector.
+   * Removes collaboration entities filtering by not matching attributes.
    *
    * @param \DOMDocument $document
    *   Document to be processed.
@@ -100,7 +99,7 @@ class HtmlHelper {
     ];
 
     foreach ($attributes as $attribute) {
-      $removeQueries[] = "//*[@$attribute]" . "[not($selector)]";
+      $removeQueries[] = "//*[@$attribute][not($selector)]";
     }
 
     $this->doRemoveElements($document, $removeQueries);

@@ -160,7 +160,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $entity = $form_object->getEntity();
 
     foreach ($items as $element_key => $element_parents) {
-      $entity_channel = $form_state->getValue([...$element_parents, 'entity_channel']);
+      $entity_channel = $form_state->getValue([
+        ...$element_parents,
+        'entity_channel',
+      ]);
       if (!$entity_channel) {
         continue;
       }
@@ -177,6 +180,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   Desired entity channel ID.
    * @param string $element_id
    *   ID of the field element.
+   * @param string|null $new_element_id
+   *   New element ID to overwrite the existing one.
    *
    * @return \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface|null
    *   Channel entity if exists.
@@ -195,7 +200,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     if ($channel instanceof Channel && $channel->getKeyId() !== $new_element_id) {
       if (!empty($new_element_id)) {
         $channel->setKeyId($new_element_id)->save();
-      } else {
+      }
+      else {
         $entity_channel = $this->getChannelId($entity->uuid() . $element_id . time());
         $channel = NULL;
       }
@@ -226,48 +232,73 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     return substr(Crypt::hashBase64($uuid), 0, 36);
   }
 
-  private function detectOrderChange(FormState $form_state, $items) {
+  /**
+   * Returns a list of element IDs that was reordered.
+   *
+   * @param \Drupal\Core\Form\FormState $form_state
+   *   Form state object.
+   * @param array $items
+   *   An array with element IDs and their parent paths.
+   *
+   * @return array
+   *   Array containing pairs of element IDs: "before" => "after" order change.
+   */
+  private function detectOrderChange(FormState $form_state, array $items): array {
     $field_storage = $form_state->get('field_storage');
     $field_storage_parents = $field_storage['#parents'] ?? [];
 
     $change_order = [];
 
     foreach ($items as $itemKey => $field_parents) {
-      $newElementId = $this->getOriginalParentsPath($field_parents, $field_storage_parents);
+      $new_element_id = $this->getElementIdAfterOrderChanging($field_parents, $field_storage_parents);
 
-      if ($newElementId !== NULL && $newElementId != $itemKey ) {
-        $change_order[$itemKey] = $newElementId;
+      if ($new_element_id !== NULL && $new_element_id != $itemKey) {
+        $change_order[$itemKey] = $new_element_id;
       }
     }
 
     return $change_order;
   }
 
-  private function getOriginalParentsPath($parentsPath, $fieldsStorage) {
-    $processedParents = [];
-    $wasModifiedDelta = FALSE;
-    for ($currentKey = 0; $currentKey < count($parentsPath); $currentKey++) {
-      $parent = $parentsPath[$currentKey];
-      if (!isset($parentsPath[$currentKey+1]) || ($parentsPath[$currentKey+1] !== 0 && (int)$parentsPath[$currentKey+1] == 0)) {
-        $processedParents[] = $parent;
+  /**
+   * Detects and return elements' new ID if order was changed or NULL otherwise.
+   *
+   * @param array $parents_path
+   *   Element parents path.
+   * @param array $fields_storage
+   *   Form storage #fields value.
+   */
+  private function getElementIdAfterOrderChanging(array $parents_path, array $fields_storage): ?string {
+    $processed_parents = [];
+    $was_modified_delta = FALSE;
+    for ($current_key = 0; $current_key < count($parents_path); $current_key++) {
+      $parent = $parents_path[$current_key];
+      if (!isset($parents_path[$current_key + 1]) || ($parents_path[$current_key + 1] !== 0 && (int) $parents_path[$current_key + 1] == 0)) {
+        $processed_parents[] = $parent;
         continue;
       }
 
-      $currentDelta = $parentsPath[$currentKey+1];
-      $oldDelta = NestedArray::getValue($fieldsStorage, [...array_slice($parentsPath, 0, $currentKey), '#fields', $parent, 'original_deltas', $currentDelta]);
+      $current_delta = $parents_path[$current_key + 1];
+      $old_delta = NestedArray::getValue($fields_storage, [
+        ...array_slice($parents_path, 0, $current_key),
+        '#fields',
+        $parent,
+        'original_deltas',
+        $current_delta,
+      ]);
 
-      $processedParents[] = $parent;
-      if ($oldDelta === NULL || $oldDelta === $currentDelta) {
+      $processed_parents[] = $parent;
+      if ($old_delta === NULL || $old_delta === $current_delta) {
         continue;
       }
-      $wasModifiedDelta = TRUE;
-      $processedParents[] = $oldDelta;
-      ++$currentKey;
+      $was_modified_delta = TRUE;
+      $processed_parents[] = $old_delta;
+      ++$current_key;
     }
 
-    if ($wasModifiedDelta) {
-      $newElementId = 'edit-' . implode('-', $processedParents);
-      return CKeditorFieldKeyHelper::getElementUniqueId($newElementId);
+    if ($was_modified_delta) {
+      $new_element_id = 'edit-' . implode('-', $processed_parents);
+      return CKeditorFieldKeyHelper::getElementUniqueId($new_element_id);
     }
 
     return NULL;

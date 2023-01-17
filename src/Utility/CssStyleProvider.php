@@ -19,6 +19,10 @@ class CssStyleProvider {
    *
    * @param \Drupal\Core\Theme\ThemeManager $themeManager
    *   Theme ThemeManager service.
+   * @param \Drupal\Core\File\FileSystemInterface $fileSystem
+   *   File system service.
+   * @param \Drupal\Core\File\FileUrlGeneratorInterface $fileUrlGenerator
+   *   File Url generator service.
    */
   public function __construct(protected ThemeManager $themeManager,
                               protected FileSystemInterface $fileSystem,
