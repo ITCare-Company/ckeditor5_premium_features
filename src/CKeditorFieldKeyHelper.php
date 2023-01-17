@@ -31,6 +31,7 @@ class CKeditorFieldKeyHelper {
    *   Form element ID.
    */
   public static function cleanElementDrupalId(string $elementId): string {
+    $elementId = str_replace('_', '-', $elementId);
     $elementParts = explode('--', $elementId);
 
     return reset($elementParts);

@@ -63,6 +63,7 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
     $data = parent::toArray();
     $data = [
       'content' => $this->getContent(),
+      'thread_id' => $this->getThreadId(),
     ] + $data;
 
     $normalized = static::normalize($data, TRUE);

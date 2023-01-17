@@ -10,6 +10,7 @@ use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationContentFilteringStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityEventDispatcherInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationSuggestionDependingStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
@@ -211,6 +212,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     }
 
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
+
+    $order_switch = $this->detectOrderChange($form_state, $items);
+    $this->filterOrderSwitch($order_switch);
+
     $features = [
       'track_changes' => $this->suggestionStorage,
       'comments' => $this->commentsStorage,
@@ -256,6 +261,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         $entities_data = $storage->processSourceData($source_data, $entity, $item_key);
         $this->doStorageOperations($entities_data, $storage);
       }
+    }
+    if (!empty($order_switch)) {
+      $this->changeValuesOrder($order_switch, $features, $entity);
     }
   }
 
@@ -485,6 +493,138 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       $event,
       CollaborationEventBase::DOCUMENT_UPDATED
     );
+  }
+
+  /**
+   * Detect order changes in form.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state.
+   * @param array $items
+   *   Items.
+   *
+   * @return array
+   *   Array of keys to swap.
+   */
+  private function detectOrderChange(FormStateInterface $form_state, array $items): array {
+    $field_storage = $form_state->get('field_storage');
+    $field_storage_parents = $field_storage['#parents'] ?? [];
+
+    $change_order = [];
+
+    foreach ($items as $itemKey => $field_parents) {
+      $newElementId = $this->getOriginalParentsPath($field_parents, $field_storage_parents);
+
+      if ($newElementId !== NULL && $newElementId != $itemKey) {
+        $change_order[$itemKey] = $newElementId;
+      }
+    }
+
+    return $change_order;
+  }
+
+  /**
+   * Get orginal parent path.
+   *
+   * @param array $parentsPath
+   *   Parent path.
+   * @param array $fieldsStorage
+   *   Fields storage.
+   *
+   * @return string|null
+   *   Element id or null.
+   */
+  private function getOriginalParentsPath(array $parentsPath, array $fieldsStorage): ?string {
+    $processedParents = [];
+    $wasModifiedDelta = FALSE;
+    for ($currentKey = 0; $currentKey < count($parentsPath); $currentKey++) {
+      $parent = $parentsPath[$currentKey];
+      if (!isset($parentsPath[$currentKey + 1]) || ($parentsPath[$currentKey + 1] !== 0 && (int) $parentsPath[$currentKey + 1] == 0)) {
+        $processedParents[] = $parent;
+        continue;
+      }
+
+      $currentDelta = $parentsPath[$currentKey + 1];
+      $oldDelta = NestedArray::getValue(
+        $fieldsStorage,
+          [...array_slice($parentsPath, 0, $currentKey),
+            '#fields', $parent,
+            'original_deltas',
+            $currentDelta,
+          ]);
+
+      $processedParents[] = $parent;
+      if ($oldDelta === NULL || $oldDelta === $currentDelta) {
+        continue;
+      }
+      $wasModifiedDelta = TRUE;
+      $processedParents[] = $oldDelta;
+      ++$currentKey;
+    }
+
+    if ($wasModifiedDelta) {
+      $newElementId = 'edit-' . implode('-', $processedParents);
+      return CKeditorFieldKeyHelper::getElementUniqueId($newElementId);
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Swaps key attributes in collaboration entities.
+   *
+   * @param array $idsToSwap
+   *   Array with ids to swap.
+   * @param array $storages
+   *   Array of CollaborationEntityStorage.
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity.
+   */
+  private function changeValuesOrder(array $idsToSwap, array $storages, EntityInterface $entity) {
+    foreach ($idsToSwap as $firstId => $secondId) {
+      foreach ($storages as $storage) {
+        $firstValues = $storage->loadByEntity($entity, $firstId);
+        $secondValues = $storage->loadByEntity($entity, $secondId);
+        $this->swapKeyAttribute($firstValues, $secondId, $storage);
+        $this->swapKeyAttribute($secondValues, $firstId, $storage);
+      }
+    }
+  }
+
+  /**
+   * Changes key attribute in collaboration entities.
+   *
+   * @param array $values
+   *   Array of the collaboration entities.
+   * @param string $key
+   *   New key.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityStorageInterface $storage
+   *   CollaborationEntityStorage.
+   */
+  private function swapKeyAttribute(array $values, string $key, CollaborationEntityStorageInterface $storage) {
+    if (!empty($values)) {
+      foreach ($values as $collaborationEntity) {
+        $rawData = $collaborationEntity->toArray();
+        $rawData['attributes']['key'] = $key;
+        $storage->update($collaborationEntity, $rawData);
+      }
+    }
+  }
+
+  /**
+   * Remove duplicates from orderSwitch array.
+   *
+   * @param array $orderSwitch
+   *   Array with ids to swap.
+   */
+  private function filterOrderSwitch(array &$orderSwitch) {
+    $swapIds = [];
+    foreach ($orderSwitch as $key => $value) {
+      if (!isset($swapIds[$key]) && !isset($swapIds[$value])) {
+        $swapIds[$key] = $value;
+      }
+    }
+    $orderSwitch = $swapIds;
   }
 
 }
