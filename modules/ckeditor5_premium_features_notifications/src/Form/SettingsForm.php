@@ -276,7 +276,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
     return match ($messageType) {
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT => '<h3>Update notification</h3>
         <p>
-          I need to tell you that node <a href="[node:url]"><strong>[node:title]</strong></a> was modified by [user:name] (at [node:changed])
+          Changes were made to the document <a href="[node:url]"><strong>[node:title]</strong></a> by [user:name] (at [node:changed])
         </p>
         <p>
             [ckeditor5_premium_notification:context]

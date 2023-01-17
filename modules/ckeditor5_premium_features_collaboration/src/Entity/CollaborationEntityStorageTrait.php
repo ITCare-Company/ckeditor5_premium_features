@@ -45,7 +45,7 @@ trait CollaborationEntityStorageTrait {
 
     return array_filter($entities, function ($item) use ($item_key_filter) {
       $attributes = $item->getAttributes();
-      return $item->access('view') && ($item_key_filter == NULL || $attributes['key'] == $item_key_filter);
+      return $item->access('view') && isset($attributes['key']) && ($item_key_filter == NULL || $attributes['key'] == $item_key_filter);
     });
   }
 
@@ -78,6 +78,9 @@ trait CollaborationEntityStorageTrait {
   public function processSourceData(array $source_data, ContentEntityInterface $entity, string $item_key): array {
     $entity_list = [];
     foreach ($source_data as $element_data) {
+      if (empty($element_data['id'])) {
+        continue;
+      }
       if ($this instanceof StorageIdSpecificationAwareInterface) {
         if ($this->isCommonId($element_data['id'])) {
           $element_data['id'] = sprintf(

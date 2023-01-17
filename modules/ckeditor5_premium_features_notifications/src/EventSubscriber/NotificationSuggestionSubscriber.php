@@ -20,7 +20,7 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
    * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationSender
    *   Notification sender service.
    * @param \Drupal\Core\Session\AccountInterface $currentUser
-   *   Current user.
+   *   Current user object.
    */
   public function __construct(
     protected NotificationSender $notificationSender,

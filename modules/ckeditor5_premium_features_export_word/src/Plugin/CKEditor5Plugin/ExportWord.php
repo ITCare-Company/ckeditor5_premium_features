@@ -39,6 +39,7 @@ class ExportWord extends ExportBase {
           'value' => NULL,
           'units' => NULL,
         ],
+        'custom_css' => NULL,
         'header' => [
           [
             'html' => NULL,

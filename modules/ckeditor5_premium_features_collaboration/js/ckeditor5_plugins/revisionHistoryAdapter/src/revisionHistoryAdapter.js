@@ -16,7 +16,7 @@ class RevisionHistoryAdapter {
     return [ 'RevisionHistory', 'RevisionTracker' ]
   }
 
-  init() {
+  afterInit() {
     if (this.storage.processRevisionDisable()) {
       return;
     }
@@ -45,14 +45,30 @@ class RevisionHistoryAdapter {
 
     // Load revisions.
     const revisions = JSON.parse(revisionHistoryElement.value);
+    let create_new_draft = false;
+
     for (const revision of revisions) {
+      if (revision['attributes']['new_draft_req']) {
+        create_new_draft = true;
+        delete revision['attributes']['new_draft_req'];
+      }
       revisionHistoryPlugin.addRevisionData(revision);
+    }
+
+    if (create_new_draft) {
+      setTimeout(() => {
+        this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin, revisionHistoryElement, addRevisionOnSubmit);
+      }, 10);
     }
 
     // Hook to form submit.
     const form = this.editor.sourceElement.closest('form');
     form.addEventListener("submit", (e) => {
       this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin, revisionHistoryElement, addRevisionOnSubmit)
+    });
+
+    this.editor.model.document.on( 'change:data', () => {
+      this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin, revisionHistoryElement, false)
     });
   }
 

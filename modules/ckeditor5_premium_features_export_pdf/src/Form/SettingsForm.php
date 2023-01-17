@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_export_pdf\Form;
 
-use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormBase;
+use Drupal\ckeditor5_premium_features\Form\BaseExportSettingsForm;
 use Drupal\ckeditor5_premium_features\Utility\FormElement;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Form\FormStateInterface;
@@ -12,7 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Provides the configuration form of the "Export to PDF" feature.
  */
-class SettingsForm extends SharedBuildConfigFormBase {
+class SettingsForm extends BaseExportSettingsForm {
 
   /**
    * {@inheritdoc}
@@ -31,6 +31,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  public function getCustomCssFileName(): string {
+    return 'ckeditor5-custom-pdf-styles';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function form(array $form, FormStateInterface $form_state, Config $config): array {
     $form['converter_url'] = [
       '#type' => 'textfield',
@@ -38,6 +45,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#description' => t('Leave this field empty unless you are using the on-premises version of Export to PDF.'),
       '#default_value' => $config->get('converter_url'),
     ];
+
 
     $options_key = 'converter_options';
     $form[$options_key] = [
@@ -68,6 +76,12 @@ class SettingsForm extends SharedBuildConfigFormBase {
     FormElement::pageOrientation($options, [
       '#default_value' => $config->get($options_key . '.page_orientation') ?? 'portrait',
     ]);
+
+    $options['custom_css'] = [
+      '#type' => 'textarea',
+      '#title' => t('Custom css'),
+      '#default_value' => $config->get($options_key . '.custom_css'),
+    ];
 
     $options['header_html'] = [
       '#type' => 'textarea',

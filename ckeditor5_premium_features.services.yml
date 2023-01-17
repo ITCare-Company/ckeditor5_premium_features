@@ -25,6 +25,8 @@ services:
     class: \Drupal\ckeditor5_premium_features\Utility\CssStyleProvider
     arguments:
       - '@theme.manager'
+      - '@file_system'
+      - '@file_url_generator'
 
   ckeditor5_premium_features.plugin_helper:
     class: \Drupal\ckeditor5_premium_features\Utility\PluginHelper
