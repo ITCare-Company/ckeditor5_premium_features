@@ -10,7 +10,6 @@ use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationContentFilteringStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityEventDispatcherInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationSuggestionDependingStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
@@ -585,8 +584,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       foreach ($storages as $storage) {
         $firstValues = $storage->loadByEntity($entity, $firstId);
         $secondValues = $storage->loadByEntity($entity, $secondId);
-        $this->swapKeyAttribute($firstValues, $secondId, $storage);
-        $this->swapKeyAttribute($secondValues, $firstId, $storage);
+        $this->swapKeyAttribute($firstValues, $secondId);
+        $this->swapKeyAttribute($secondValues, $firstId);
       }
     }
   }
@@ -598,14 +597,12 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   Array of the collaboration entities.
    * @param string $key
    *   New key.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityStorageInterface $storage
-   *   CollaborationEntityStorage.
    */
-  private function swapKeyAttribute(array $values, string $key, CollaborationEntityStorageInterface $storage) {
+  private function swapKeyAttribute(array $values, string $key) {
     if (!empty($values)) {
       foreach ($values as $collaborationEntity) {
         $collaborationEntity->setKey($key);
-        $storage->update($collaborationEntity, $collaborationEntity->toArray());
+        $collaborationEntity->save();
       }
     }
   }
