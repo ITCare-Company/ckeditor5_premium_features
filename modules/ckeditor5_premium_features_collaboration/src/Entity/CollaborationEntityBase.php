@@ -208,6 +208,17 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function setKey(string $key): static {
+    $attributes = $this->getAttributes();
+    $attributes['key'] = $key;
+    $this->setAttributes($attributes);
+
+    return $this;
+  }
+
+  /**
    * Gets the value of the fields containing the JSON data.
    *
    * @param string $field_name

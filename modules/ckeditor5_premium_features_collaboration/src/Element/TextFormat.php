@@ -604,9 +604,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   private function swapKeyAttribute(array $values, string $key, CollaborationEntityStorageInterface $storage) {
     if (!empty($values)) {
       foreach ($values as $collaborationEntity) {
-        $rawData = $collaborationEntity->toArray();
-        $rawData['attributes']['key'] = $key;
-        $storage->update($collaborationEntity, $rawData);
+        $collaborationEntity->setKey($key);
+        $storage->update($collaborationEntity, $collaborationEntity->toArray());
       }
     }
   }
