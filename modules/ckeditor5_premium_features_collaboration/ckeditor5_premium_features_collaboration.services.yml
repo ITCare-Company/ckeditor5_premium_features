@@ -8,6 +8,7 @@ services:
       - '@ckeditor5_premium_features_collaboration.collaboration_settings'
       - '@event_dispatcher'
       - '@current_user'
+      - '@state'
 
   ckeditor5_premium_features_collaboration.element.mentions_integration:
     class: Drupal\ckeditor5_premium_features_collaboration\Element\MentionsIntegration

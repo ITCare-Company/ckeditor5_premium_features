@@ -7,6 +7,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\State\StateInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -22,7 +23,8 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
    */
   public function __construct(
     protected NotificationSender $notificationSender,
-    protected AccountInterface $currentUser
+    protected AccountInterface $currentUser,
+    protected StateInterface $state
   ) {}
 
   /**
@@ -81,7 +83,7 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
 
     $recipients = $event->getRelatedDocumentAuthors();
 
-    /** @var Suggestion $suggestion */
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion $suggestion */
     $suggestion = $event->getRelatedEntity();
     $suggestionAuthor = $suggestion->getAuthorId();
 
@@ -95,6 +97,12 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
     if (empty($recipients)) {
       return;
     }
+
+    $chainId = $suggestion->getChainId();
+    $authors = $this->state->get(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY) ?? [];
+    $authors[$chainId] = $recipients;
+    $this->state->set(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY, $authors);
+
     $this->notificationSender->sendNotification(
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED,
       $recipients,

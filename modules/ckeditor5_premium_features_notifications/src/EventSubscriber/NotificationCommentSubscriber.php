@@ -8,6 +8,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\State\StateInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -29,6 +30,7 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     protected NotificationSender $notificationSender,
     protected Collaborators $collaboratorsService,
     protected AccountInterface $currentUser,
+    protected StateInterface $state
   ) {}
 
   /**
@@ -51,6 +53,11 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     if (!$collaborationEntity instanceof Comment) {
       return;
     }
+    $newSuggestionParticipators = [];
+    $notificationSentToUsers = $this->state->get(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY);
+    if ($notificationSentToUsers && !empty($notificationSentToUsers[$collaborationEntity->getThreadId()])) {
+      $newSuggestionParticipators = $notificationSentToUsers[$collaborationEntity->getThreadId()];
+    }
 
     $participators = $this->collaboratorsService->getParticipators($collaborationEntity);
     $threadSuggestionAuthor = $this->collaboratorsService->getThreadSuggestionAuthor($collaborationEntity);
@@ -61,6 +68,8 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     $participators = array_unique($participators);
     $replyRecipients = [];
     $authors = $event->getRelatedDocumentAuthors();
+
+    $participators = array_diff($participators, $newSuggestionParticipators);
 
     if (!$collaborationEntity->isReply()) {
       $replyRecipients = array_merge($participators, $authors);
@@ -85,13 +94,14 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
           $participators,
           $event
         );
-      } else {
+      }
+      else {
         // Send notification to the suggestion author.
         $this->notificationSender->sendNotification(
           NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY,
           $participators,
           $event
-        );
+              );
       }
     }
 
