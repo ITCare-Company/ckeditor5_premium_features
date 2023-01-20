@@ -164,9 +164,16 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         ...$element_parents,
         'entity_channel',
       ]);
+
       if (!$entity_channel) {
+        $channel = $this->channelStorage->loadByEntity($entity, $element_key);
+        if ($channel instanceof Channel) {
+          $this->apiAdapter->deleteDocument($channel->id());
+          $channel->delete();
+        }
         continue;
       }
+
       $this->handleEntityChannel($entity, $entity_channel, $element_key, $order_switch[$element_key] ?? NULL);
     }
   }
@@ -252,8 +259,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     foreach ($items as $itemKey => $field_parents) {
       $new_element_id = $this->getElementIdAfterOrderChanging($field_parents, $field_storage_parents);
 
-      if ($new_element_id !== NULL && $new_element_id != $itemKey) {
-        $change_order[$itemKey] = $new_element_id;
+      if ($new_element_id !== NULL && $new_element_id != $itemKey && !isset($change_order[$new_element_id])) {
+        $change_order[$new_element_id] = $itemKey;
       }
     }
 

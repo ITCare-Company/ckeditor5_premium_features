@@ -56,6 +56,18 @@ class ApiAdapter {
   }
 
   /**
+   * Deletes do document on the collaboration server.
+   *
+   * @param string $documentId
+   *   Document ID.
+   */
+  public function deleteDocument(string $documentId): bool {
+    $result = $this->sendRequest('DELETE', 'collaborations/' . $documentId . '?force=true&wait=true');
+
+    return empty($result);
+  }
+
+  /**
    * Check the library version used in last session.
    *
    * @param string $documentId
