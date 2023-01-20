@@ -53,11 +53,9 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     if (!$collaborationEntity instanceof Comment) {
       return;
     }
-    $newSuggestionParticipators = [];
+
     $notificationSentToUsers = $this->state->get(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY);
-    if ($notificationSentToUsers && !empty($notificationSentToUsers[$collaborationEntity->getThreadId()])) {
-      $newSuggestionParticipators = $notificationSentToUsers[$collaborationEntity->getThreadId()];
-    }
+    $newSuggestionParticipators = $notificationSentToUsers[$collaborationEntity->getThreadId()] ?? [];
 
     $participators = $this->collaboratorsService->getParticipators($collaborationEntity);
     $threadSuggestionAuthor = $this->collaboratorsService->getThreadSuggestionAuthor($collaborationEntity);

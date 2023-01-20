@@ -410,19 +410,20 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    */
   protected function dispatchStoragesEvents(): void {
     foreach ($this->features as $key => $storage) {
-      if (!empty($this->storagesOperations[$key])) {
-        $operations = $this->storagesOperations[$key];
-        $added = $operations['added'] ?? [];
-        $updated = $operations['updated'] ?? [];
-        if ($added) {
-          foreach ($added as $added_entity) {
-            $storage->dispatchNewEntity($added_entity);
-          }
+      if (empty($this->storagesOperations[$key])) {
+        continue;
+      }
+      $operations = $this->storagesOperations[$key];
+      $added = $operations['added'] ?? [];
+      $updated = $operations['updated'] ?? [];
+      if ($added) {
+        foreach ($added as $added_entity) {
+          $storage->dispatchNewEntity($added_entity);
         }
-        if ($updated) {
-          foreach ($updated as $upd_info) {
-            $storage->dispatchUpdatedEntity($upd_info['old'], $upd_info['new']);
-          }
+      }
+      if ($updated) {
+        foreach ($updated as $upd_info) {
+          $storage->dispatchUpdatedEntity($upd_info['old'], $upd_info['new']);
         }
       }
     }
