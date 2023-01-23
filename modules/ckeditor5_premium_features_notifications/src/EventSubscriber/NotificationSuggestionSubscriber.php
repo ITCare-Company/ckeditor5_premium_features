@@ -98,9 +98,9 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    $chainId = $suggestion->getChainId();
+    $suggestionId = $suggestion->getId();
     $authors = $this->state->get(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY) ?? [];
-    $authors[$chainId] = $recipients;
+    $authors[$suggestionId] = $recipients;
     $this->state->set(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY, $authors);
 
     $this->notificationSender->sendNotification(

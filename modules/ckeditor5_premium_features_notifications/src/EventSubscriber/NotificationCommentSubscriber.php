@@ -107,8 +107,8 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     if (!empty($mentions)) {
       $users = $this->collaboratorsService->getUserIdsByNames($mentions);
 
-      if ($isSuggestionReplay && empty($participators)) {
-        $users = array_diff($users, $authors);
+      if ($isSuggestionReplay) {
+        $users = array_diff($users, $newSuggestionParticipators);
       }
 
       $this->checkIfNotificationAlreadySentToUsers(
