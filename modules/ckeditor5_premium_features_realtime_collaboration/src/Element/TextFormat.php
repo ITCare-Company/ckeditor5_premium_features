@@ -165,12 +165,27 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         'entity_channel',
       ]);
 
-      if (!$entity_channel) {
+      if (!$entity_channel || isset($order_switch[$element_key]) && $order_switch[$element_key] === FALSE) {
+        if (!$entity_channel && isset($order_switch[$element_key]) && $order_switch[$element_key] !== FALSE) {
+          $order_switch[$order_switch[$element_key]] = $element_key;
+          unset($order_switch[$element_key]);
+        }
         $channel = $this->channelStorage->loadByEntity($entity, $element_key);
         if ($channel instanceof Channel) {
           $this->apiAdapter->deleteDocument($channel->id());
           $channel->delete();
         }
+      }
+
+    }
+
+    foreach ($items as $element_key => $element_parents) {
+      $entity_channel = $form_state->getValue([
+        ...$element_parents,
+        'entity_channel',
+      ]);
+
+      if (!$entity_channel || isset($order_switch[$element_key]) && $order_switch[$element_key] === FALSE) {
         continue;
       }
 
@@ -203,15 +218,13 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     if (!$channel) {
       $channel = $this->channelStorage->loadByEntity($entity, $new_element_id ?? $element_id);
     }
+    elseif ($channel->getKeyId() != $element_id) {
+      $entity_channel = $this->getChannelId($entity->uuid() . $element_id . time());
+      $channel = NULL;
+    }
 
-    if ($channel instanceof Channel && $channel->getKeyId() !== $new_element_id) {
-      if (!empty($new_element_id)) {
-        $channel->setKeyId($new_element_id)->save();
-      }
-      else {
-        $entity_channel = $this->getChannelId($entity->uuid() . $element_id . time());
-        $channel = NULL;
-      }
+    if ($channel instanceof Channel && !empty($new_element_id) && $channel->getKeyId() !== $new_element_id) {
+      $channel->setKeyId($new_element_id)->save();
     }
 
     if ($channel) {
@@ -256,11 +269,24 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     $change_order = [];
 
-    foreach ($items as $itemKey => $field_parents) {
+    foreach ($items as $item_key => $field_parents) {
       $new_element_id = $this->getElementIdAfterOrderChanging($field_parents, $field_storage_parents);
 
-      if ($new_element_id !== NULL && $new_element_id != $itemKey && !isset($change_order[$new_element_id])) {
-        $change_order[$new_element_id] = $itemKey;
+      if ($new_element_id === FALSE) {
+        if (empty($change_order[$item_key])) {
+          $change_order[$item_key] = FALSE;
+        }
+        continue;
+      }
+
+      if ($new_element_id !== NULL && $new_element_id != $item_key && empty($change_order[$item_key])) {
+        $change_order[$item_key] = $new_element_id;
+      }
+    }
+
+    foreach ($items as $item_key => $field_parents) {
+      if (in_array($item_key, $change_order) && !isset($change_order[$item_key])) {
+        $change_order[$item_key] = false;
       }
     }
 
@@ -275,7 +301,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @param array $fields_storage
    *   Form storage #fields value.
    */
-  private function getElementIdAfterOrderChanging(array $parents_path, array $fields_storage): ?string {
+  private function getElementIdAfterOrderChanging(array $parents_path, array $fields_storage): string|null|bool {
     $processed_parents = [];
     $was_modified_delta = FALSE;
     for ($current_key = 0; $current_key < count($parents_path); $current_key++) {
@@ -294,8 +320,12 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         $current_delta,
       ]);
 
+      if ($old_delta === NULL) {
+        return FALSE;
+      }
+
       $processed_parents[] = $parent;
-      if ($old_delta === NULL || $old_delta === $current_delta) {
+      if ($old_delta === $current_delta) {
         continue;
       }
       $was_modified_delta = TRUE;
