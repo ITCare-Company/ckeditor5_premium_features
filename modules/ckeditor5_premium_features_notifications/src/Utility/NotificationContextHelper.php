@@ -9,7 +9,7 @@ use Drupal\ckeditor5_premium_features\Utility\HtmlHelper;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\FieldableEntityInterface;
 

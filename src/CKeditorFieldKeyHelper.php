@@ -2,7 +2,7 @@
 
 namespace Drupal\ckeditor5_premium_features;
 
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 
 /**
  * Class for generating unique field IDs.

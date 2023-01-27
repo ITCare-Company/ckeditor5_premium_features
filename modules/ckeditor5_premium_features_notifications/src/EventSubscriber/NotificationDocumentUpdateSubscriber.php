@@ -11,7 +11,7 @@ use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\Notifica
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings;
 use Drupal\Component\Plugin\Exception\PluginException;
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\filter\FilterPluginManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
