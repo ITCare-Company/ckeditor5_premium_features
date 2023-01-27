@@ -84,7 +84,8 @@ class HtmlHelper {
   }
 
   /**
-   * Removes collaboration entities filtering by not matching attributes.
+   * Removes collaboration entities having data-suggestion- prefixed attributes
+   * not matching passed selector.
    *
    * @param \DOMDocument $document
    *   Document to be processed.

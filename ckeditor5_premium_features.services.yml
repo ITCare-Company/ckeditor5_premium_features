@@ -39,3 +39,9 @@ services:
     arguments:
       - '@ckeditor5_premium_features.config_handler.settings'
       - '@http_client'
+
+  ckeditor5_premium_features.mention_integrator:
+    class: \Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator
+    arguments:
+      - '@module_handler'
+      - '@service_container'

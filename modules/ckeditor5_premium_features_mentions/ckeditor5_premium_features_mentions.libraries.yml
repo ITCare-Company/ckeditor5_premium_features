@@ -1,0 +1,6 @@
+
+mention-integration:
+  js:
+    js/build/mentionsIntegration.js: { minified: true }
+  dependencies:
+    - ckeditor5_premium_features_mentions/mention
