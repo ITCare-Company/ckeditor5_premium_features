@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Plugin\Filter;
 
-use Drupal\ckeditor5_premium_features\Utility\DomSuggestion;
 use Drupal\Component\Utility\Html;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
@@ -32,11 +31,12 @@ class FilterCollaboration extends FilterBase {
     $xpath = new \DOMXPath($dom);
 
     $this->filterComments($xpath);
-    $this->filterSuggestionsTags($xpath);
-    $this->filterSuggestionsAttributes($xpath);
+    $this->convertSuggestionsAttributes($dom, $xpath);
 
     $dom->saveHTML();
     $text = Html::serialize($dom);
+
+    $this->filterSuggestionsTags($text);
 
     return new FilterProcessResult($text);
   }
@@ -85,115 +85,94 @@ class FilterCollaboration extends FilterBase {
   }
 
   /**
-   * Filter out the suggestion tags or attributes (where needed).
+   * Filter out the suggestion tags.
    *
    * @param \DOMXPath $xpath
    *   The DOM XPath.
    */
-  public function filterSuggestionsTags(\DOMXPath $xpath): void {
-    $suggestions_tags = [
-      'suggestion-start',
-      'suggestion-end',
+  public function filterSuggestionsTags(string &$text): void {
+    $text = preg_replace('#<suggestion-start[^<>]*insertion[^<>]*></suggestion-start>#si', '<ins>', $text);
+    $text = preg_replace('#<suggestion-end[^<>]*insertion[^<>]*></suggestion-end>#si', '</ins>', $text);
+    $text = preg_replace('%(<ins.*?>)(.*?)(<\/ins.*?>)%is', '', $text);
+
+    $text = preg_replace('#<suggestion-start[^<>]*></suggestion-start>#si', '', $text);
+    $text = preg_replace('#<suggestion-end[^<>]*></suggestion-end>#si', '', $text);
+  }
+
+  /**
+   * Replaces the suggestion attributes with suggestion tags.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMXPath $xpath
+   *   The DOM XPath.
+   */
+  public function convertSuggestionsAttributes(\DOMDocument $dom, \DOMXPath $xpath): void {
+    $attributes = [
+      'end-before' => 'data-suggestion-end-before',
+      'start-before' => 'data-suggestion-start-before',
+      'start-after' => 'data-suggestion-start-after',
+      'end-after' => 'data-suggestion-end-after',
     ];
 
-    foreach ($suggestions_tags as $suggestion_tag) {
-      $suggestions = $xpath->query('//' . $suggestion_tag);
+    foreach ($attributes as $key => $attribute) {
+      $queryExpression = "//*[@{$attribute}]";
+      $suggestions = $xpath->query($queryExpression);
 
       if (!$suggestions) {
-        continue;
+        return;
       }
 
       /** @var \DOMElement $suggestion */
       foreach ($suggestions as $suggestion) {
-        $dom_suggestion = new DomSuggestion($suggestion);
-        if ($dom_suggestion->isInsertion() && $dom_suggestion->isStartTag()) {
-          $this->removeUntilEnd($suggestion, $dom_suggestion->getNameAttributeValue());
-        }
-        else {
-          try {
-            if (!$suggestion || !$suggestion->parentNode) {
-              continue;
-            }
-            $suggestion->replaceWith(' ');
-          }
-          catch (\Throwable) {
-            continue;
-          }
-        }
-      }
-    }
-  }
+        switch ($key) {
+          case 'start-before':
+            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, 'suggestion-start', 'before');
+            break;
+          case 'start-after':
+            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, 'suggestion-start', 'after');
 
-  /**
-   * Filter out the suggestion attributes.
-   *
-   * @param \DOMXPath $xpath
-   *   The DOM XPath.
-   */
-  public function filterSuggestionsAttributes(\DOMXPath $xpath): void {
-    $attributes = [
-      'start' => 'data-suggestion-start-before',
-      'end' => 'data-suggestion-end-after',
-    ];
+            break;
+          case 'end-before':
+            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, 'suggestion-end', 'before');
 
-    $suggestions = $xpath->query("//*[@{$attributes['start']}]");
+            break;
+          case 'end-after':
+            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, 'suggestion-end', 'after');
+            break;
 
-    if (!$suggestions) {
-      return;
-    }
-
-    /** @var \DOMElement $suggestion */
-    foreach ($suggestions as $suggestion) {
-      $dom_suggestion = new DomSuggestion($suggestion);
-      if ($dom_suggestion->isInsertion()) {
-        $suggestion->remove();
-      }
-      else {
-        foreach ($attributes as $attribute) {
-          $suggestion->removeAttribute($attribute);
         }
       }
     }
   }
 
   /**
-   * Removes all DOM elements and text until met the end tag or attribute.
+   * Replace data-suggestion attributes with suggestion tags.
    *
-   * @param \DOMElement|\DOMText $element
-   *   The DOM element.
+   * This allows for easier and less prone for errors filtering of suggestions.
+   *
+   * @param \DOMDocument $dom
+   *   The Dom document.
+   * @param \DOMElement $suggestion
+   *   An element to process.
+   * @param string $attribute
+   *   An attribute name to process.
    * @param string $name
-   *   The name attribute value.
+   *   The tag name to create in place of attribute.
+   * @param string $function
+   *   Function to apply on element to place new tag in correct place.
+   *   Most times it'll be 'before' or 'after'.
+   * @return void
+   * @throws \DOMException
    */
-  public function removeUntilEnd(\DOMElement|\DOMText $element, string $name = ''): void {
-    $next = $element->nextSibling;
-    $parent = $element->parentNode;
-    $element->remove();
 
-    if (empty($next)) {
-      $next = $parent?->nextSibling?->firstChild;
-      if (!$parent?->hasChildNodes()) {
-        $parent->remove();
-      }
-    }
-
-    if ($element instanceof \DOMElement) {
-      $dom_element = new DomSuggestion($element);
-      if ($dom_element->isEndTag() && $dom_element->hasName($name)) {
-        // This is the end of the journey because of the html tag.
-        return;
-      }
-      elseif ($dom_element->getEndAttributeValue() === $name) {
-        // This is the end of the journey because of the attribute.
-        return;
-      }
-    }
-
-    if (!$next instanceof \DOMNode) {
-      // Something went wrong, stop further processing.
-      return;
-    }
-
-    $this->removeUntilEnd($next, $name);
+  private function replaceSuggestionAttribute(\DOMDocument $dom, \DOMElement $suggestion, string $attribute, string $qualifiedName, string $function): void {
+    $value = $suggestion->getAttribute($attribute);
+    $elem = new \DOMElement($qualifiedName);
+    $elemNode = $dom->importNode($elem);
+    $elemNode->setAttribute('name', $value);
+    $suggestion->$function($elemNode);
+    $suggestion->removeAttribute($attribute);
   }
 
 }

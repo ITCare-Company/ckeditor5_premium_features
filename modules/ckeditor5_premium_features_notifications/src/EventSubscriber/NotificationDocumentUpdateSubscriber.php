@@ -134,12 +134,17 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
 
     $this->filterCollaboration->filterComments($xpath);
     if ($this->notificationSettings->isMessageEnabled(NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED)) {
-      $this->filterCollaboration->filterSuggestionsTags($xpath);
-      $this->filterCollaboration->filterSuggestionsAttributes($xpath);
+      $this->filterCollaboration->convertSuggestionsAttributes($dom, $xpath);
     }
 
     $dom->saveHTML();
-    return Html::serialize($dom);
+    $htmlString = Html::serialize($dom);
+
+    if ($this->notificationSettings->isMessageEnabled(NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED)) {
+      $this->filterCollaboration->filterSuggestionsTags($htmlString);
+    }
+
+    return $htmlString;
   }
 
 }
