@@ -275,12 +275,14 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       if ($new_element_id === FALSE) {
         if (empty($change_order[$item_key])) {
           $change_order[$item_key] = FALSE;
+        } else {
+          $change_order[$change_order[$item_key]] = FALSE;
         }
         continue;
       }
 
-      if ($new_element_id !== NULL && $new_element_id != $item_key && empty($change_order[$item_key])) {
-        $change_order[$item_key] = $new_element_id;
+      if ($new_element_id !== NULL && $new_element_id != $item_key && empty($change_order[$new_element_id])) {
+        $change_order[$new_element_id] = $item_key;
       }
     }
 
@@ -312,19 +314,23 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       }
 
       $current_delta = $parents_path[$current_key + 1];
+
       $old_delta = NestedArray::getValue($fields_storage, [
-        ...array_slice($parents_path, 0, $current_key),
+        ...$processed_parents,
         '#fields',
         $parent,
         'original_deltas',
         $current_delta,
       ]);
 
+      $processed_parents[] = $parent;
       if ($old_delta === NULL) {
-        return FALSE;
+        if (!$was_modified_delta) {
+          return FALSE;
+        }
+        continue;
       }
 
-      $processed_parents[] = $parent;
       if ($old_delta === $current_delta) {
         continue;
       }
