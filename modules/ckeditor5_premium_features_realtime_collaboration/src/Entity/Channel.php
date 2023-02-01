@@ -23,6 +23,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   },
  *   handlers = {
  *     "storage" = "Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage",
+ *     "storage_schema" = "Drupal\ckeditor5_premium_features\Entity\CollaborationStorageSchema",
  *   }
  * )
  */
@@ -58,6 +59,22 @@ class Channel extends ContentEntityBase implements ChannelInterface {
       ->setLabel(t('Field Key ID'));
 
     return $fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getKeyId(): ?string {
+    return (string) $this->get('key_id')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setKeyId(string $value): static {
+    $this->set('key_id', $value);
+
+    return $this;
   }
 
 }

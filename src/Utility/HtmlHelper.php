@@ -100,7 +100,7 @@ class HtmlHelper {
     ];
 
     foreach ($attributes as $attribute) {
-      $removeQueries[] = "//*[@$attribute]" . "[not($selector)]";
+      $removeQueries[] = "//*[@$attribute][not($selector)]";
     }
 
     $this->doRemoveElements($document, $removeQueries);

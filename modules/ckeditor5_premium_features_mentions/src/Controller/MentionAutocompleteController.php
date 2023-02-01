@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_collaboration\Controller;
+namespace Drupal\ckeditor5_premium_features_mentions\Controller;
 
-use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
-use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
+use Drupal\ckeditor5_premium_features_mentions\DataProvider\MentionDataProvider;
+use Drupal\ckeditor5_premium_features_mentions\Utility\MentionSettings;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,16 +20,16 @@ class MentionAutocompleteController extends ControllerBase {
   /**
    * Constructor.
    *
-   * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userProvider
+   * @param \Drupal\ckeditor5_premium_features_mentions\DataProvider\MentionDataProvider $mentionsProvider
    *   User data provider.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaborationSettings
-   *   Collaboration settings.
+   * @param \Drupal\ckeditor5_premium_features_mentions\Utility\MentionSettings $mentionSettings
+   *   Mention settings.
    * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
    *   Request stack.
    */
   public function __construct(
-    protected UserDataProvider $userProvider,
-    protected CollaborationSettings $collaborationSettings,
+    protected MentionDataProvider $mentionsProvider,
+    protected MentionSettings $mentionSettings,
     protected RequestStack $requestStack
   ) {
   }
@@ -39,8 +39,8 @@ class MentionAutocompleteController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('ckeditor5_premium_features_collaboration.data_provider.users'),
-      $container->get('ckeditor5_premium_features_collaboration.collaboration_settings'),
+      $container->get('ckeditor5_premium_features_mentions.data_provider.mentions'),
+      $container->get('ckeditor5_premium_features_mentions.mention_settings'),
       $container->get('request_stack')
     );
   }
@@ -58,7 +58,7 @@ class MentionAutocompleteController extends ControllerBase {
     }
 
     /** @var \Drupal\user\Entity\User[] $matchedUsers */
-    $matchedUsers = $this->userProvider->getPrivilegedEditors(
+    $matchedUsers = $this->mentionsProvider->getPrivilegedEditors(
       $args->get('query'),
       $this->getDropdownLimit()
     );
@@ -78,14 +78,14 @@ class MentionAutocompleteController extends ControllerBase {
    * Returns a marker character used for starting annotations.
    */
   protected function getMentionMarker(): string {
-    return $this->collaborationSettings->getMentionsMarker();
+    return $this->mentionSettings->getMentionsMarker();
   }
 
   /**
    * Returns the maximum number of suggestions displayed.
    */
   protected function getDropdownLimit(): int {
-    return $this->collaborationSettings->getMentionAutocompleteListLength();
+    return $this->mentionSettings->getMentionAutocompleteListLength();
   }
 
 }

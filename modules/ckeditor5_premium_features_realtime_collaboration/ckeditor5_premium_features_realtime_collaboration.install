@@ -7,6 +7,8 @@
 
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Url;
+use Drupal\ckeditor5_premium_features\Entity\CollaborationStorageSchema;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
 
 /**
  * Implements hook_requirements().
@@ -15,6 +17,7 @@ function ckeditor5_premium_features_realtime_collaboration_requirements($phase):
   $requirements = [];
 
   if (($phase === 'install')) {
+    // phpcs:ignore
     if (\Drupal::moduleHandler()->moduleExists('ckeditor5_premium_features_collaboration') || defined('COLLABORATION_INSTALLING')) {
       $requirements[] = [
         'description' => t('You cannot install CKEditor 5 Realtime Collaboration and CKEditor 5 Non-realtime Collaboration modules at the same time.'),
@@ -22,6 +25,7 @@ function ckeditor5_premium_features_realtime_collaboration_requirements($phase):
       ];
     }
     else {
+      // phpcs:ignore
       define('COLLABORATION_INSTALLING', TRUE);
     }
   }
@@ -71,4 +75,16 @@ function ckeditor5_premium_features_realtime_collaboration_update_10000() {
       $storageDefinition
     );
   }
+}
+
+/**
+ * Implements hook_update().
+ */
+function ckeditor5_premium_features_realtime_collaboration_update_10001() {
+  $entityDefinition = \Drupal::entityDefinitionUpdateManager();
+
+  $channelEntity = $entityDefinition->getEntityType(ChannelInterface::ENTITY_TYPE_ID);
+  $channelEntity->setHandlerClass('storage_schema', CollaborationStorageSchema::class);
+
+  $entityDefinition->updateEntityType($channelEntity);
 }

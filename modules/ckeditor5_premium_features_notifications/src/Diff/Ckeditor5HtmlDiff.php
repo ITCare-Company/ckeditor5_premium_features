@@ -3,7 +3,7 @@
 namespace Drupal\ckeditor5_premium_features_notifications\Diff;
 
 use Caxy\HtmlDiff\HtmlDiff;
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 
 /**
  * Ckeditor5 extension of an external library for detecting string changes.

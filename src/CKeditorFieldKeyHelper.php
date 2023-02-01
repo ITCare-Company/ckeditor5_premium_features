@@ -2,7 +2,7 @@
 
 namespace Drupal\ckeditor5_premium_features;
 
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 
 /**
  * Class for generating unique field IDs.
@@ -31,6 +31,7 @@ class CKeditorFieldKeyHelper {
    *   Form element ID.
    */
   public static function cleanElementDrupalId(string $elementId): string {
+    $elementId = str_replace('_', '-', $elementId);
     $elementParts = explode('--', $elementId);
 
     return reset($elementParts);

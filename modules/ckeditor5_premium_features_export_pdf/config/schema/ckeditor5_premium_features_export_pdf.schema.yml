@@ -13,6 +13,9 @@ ckeditor5.plugin.ckeditor5_premium_features_export_pdf__export_pdf:
       type: mapping
       label: 'Converter options'
       mapping:
+        custom_css:
+          type: string
+          label: 'Custom css'
         format:
           type: string
           label: 'Page format'
@@ -80,6 +83,9 @@ ckeditor5_premium_features_export_pdf.settings:
       type: mapping
       label: 'Converter options'
       mapping:
+        custom_css:
+          type: string
+          label: 'Custom css'
         format:
           type: string
           label: 'Page format'

@@ -10,14 +10,6 @@ services:
       - '@current_user'
       - '@state'
 
-  ckeditor5_premium_features_collaboration.element.mentions_integration:
-    class: Drupal\ckeditor5_premium_features_collaboration\Element\MentionsIntegration
-    arguments:
-      - '@ckeditor5_premium_features_collaboration.storage_handler.editor'
-      - '@ckeditor5_premium_features_collaboration.data_provider.users'
-      - '@current_user'
-      - '@ckeditor5_premium_features_collaboration.collaboration_settings'
-
   ckeditor5_premium_features_collaboration.data_provider.users:
     class: Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider
     arguments:
@@ -35,6 +27,7 @@ services:
       - '@database'
       - '@entity_type.manager'
       - '@ckeditor5_premium_features_collaboration.collaboration_settings'
+      - '@ckeditor5_premium_features.mention_integrator'
 
   ckeditor5_premium_features_collaboration.collaboration_settings:
     class: Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings

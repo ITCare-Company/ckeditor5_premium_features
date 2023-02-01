@@ -6,6 +6,12 @@
  */
 
 use Drupal\Core\Url;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
+use Drupal\ckeditor5_premium_features\Entity\CollaborationStorageSchema;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentStorageSchema;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorageSchema;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
 
 /**
  * Implements hook_requirements().
@@ -14,6 +20,7 @@ function ckeditor5_premium_features_collaboration_requirements($phase): array {
   $requirements = [];
 
   if (($phase === 'install')) {
+    // phpcs:ignore
     if (\Drupal::moduleHandler()->moduleExists('ckeditor5_premium_features_realtime_collaboration') || defined('COLLABORATION_INSTALLING')) {
       $requirements[] = [
         'description' => t('You cannot install CKEditor 5 Realtime Collaboration and CKEditor 5 Non-realtime Collaboration modules at the same time.'),
@@ -21,6 +28,7 @@ function ckeditor5_premium_features_collaboration_requirements($phase): array {
       ];
     }
     else {
+      // phpcs:ignore
       define('COLLABORATION_INSTALLING', TRUE);
     }
   }
@@ -40,4 +48,24 @@ function ckeditor5_premium_features_collaboration_requirements($phase): array {
   }
 
   return $requirements;
+}
+
+/**
+ * Implements hook_update().
+ */
+function ckeditor5_premium_features_collaboration_update_10000() {
+  $entityDefinition = \Drupal::entityDefinitionUpdateManager();
+
+  $commentEntity = $entityDefinition->getEntityType(CommentInterface::ENTITY_TYPE_ID);
+  $commentEntity->setHandlerClass('storage_schema', CommentStorageSchema::class);
+
+  $suggestionEntity = $entityDefinition->getEntityType(SuggestionInterface::ENTITY_TYPE_ID);
+  $suggestionEntity->setHandlerClass('storage_schema', SuggestionStorageSchema::class);
+
+  $revisionEntity = $entityDefinition->getEntityType(RevisionInterface::ENTITY_TYPE_ID);
+  $revisionEntity->setHandlerClass('storage_schema', CollaborationStorageSchema::class);
+
+  $entityDefinition->updateEntityType($commentEntity);
+  $entityDefinition->updateEntityType($suggestionEntity);
+  $entityDefinition->updateEntityType($revisionEntity);
 }

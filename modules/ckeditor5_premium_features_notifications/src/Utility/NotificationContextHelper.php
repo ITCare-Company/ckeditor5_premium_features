@@ -9,7 +9,7 @@ use Drupal\ckeditor5_premium_features\Utility\HtmlHelper;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\FieldableEntityInterface;
 
@@ -58,12 +58,13 @@ class NotificationContextHelper {
   public function getFullContextFromDocument(string $context, CollaborationEntityInterface $entity): array {
     $thread = $this->renderEntityThread($entity);
 
+    $isFormattingSuggestion = FALSE;
     $snippets = [];
     if ($entity instanceof CommentInterface) {
       $snippets = $this->getHighlightedComment($context, $entity);
     }
     if ($entity instanceof SuggestionInterface) {
-      $snippets = $this->getHighlightedSuggestion($context, $entity);
+      $snippets = $this->getHighlightedSuggestion($context, $entity, $isFormattingSuggestion);
     }
 
     if (empty($snippets)) {
@@ -74,6 +75,7 @@ class NotificationContextHelper {
       '#theme' => 'notification_message_single',
       '#context' => $snippets,
       '#thread' => $thread,
+      '#formattingChange' => $isFormattingSuggestion,
     ];
 
     $this->setCommentsLimitInThread($fullContext, $thread);
@@ -177,8 +179,10 @@ class NotificationContextHelper {
    *   Document content.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
    *   Suggestion to be highlighted.
+   * @param bool $formattingSuggestionDetected
+   *   Returns boolean determining if the script detected formatting suggestion.
    */
-  public function getHighlightedSuggestion(string $context, SuggestionInterface $suggestion): array {
+  public function getHighlightedSuggestion(string $context, SuggestionInterface $suggestion, bool &$formattingSuggestionDetected = FALSE): array {
     $suggestionChain = $suggestion->getChain();
 
     $queryOrParts = [];
@@ -206,10 +210,12 @@ class NotificationContextHelper {
     $fixedMarkup = preg_replace('#<suggestion-start[^<>]*deletion[^<>]*></suggestion-start>#si', '<del>', $fixedMarkup);
     $fixedMarkup = preg_replace('#<suggestion-end[^<>]*deletion[^<>]*></suggestion-end>#si', '</del>', $fixedMarkup);
 
-    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*formatInline[^<>]*></suggestion-start>#si', '<format>', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*formatInline[^<>]*></suggestion-start>#si', '<format>', $fixedMarkup, -1, $formattingSuggestionCount);
     $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatInline[^<>]*></suggestion-end>#si', '</format>', $fixedMarkup);
+    $formattingSuggestionDetected |= $formattingSuggestionCount > 0;
 
-    $fixedMarkup = preg_replace('#data-suggestion-start-before="formatBlock[^"]*"#si', 'data-format-change', $fixedMarkup);
+    $fixedMarkup = preg_replace('#data-suggestion-start-before="formatBlock[^"]*"#si', 'data-format-change', $fixedMarkup, -1, $formattingSuggestionCount);
+    $formattingSuggestionDetected |= $formattingSuggestionCount > 0;
     $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatBlock[^<>]*></suggestion-end>#si', '', $fixedMarkup);
 
     $fixedMarkup = preg_replace('#<ins>\s*</ins>#si', '', $fixedMarkup);

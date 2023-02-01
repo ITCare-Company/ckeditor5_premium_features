@@ -106,7 +106,7 @@ interface CollaborationEntityInterface {
    * @return \Drupal\Core\Entity\EntityInterface
    *   Referenced entity.
    */
-  public function getReferencedEntity(): EntityInterface;
+  public function getReferencedEntity(): ?EntityInterface;
 
   /**
    * Gets the JSON suggestion attributes.
@@ -132,6 +132,11 @@ interface CollaborationEntityInterface {
    * Returns key attribute value.
    */
   public function getKey(): string|null;
+
+  /**
+   * Set key attribute value.
+   */
+  public function setKey(string $key): static;
 
   /**
    * Returns formatted date  of creation.

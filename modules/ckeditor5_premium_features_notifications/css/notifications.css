@@ -41,6 +41,11 @@
   border-radius: 15px;
 }
 
+.context-content img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
 .comment-thread-wrapper {
   padding: 15px;
   margin-top: 15px;
@@ -104,6 +109,10 @@
   margin: 10px;
 }
 
+.context-title {
+  font-style: italic;
+}
+
 del,
 del > p {
   background: var(--ck-color-suggestion-marker-deletion-background);
@@ -125,6 +134,22 @@ del > p,
 ins > p {
   /* This should make paragraphs with background looks better (not full page width). */
   display: table;
+}
+
+del:has(img),
+ins:has(img) {
+  background: none;
+  border-bottom: none;
+  border-top: none;
+  margin-right: 8px;
+}
+
+ins > img {
+  outline: 4px var(--ck-color-suggestion-marker-insertion-border) solid;
+}
+
+del > img {
+  outline: 4px var(--ck-color-suggestion-marker-deletion-border) solid;
 }
 
 comment {

@@ -84,6 +84,7 @@ class FormElement {
     $selector = $type . '-items-wrapper';
     $fieldset = [
       '#type' => 'fieldset',
+      // phpcs:ignore
       '#title' => new TranslatableMarkup(ucfirst($type) . 's'),
       '#tree' => TRUE,
       '#id' => $selector,

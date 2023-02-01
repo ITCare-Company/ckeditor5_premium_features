@@ -9,6 +9,7 @@ use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
 use Drupal\ckeditor5_premium_features\Utility\ApiAdapter;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Ckeditor5ChannelHandlingException;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\Channel;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\CollaborationSettings;
@@ -18,6 +19,7 @@ use Drupal\Core\Config\Config;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -96,13 +98,15 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       ) ?? $this->getChannelId($entity->uuid() . $element_unique_id);
 
       if (!$entity->isNew()) {
-        $channel = $this->handleEntityChannel($entity, $channel_id, $element_unique_id);
-
+        $channel = $this->channelStorage->loadByEntity($entity, $element_unique_id);
+        if (!$channel) {
+          $channel = $this->handleEntityChannel($entity, $channel_id, $element_unique_id);
+        }
         if ($channel instanceof ChannelInterface) {
           $channel_id = $channel->id();
         }
         else {
-          throw new Ckeditor5ChannelHandlingException("Problem occured while creating Ckeditor5 Channel Entity");
+          throw new Ckeditor5ChannelHandlingException("Problem occurred while creating Ckeditor5 Channel Entity");
         }
       }
 
@@ -151,11 +155,41 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     }
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
 
+    $order_switch = $this->detectOrderChange($form_state, $items);
+
     $entity = $form_object->getEntity();
 
     foreach ($items as $element_key => $element_parents) {
-      $entity_channel = $form_state->getValue([...$element_parents, 'entity_channel']);
-      $this->handleEntityChannel($entity, $entity_channel, $element_key);
+      $entity_channel = $form_state->getValue([
+        ...$element_parents,
+        'entity_channel',
+      ]);
+
+      if (!$entity_channel || isset($order_switch[$element_key]) && $order_switch[$element_key] === FALSE) {
+        if (!$entity_channel && isset($order_switch[$element_key]) && $order_switch[$element_key] !== FALSE) {
+          $order_switch[$order_switch[$element_key]] = $element_key;
+          unset($order_switch[$element_key]);
+        }
+        $channel = $this->channelStorage->loadByEntity($entity, $element_key);
+        if ($channel instanceof Channel) {
+          $this->apiAdapter->deleteDocument($channel->id());
+          $channel->delete();
+        }
+      }
+
+    }
+
+    foreach ($items as $element_key => $element_parents) {
+      $entity_channel = $form_state->getValue([
+        ...$element_parents,
+        'entity_channel',
+      ]);
+
+      if (!$entity_channel || isset($order_switch[$element_key]) && $order_switch[$element_key] === FALSE) {
+        continue;
+      }
+
+      $this->handleEntityChannel($entity, $entity_channel, $element_key, $order_switch[$element_key] ?? NULL);
     }
   }
 
@@ -168,20 +202,37 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   Desired entity channel ID.
    * @param string $element_id
    *   ID of the field element.
+   * @param string|null $new_element_id
+   *   New element ID to overwrite the existing one.
    *
    * @return \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface|null
    *   Channel entity if exists.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  private function handleEntityChannel(EntityInterface $entity, string $entity_channel, string $element_id): ?ChannelInterface {
-    if ($channel = $this->channelStorage->loadByEntity($entity, $element_id)) {
+  private function handleEntityChannel(EntityInterface $entity, string $entity_channel, string $element_id, string $new_element_id = NULL): ?ChannelInterface {
+    $channel = $this->channelStorage->load($entity_channel);
+
+    if (!$channel) {
+      $channel = $this->channelStorage->loadByEntity($entity, $new_element_id ?? $element_id);
+    }
+    elseif ($channel->getKeyId() != $element_id) {
+      $entity_channel = $this->getChannelId($entity->uuid() . $element_id . time());
+      $channel = NULL;
+    }
+
+    if ($channel instanceof Channel && !empty($new_element_id) && $channel->getKeyId() !== $new_element_id) {
+      $channel->setKeyId($new_element_id)->save();
+    }
+
+    if ($channel) {
       return $channel;
     }
 
     try {
-      return $this->channelStorage->createChannel($entity, $entity_channel, $element_id);
+      return $this->channelStorage->createChannel($entity, $entity_channel, $new_element_id ?? $element_id);
     }
     catch (EntityStorageException $e) {
       return $this->channelStorage->loadByEntity($entity, $element_id);
@@ -199,6 +250,95 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    */
   private function getChannelId(string $uuid): string {
     return substr(Crypt::hashBase64($uuid), 0, 36);
+  }
+
+  /**
+   * Returns a list of element IDs that was reordered.
+   *
+   * @param \Drupal\Core\Form\FormState $form_state
+   *   Form state object.
+   * @param array $items
+   *   An array with element IDs and their parent paths.
+   *
+   * @return array
+   *   Array containing pairs of element IDs: "before" => "after" order change.
+   */
+  private function detectOrderChange(FormState $form_state, array $items): array {
+    $field_storage = $form_state->get('field_storage');
+    $field_storage_parents = $field_storage['#parents'] ?? [];
+
+    $change_order = [];
+
+    foreach ($items as $item_key => $field_parents) {
+      $new_element_id = $this->getElementIdAfterOrderChanging($field_parents, $field_storage_parents);
+
+      if ($new_element_id === FALSE) {
+        if (empty($change_order[$item_key])) {
+          $change_order[$item_key] = FALSE;
+        }
+        continue;
+      }
+
+      if ($new_element_id !== NULL && $new_element_id != $item_key && empty($change_order[$item_key])) {
+        $change_order[$item_key] = $new_element_id;
+      }
+    }
+
+    foreach ($items as $item_key => $field_parents) {
+      if (in_array($item_key, $change_order) && !isset($change_order[$item_key])) {
+        $change_order[$item_key] = false;
+      }
+    }
+
+    return $change_order;
+  }
+
+  /**
+   * Detects and return elements' new ID if order was changed or NULL otherwise.
+   *
+   * @param array $parents_path
+   *   Element parents path.
+   * @param array $fields_storage
+   *   Form storage #fields value.
+   */
+  private function getElementIdAfterOrderChanging(array $parents_path, array $fields_storage): string|null|bool {
+    $processed_parents = [];
+    $was_modified_delta = FALSE;
+    for ($current_key = 0; $current_key < count($parents_path); $current_key++) {
+      $parent = $parents_path[$current_key];
+      if (!isset($parents_path[$current_key + 1]) || ($parents_path[$current_key + 1] !== 0 && (int) $parents_path[$current_key + 1] == 0)) {
+        $processed_parents[] = $parent;
+        continue;
+      }
+
+      $current_delta = $parents_path[$current_key + 1];
+      $old_delta = NestedArray::getValue($fields_storage, [
+        ...array_slice($parents_path, 0, $current_key),
+        '#fields',
+        $parent,
+        'original_deltas',
+        $current_delta,
+      ]);
+
+      if ($old_delta === NULL) {
+        return FALSE;
+      }
+
+      $processed_parents[] = $parent;
+      if ($old_delta === $current_delta) {
+        continue;
+      }
+      $was_modified_delta = TRUE;
+      $processed_parents[] = $old_delta;
+      ++$current_key;
+    }
+
+    if ($was_modified_delta) {
+      $new_element_id = 'edit-' . implode('-', $processed_parents);
+      return CKeditorFieldKeyHelper::getElementUniqueId($new_element_id);
+    }
+
+    return NULL;
   }
 
 }

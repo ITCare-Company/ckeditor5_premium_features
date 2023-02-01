@@ -2,3 +2,20 @@
   margin-top: 0;
   margin-bottom: 0;
 }
+
+/*
+ This is a fix of a bug with multiple instances of the editor added when users is changing fields order.
+ Works for RTC.
+ */
+.ck-editor-sidebar-wrapper .form-item .ck.ck-editor:nth-child(n+3) {
+  display: none;
+}
+
+.ck-presence-list-container .ck.ck-presence-list:nth-child(n+3) {
+  display: none;
+}
+/*
+ End of:
+ This is a fix of a bug with multiple instances of the editor added when users is changing fields order.
+ Works for RTC.
+ */

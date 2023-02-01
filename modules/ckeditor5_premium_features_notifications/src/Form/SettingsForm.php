@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_notifications\Form;
 
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormBase;
+use Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager;
@@ -31,10 +32,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
    *   Notification message factory manager.
    * @param \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager $senderPluginManager
    *   Notification sender plugin manager.
+   * @param \Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator $mentionsIntegrator
+   *   Mentions integrator service.
    */
   public function __construct(ConfigFactoryInterface $configFactory,
                               protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager,
-                              protected NotificationSenderPluginManager $senderPluginManager) {
+                              protected NotificationSenderPluginManager $senderPluginManager,
+                              protected MentionsIntegrator $mentionsIntegrator) {
     parent::__construct($configFactory);
   }
 
@@ -46,6 +50,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
       $container->get('config.factory'),
       $container->get('plugin.manager.notification_message_factory'),
       $container->get('plugin.manager.notification_sender'),
+      $container->get('ckeditor5_premium_features.mention_integrator'),
     );
   }
 
@@ -153,7 +158,9 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#title' => $this->t('Message types configuration'),
     ];
 
-    foreach (NotificationMessageFactoryDefault::getSupportedMessageTypes() as $messageType => $messageTitle) {
+    $supportedMessageTypes = $this->getSupportedMessageTypes();
+
+    foreach ($supportedMessageTypes as $messageType => $messageTitle) {
       $groupKey = $messageType . '__tab';
       // Create a grouping element using a fieldset.
       $form[$groupKey] = [
@@ -269,7 +276,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
     return match ($messageType) {
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_DEFAULT => '<h3>Update notification</h3>
         <p>
-          I need to tell you that node <a href="[node:url]"><strong>[node:title]</strong></a> was modified by [user:name] (at [node:changed])
+          Changes were made to the document <a href="[node:url]"><strong>[node:title]</strong></a> by [user:name] (at [node:changed])
         </p>
         <p>
             [ckeditor5_premium_notification:context]
@@ -367,6 +374,20 @@ class SettingsForm extends SharedBuildConfigFormBase {
       return $format->getOriginalId();
     }
     return NULL;
+  }
+
+  /**
+   * Gets supported message types list.
+   */
+  protected function getSupportedMessageTypes(): array {
+    $messageTypes = NotificationMessageFactoryDefault::getSupportedMessageTypes();
+
+    if (!$this->mentionsIntegrator->isMentionInstalled()) {
+      unset($messageTypes[NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_COMMENT]);
+      unset($messageTypes[NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT]);
+    }
+
+    return $messageTypes;
   }
 
 }
