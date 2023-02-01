@@ -238,7 +238,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $this->filterOrderSwitch($order_switch);
 
     if ($form_state->isRebuilding()) {
-      $this->storeEntitiesDataInFormStorage($items, $features, $form_state);
+      $this->storeEntitiesDataInFormStorage($items, $form_state);
 
       return;
     }
@@ -278,7 +278,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       }
     }
     if (!empty($order_switch)) {
-      $this->changeValuesOrder($order_switch, $features, $entity);
+      $this->changeValuesOrder($order_switch, $entity);
     }
     $this->dispatchStoragesEvents();
   }
@@ -422,15 +422,13 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *
    * @param array $items
    *   List of document fields info.
-   * @param array $features
-   *   List of entities data to be stored.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Form state object.
    */
-  private function storeEntitiesDataInFormStorage(array $items, array $features, FormStateInterface $form_state): void {
+  private function storeEntitiesDataInFormStorage(array $items, FormStateInterface $form_state): void {
     $storageData = [];
     foreach ($items as $item_key => $item_parents) {
-      foreach ($features as $key => $storage) {
+      foreach ($this->features as $key => $storage) {
         $source_data = $this->getFormElementSourceData($form_state, $item_parents, $key, $item_key);
         if (empty($source_data)) {
           continue;
@@ -586,14 +584,12 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *
    * @param array $idsToSwap
    *   Array with ids to swap.
-   * @param array $storages
-   *   Array of CollaborationEntityStorage.
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   Entity.
    */
-  private function changeValuesOrder(array $idsToSwap, array $storages, EntityInterface $entity) {
+  private function changeValuesOrder(array $idsToSwap, EntityInterface $entity) {
     foreach ($idsToSwap as $firstId => $secondId) {
-      foreach ($storages as $storage) {
+      foreach ($this->features as $storage) {
         $firstValues = $storage->loadByEntity($entity, $firstId);
         $secondValues = $storage->loadByEntity($entity, $secondId);
         $this->swapKeyAttribute($firstValues, $secondId);
