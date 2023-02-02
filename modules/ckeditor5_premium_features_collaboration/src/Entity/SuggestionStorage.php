@@ -139,6 +139,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements
     $has_comments = $data->getBoolean('has_comments');
     $suggestion_data = $data->get('data') ?? [];
     $suggestion_attributes = $data->get('attributes') ?? [];
+    $suggestion_attributes['key'] = $data->get('key');
     $head_id = $suggestion_attributes['head'] ?? NULL;
 
     $entity
