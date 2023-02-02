@@ -54,8 +54,7 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    $notificationSentToUsers = $this->state->get(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY);
-    $newSuggestionParticipators = $notificationSentToUsers[$collaborationEntity->getThreadId()] ?? [];
+    $newSuggestionParticipators = $this->getSuggestionNotificationUsers($collaborationEntity);
 
     $participators = $this->collaboratorsService->getParticipators($collaborationEntity);
     $threadSuggestionAuthor = $this->collaboratorsService->getThreadSuggestionAuthor($collaborationEntity);
@@ -143,4 +142,37 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     }
   }
 
+  /**
+   * Get users notified about suggestion.
+   *
+   * @param $collaborationEntity
+   *   Collaboration entity.
+   * @return array
+   *   The array of users to be excluded in comment notification
+   */
+  protected function getSuggestionNotificationUsers($collaborationEntity): array {
+    $notificationSentToUsers = $this->state->get(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY);
+    $threadId = $collaborationEntity->getThreadId();
+    $newSuggestionParticipators = $notificationSentToUsers[$threadId] ?? [];
+
+    if (!empty($newSuggestionParticipators)) {
+      $this->removeUsersFromStateArray($notificationSentToUsers, $threadId);
+    }
+
+    return $newSuggestionParticipators;
+  }
+
+  /**
+   * Remove Users from the state array that collects users already notified about the suggestion.
+   *
+   * @param $notificationSentToUsers
+   *   Array of users notified about suggestion.
+   * @param $threadId
+   *   Thread id.
+   * @return void
+   */
+  protected function removeUsersFromStateArray($notificationSentToUsers, $threadId): void {
+    unset($notificationSentToUsers[$threadId]);
+    $this->state->set(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY, $notificationSentToUsers);
+  }
 }
