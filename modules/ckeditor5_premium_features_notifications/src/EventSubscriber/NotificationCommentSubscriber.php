@@ -2,6 +2,7 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\Comment;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
@@ -145,12 +146,13 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
   /**
    * Get users notified about suggestion.
    *
-   * @param $collaborationEntity
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $collaborationEntity
    *   Collaboration entity.
+   *
    * @return array
    *   The array of users to be excluded in comment notification
    */
-  protected function getSuggestionNotificationUsers($collaborationEntity): array {
+  protected function getSuggestionNotificationUsers(CollaborationEntityInterface $collaborationEntity): array {
     $notificationSentToUsers = $this->state->get(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY);
     $threadId = $collaborationEntity->getThreadId();
     $newSuggestionParticipators = $notificationSentToUsers[$threadId] ?? [];
@@ -165,14 +167,16 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
   /**
    * Remove Users from the state array that collects users already notified about the suggestion.
    *
-   * @param $notificationSentToUsers
+   * @param array $notificationSentToUsers
    *   Array of users notified about suggestion.
-   * @param $threadId
+   * @param string $threadId
    *   Thread id.
+   *
    * @return void
    */
-  protected function removeUsersFromStateArray($notificationSentToUsers, $threadId): void {
+  protected function removeUsersFromStateArray(array $notificationSentToUsers, string $threadId): void {
     unset($notificationSentToUsers[$threadId]);
     $this->state->set(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY, $notificationSentToUsers);
   }
+
 }
