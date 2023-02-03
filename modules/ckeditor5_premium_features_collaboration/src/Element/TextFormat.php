@@ -20,12 +20,14 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
+use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\State\StateInterface;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\filter\FilterFormatInterface;
 use Drupal\user\Entity\User;
@@ -60,6 +62,20 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   protected RevisionStorage $revisionStorage;
 
   /**
+   * The array of storages operation to dispatch.
+   *
+   * @var array
+   */
+  protected array $storagesOperations;
+
+  /**
+   * The array of collaboration features storages.
+   *
+   * @var array
+   */
+  protected array $features;
+
+  /**
    * Creates the text format element instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
@@ -85,10 +101,16 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     protected CollaborationSettings $collaborationSettings,
     protected EventDispatcherInterface $eventDispatcher,
     protected AccountInterface $currentUser,
+    protected StateInterface $state
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
     $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
     $this->revisionStorage = $this->entityTypeManager->getStorage(RevisionInterface::ENTITY_TYPE_ID);
+    $this->features = [
+      'track_changes' => $this->suggestionStorage,
+      'comments' => $this->commentsStorage,
+      'revision_history' => $this->revisionStorage,
+    ];
   }
 
   /**
@@ -215,14 +237,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $order_switch = $this->detectOrderChange($form_state, $items);
     $this->filterOrderSwitch($order_switch);
 
-    $features = [
-      'track_changes' => $this->suggestionStorage,
-      'comments' => $this->commentsStorage,
-      'revision_history' => $this->revisionStorage,
-    ];
-
     if ($form_state->isRebuilding()) {
-      $this->storeEntitiesDataInFormStorage($items, $features, $form_state);
+      $this->storeEntitiesDataInFormStorage($items, $form_state);
 
       return;
     }
@@ -239,7 +255,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       $suggestion_ids = $this->suggestionStorage->getSuggestionEntityIDs($suggestion_source_data);
       $filter_format = $this->getFormElementFilterFormat($form_state, $item_parents);
 
-      foreach ($features as $key => $storage) {
+      foreach ($this->features as $key => $storage) {
         $source_data = $this->getFormElementSourceData($form_state, $item_parents, $key, $item_key);
 
         if (empty($source_data)) {
@@ -258,12 +274,13 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         }
 
         $entities_data = $storage->processSourceData($source_data, $entity, $item_key);
-        $this->doStorageOperations($entities_data, $storage);
+        $this->doStorageOperations($entities_data, $storage, $key);
       }
     }
     if (!empty($order_switch)) {
-      $this->changeValuesOrder($order_switch, $features, $entity);
+      $this->changeValuesOrder($order_switch, $entity);
     }
+    $this->dispatchStoragesEvents();
   }
 
   /**
@@ -313,7 +330,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @param object $storage
    *   The related type storage.
    */
-  private function doStorageOperations(array $entities_data, object $storage): void {
+  private function doStorageOperations(array $entities_data, object $storage, string $storageKey): void {
     $added = [];
     $updated = [];
     foreach ($entities_data as $element_data) {
@@ -343,13 +360,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       });
     }
 
-    foreach ($added as $added_entity) {
-      $storage->dispatchNewEntity($added_entity);
-    }
-    foreach ($updated as $upd_info) {
-      $storage->dispatchUpdatedEntity($upd_info['old'], $upd_info['new']);
-    }
-
+    $this->storagesOperations[$storageKey]['added'] = $added;
+    $this->storagesOperations[$storageKey]['updated'] = $updated;
   }
 
   /**
@@ -410,15 +422,13 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *
    * @param array $items
    *   List of document fields info.
-   * @param array $features
-   *   List of entities data to be stored.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Form state object.
    */
-  private function storeEntitiesDataInFormStorage(array $items, array $features, FormStateInterface $form_state): void {
+  private function storeEntitiesDataInFormStorage(array $items, FormStateInterface $form_state): void {
     $storageData = [];
     foreach ($items as $item_key => $item_parents) {
-      foreach ($features as $key => $storage) {
+      foreach ($this->features as $key => $storage) {
         $source_data = $this->getFormElementSourceData($form_state, $item_parents, $key, $item_key);
         if (empty($source_data)) {
           continue;
@@ -574,14 +584,12 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *
    * @param array $idsToSwap
    *   Array with ids to swap.
-   * @param array $storages
-   *   Array of CollaborationEntityStorage.
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   Entity.
    */
-  private function changeValuesOrder(array $idsToSwap, array $storages, EntityInterface $entity) {
+  private function changeValuesOrder(array $idsToSwap, EntityInterface $entity) {
     foreach ($idsToSwap as $firstId => $secondId) {
-      foreach ($storages as $storage) {
+      foreach ($this->features as $storage) {
         $firstValues = $storage->loadByEntity($entity, $firstId);
         $secondValues = $storage->loadByEntity($entity, $secondId);
         $this->swapKeyAttribute($firstValues, $secondId);
@@ -621,6 +629,31 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       }
     }
     $orderSwitch = $swapIds;
+  }
+
+  /**
+   * Dispatch collaboration storages events.
+   */
+  protected function dispatchStoragesEvents(): void {
+    foreach ($this->features as $key => $storage) {
+      if (empty($this->storagesOperations[$key])) {
+        continue;
+      }
+      $operations = $this->storagesOperations[$key];
+      $added = $operations['added'] ?? [];
+      $updated = $operations['updated'] ?? [];
+      if ($added) {
+        foreach ($added as $added_entity) {
+          $storage->dispatchNewEntity($added_entity);
+        }
+      }
+      if ($updated) {
+        foreach ($updated as $upd_info) {
+          $storage->dispatchUpdatedEntity($upd_info['old'], $upd_info['new']);
+        }
+      }
+    }
+    $this->state->set(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY, NULL);
   }
 
 }
