@@ -227,3 +227,12 @@ th {
   min-width: 2em;
   padding: .4em;
 }
+
+.marker-insertion {
+  background-color: hsl(128deg 89% 85% / 35%);
+}
+.marker-deletion {
+  text-decoration: line-through;
+  background-color: hsl(345deg 100% 91% / 35%);
+  opacity: 60%;
+}

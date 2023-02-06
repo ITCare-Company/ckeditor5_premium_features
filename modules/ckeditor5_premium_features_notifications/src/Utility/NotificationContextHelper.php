@@ -148,6 +148,8 @@ class NotificationContextHelper {
 
     $document = Html::load($context);
 
+    $this->htmlHelper->createSuggestionsMarkers($document, $matchingSelectRule);
+
     $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'comment', $matchingSelectRule);
 
     $this->htmlHelper->convertCollaborationTagsWrappings($document, 'comment', $matchingSelectRule);
@@ -157,6 +159,8 @@ class NotificationContextHelper {
     $fixedMarkup = preg_replace('#<comment-start[^<>]*></comment-start>#si', '<comment>', $fixedMarkup);
     $fixedMarkup = preg_replace('#<comment-end[^<>]*></comment-end>#si', '</comment>', $fixedMarkup);
     $fixedMarkup = preg_replace('#<comment>\s*</comment>#si', '', $fixedMarkup);
+
+    $this->replaceSuggestionMarkers($fixedMarkup);
 
     $query = "//comment";
 
@@ -195,7 +199,10 @@ class NotificationContextHelper {
 
     $document = Html::load($context);
 
+    $this->htmlHelper->createSuggestionsMarkers($document, $matchingSelectRule);
+
     $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'suggestion', $matchingSelectRule);
+
     $this->htmlHelper->removeNotRequiredCollaborationElementsWithSuggestionAttributes($document, $matchingSelectRule);
 
     foreach ($queryOrParts as $chainPart) {
@@ -222,6 +229,8 @@ class NotificationContextHelper {
     $fixedMarkup = preg_replace('#<del>\s*</del>#si', '', $fixedMarkup);
     $fixedMarkup = preg_replace('#<format>\s*</format>#si', '', $fixedMarkup);
 
+    $this->replaceSuggestionMarkers($fixedMarkup);
+
     $query = '//ins|//del|//format|//*[@data-format-change]';
     $result = [];
 
@@ -234,6 +243,18 @@ class NotificationContextHelper {
 
     return $result;
 
+  }
+
+  /**
+   * Replace suggestion markers.
+   *
+   * @param string $fixedMarkup
+   *   Markup.
+   */
+  private function replaceSuggestionMarkers(string &$fixedMarkup): void {
+    $fixedMarkup = preg_replace('#<suggestion-marker-start-insertion></suggestion-marker-start-insertion>#si', '<span class="marker-insertion">', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-marker-start-deletion></suggestion-marker-start-deletion>#si', '<span class="marker-deletion">', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-marker-end></suggestion-marker-end>#si', '</span>', $fixedMarkup);
   }
 
   /**
