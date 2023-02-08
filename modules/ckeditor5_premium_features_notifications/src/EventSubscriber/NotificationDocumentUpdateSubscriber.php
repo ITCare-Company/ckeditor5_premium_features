@@ -134,7 +134,7 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
 
     $this->filterCollaboration->filterComments($xpath);
     if ($this->notificationSettings->isMessageEnabled(NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED)) {
-      $this->filterCollaboration->convertSuggestionsAttributes($dom, $xpath);
+      $this->filterCollaboration->getHtmlHelper()->convertSuggestionsAttributes($dom, $xpath);
     }
 
     $dom->saveHTML();

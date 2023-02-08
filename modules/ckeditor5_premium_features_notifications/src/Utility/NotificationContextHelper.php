@@ -148,6 +148,9 @@ class NotificationContextHelper {
 
     $document = Html::load($context);
 
+    $xpath = new \DOMXPath($document);
+    $this->htmlHelper->convertCommentAttributes($document, $xpath);
+
     $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'comment', $matchingSelectRule);
 
     $this->htmlHelper->convertCollaborationTagsWrappings($document, 'comment', $matchingSelectRule);
@@ -195,6 +198,9 @@ class NotificationContextHelper {
 
     $document = Html::load($context);
 
+    $xpath = new \DOMXPath($document);
+    $this->htmlHelper->convertSuggestionsAttributes($document, $xpath);
+
     $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'suggestion', $matchingSelectRule);
     $this->htmlHelper->removeNotRequiredCollaborationElementsWithSuggestionAttributes($document, $matchingSelectRule);
 
@@ -214,15 +220,16 @@ class NotificationContextHelper {
     $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatInline[^<>]*></suggestion-end>#si', '</format>', $fixedMarkup);
     $formattingSuggestionDetected |= $formattingSuggestionCount > 0;
 
-    $fixedMarkup = preg_replace('#data-suggestion-start-before="formatBlock[^"]*"#si', 'data-format-change', $fixedMarkup, -1, $formattingSuggestionCount);
+    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*formatBlock[^<>]*></suggestion-start>#si', '<formatblock>', $fixedMarkup, -1, $formattingSuggestionCount);
+    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatBlock[^<>]*></suggestion-end>#si', '</formatblock>', $fixedMarkup);
     $formattingSuggestionDetected |= $formattingSuggestionCount > 0;
-    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatBlock[^<>]*></suggestion-end>#si', '', $fixedMarkup);
 
     $fixedMarkup = preg_replace('#<ins>\s*</ins>#si', '', $fixedMarkup);
     $fixedMarkup = preg_replace('#<del>\s*</del>#si', '', $fixedMarkup);
     $fixedMarkup = preg_replace('#<format>\s*</format>#si', '', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<formatblock>\s*</formatblock>#si', '', $fixedMarkup);
 
-    $query = '//ins|//del|//format|//*[@data-format-change]';
+    $query = '//ins|//del|//format|//formatblock';
     $result = [];
 
     foreach ($this->getMatchingContext($fixedMarkup, $query, FALSE) as $markup) {
@@ -336,6 +343,7 @@ class NotificationContextHelper {
       'del',
       'ins',
       'format',
+      'formatblock'
     ]);
   }
 

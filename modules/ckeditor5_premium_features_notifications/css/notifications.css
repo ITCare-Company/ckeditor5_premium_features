@@ -11,8 +11,10 @@
   --ck-color-suggestion-marker-format-border: hsla(191, 90%, 40%, .4);
   --ck-color-suggestion-marker-format-border-active: hsla(191, 90%, 40%, .65);
   --ck-color-suggestion-widget-insertion-background: hsla(128, 71%, 65%, .05);
+  --ck-color-suggestion-widget-th-insertion-background: hsla(128.031, 71%, 65%, 0.12);
   --ck-color-suggestion-widget-insertion-background-active: hsla(128, 71%, 50%, .07);
   --ck-color-suggestion-widget-deletion-background: hsla(345, 71%, 65%, .05);
+  --ck-color-suggestion-widget-th-deletion-background: hsla(344.882, 71%, 65%, 0.14);
   --ck-color-suggestion-widget-deletion-background-active: hsla(345, 71%, 45%, .07);
   --ck-color-suggestion-widget-format-background: hsla(191, 90%, 40%, .09);
   --ck-color-suggestion-widget-format-background-active: hsla(191, 90%, 40%, .16);
@@ -151,6 +153,50 @@ ins > img {
 del > img {
   outline: 4px var(--ck-color-suggestion-marker-deletion-border) solid;
 }
+ins:has(table),
+del:has(table) {
+  text-decoration: none;
+}
+
+ins > table {
+  outline: 4px var(--ck-color-suggestion-marker-insertion-border) solid;
+}
+
+ins > table > caption {
+  background-color: var(--ck-color-suggestion-widget-insertion-background);
+}
+
+ins > table > tbody > tr > td,
+ins > table > tbody > tr > th,
+ins > table > thead > tr > th {
+  border: 1px var(--ck-color-suggestion-marker-insertion-border) solid;
+  background-color: var(--ck-color-suggestion-widget-insertion-background);
+}
+
+ins > table > tbody > tr > th,
+ins > table > thead > tr > th {
+  background-color: var(--ck-color-suggestion-widget-th-insertion-background);
+}
+
+del > table {
+  outline: 4px var(--ck-color-suggestion-marker-deletion-border) solid;
+}
+
+del > table > caption {
+  background-color: var(--ck-color-suggestion-widget-deletion-background);
+}
+
+del > table > tbody > tr > td,
+del > table > tbody > tr > th,
+del > table > thead > tr > th {
+  border: 1px var(--ck-color-suggestion-marker-deletion-border) solid;
+  background-color: var(--ck-color-suggestion-widget-deletion-background);
+}
+
+del > table > tbody > tr > th,
+del > table > thead > tr > th {
+  background-color: var(--ck-color-suggestion-widget-th-deletion-background);
+}
 
 comment {
   /* Match size with suggestion markers */
@@ -173,7 +219,8 @@ format * {
   border-bottom: 3px solid var(--ck-color-suggestion-marker-format-border);
 }
 
-[data-format-change] {
+formatblock {
+  display: block;
   background: none;
   border: 0;
   box-shadow: -7px 0 0 0 #fff,-10px 0 0 0 var(--ck-color-suggestion-marker-format-border);

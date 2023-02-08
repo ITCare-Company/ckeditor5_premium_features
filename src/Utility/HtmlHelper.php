@@ -217,4 +217,101 @@ class HtmlHelper {
     return $fixedMarkup;
   }
 
+  /**
+   * Replaces the suggestion attributes with suggestion tags.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMXPath $xpath
+   *   The DOM XPath.
+   */
+  public function convertSuggestionsAttributes(\DOMDocument $dom, \DOMXPath $xpath): void {
+    $attributes = [
+      'end-before' => 'data-suggestion-end-before',
+      'start-before' => 'data-suggestion-start-before',
+      'start-after' => 'data-suggestion-start-after',
+      'end-after' => 'data-suggestion-end-after',
+    ];
+
+    $this->convertAttributes($dom, $xpath, $attributes, 'suggestion');
+  }
+
+  public function convertCommentAttributes(\DOMDocument $dom, \DOMXPath $xpath): void {
+    $attributes = [
+      'end-before' => 'data-comment-end-before',
+      'start-before' => 'data-comment-start-before',
+      'start-after' => 'data-comment-start-after',
+      'end-after' => 'data-comment-end-after',
+    ];
+
+    $this->convertAttributes($dom, $xpath, $attributes, 'comment');
+  }
+
+  /**
+   * Replaces the suggestion attributes with suggestion tags.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMXPath $xpath
+   *   The DOM XPath.
+   */
+  private function convertAttributes(\DOMDocument $dom, \DOMXPath $xpath, $attributes, $type): void {
+    foreach ($attributes as $key => $attribute) {
+      $queryExpression = "//*[@{$attribute}]";
+      $suggestions = $xpath->query($queryExpression);
+
+      if (!$suggestions) {
+        return;
+      }
+
+      /** @var \DOMElement $suggestion */
+      foreach ($suggestions as $suggestion) {
+        switch ($key) {
+          case 'start-before':
+            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, "$type-start", 'before');
+            break;
+          case 'start-after':
+            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, "$type-start", 'after');
+            break;
+          case 'end-before':
+            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, "$type-end", 'before');
+            break;
+          case 'end-after':
+            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, "$type-end", 'after');
+            break;
+
+        }
+      }
+    }
+  }
+
+  /**
+   * Replace data-suggestion attributes with suggestion tags.
+   *
+   * This allows for easier and less prone for errors filtering of suggestions.
+   *
+   * @param \DOMDocument $dom
+   *   The Dom document.
+   * @param \DOMElement $suggestion
+   *   An element to process.
+   * @param string $attribute
+   *   An attribute name to process.
+   * @param string $name
+   *   The tag name to create in place of attribute.
+   * @param string $function
+   *   Function to apply on element to place new tag in correct place.
+   *   Most times it'll be 'before' or 'after'.
+   * @return void
+   * @throws \DOMException
+   */
+
+  private function replaceSuggestionAttribute(\DOMDocument $dom, \DOMElement $suggestion, string $attribute, string $qualifiedName, string $function): void {
+    $value = $suggestion->getAttribute($attribute);
+    $elem = new \DOMElement($qualifiedName);
+    $elemNode = $dom->importNode($elem);
+    $elemNode->setAttribute('name', $value);
+    $suggestion->$function($elemNode);
+    $suggestion->removeAttribute($attribute);
+  }
+
 }

@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features\Plugin\Filter;
 
 use Drupal\ckeditor5_premium_features\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\HtmlHelper;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a filter to cleanup the collaboration features markup data.
@@ -22,7 +25,52 @@ use Drupal\filter\Plugin\FilterBase;
  *   weight = -100
  * )
  */
-class FilterCollaboration extends FilterBase {
+class FilterCollaboration extends FilterBase implements ContainerFactoryPluginInterface {
+
+  /**
+   * The HTML helper.
+   *
+   * @var \Drupal\ckeditor5_premium_features\Utility\HtmlHelper
+   */
+  protected $htmlHelper;
+
+  /**
+   * Constructs a new FilterCollaboration.
+   *
+   * @param array $configuration
+   *   Configuration.
+   * @param string $plugin_id
+   *   Plugin ID.
+   * @param mixed $plugin_definition
+   *   Definition.
+   * @param \Drupal\ckeditor5_premium_features\Utility\HtmlHelper $html_helper
+   *   HTML helper.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, HtmlHelper $html_helper) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->htmlHelper = $html_helper;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('ckeditor5_premium_features.html_helper')
+    );
+  }
+
+  /**
+   * Get HTML helper utility service.
+   *
+   * @return \Drupal\ckeditor5_premium_features\Utility\HtmlHelper
+   */
+  public function getHtmlHelper(): HtmlHelper {
+    return $this->htmlHelper;
+  }
 
   /**
    * {@inheritdoc}
@@ -32,7 +80,7 @@ class FilterCollaboration extends FilterBase {
     $xpath = new \DOMXPath($dom);
 
     $this->filterComments($xpath);
-    $this->convertSuggestionsAttributes($dom, $xpath);
+    $this->htmlHelper->convertSuggestionsAttributes($dom, $xpath);
 
     $dom->saveHTML();
     $text = Html::serialize($dom);
@@ -98,82 +146,6 @@ class FilterCollaboration extends FilterBase {
 
     $text = preg_replace('#<suggestion-start[^<>]*></suggestion-start>#si', '', $text);
     $text = preg_replace('#<suggestion-end[^<>]*></suggestion-end>#si', '', $text);
-  }
-
-  /**
-   * Replaces the suggestion attributes with suggestion tags.
-   *
-   * @param \DOMDocument $dom
-   *   The DOM Document.
-   * @param \DOMXPath $xpath
-   *   The DOM XPath.
-   */
-  public function convertSuggestionsAttributes(\DOMDocument $dom, \DOMXPath $xpath): void {
-    $attributes = [
-      'end-before' => 'data-suggestion-end-before',
-      'start-before' => 'data-suggestion-start-before',
-      'start-after' => 'data-suggestion-start-after',
-      'end-after' => 'data-suggestion-end-after',
-    ];
-
-    foreach ($attributes as $key => $attribute) {
-      $queryExpression = "//*[@{$attribute}]";
-      $suggestions = $xpath->query($queryExpression);
-
-      if (!$suggestions) {
-        return;
-      }
-
-      /** @var \DOMElement $suggestion */
-      foreach ($suggestions as $suggestion) {
-        switch ($key) {
-          case 'start-before':
-            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, 'suggestion-start', 'before');
-            break;
-          case 'start-after':
-            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, 'suggestion-start', 'after');
-
-            break;
-          case 'end-before':
-            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, 'suggestion-end', 'before');
-
-            break;
-          case 'end-after':
-            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, 'suggestion-end', 'after');
-            break;
-
-        }
-      }
-    }
-  }
-
-  /**
-   * Replace data-suggestion attributes with suggestion tags.
-   *
-   * This allows for easier and less prone for errors filtering of suggestions.
-   *
-   * @param \DOMDocument $dom
-   *   The Dom document.
-   * @param \DOMElement $suggestion
-   *   An element to process.
-   * @param string $attribute
-   *   An attribute name to process.
-   * @param string $name
-   *   The tag name to create in place of attribute.
-   * @param string $function
-   *   Function to apply on element to place new tag in correct place.
-   *   Most times it'll be 'before' or 'after'.
-   * @return void
-   * @throws \DOMException
-   */
-
-  private function replaceSuggestionAttribute(\DOMDocument $dom, \DOMElement $suggestion, string $attribute, string $qualifiedName, string $function): void {
-    $value = $suggestion->getAttribute($attribute);
-    $elem = new \DOMElement($qualifiedName);
-    $elemNode = $dom->importNode($elem);
-    $elemNode->setAttribute('name', $value);
-    $suggestion->$function($elemNode);
-    $suggestion->removeAttribute($attribute);
   }
 
 }
