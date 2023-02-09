@@ -84,6 +84,49 @@ class HtmlHelper {
   }
 
   /**
+   * Create suggestion markers in the document.
+   *
+   * Markers are created for not matching selectors.
+   *
+   * @param \DOMDocument $document
+   *   Document to be processed.
+   * @param string $selector
+   *   Selector used for filtering elements.
+   */
+  public function createSuggestionsMarkers(\DOMDocument $document, string $selector): void {
+    $startQueriesInsertion[] = "//suggestion-start" . "[(contains(@name, 'insertion')) and not($selector)]";
+    $startQueriesDeletion[] = "//suggestion-start" . "[(contains(@name, 'deletion')) and not($selector)]";
+    $endQueries[] = "//suggestion-end [not($selector)]";
+
+    $this->doReplaceElements($document, $startQueriesInsertion, 'suggestion-marker-start-insertion');
+    $this->doReplaceElements($document, $startQueriesDeletion, 'suggestion-marker-start-deletion');
+    $this->doReplaceElements($document, $endQueries, 'suggestion-marker-end');
+  }
+
+  /**
+   * Replace collaboration entities matching passed queries.
+   *
+   * @param \DOMDocument $document
+   *   Document to be processed.
+   * @param array $replaceQueries
+   *   Array of queries defining entities to replace.
+   * @param string $elementName
+   *   Name of the element to be created.
+   */
+  private function doReplaceElements(\DOMDocument $document, array $replaceQueries, string $elementName): void {
+    $xpath = new \DOMXPath($document);
+
+    foreach ($replaceQueries as $queryR) {
+      $elementsToReplace = $xpath->query($queryR);
+      /** @var \DOMElement $elementToReplace */
+      foreach ($elementsToReplace as $elementToReplace) {
+        $nodeDiv = $document->createElement($elementName, $elementToReplace->nodeValue);
+        $elementToReplace->parentNode->replaceChild($nodeDiv, $elementToReplace);
+      }
+    }
+  }
+
+  /**
    * Removes collaboration entities having data-suggestion- prefixed attributes
    * not matching passed selector.
    *
