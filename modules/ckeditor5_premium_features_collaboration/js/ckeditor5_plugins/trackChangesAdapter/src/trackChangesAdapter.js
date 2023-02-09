@@ -115,9 +115,9 @@ class TrackChangesAdapter {
 
   updateSuggestionCommentsData(data) {
     const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
-    const temporaryStorage = document.querySelector(this.storage.getSourceDataSelector('resolvedSuggestionsComments'));
+    const resolvedSuggestionsCommentsElement = document.querySelector(this.storage.getSourceDataSelector('resolvedSuggestionsComments'));
     let channel = data.attributes.head;
-    let values = temporaryStorage.value;
+    let values = resolvedSuggestionsCommentsElement.value;
 
     if (!values) {
       values = JSON.stringify([]);
@@ -132,7 +132,7 @@ class TrackChangesAdapter {
 
     if (!isExisting && thread.comments.length) {
       dataArray.push(thread);
-      temporaryStorage.value =  JSON.stringify(dataArray);
+      resolvedSuggestionsCommentsElement.value =  JSON.stringify(dataArray);
     }
   };
 
