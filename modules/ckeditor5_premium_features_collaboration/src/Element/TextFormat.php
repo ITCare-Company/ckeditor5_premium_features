@@ -191,6 +191,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $add_revision_on_submit = $this->collaborationSettings->isRevisionHistoryOnSubmit();
     $element['#attached']['drupalSettings']['ckeditor5Premium']['addRevisionOnSubmit'] = $add_revision_on_submit;
 
+    // Set temporary field for collecting comments from resolved suggestion.
+    $element['resolved_suggestions_comments'] = $default_element_keys;
+    $element['resolved_suggestions_comments']['#attributes']['class'] = ['resolved-suggestions-comments-data'];
+
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface[] $users_data */
     $users_data = array_merge($comments, $suggestions, $revisions);
     $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $this->userDataProvider->getFromEntities($users_data);
@@ -251,12 +255,17 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       $source_original_data = $this->getFormElementOriginalValue($form, $item_parents);
       $this->dispatchDocumentUpdateEvent($entity, $item_key, $source_original_data);
 
+      $resolved_suggestions_comments = $this->getFormElementSourceData($form_state, $item_parents, 'resolved_suggestions_comments', $item_key);
       $suggestion_source_data = $this->getFormElementSourceData($form_state, $item_parents, 'track_changes', $item_key);
       $suggestion_ids = $this->suggestionStorage->getSuggestionEntityIDs($suggestion_source_data);
+
       $filter_format = $this->getFormElementFilterFormat($form_state, $item_parents);
 
       foreach ($this->features as $key => $storage) {
         $source_data = $this->getFormElementSourceData($form_state, $item_parents, $key, $item_key);
+        if ($storage instanceof CommentsStorage && !empty($resolved_suggestions_comments)) {
+          $source_data = array_merge($source_data, $resolved_suggestions_comments);
+        }
 
         if (empty($source_data)) {
           continue;

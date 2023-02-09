@@ -93,6 +93,7 @@ class CollaborationStorage {
       'comments': '.comments',
       'revisionHistory': '.revision-history',
       'revisionHistoryContainer': '.revision-history-container',
+      'resolvedSuggestionsComments': '.resolved-suggestions-comments',
     };
 
     const cssClass = types[type] + '-data';

@@ -94,12 +94,14 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
         );
       }
       else {
-        // Send notification to the suggestion author.
-        $this->notificationSender->sendNotification(
-          NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY,
-          $participators,
-          $event
-              );
+        if ($this->collaboratorsService->isSuggestionExists($collaborationEntity)) {
+          // Send notification to the suggestion author.
+          $this->notificationSender->sendNotification(
+            NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_REPLY,
+            $participators,
+            $event
+          );
+        }
       }
     }
 
