@@ -282,7 +282,8 @@ class Collaborators {
     if (!$suggestion) {
       return FALSE;
     }
-    if ($suggestion->getStatus() === 'discard' || $suggestion->getStatus() === 'accept') {
+    $suggestionStatus = $suggestion->getStatus();
+    if ($suggestionStatus === 'discard' || $suggestionStatus === 'accept') {
       return FALSE;
     }
     return TRUE;
