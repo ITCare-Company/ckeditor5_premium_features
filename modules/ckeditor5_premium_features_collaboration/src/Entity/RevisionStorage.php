@@ -117,7 +117,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
     }
     $revision->setAttributes($attributes);
 
-    if (!$revision->access('create')) {
+    if (!$revision->access('create') && !$revision->access('update')) {
       throw new AccessException();
     }
 
@@ -129,7 +129,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
    * {@inheritdoc}
    */
   public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface|NULL {
-    if (!$entity->access('update')) {
+    if (!$entity->access('create') && !$entity->access('update')) {
       throw new AccessException();
     }
     if (!$entity instanceof Revision) {

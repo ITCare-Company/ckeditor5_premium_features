@@ -114,7 +114,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements
       ->setData($suggestion_data)
       ->setAttributes($attributes);
 
-    if (!$suggestion->access('create')) {
+    if (!$suggestion->access('create') && !$suggestion->access('update')) {
       throw new AccessException();
     }
 
@@ -127,7 +127,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements
    * {@inheritdoc}
    */
   public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface|NULL {
-    if (!$entity->access('update')) {
+    if (!$entity->access('create') && !$entity->access('update')) {
       throw new AccessException();
     }
     if (!$entity instanceof SuggestionInterface) {

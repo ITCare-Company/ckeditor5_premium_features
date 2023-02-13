@@ -233,7 +233,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
       ->setContent($data->get('content'))
       ->setIsReply($raw_data['is_reply']);
 
-    if (!$comment->access('create')) {
+    if (!$comment->access('create') && !$comment->access('update')) {
       throw new AccessException();
     }
 
@@ -248,7 +248,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
    * {@inheritdoc}
    */
   public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface|NULL {
-    if (!$entity->access('update')) {
+    if (!$entity->access('create') && !$entity->access('update')) {
       throw new AccessException();
     }
 
