@@ -2,6 +2,7 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\Comment;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
@@ -54,8 +55,7 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    $notificationSentToUsers = $this->state->get(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY);
-    $newSuggestionParticipators = $notificationSentToUsers[$collaborationEntity->getThreadId()] ?? [];
+    $newSuggestionParticipators = $this->getSuggestionNotificationUsers($collaborationEntity);
 
     $participators = $this->collaboratorsService->getParticipators($collaborationEntity);
     $threadSuggestionAuthor = $this->collaboratorsService->getThreadSuggestionAuthor($collaborationEntity);
@@ -141,6 +141,42 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     if (!empty($recipients)) {
       $users = array_filter($users, fn($x) => !in_array($x, $recipients));
     }
+  }
+
+  /**
+   * Get users notified about suggestion.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $collaborationEntity
+   *   Collaboration entity.
+   *
+   * @return array
+   *   The array of users to be excluded in comment notification
+   */
+  protected function getSuggestionNotificationUsers(CollaborationEntityInterface $collaborationEntity): array {
+    $notificationSentToUsers = $this->state->get(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY);
+    $threadId = $collaborationEntity->getThreadId();
+    $newSuggestionParticipators = $notificationSentToUsers[$threadId] ?? [];
+
+    if (!empty($newSuggestionParticipators)) {
+      $this->removeUsersFromStateArray($notificationSentToUsers, $threadId);
+    }
+
+    return $newSuggestionParticipators;
+  }
+
+  /**
+   * Remove Users from the state array that collects users already notified about the suggestion.
+   *
+   * @param array $notificationSentToUsers
+   *   Array of users notified about suggestion.
+   * @param string $threadId
+   *   Thread id.
+   *
+   * @return void
+   */
+  protected function removeUsersFromStateArray(array $notificationSentToUsers, string $threadId): void {
+    unset($notificationSentToUsers[$threadId]);
+    $this->state->set(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY, $notificationSentToUsers);
   }
 
 }

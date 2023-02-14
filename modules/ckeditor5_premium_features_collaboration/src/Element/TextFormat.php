@@ -653,7 +653,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         }
       }
     }
-    $this->state->set(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY, NULL);
   }
 
 }
