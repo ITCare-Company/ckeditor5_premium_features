@@ -245,6 +245,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     $entity = $form_object->getEntity();
 
+    if (!$entity->id()) {
+      return;
+    }
+
     foreach ($items as $item_key => $item_parents) {
       $this->processTemporaryStorageRevisionData($form_state, $item_key);
 
