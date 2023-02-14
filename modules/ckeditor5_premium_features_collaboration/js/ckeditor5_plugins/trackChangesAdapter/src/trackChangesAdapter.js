@@ -96,7 +96,7 @@ class TrackChangesAdapter {
     var suggestionStatusUpdate = function (event) {
       let suggestionTracked = self.trackedSuggestion.get(event.source.id);
       if (event.name === 'accept' || event.name === 'discard') {
-        self.updateSuggestionCommentsData(suggestion)
+        self.updateSuggestionCommentsData(event)
       }
       if (typeof suggestionTracked == "undefined") {
         return;
@@ -114,17 +114,19 @@ class TrackChangesAdapter {
   }
 
   updateSuggestionCommentsData(data) {
-    const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
+    const commentsRepositoryPlugin = this.editor.plugins.get('CommentsRepository');
     const resolvedSuggestionsCommentsElement = document.querySelector(this.storage.getSourceDataSelector('resolvedSuggestionsComments'));
-    let channel = data.attributes.head;
+    let commentId = data.source.id;
     let values = resolvedSuggestionsCommentsElement.value;
-
+    if (typeof commentId === 'undefined' || !commentId) {
+      return;
+    }
     if (!values) {
       values = JSON.stringify([]);
     }
 
     let dataArray = Array.from(JSON.parse(values))
-    let thread = commentsRepositoryPlugin.getCommentThread(channel).toJSON();
+    let thread = commentsRepositoryPlugin.getCommentThread(commentId).toJSON();
 
     const isExisting = dataArray.some(element => {
       return element.threadId === thread.threadId;
