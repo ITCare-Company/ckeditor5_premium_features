@@ -95,7 +95,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       $channel_id = NestedArray::getValue(
         $form_state->getUserInput(),
         [...$element['#parents'], 'entity_channel']
-      ) ?? $this->getChannelId($entity->uuid() . $element_unique_id);
+      ) ?? $this->getChannelId($entity->uuid(), $element_unique_id);
 
       if (!$entity->isNew()) {
         $channel = $this->channelStorage->loadByEntity($entity, $element_unique_id);
@@ -118,7 +118,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       ];
     }
     else {
-      $channel_id = $this->getChannelId($element_drupal_id . random_bytes(5));
+      $channel_id = $this->getChannelId(uniqid(), $element_drupal_id);
     }
 
     $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$element_drupal_id] = $channel_id;
@@ -172,7 +172,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         }
         $channel = $this->channelStorage->loadByEntity($entity, $element_key);
         if ($channel instanceof Channel) {
-          $this->apiAdapter->deleteDocument($channel->id());
           $channel->delete();
         }
       }
@@ -186,6 +185,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       ]);
 
       if (!$entity_channel || isset($order_switch[$element_key]) && $order_switch[$element_key] === FALSE) {
+        $this->channelStorage->deleteChannels($entity, $element_key);
         continue;
       }
 
@@ -219,7 +219,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       $channel = $this->channelStorage->loadByEntity($entity, $new_element_id ?? $element_id);
     }
     elseif ($channel->getKeyId() != $element_id) {
-      $entity_channel = $this->getChannelId($entity->uuid() . $element_id . time());
+      $entity_channel = $this->getChannelId($entity->uuid(), $element_id);
       $channel = NULL;
     }
 
@@ -245,11 +245,15 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @param string $uuid
    *   The node uuid.
    *
+   * @param string $key_id
+   *   Key id of the field.
+   *
    * @return string
    *   The channelID.
    */
-  private function getChannelId(string $uuid): string {
-    return substr(Crypt::hashBase64($uuid), 0, 36);
+  private function getChannelId(string $uuid, string $key_id): string {
+    $base_str = $uuid . $key_id . time();
+    return substr(Crypt::hashBase64($base_str), 0, 36);
   }
 
   /**
@@ -275,12 +279,14 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       if ($new_element_id === FALSE) {
         if (empty($change_order[$item_key])) {
           $change_order[$item_key] = FALSE;
+        } else {
+          $change_order[$change_order[$item_key]] = FALSE;
         }
         continue;
       }
 
-      if ($new_element_id !== NULL && $new_element_id != $item_key && empty($change_order[$item_key])) {
-        $change_order[$item_key] = $new_element_id;
+      if ($new_element_id !== NULL && $new_element_id != $item_key && empty($change_order[$new_element_id])) {
+        $change_order[$new_element_id] = $item_key;
       }
     }
 
@@ -312,19 +318,23 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       }
 
       $current_delta = $parents_path[$current_key + 1];
+
       $old_delta = NestedArray::getValue($fields_storage, [
-        ...array_slice($parents_path, 0, $current_key),
+        ...$processed_parents,
         '#fields',
         $parent,
         'original_deltas',
         $current_delta,
       ]);
 
+      $processed_parents[] = $parent;
       if ($old_delta === NULL) {
-        return FALSE;
+        if (!$was_modified_delta) {
+          return FALSE;
+        }
+        continue;
       }
 
-      $processed_parents[] = $parent;
       if ($old_delta === $current_delta) {
         continue;
       }

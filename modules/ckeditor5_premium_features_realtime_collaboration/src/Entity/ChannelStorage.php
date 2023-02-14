@@ -43,6 +43,9 @@ class ChannelStorage extends SqlContentEntityStorage {
     $channel = parent::create($properties);
     try {
       $channel->save();
+      // Delete old channels.
+      $this->deleteChannels($entity, $element_id, $channel_id);
+
     }
     catch (EntityStorageException) {
       $channel_stored = $this->load($channel_id);
@@ -59,6 +62,32 @@ class ChannelStorage extends SqlContentEntityStorage {
     }
 
     return $channel;
+  }
+
+  /**
+   * Deletes RTC channels in an entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity to remove channels from.
+   * @param string|NULL $element_id
+   *   Optional. Element id - channels associated to this element will be
+   *   removed. If empty all elements channels will be removed.
+   * @param string|NULL $channel_id
+   *   Optional. Channel id to preserve from deleting.
+   */
+  public function deleteChannels(EntityInterface $entity, string $element_id = NULL, string $channel_id = NULL): void {
+    $query = $this->getQuery();
+    $query->accessCheck(FALSE);
+    $query->condition('entity_id', $entity->uuid());
+    if ($element_id) {
+      $query->condition('key_id', $element_id);
+    }
+    if ($channel_id) {
+      $query->condition('id', $channel_id, '!=');
+    }
+    $ids = $query->execute();
+    $channels = $this->loadMultiple($ids);
+    $this->delete($channels);
   }
 
   /**
