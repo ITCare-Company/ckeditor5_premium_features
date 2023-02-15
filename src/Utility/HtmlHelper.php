@@ -372,6 +372,8 @@ class HtmlHelper {
     $queryExpressions = [
       "//ins//br",
       "//del//br",
+      "//span[contains(@class, 'marker-insertion')]//br",
+      "//span[contains(@class, 'marker-deletion')]//br",
     ];
 
     foreach ($queryExpressions as $query) {
