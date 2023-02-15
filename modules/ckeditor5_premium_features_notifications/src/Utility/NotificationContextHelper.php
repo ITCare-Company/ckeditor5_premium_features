@@ -238,6 +238,8 @@ class NotificationContextHelper {
 
     $this->replaceSuggestionMarkers($fixedMarkup);
 
+    $fixedMarkup = $this->htmlHelper->detectLineBreaks($fixedMarkup);
+
     $query = '//ins|//del|//format|//formatblock';
     $result = [];
 

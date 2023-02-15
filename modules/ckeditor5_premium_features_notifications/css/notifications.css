@@ -283,3 +283,21 @@ th {
   background-color: hsl(345deg 100% 91% / 35%);
   opacity: 60%;
 }
+
+ins > span.data-new-line::before {
+  background: var(--ck-color-suggestion-marker-insertion-background);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
+  border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
+  color: var(--ck-color-suggestion-marker-insertion-border);
+  content: "¶";
+}
+
+del > span.data-new-line::before {
+  background: var(--ck-color-suggestion-marker-deletion-background);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-deletion-border);
+  border-top: 3px solid var(--ck-color-suggestion-marker-deletion-border);
+  color: var(--ck-color-suggestion-marker-deletion-stroke);
+  content: "¶";
+  text-decoration: line-through;
+  text-decoration-color: var(--ck-color-suggestion-marker-deletion-stroke);
+}

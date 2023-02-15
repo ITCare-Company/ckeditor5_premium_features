@@ -357,4 +357,34 @@ class HtmlHelper {
     $suggestion->removeAttribute($attribute);
   }
 
+  /**
+   * Add extra span before the br tag in suggestion.
+   *
+   * @param string $context
+   *   Context.
+   *
+   * @return string
+   *   Updated context.
+   */
+  public function detectLineBreaks(string $context):string {
+    $document = Html::load($context);
+    $xpath = new \DOMXPath($document);
+    $queryExpressions = [
+      "//ins//br",
+      "//del//br",
+    ];
+
+    foreach ($queryExpressions as $query) {
+      $suggestions = $xpath->query($query);
+      foreach ($suggestions as $suggestion) {
+        $domElement = new \DOMElement('span');
+        $nodeElement = $document->importNode($domElement);
+        $nodeElement->setAttribute('class', 'data-new-line');
+        $suggestion->parentNode->insertBefore($nodeElement, $suggestion);
+      }
+    }
+
+    return $this->getInnerHtml($document);
+  }
+
 }
