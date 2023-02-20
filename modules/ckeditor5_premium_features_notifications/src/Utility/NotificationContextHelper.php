@@ -146,6 +146,8 @@ class NotificationContextHelper {
 
     $matchingSelectRule = "contains(@name,'$threadID')";
 
+    $context = $this->htmlHelper->prepareParagraphsSplitSuggestions($context);
+
     $document = Html::load($context);
 
     $xpath = new \DOMXPath($document);
@@ -199,6 +201,8 @@ class NotificationContextHelper {
       $queryOrParts[] = "contains(@data-suggestion-start-before,'$chainSuggestionId')";
     }
     $matchingSelectRule = implode(' or ', $queryOrParts);
+
+    $context = $this->htmlHelper->prepareParagraphsSplitSuggestions($context);
 
     $document = Html::load($context);
 
@@ -366,7 +370,7 @@ class NotificationContextHelper {
       'del',
       'ins',
       'format',
-      'formatblock'
+      'formatblock',
     ]);
   }
 
