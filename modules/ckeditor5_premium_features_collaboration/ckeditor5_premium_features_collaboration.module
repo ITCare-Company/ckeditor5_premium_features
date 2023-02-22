@@ -8,7 +8,12 @@
 declare(strict_types=1);
 
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat;
 
@@ -76,4 +81,39 @@ function ckeditor5_premium_features_collaboration_element_info_alter(array &$inf
  */
 function ckeditor5_premium_features_collaboration_form_alter(&$form, FormStateInterface $form_state) {
   TextFormat::processFormWithCollaborationStorage($form, $form_state);
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * Remove collaboration entities after parent entity is deleted.
+ */
+function ckeditor5_premium_features_collaboration_entity_delete(EntityInterface $entity) {
+  $id = $entity->id();
+
+  if ($entity instanceof CollaborationEntityInterface) {
+    return;
+  }
+
+  $entity_type_manager = Drupal::entityTypeManager();
+  $storages = [
+    SuggestionInterface::ENTITY_TYPE_ID => $entity_type_manager->getStorage(SuggestionInterface::ENTITY_TYPE_ID),
+    CommentInterface::ENTITY_TYPE_ID => $entity_type_manager->getStorage(CommentInterface::ENTITY_TYPE_ID),
+    RevisionInterface::ENTITY_TYPE_ID=> $entity_type_manager->getStorage(RevisionInterface::ENTITY_TYPE_ID)
+  ];
+
+  foreach ($storages as $storage) {
+    /** @var $storage EntityStorageInterface */
+    $ids = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('entity_id', $id)
+      ->execute();
+
+    if (!$ids) {
+      continue;
+    }
+
+    $entities = $storage->loadMultiple($ids);
+    $storage->delete($entities);
+  }
 }
