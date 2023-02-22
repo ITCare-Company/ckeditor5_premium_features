@@ -23,11 +23,6 @@ class SettingsForm extends ConfigFormBase {
   const ENVIRONMENT_ID_LENGTH = 20;
 
   /**
-   * Required length of the API secret.
-   */
-  const API_SECRET_LENGTH = 60;
-
-  /**
    * Required length of the License key.
    */
   const LICENSE_KEY_MIN_LENGTH = 48;
@@ -285,13 +280,6 @@ class SettingsForm extends ConfigFormBase {
         $form_state->setErrorByName('env', $this->t('@name length is invalid (@num characters required)', [
           '@name' => 'Environment ID',
           '@num' => self::ENVIRONMENT_ID_LENGTH,
-        ]));
-      }
-
-      if (!empty($access_key) && strlen($access_key) != self::API_SECRET_LENGTH) {
-        $form_state->setErrorByName('access_key', $this->t('@name length is invalid (@num characters required)', [
-          '@name' => 'Access key',
-          '@num' => self::API_SECRET_LENGTH,
         ]));
       }
     }
