@@ -95,7 +95,9 @@ class TrackChangesAdapter {
 
     var suggestionStatusUpdate = function (event) {
       let suggestionTracked = self.trackedSuggestion.get(event.source.id);
-
+      if (event.name === 'accept' || event.name === 'discard') {
+        self.updateSuggestionCommentsData(event)
+      }
       if (typeof suggestionTracked == "undefined") {
         return;
       }
@@ -110,6 +112,32 @@ class TrackChangesAdapter {
     suggestion.on('accept', suggestionStatusUpdate);
     suggestion.on('discard', suggestionStatusUpdate);
   }
+
+  updateSuggestionCommentsData(data) {
+    const commentsRepositoryPlugin = this.editor.plugins.get('CommentsRepository');
+    const resolvedSuggestionsCommentsElement = document.querySelector(this.storage.getSourceDataSelector('resolvedSuggestionsComments'));
+    let commentId = data.source.id;
+    let values = resolvedSuggestionsCommentsElement.value;
+    if (typeof commentId === 'undefined' || !commentId) {
+      return;
+    }
+    if (!values) {
+      values = JSON.stringify([]);
+    }
+
+    let dataArray = Array.from(JSON.parse(values))
+    let thread = commentsRepositoryPlugin.getCommentThread(commentId).toJSON();
+
+    const isExisting = dataArray.some(element => {
+      return element.threadId === thread.threadId;
+    });
+
+    if (!isExisting && thread.comments.length) {
+      dataArray.push(thread);
+      resolvedSuggestionsCommentsElement.value =  JSON.stringify(dataArray);
+    }
+  };
+
 }
 
 export default TrackChangesAdapter;

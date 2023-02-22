@@ -265,4 +265,28 @@ class Collaborators {
     return TRUE;
   }
 
+  /**
+   * Check if suggestion exists for the passed comment.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment
+   *   Comment entity.
+   *
+   * @return bool
+   *   Return true if suggestion exists and is not discarded or accepted.
+   */
+  public function isSuggestionExists(Comment $comment): bool {
+    /**
+     * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion $suggestion
+     */
+    $suggestion = $this->suggestionStorage->load($comment->getThreadId());
+    if (!$suggestion) {
+      return FALSE;
+    }
+    $suggestionStatus = $suggestion->getStatus();
+    if ($suggestionStatus === 'discard' || $suggestionStatus === 'accept') {
+      return FALSE;
+    }
+    return TRUE;
+  }
+
 }
