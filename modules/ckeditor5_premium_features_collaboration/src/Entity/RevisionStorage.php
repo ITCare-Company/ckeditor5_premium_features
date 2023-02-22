@@ -117,7 +117,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
     }
     $revision->setAttributes($attributes);
 
-    if (!$revision->access('create')) {
+    if (!$revision->access('create') && !$revision->access('update')) {
       throw new AccessException();
     }
 
@@ -129,7 +129,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
    * {@inheritdoc}
    */
   public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface|NULL {
-    if (!$entity->access('update')) {
+    if (!$entity->access('create') && !$entity->access('update')) {
       throw new AccessException();
     }
     if (!$entity instanceof Revision) {
@@ -139,11 +139,15 @@ class RevisionStorage extends SqlContentEntityStorage implements
     $raw_data = Revision::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
+    $attributes = [
+      'key' => $raw_data['key'],
+    ] + $data->get('attributes') ?? [];
+
     $entity
       ->setName($data->get('name'))
       ->setAuthors($data->get('authors'))
       ->setDiffData($data->get('diff_data'))
-      ->setAttributes($data->get('attributes'))
+      ->setAttributes($attributes)
       ->setPreviousVersion($data->get('previous_version'))
       ->setCurrentVersion($data->get('current_version'))
       ->save();
