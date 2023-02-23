@@ -96,7 +96,7 @@ function ckeditor5_premium_features_realtime_collaboration_update_10001():void {
  */
 function ckeditor5_premium_features_realtime_collaboration_update_10002(): void {
   $entityDefinition = \Drupal::entityDefinitionUpdateManager();
-  $defaultLanguage = \Drupal::service('language.default')->get()->getId();
+  $defaultLanguage = \Drupal::languageManager()->getDefaultLanguage()->getId();
 
   $fieldStorageDefinition = BaseFieldDefinition::create('language')
     ->setDefaultValue('x-default')
