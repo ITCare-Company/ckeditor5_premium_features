@@ -38,6 +38,7 @@ class ChannelStorage extends SqlContentEntityStorage {
       'entity_id' => $entity->uuid(),
       'created' => time(),
       'key_id' => $element_id,
+      'langcode' => $this->getEntityLanguageId($entity),
     ];
 
     $channel = parent::create($properties);
@@ -69,22 +70,25 @@ class ChannelStorage extends SqlContentEntityStorage {
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity to remove channels from.
-   * @param string|NULL $element_id
+   * @param string|null $element_id
    *   Optional. Element id - channels associated to this element will be
    *   removed. If empty all elements channels will be removed.
-   * @param string|NULL $channel_id
+   * @param string|null $channel_id
    *   Optional. Channel id to preserve from deleting.
    */
   public function deleteChannels(EntityInterface $entity, string $element_id = NULL, string $channel_id = NULL): void {
+    $language_id = $this->getEntityLanguageId($entity);
     $query = $this->getQuery();
     $query->accessCheck(FALSE);
     $query->condition('entity_id', $entity->uuid());
+    $query->condition('langcode', $language_id);
     if ($element_id) {
       $query->condition('key_id', $element_id);
     }
     if ($channel_id) {
       $query->condition('id', $channel_id, '!=');
     }
+
     $ids = $query->execute();
     $channels = $this->loadMultiple($ids);
     $this->delete($channels);
@@ -106,6 +110,7 @@ class ChannelStorage extends SqlContentEntityStorage {
       'entity_id' => $entity->uuid(),
       'entity_type' => $entity->getEntityTypeId(),
       'key_id' => $element_id,
+      'langcode' => $this->getEntityLanguageId($entity),
     ];
 
     $channel = $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID)
@@ -116,6 +121,20 @@ class ChannelStorage extends SqlContentEntityStorage {
     }
 
     return reset($channel);
+  }
+
+  /**
+   * Returns entity language id.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity item.
+   *
+   * @return string
+   *   Language id.
+   */
+  private function getEntityLanguageId(EntityInterface $entity): string {
+    $entity_language = $entity->language();
+    return $entity_language->getId();
   }
 
 }

@@ -19,6 +19,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *      "id" = "id",
  *      "entity_type" = "entity_type",
  *      "entity_id" = "entity_id",
+ *      "langcode" = "langcode",
  *      "created" = "created",
  *   },
  *   handlers = {
@@ -57,6 +58,11 @@ class Channel extends ContentEntityBase implements ChannelInterface {
 
     $fields['key_id'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Field Key ID'));
+
+    $fields['langcode'] = BaseFieldDefinition::create('language')
+      ->setDefaultValue('x-default')
+      ->setLabel(t('Language code'))
+      ->setDescription(t('The language code.'));
 
     return $fields;
   }

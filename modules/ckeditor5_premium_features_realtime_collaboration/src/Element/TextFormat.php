@@ -91,11 +91,12 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     if ($this->isFormTypeSupported($form_object)) {
       /** @var \Drupal\Core\Entity\EntityInterface $entity */
       $entity = $form_object->getEntity();
+      $entity_language = $entity->language()->getId();
 
       $channel_id = NestedArray::getValue(
         $form_state->getUserInput(),
         [...$element['#parents'], 'entity_channel']
-      ) ?? $this->getChannelId($entity->uuid(), $element_unique_id);
+      ) ?? $this->getChannelId($entity->uuid(), $element_unique_id, $entity_language);
 
       if (!$entity->isNew()) {
         $channel = $this->channelStorage->loadByEntity($entity, $element_unique_id);
@@ -219,7 +220,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       $channel = $this->channelStorage->loadByEntity($entity, $new_element_id ?? $element_id);
     }
     elseif ($channel->getKeyId() != $element_id) {
-      $entity_channel = $this->getChannelId($entity->uuid(), $element_id);
+      $entity_language = $entity->language()->getId();
+      $entity_channel = $this->getChannelId($entity->uuid(), $element_id, $entity_language);
       $channel = NULL;
     }
 
@@ -244,15 +246,16 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *
    * @param string $uuid
    *   The node uuid.
-   *
    * @param string $key_id
    *   Key id of the field.
+   * @param string $langcode
+   *   The langcode of the entity.
    *
    * @return string
    *   The channelID.
    */
-  private function getChannelId(string $uuid, string $key_id): string {
-    $base_str = $uuid . $key_id . time();
+  private function getChannelId(string $uuid, string $key_id, string $langcode = ''): string {
+    $base_str = $uuid . $key_id . time() . $langcode;
     return substr(Crypt::hashBase64($base_str), 0, 36);
   }
 
@@ -279,7 +282,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       if ($new_element_id === FALSE) {
         if (empty($change_order[$item_key])) {
           $change_order[$item_key] = FALSE;
-        } else {
+        }
+        else {
           $change_order[$change_order[$item_key]] = FALSE;
         }
         continue;
@@ -292,7 +296,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     foreach ($items as $item_key => $field_parents) {
       if (in_array($item_key, $change_order) && !isset($change_order[$item_key])) {
-        $change_order[$item_key] = false;
+        $change_order[$item_key] = FALSE;
       }
     }
 
