@@ -69,3 +69,37 @@ function ckeditor5_premium_features_collaboration_update_10000() {
   $entityDefinition->updateEntityType($suggestionEntity);
   $entityDefinition->updateEntityType($revisionEntity);
 }
+
+/**
+ * Add language code field definition.
+ */
+function ckeditor5_premium_features_collaboration_update_10001() {
+  $lang = \Drupal::languageManager()->getDefaultLanguage()->getId();
+
+  $field_storage_definition = \Drupal\Core\Field\BaseFieldDefinition::create('language')
+    ->setLabel(t('Language code'))
+    ->setInitialValue($lang)
+    ->setDescription(t('The collaboration entity language code.'));
+
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition(
+      'langcode',
+      \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface::ENTITY_TYPE_ID,
+      'ckeditor5_premium_features_collaboration',
+      $field_storage_definition
+    );
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition(
+      'langcode',
+      \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface::ENTITY_TYPE_ID,
+      'ckeditor5_premium_features_collaboration',
+      $field_storage_definition
+    );
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition(
+      'langcode',
+      \Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface::ENTITY_TYPE_ID,
+      'ckeditor5_premium_features_collaboration',
+      $field_storage_definition
+    );
+}

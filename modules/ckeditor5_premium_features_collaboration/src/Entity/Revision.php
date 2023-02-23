@@ -19,6 +19,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *      "uid" = "uid",
  *      "entity_type" = "entity_type",
  *      "entity_id" = "entity_id",
+ *      "langcode" = "langcode",
  *   },
  *   handlers = {
  *     "storage" = "Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage",

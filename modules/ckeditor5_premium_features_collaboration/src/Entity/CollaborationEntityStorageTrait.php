@@ -40,6 +40,7 @@ trait CollaborationEntityStorageTrait {
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase[] $entities */
     $entities = $this->loadByProperties([
       'entity_id' => $entity->id(),
+      'langcode' => $entity->language()->getId(),
       'entity_type' => $entity->getEntityTypeId(),
     ]);
 
@@ -62,6 +63,7 @@ trait CollaborationEntityStorageTrait {
       'key' => $item_key,
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
+      'langcode' => $entity->language()->getId(),
     ];
   }
 
@@ -84,10 +86,11 @@ trait CollaborationEntityStorageTrait {
       if ($this instanceof StorageIdSpecificationAwareInterface) {
         if ($this->isCommonId($element_data['id'])) {
           $element_data['id'] = sprintf(
-            '%s_%s_%s',
+            '%s_%s_%s_%s',
             $element_data['id'],
             str_replace('-', '', $entity->uuid()),
-            str_replace('-', '', $item_key)
+            str_replace('-', '', $item_key),
+            $entity->language()->getId()
           );
         }
       }

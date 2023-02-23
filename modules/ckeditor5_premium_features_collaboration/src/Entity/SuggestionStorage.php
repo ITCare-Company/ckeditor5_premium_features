@@ -89,6 +89,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements
     $object_data = [
       'id' => $data->getAlnum('id'),
       'entity_id' => $data->getInt('entity_id'),
+      'langcode' => $data->get('langcode'),
     ];
 
     $original_suggestion = $this->loadOriginalSuggestionFromData($data);

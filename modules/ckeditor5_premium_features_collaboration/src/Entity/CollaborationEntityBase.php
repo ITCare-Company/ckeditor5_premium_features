@@ -37,6 +37,10 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
       ->setSetting('target_type', 'user')
       ->setRequired(TRUE);
 
+    $fields['langcode'] = BaseFieldDefinition::create('language')
+      ->setLabel(t('Language code'))
+      ->setDescription(t('The collaboration entity language code.'));
+
     // We need to have two string (non-reference) fields,
     // because the entity id is not available before
     // the entity is created. We are only able to store some temp hash.
@@ -134,6 +138,21 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
    */
   public function setAuthor(?AccountProxyInterface $author): static {
     $this->set('uid', $author?->id());
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLanguage(): ?string {
+    return $this->get('langcode');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setLanguage(string $langcode): static {
+    $this->set('langcode', $langcode);
     return $this;
   }
 

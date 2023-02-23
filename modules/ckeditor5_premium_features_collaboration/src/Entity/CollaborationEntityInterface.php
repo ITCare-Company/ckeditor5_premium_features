@@ -69,6 +69,22 @@ interface CollaborationEntityInterface {
   public function setAuthor(?AccountProxyInterface $author): static;
 
   /**
+   * Gets the entity language code.
+   *
+   * @return string|null
+   *   The entity language code.
+   */
+  public function getLanguage(): ?string;
+
+  /**
+   * Sets the entity language code.
+   *
+   * @param string $langcode
+   *   The entity language code.
+   */
+  public function setLanguage(string $langcode): static;
+
+  /**
    * Gets the node creation timestamp.
    *
    * @return int
