@@ -5,6 +5,7 @@
  * Contains CKEditor 5 Premium Features Collaboration module install functions.
  */
 
+use Drupal\ckeditor5_premium_features_collaboration\Entity\Revision;
 use Drupal\Core\Url;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features\Entity\CollaborationStorageSchema;
@@ -102,4 +103,20 @@ function ckeditor5_premium_features_collaboration_update_10001() {
       'ckeditor5_premium_features_collaboration',
       $field_storage_definition
     );
+
+  $initialRevisions = \Drupal::entityTypeManager()->getStorage(\Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface::ENTITY_TYPE_ID)
+    ->loadByProperties([
+      'name' => 'Initial revision'
+    ]);
+
+  /**
+   * @var $revision Revision
+   */
+  foreach ($initialRevisions as $revision) {
+    $id = $revision->getId() . '_' . $lang;
+    $newRevision = $revision->createDuplicate();
+    $newRevision->set('id', $id);
+    $newRevision->save();
+    $revision->delete();
+  }
 }
