@@ -59,7 +59,7 @@ function ckeditor5_premium_features_realtime_collaboration_entity_delete(EntityI
 /**
  * Implements hook_entity_translation_delete().
  *
- * Remove ckeditor5_channel entities after parent entity is deleted.
+ * Remove ckeditor5_channel entities after parent translation entity is deleted.
  */
 function ckeditor5_premium_features_realtime_collaboration_entity_translation_delete(EntityInterface $translation): void {
   ckeditor5_premium_features_realtime_collaboration_remove_channels_entities($translation, TRUE);
@@ -68,6 +68,8 @@ function ckeditor5_premium_features_realtime_collaboration_entity_translation_de
 /**
  * Removes all channels entities related to the entity.
  *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
  * @param bool $is_translation
  *   Flag for removing translation.
  */

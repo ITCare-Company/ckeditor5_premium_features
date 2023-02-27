@@ -94,7 +94,7 @@ function ckeditor5_premium_features_collaboration_entity_delete(EntityInterface 
 /**
  * Implements hook_entity_translation_delete().
  *
- * Remove collaboration entities after parent entity is deleted.
+ * Remove collaboration entities after parent translation entity is deleted.
  */
 function ckeditor5_premium_features_collaboration_entity_translation_delete(EntityInterface $translation): void {
   ckeditor5_premium_features_collaboration_remove_collaborations_entities($translation, TRUE);
@@ -103,6 +103,8 @@ function ckeditor5_premium_features_collaboration_entity_translation_delete(Enti
 /**
  * Removes all collaborations entities related to the entity.
  *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
  * @param bool $is_translation
  *   Flag for removing translation.
  */
@@ -121,7 +123,7 @@ function ckeditor5_premium_features_collaboration_remove_collaborations_entities
   ];
 
   foreach ($storages as $storage) {
-    /** @var EntityStorageInterface $storage */
+    /** @var \Drupal\Core\Entity\EntityStorageInterface $storage */
     $query = $storage->getQuery()
       ->accessCheck(FALSE)
       ->condition('entity_id', $id);
