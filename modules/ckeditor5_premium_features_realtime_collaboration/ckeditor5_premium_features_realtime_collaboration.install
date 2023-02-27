@@ -60,7 +60,7 @@ function ckeditor5_premium_features_realtime_collaboration_requirements($phase):
 /**
  * Implements hook_update_N().
  */
-function ckeditor5_premium_features_realtime_collaboration_update_10000() {
+function ckeditor5_premium_features_realtime_collaboration_update_10000():void {
   $storageDefinition = BaseFieldDefinition::create('string')
     ->setLabel(t('Field Key ID'));
 
@@ -80,11 +80,33 @@ function ckeditor5_premium_features_realtime_collaboration_update_10000() {
 /**
  * Implements hook_update().
  */
-function ckeditor5_premium_features_realtime_collaboration_update_10001() {
+function ckeditor5_premium_features_realtime_collaboration_update_10001():void {
   $entityDefinition = \Drupal::entityDefinitionUpdateManager();
 
   $channelEntity = $entityDefinition->getEntityType(ChannelInterface::ENTITY_TYPE_ID);
   $channelEntity->setHandlerClass('storage_schema', CollaborationStorageSchema::class);
 
   $entityDefinition->updateEntityType($channelEntity);
+}
+
+/**
+ * Adds langcode field to the ckeditor5_channel entity.
+ */
+function ckeditor5_premium_features_realtime_collaboration_update_10002(): void {
+  $entityDefinition = \Drupal::entityDefinitionUpdateManager();
+  $defaultLanguage = \Drupal::languageManager()->getDefaultLanguage()->getId();
+
+  $fieldStorageDefinition = BaseFieldDefinition::create('language')
+    ->setDefaultValue('x-default')
+    ->setLabel(t('Language code'))
+    ->setDescription(t('The language code.'))
+    ->setInitialValue($defaultLanguage);
+
+  $entityDefinition->installFieldStorageDefinition(
+    'langcode',
+    'ckeditor5_channel',
+    'ckeditor5_channel',
+    $fieldStorageDefinition
+  );
+
 }
