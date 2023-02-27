@@ -219,6 +219,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
       'id' => $data->getAlnum('id'),
       'uid' => $data->getInt('authorId'),
       'entity_id' => $data->getInt('entity_id'),
+      'langcode' => $data->get('langcode'),
     ];
     $attributes = [
       'key' => $data->get('key'),
