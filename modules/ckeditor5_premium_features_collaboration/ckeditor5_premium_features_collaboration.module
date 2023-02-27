@@ -13,7 +13,6 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat;
 
@@ -88,7 +87,26 @@ function ckeditor5_premium_features_collaboration_form_alter(&$form, FormStateIn
  *
  * Remove collaboration entities after parent entity is deleted.
  */
-function ckeditor5_premium_features_collaboration_entity_delete(EntityInterface $entity) {
+function ckeditor5_premium_features_collaboration_entity_delete(EntityInterface $entity): void {
+  ckeditor5_premium_features_collaboration_remove_collaborations_entities($entity);
+}
+
+/**
+ * Implements hook_entity_translation_delete().
+ *
+ * Remove collaboration entities after parent entity is deleted.
+ */
+function ckeditor5_premium_features_collaboration_entity_translation_delete(EntityInterface $translation): void {
+  ckeditor5_premium_features_collaboration_remove_collaborations_entities($translation, TRUE);
+}
+
+/**
+ * Removes all collaborations entities related to the entity.
+ *
+ * @param bool $is_translation
+ *   Flag for removing translation.
+ */
+function ckeditor5_premium_features_collaboration_remove_collaborations_entities(EntityInterface $entity, bool $is_translation = FALSE): void {
   $id = $entity->id();
 
   if ($entity instanceof CollaborationEntityInterface) {
@@ -99,15 +117,21 @@ function ckeditor5_premium_features_collaboration_entity_delete(EntityInterface 
   $storages = [
     SuggestionInterface::ENTITY_TYPE_ID => $entity_type_manager->getStorage(SuggestionInterface::ENTITY_TYPE_ID),
     CommentInterface::ENTITY_TYPE_ID => $entity_type_manager->getStorage(CommentInterface::ENTITY_TYPE_ID),
-    RevisionInterface::ENTITY_TYPE_ID=> $entity_type_manager->getStorage(RevisionInterface::ENTITY_TYPE_ID)
+    RevisionInterface::ENTITY_TYPE_ID => $entity_type_manager->getStorage(RevisionInterface::ENTITY_TYPE_ID),
   ];
 
   foreach ($storages as $storage) {
-    /** @var $storage EntityStorageInterface */
-    $ids = $storage->getQuery()
+    /** @var EntityStorageInterface $storage */
+    $query = $storage->getQuery()
       ->accessCheck(FALSE)
-      ->condition('entity_id', $id)
-      ->execute();
+      ->condition('entity_id', $id);
+
+    if ($is_translation) {
+      $langcode = $entity->language()->getId();
+      $query->condition('langcode', $langcode);
+    }
+
+    $ids = $query->execute();
 
     if (!$ids) {
       continue;

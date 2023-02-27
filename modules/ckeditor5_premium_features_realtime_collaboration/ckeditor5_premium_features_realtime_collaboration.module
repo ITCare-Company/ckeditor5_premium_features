@@ -52,7 +52,26 @@ function ckeditor5_premium_features_realtime_collaboration_element_info_alter(ar
  *
  * Remove ckeditor5_channel entities after parent entity is deleted.
  */
-function ckeditor5_premium_features_realtime_collaboration_entity_delete(EntityInterface $entity) {
+function ckeditor5_premium_features_realtime_collaboration_entity_delete(EntityInterface $entity): void {
+  ckeditor5_premium_features_realtime_collaboration_remove_channels_entities($entity);
+}
+
+/**
+ * Implements hook_entity_translation_delete().
+ *
+ * Remove ckeditor5_channel entities after parent entity is deleted.
+ */
+function ckeditor5_premium_features_realtime_collaboration_entity_translation_delete(EntityInterface $translation): void {
+  ckeditor5_premium_features_realtime_collaboration_remove_channels_entities($translation, TRUE);
+}
+
+/**
+ * Removes all channels entities related to the entity.
+ *
+ * @param bool $is_translation
+ *   Flag for removing translation.
+ */
+function ckeditor5_premium_features_realtime_collaboration_remove_channels_entities(EntityInterface $entity, bool $is_translation = FALSE): void {
   $uuid = $entity->uuid();
 
   if ($entity instanceof ChannelInterface) {
@@ -62,10 +81,16 @@ function ckeditor5_premium_features_realtime_collaboration_entity_delete(EntityI
   $storage = Drupal::entityTypeManager()
     ->getStorage(ChannelInterface::ENTITY_TYPE_ID);
 
-  $ids = $storage->getQuery()
+  $query = $storage->getQuery()
     ->accessCheck(FALSE)
-    ->condition('entity_id', $uuid)
-    ->execute();
+    ->condition('entity_id', $uuid);
+
+  if ($is_translation) {
+    $langcode = $entity->language()->getId();
+    $query->condition('langcode', $langcode);
+  }
+
+  $ids = $query->execute();
 
   if (!$ids) {
     return;

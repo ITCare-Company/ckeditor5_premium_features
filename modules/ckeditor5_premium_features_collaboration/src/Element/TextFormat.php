@@ -20,7 +20,6 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
-use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
