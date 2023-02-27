@@ -418,12 +418,12 @@ class HtmlHelper {
       '#<suggestion-start[^<>]*deletion[^<>]*></suggestion-start>.*?<suggestion-end[^<>]*deletion[^<>]*></suggestion-end>#',
       $context,
       $matchesDeletion,
-      PREG_SET_ORDER, 0);
+      PREG_SET_ORDER);
 
     $matches = array_merge($matchesInsertion, $matchesDeletion);
     foreach ($matches as $match) {
       $suggestion = reset($match);
-      $fixedSuggestion = str_replace('</p><p>', '<span class="paragraph-split-sign"></span>', $suggestion);
+      $fixedSuggestion = preg_replace('#</p><p[^<>]*>#', '<span class="paragraph-split-sign"></span>', $suggestion);
       $fixedSuggestion = str_replace('&nbsp;', '', $fixedSuggestion);
       $context = str_replace($suggestion, $fixedSuggestion, $context);
     }
