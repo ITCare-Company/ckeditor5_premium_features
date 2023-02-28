@@ -279,6 +279,9 @@ class HtmlHelper {
     $this->convertAttributes($dom, $xpath, $attributes, 'suggestion');
   }
 
+  /**
+   *
+   */
   public function convertCommentAttributes(\DOMDocument $dom, \DOMXPath $xpath): void {
     $attributes = [
       'end-before' => 'data-comment-end-before',
@@ -313,12 +316,15 @@ class HtmlHelper {
           case 'start-before':
             $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, "$type-start", 'before');
             break;
+
           case 'start-after':
             $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, "$type-start", 'after');
             break;
+
           case 'end-before':
             $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, "$type-end", 'before');
             break;
+
           case 'end-after':
             $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, "$type-end", 'after');
             break;
@@ -344,10 +350,11 @@ class HtmlHelper {
    * @param string $function
    *   Function to apply on element to place new tag in correct place.
    *   Most times it'll be 'before' or 'after'.
+   *
    * @return void
+   *
    * @throws \DOMException
    */
-
   private function replaceSuggestionAttribute(\DOMDocument $dom, \DOMElement $suggestion, string $attribute, string $qualifiedName, string $function): void {
     $value = $suggestion->getAttribute($attribute);
     $elem = new \DOMElement($qualifiedName);
@@ -355,6 +362,72 @@ class HtmlHelper {
     $elemNode->setAttribute('name', $value);
     $suggestion->$function($elemNode);
     $suggestion->removeAttribute($attribute);
+  }
+
+  /**
+   * Add extra span before the br tag in suggestion.
+   *
+   * @param string $context
+   *   Context.
+   *
+   * @return string
+   *   Updated context.
+   */
+  public function detectLineBreaks(string $context):string {
+    $document = Html::load($context);
+    $xpath = new \DOMXPath($document);
+    $queryExpressions = [
+      "//ins//br",
+      "//del//br",
+      "//span[contains(@class, 'marker-insertion')]//br",
+      "//span[contains(@class, 'marker-deletion')]//br",
+    ];
+
+    foreach ($queryExpressions as $query) {
+      $suggestions = $xpath->query($query);
+      foreach ($suggestions as $suggestion) {
+        $domElement = new \DOMElement('span');
+        $nodeElement = $document->importNode($domElement);
+        $nodeElement->setAttribute('class', 'new-line-sign');
+        $suggestion->parentNode->insertBefore($nodeElement, $suggestion);
+      }
+    }
+
+    return $this->getInnerHtml($document);
+  }
+
+  /**
+   * Find and replace paragraphs split in suggestions. Used to display paragraph split in the suggestion notification.
+   *
+   * @param string $context
+   *   Document context.
+   *
+   * @return array|string
+   *   Context.
+   */
+  public function prepareParagraphsSplitSuggestions(string $context): array|string {
+    $matchesInsertion = [];
+    $matchesDeletion = [];
+
+    preg_match_all(
+      '#<suggestion-start[^<>]*insertion[^<>]*></suggestion-start>.*?<suggestion-end[^<>]*insertion[^<>]*></suggestion-end>#',
+      $context,
+      $matchesInsertion,
+      PREG_SET_ORDER);
+    preg_match_all(
+      '#<suggestion-start[^<>]*deletion[^<>]*></suggestion-start>.*?<suggestion-end[^<>]*deletion[^<>]*></suggestion-end>#',
+      $context,
+      $matchesDeletion,
+      PREG_SET_ORDER);
+
+    $matches = array_merge($matchesInsertion, $matchesDeletion);
+    foreach ($matches as $match) {
+      $suggestion = reset($match);
+      $fixedSuggestion = preg_replace('#</p><p[^<>]*>#', '<span class="paragraph-split-sign"></span>', $suggestion);
+      $fixedSuggestion = str_replace('&nbsp;', '', $fixedSuggestion);
+      $context = str_replace($suggestion, $fixedSuggestion, $context);
+    }
+    return $context;
   }
 
 }

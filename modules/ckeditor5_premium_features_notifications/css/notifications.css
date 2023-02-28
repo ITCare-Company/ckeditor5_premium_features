@@ -283,3 +283,51 @@ th {
   background-color: hsl(345deg 100% 91% / 35%);
   opacity: 60%;
 }
+
+ins > span.paragraph-split-sign::before,
+ins > span.new-line-sign::before {
+  background: var(--ck-color-suggestion-marker-insertion-background);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
+  border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
+  color: var(--ck-color-suggestion-marker-insertion-border);
+  content: "¶";
+}
+
+span.marker-insertion > span.paragraph-split-sign::before,
+span.marker-insertion > span.new-line-sign::before {
+  background-color: hsl(128deg 89% 85% / 35%);
+  color: var(--ck-color-suggestion-marker-insertion-border);
+  content: "¶";
+  opacity: 60%;
+}
+
+del > span.paragraph-split-sign::before,
+del > span.new-line-sign::before {
+  background: var(--ck-color-suggestion-marker-deletion-background);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-deletion-border);
+  border-top: 3px solid var(--ck-color-suggestion-marker-deletion-border);
+  color: var(--ck-color-suggestion-marker-deletion-stroke);
+  content: "¶";
+  text-decoration: line-through;
+  text-decoration-color: var(--ck-color-suggestion-marker-deletion-stroke);
+}
+
+span.marker-deletion > span.paragraph-split-sign::before,
+span.marker-deletion > span.new-line-sign::before {
+  background-color: hsl(345deg 100% 91% / 35%);
+  color: var(--ck-color-suggestion-marker-deletion-stroke);
+  content: "¶";
+  opacity: 60%;
+}
+
+span.marker-insertion > span.paragraph-split-sign::before,
+ins > span.paragraph-split-sign::before,
+span.marker-deletion > span.paragraph-split-sign::before,
+del > span.paragraph-split-sign::before {
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  max-width: fit-content;
+}

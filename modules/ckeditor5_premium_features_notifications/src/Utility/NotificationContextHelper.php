@@ -146,6 +146,8 @@ class NotificationContextHelper {
 
     $matchingSelectRule = "contains(@name,'$threadID')";
 
+    $context = $this->htmlHelper->prepareParagraphsSplitSuggestions($context);
+
     $document = Html::load($context);
 
     $xpath = new \DOMXPath($document);
@@ -200,6 +202,8 @@ class NotificationContextHelper {
     }
     $matchingSelectRule = implode(' or ', $queryOrParts);
 
+    $context = $this->htmlHelper->prepareParagraphsSplitSuggestions($context);
+
     $document = Html::load($context);
 
     $xpath = new \DOMXPath($document);
@@ -237,6 +241,8 @@ class NotificationContextHelper {
     $fixedMarkup = preg_replace('#<formatblock>\s*</formatblock>#si', '', $fixedMarkup);
 
     $this->replaceSuggestionMarkers($fixedMarkup);
+
+    $fixedMarkup = $this->htmlHelper->detectLineBreaks($fixedMarkup);
 
     $query = '//ins|//del|//format|//formatblock';
     $result = [];
@@ -364,7 +370,7 @@ class NotificationContextHelper {
       'del',
       'ins',
       'format',
-      'formatblock'
+      'formatblock',
     ]);
   }
 
