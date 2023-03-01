@@ -230,6 +230,12 @@ span.mention {
   color: var(--ck-color-mention-text);
 }
 
+span.mention > ins {
+  background-color: transparent;
+  border-bottom: none;
+  border-top: none;
+}
+
 .highlight-item-wrapper [data-mention] {
   background-color: transparent;
 }
