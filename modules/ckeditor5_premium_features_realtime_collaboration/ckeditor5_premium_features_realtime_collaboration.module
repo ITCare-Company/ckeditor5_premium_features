@@ -9,6 +9,8 @@ declare(strict_types = 1);
 
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Implements hook_library_info_build().
@@ -43,4 +45,59 @@ function ckeditor5_premium_features_realtime_collaboration_element_info_alter(ar
   if (isset($info['text_format'])) {
     $info['text_format']['#process'][] = [TextFormat::class, 'process'];
   }
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * Remove ckeditor5_channel entities after parent entity is deleted.
+ */
+function ckeditor5_premium_features_realtime_collaboration_entity_delete(EntityInterface $entity): void {
+  ckeditor5_premium_features_realtime_collaboration_remove_channels_entities($entity);
+}
+
+/**
+ * Implements hook_entity_translation_delete().
+ *
+ * Remove ckeditor5_channel entities after parent translation entity is deleted.
+ */
+function ckeditor5_premium_features_realtime_collaboration_entity_translation_delete(EntityInterface $translation): void {
+  ckeditor5_premium_features_realtime_collaboration_remove_channels_entities($translation, TRUE);
+}
+
+/**
+ * Removes all channels entities related to the entity.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
+ * @param bool $is_translation
+ *   Flag for removing translation.
+ */
+function ckeditor5_premium_features_realtime_collaboration_remove_channels_entities(EntityInterface $entity, bool $is_translation = FALSE): void {
+  $uuid = $entity->uuid();
+
+  if ($entity instanceof ChannelInterface) {
+    return;
+  }
+
+  $storage = Drupal::entityTypeManager()
+    ->getStorage(ChannelInterface::ENTITY_TYPE_ID);
+
+  $query = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->condition('entity_id', $uuid);
+
+  if ($is_translation) {
+    $langcode = $entity->language()->getId();
+    $query->condition('langcode', $langcode);
+  }
+
+  $ids = $query->execute();
+
+  if (!$ids) {
+    return;
+  }
+
+  $entities = $storage->loadMultiple($ids);
+  $storage->delete($entities);
 }

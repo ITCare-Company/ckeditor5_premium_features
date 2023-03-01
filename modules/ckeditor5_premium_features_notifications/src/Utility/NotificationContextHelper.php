@@ -9,7 +9,7 @@ use Drupal\ckeditor5_premium_features\Utility\HtmlHelper;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\FieldableEntityInterface;
 
@@ -17,6 +17,8 @@ use Drupal\Core\Entity\FieldableEntityInterface;
  * Class offering helper methods for collecting notification context.
  */
 class NotificationContextHelper {
+
+  const COMMENTS_LIMIT_IN_THREAD = 5;
 
   /**
    * Constructor.
@@ -56,19 +58,28 @@ class NotificationContextHelper {
   public function getFullContextFromDocument(string $context, CollaborationEntityInterface $entity): array {
     $thread = $this->renderEntityThread($entity);
 
+    $isFormattingSuggestion = FALSE;
     $snippets = [];
     if ($entity instanceof CommentInterface) {
       $snippets = $this->getHighlightedComment($context, $entity);
     }
     if ($entity instanceof SuggestionInterface) {
-      $snippets = $this->getHighlightedSuggestion($context, $entity);
+      $snippets = $this->getHighlightedSuggestion($context, $entity, $isFormattingSuggestion);
     }
 
-    return [
+    if (empty($snippets)) {
+      return [];
+    }
+
+    $fullContext = [
       '#theme' => 'notification_message_single',
       '#context' => $snippets,
       '#thread' => $thread,
+      '#formattingChange' => $isFormattingSuggestion,
     ];
+
+    $this->setCommentsLimitInThread($fullContext, $thread);
+    return $fullContext;
   }
 
   /**
@@ -135,7 +146,14 @@ class NotificationContextHelper {
 
     $matchingSelectRule = "contains(@name,'$threadID')";
 
+    $context = $this->htmlHelper->prepareParagraphsSplitSuggestions($context);
+
     $document = Html::load($context);
+
+    $xpath = new \DOMXPath($document);
+    $this->htmlHelper->convertCommentAttributes($document, $xpath);
+
+    $this->htmlHelper->createSuggestionsMarkers($document, $matchingSelectRule);
 
     $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'comment', $matchingSelectRule);
 
@@ -146,6 +164,8 @@ class NotificationContextHelper {
     $fixedMarkup = preg_replace('#<comment-start[^<>]*></comment-start>#si', '<comment>', $fixedMarkup);
     $fixedMarkup = preg_replace('#<comment-end[^<>]*></comment-end>#si', '</comment>', $fixedMarkup);
     $fixedMarkup = preg_replace('#<comment>\s*</comment>#si', '', $fixedMarkup);
+
+    $this->replaceSuggestionMarkers($fixedMarkup);
 
     $query = "//comment";
 
@@ -168,20 +188,32 @@ class NotificationContextHelper {
    *   Document content.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface $suggestion
    *   Suggestion to be highlighted.
+   * @param bool $formattingSuggestionDetected
+   *   Returns boolean determining if the script detected formatting suggestion.
    */
-  public function getHighlightedSuggestion(string $context, SuggestionInterface $suggestion): array {
+  public function getHighlightedSuggestion(string $context, SuggestionInterface $suggestion, bool &$formattingSuggestionDetected = FALSE): array {
     $suggestionChain = $suggestion->getChain();
 
     $queryOrParts = [];
     foreach ($suggestionChain as $suggestion) {
       $chainSuggestionId = $suggestion->id();
       $queryOrParts[] = "contains(@name,'$chainSuggestionId')";
+      $queryOrParts[] = "contains(@data-suggestion-start-before,'$chainSuggestionId')";
     }
     $matchingSelectRule = implode(' or ', $queryOrParts);
 
+    $context = $this->htmlHelper->prepareParagraphsSplitSuggestions($context);
+
     $document = Html::load($context);
 
+    $xpath = new \DOMXPath($document);
+    $this->htmlHelper->convertSuggestionsAttributes($document, $xpath);
+
+    $this->htmlHelper->createSuggestionsMarkers($document, $matchingSelectRule);
+
     $this->htmlHelper->removeNotRequiredCollaborationElements($document, 'suggestion', $matchingSelectRule);
+
+    $this->htmlHelper->removeNotRequiredCollaborationElementsWithSuggestionAttributes($document, $matchingSelectRule);
 
     foreach ($queryOrParts as $chainPart) {
       $this->htmlHelper->convertCollaborationTagsWrappings($document, 'suggestion', $chainPart);
@@ -195,10 +227,24 @@ class NotificationContextHelper {
     $fixedMarkup = preg_replace('#<suggestion-start[^<>]*deletion[^<>]*></suggestion-start>#si', '<del>', $fixedMarkup);
     $fixedMarkup = preg_replace('#<suggestion-end[^<>]*deletion[^<>]*></suggestion-end>#si', '</del>', $fixedMarkup);
 
+    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*formatInline[^<>]*></suggestion-start>#si', '<format>', $fixedMarkup, -1, $formattingSuggestionCount);
+    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatInline[^<>]*></suggestion-end>#si', '</format>', $fixedMarkup);
+    $formattingSuggestionDetected |= $formattingSuggestionCount > 0;
+
+    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*formatBlock[^<>]*></suggestion-start>#si', '<formatblock>', $fixedMarkup, -1, $formattingSuggestionCount);
+    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatBlock[^<>]*></suggestion-end>#si', '</formatblock>', $fixedMarkup);
+    $formattingSuggestionDetected |= $formattingSuggestionCount > 0;
+
     $fixedMarkup = preg_replace('#<ins>\s*</ins>#si', '', $fixedMarkup);
     $fixedMarkup = preg_replace('#<del>\s*</del>#si', '', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<format>\s*</format>#si', '', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<formatblock>\s*</formatblock>#si', '', $fixedMarkup);
 
-    $query = '//ins|//del';
+    $this->replaceSuggestionMarkers($fixedMarkup);
+
+    $fixedMarkup = $this->htmlHelper->detectLineBreaks($fixedMarkup);
+
+    $query = '//ins|//del|//format|//formatblock';
     $result = [];
 
     foreach ($this->getMatchingContext($fixedMarkup, $query, FALSE) as $markup) {
@@ -210,6 +256,18 @@ class NotificationContextHelper {
 
     return $result;
 
+  }
+
+  /**
+   * Replace suggestion markers.
+   *
+   * @param string $fixedMarkup
+   *   Markup.
+   */
+  private function replaceSuggestionMarkers(string &$fixedMarkup): void {
+    $fixedMarkup = preg_replace('#<suggestion-marker-start-insertion></suggestion-marker-start-insertion>#si', '<span class="marker-insertion">', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-marker-start-deletion></suggestion-marker-start-deletion>#si', '<span class="marker-deletion">', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-marker-end></suggestion-marker-end>#si', '</span>', $fixedMarkup);
   }
 
   /**
@@ -311,6 +369,8 @@ class NotificationContextHelper {
       'comment',
       'del',
       'ins',
+      'format',
+      'formatblock',
     ]);
   }
 
@@ -364,6 +424,28 @@ class NotificationContextHelper {
     }
 
     return $contextParts;
+  }
+
+  /**
+   * Set a display limit for comments in the thread.
+   *
+   * If there are more than 6 comments,
+   * the first one and last 5 will be displayed in the notification.
+   *
+   * @param array $fullContext
+   *   Full context.
+   * @param array $thread
+   *   Thread.
+   */
+  protected function setCommentsLimitInThread(array &$fullContext, array $thread): void {
+    if (count($thread) > self::COMMENTS_LIMIT_IN_THREAD) {
+      $firstComment[] = current($thread);
+      $threadCounter = count($thread) - self::COMMENTS_LIMIT_IN_THREAD;
+      $thread = array_slice($thread, -(self::COMMENTS_LIMIT_IN_THREAD - 1));
+      $fullContext['#thread'] = $thread;
+      $fullContext['#threadCounter'] = $threadCounter;
+      $fullContext['#firstComment'] = $firstComment;
+    }
   }
 
 }

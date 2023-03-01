@@ -39,6 +39,7 @@ class ExportPdf extends ExportBase {
           'units' => NULL,
         ],
         'page_orientation' => NULL,
+        'custom_css' => NULL,
         'header_html' => NULL,
         'footer_html' => NULL,
         'header_and_footer_css' => NULL,

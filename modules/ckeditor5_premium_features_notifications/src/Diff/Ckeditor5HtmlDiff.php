@@ -3,7 +3,7 @@
 namespace Drupal\ckeditor5_premium_features_notifications\Diff;
 
 use Caxy\HtmlDiff\HtmlDiff;
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 
 /**
  * Ckeditor5 extension of an external library for detecting string changes.
@@ -61,6 +61,26 @@ class Ckeditor5HtmlDiff extends HtmlDiff {
     }
 
     return $htmlRes;
+  }
+
+  /**
+   * Override base method. Better regex for getting attribute.
+   *
+   * @param string $text
+   *   Text.
+   * @param string $attribute
+   *   Attribute to find.
+   *
+   * @return null|string
+   *   Value of attribute or null.
+   */
+  protected function getAttributeFromTag($text, $attribute): ?string {
+    $matches = [];
+    if (preg_match(sprintf('/<[^>]*?%s=(["\'])?((?:.(?!\1|>))*.?)\1?/', $attribute), $text, $matches)) {
+      return htmlspecialchars_decode($matches[2]);
+    }
+
+    return NULL;
   }
 
 }

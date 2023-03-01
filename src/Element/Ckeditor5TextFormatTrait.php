@@ -60,7 +60,7 @@ trait Ckeditor5TextFormatTrait {
 
       // We need to attach the submit just in case the entity was created
       // before the rtc module was enabled.
-      $this->addSubmitCallback($completeForm);
+      self::addSubmitCallback($completeForm);
     }
     else {
       // We still need to process in order to stop our integration from
@@ -107,7 +107,7 @@ trait Ckeditor5TextFormatTrait {
    * @param int $nestingCounter
    *   Nesting counter.
    */
-  private function addSubmitCallback(array &$form, int $nestingCounter = 0): void {
+  private static function addSubmitCallback(array &$form, int $nestingCounter = 0): void {
     $submitCallback = [static::class, 'onCompleteFormSubmit'];
     $keys = [
       ['#submit'],
@@ -142,7 +142,7 @@ trait Ckeditor5TextFormatTrait {
         continue;
       }
 
-      $this->addSubmitCallback($element, $nestingCounter + 1);
+      self::addSubmitCallback($element, $nestingCounter + 1);
     }
 
   }

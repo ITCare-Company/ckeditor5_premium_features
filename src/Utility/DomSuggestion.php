@@ -60,7 +60,11 @@ class DomSuggestion {
    */
   public function getEndAttributeValue(): string|NULL {
     try {
-      return $this->element->getAttribute('data-suggestion-end-after');
+      $value = $this->element->getAttribute('data-suggestion-end-after');
+      if (!$value) {
+        $value = $this->element->getAttribute('data-suggestion-end-before');
+      }
+      return $value;
     }
     catch (\Error $e) {
       return NULL;

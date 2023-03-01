@@ -2,6 +2,7 @@
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Utility;
 
+use Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\Comment;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
@@ -41,13 +42,16 @@ class Collaborators {
    *   Entity type manager.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaborationSettings
    *   Collaboration settings.
+   * @param \Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator $mentionsIntegrator
+   *   Mentions integrator service.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function __construct(protected Connection $connection,
                               protected EntityTypeManagerInterface $entityTypeManager,
-                              protected CollaborationSettings $collaborationSettings
+                              protected CollaborationSettings $collaborationSettings,
+                              protected MentionsIntegrator $mentionsIntegrator
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
     $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
@@ -126,10 +130,7 @@ class Collaborators {
    *   Returns author ID or NULL if no suggestion matches the comment.
    */
   public function getThreadSuggestionAuthor(Comment $comment): int|NULL {
-    // Get thread.
-    $commentsInThread = $this->getCommentsThread($comment->getThreadId());
-
-    if (!$this->isSuggestionThread($commentsInThread)) {
+    if (!$this->isCommentInSuggestionThread($comment)) {
       return NULL;
     }
 
@@ -217,38 +218,13 @@ class Collaborators {
    *   Comment object.
    */
   public function getCommentMentions(CommentInterface $comment): array {
-    $marker = $this->collaborationSettings->getMentionsMarker();
-    $minCharCount = $this->collaborationSettings->getMentionMinimalCharactersCount();
-
+    if (!$this->mentionsIntegrator->isMentionInstalled()) {
+      return [];
+    }
+    $mentionsHelper = $this->mentionsIntegrator->getMentionHelperService();
     $commentBody = $comment->getContentPlain();
 
-    $regexp = '/(^|\s)' . $marker . '([^\s' . $marker . ']{' . $minCharCount . ',})/';
-
-    if (preg_match_all($regexp, $commentBody, $matches)) {
-      return $matches[2];
-    }
-
-    return [];
-  }
-
-  /**
-   * Get mentions list detected in a body.
-   *
-   * @param string $body
-   *   String body.
-   */
-  public function getBodyMentions(string $body): array {
-    $marker = $this->collaborationSettings->getMentionsMarker();
-    $minCharCount = $this->collaborationSettings->getMentionMinimalCharactersCount();
-
-    $body = preg_replace('/<[^>]*>/', " ", $body);
-    $regexp = '/(^|\s)' . $marker . '([^\s' . $marker . ']{' . $minCharCount . ',})/';
-
-    if (preg_match_all($regexp, $body, $matches)) {
-      return $matches[2];
-    }
-
-    return [];
+    return $mentionsHelper->getMentions($commentBody);
   }
 
   /**
@@ -268,6 +244,49 @@ class Collaborators {
     catch (\Exception $e) {
       return [];
     }
+  }
+
+  /**
+   * Check if the comment is placed in a suggestion thread.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment
+   *   Comment entity.
+   *
+   * @return bool
+   *   Return true if the comment is in the suggestion tread.
+   */
+  public function isCommentInSuggestionThread(Comment $comment): bool {
+    // Get thread.
+    $commentsInThread = $this->getCommentsThread($comment->getThreadId());
+
+    if (!$this->isSuggestionThread($commentsInThread)) {
+      return FALSE;
+    }
+    return TRUE;
+  }
+
+  /**
+   * Check if suggestion exists for the passed comment.
+   *
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment
+   *   Comment entity.
+   *
+   * @return bool
+   *   Return true if suggestion exists and is not discarded or accepted.
+   */
+  public function isSuggestionExists(Comment $comment): bool {
+    /**
+     * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion $suggestion
+     */
+    $suggestion = $this->suggestionStorage->load($comment->getThreadId());
+    if (!$suggestion) {
+      return FALSE;
+    }
+    $suggestionStatus = $suggestion->getStatus();
+    if ($suggestionStatus === 'discard' || $suggestionStatus === 'accept') {
+      return FALSE;
+    }
+    return TRUE;
   }
 
 }

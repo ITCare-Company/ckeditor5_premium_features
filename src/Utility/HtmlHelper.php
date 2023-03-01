@@ -24,6 +24,9 @@ class HtmlHelper {
       'p',
       'table',
     ]);
+    $overParentNodesTypes = array_flip([
+      'blockquote',
+    ]);
     $topLevelTags = array_flip([
       'body',
       'html',
@@ -32,6 +35,10 @@ class HtmlHelper {
     $parentNode = $element->parentNode;
     while ($parentNode) {
       $grandParentNode = $parentNode->parentNode;
+      if (isset($overParentNodesTypes[$grandParentNode->nodeName])) {
+        $parentNode = $grandParentNode;
+        break;
+      }
       if (isset($acceptingParentNodeTypes[$parentNode->nodeName]) || $grandParentNode == NULL) {
         break;
       }
@@ -68,11 +75,91 @@ class HtmlHelper {
       'start',
       'end',
     ];
-    $xpath = new \DOMXPath($document);
 
     foreach ($postfix as $type) {
       $removeQueries[] = "//$elementType-$type" . "[not($selector)]";
     }
+
+    $this->doRemoveElements($document, $removeQueries);
+  }
+
+  /**
+   * Create suggestion markers in the document.
+   *
+   * Markers are created for not matching selectors.
+   *
+   * @param \DOMDocument $document
+   *   Document to be processed.
+   * @param string $selector
+   *   Selector used for filtering elements.
+   */
+  public function createSuggestionsMarkers(\DOMDocument $document, string $selector): void {
+    $startQueriesInsertion[] = "//suggestion-start" . "[(contains(@name, 'insertion')) and not($selector)]";
+    $startQueriesDeletion[] = "//suggestion-start" . "[(contains(@name, 'deletion')) and not($selector)]";
+    $endQueries[] = "//suggestion-end [not($selector)]";
+
+    $this->doReplaceElements($document, $startQueriesInsertion, 'suggestion-marker-start-insertion');
+    $this->doReplaceElements($document, $startQueriesDeletion, 'suggestion-marker-start-deletion');
+    $this->doReplaceElements($document, $endQueries, 'suggestion-marker-end');
+  }
+
+  /**
+   * Replace collaboration entities matching passed queries.
+   *
+   * @param \DOMDocument $document
+   *   Document to be processed.
+   * @param array $replaceQueries
+   *   Array of queries defining entities to replace.
+   * @param string $elementName
+   *   Name of the element to be created.
+   */
+  private function doReplaceElements(\DOMDocument $document, array $replaceQueries, string $elementName): void {
+    $xpath = new \DOMXPath($document);
+
+    foreach ($replaceQueries as $queryR) {
+      $elementsToReplace = $xpath->query($queryR);
+      /** @var \DOMElement $elementToReplace */
+      foreach ($elementsToReplace as $elementToReplace) {
+        $nodeDiv = $document->createElement($elementName, $elementToReplace->nodeValue);
+        $elementToReplace->parentNode->replaceChild($nodeDiv, $elementToReplace);
+      }
+    }
+  }
+
+  /**
+   * Removes collaboration entities having data-suggestion- prefixed attributes
+   * not matching passed selector.
+   *
+   * @param \DOMDocument $document
+   *   Document to be processed.
+   * @param string $selector
+   *   Selector used for filtering not matching elements.
+   */
+  public function removeNotRequiredCollaborationElementsWithSuggestionAttributes(\DOMDocument $document, string $selector): void {
+    $removeQueries = [];
+    $attributes = [
+      'data-suggestion-start-before',
+      'data-suggestion-end-after',
+    ];
+
+    foreach ($attributes as $attribute) {
+      $removeQueries[] = "//*[@$attribute][not($selector)]";
+    }
+
+    $this->doRemoveElements($document, $removeQueries);
+  }
+
+  /**
+   * Removes collaboration entities matching passed queries.
+   *
+   * @param \DOMDocument $document
+   *   Document to be processed.
+   * @param array $removeQueries
+   *   Array of queries defining entities ro remove.
+   */
+  private function doRemoveElements(\DOMDocument $document, array $removeQueries): void {
+    $xpath = new \DOMXPath($document);
+
     foreach ($removeQueries as $queryR) {
       $commentsToRemove = $xpath->query($queryR);
       /** @var \DOMElement $elementToRemove */
@@ -171,6 +258,176 @@ class HtmlHelper {
     }
 
     return $fixedMarkup;
+  }
+
+  /**
+   * Replaces the suggestion attributes with suggestion tags.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMXPath $xpath
+   *   The DOM XPath.
+   */
+  public function convertSuggestionsAttributes(\DOMDocument $dom, \DOMXPath $xpath): void {
+    $attributes = [
+      'end-before' => 'data-suggestion-end-before',
+      'start-before' => 'data-suggestion-start-before',
+      'start-after' => 'data-suggestion-start-after',
+      'end-after' => 'data-suggestion-end-after',
+    ];
+
+    $this->convertAttributes($dom, $xpath, $attributes, 'suggestion');
+  }
+
+  /**
+   *
+   */
+  public function convertCommentAttributes(\DOMDocument $dom, \DOMXPath $xpath): void {
+    $attributes = [
+      'end-before' => 'data-comment-end-before',
+      'start-before' => 'data-comment-start-before',
+      'start-after' => 'data-comment-start-after',
+      'end-after' => 'data-comment-end-after',
+    ];
+
+    $this->convertAttributes($dom, $xpath, $attributes, 'comment');
+  }
+
+  /**
+   * Replaces the suggestion attributes with suggestion tags.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMXPath $xpath
+   *   The DOM XPath.
+   */
+  private function convertAttributes(\DOMDocument $dom, \DOMXPath $xpath, $attributes, $type): void {
+    foreach ($attributes as $key => $attribute) {
+      $queryExpression = "//*[@{$attribute}]";
+      $suggestions = $xpath->query($queryExpression);
+
+      if (!$suggestions) {
+        return;
+      }
+
+      /** @var \DOMElement $suggestion */
+      foreach ($suggestions as $suggestion) {
+        switch ($key) {
+          case 'start-before':
+            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, "$type-start", 'before');
+            break;
+
+          case 'start-after':
+            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, "$type-start", 'after');
+            break;
+
+          case 'end-before':
+            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, "$type-end", 'before');
+            break;
+
+          case 'end-after':
+            $this->replaceSuggestionAttribute($dom, $suggestion, $attribute, "$type-end", 'after');
+            break;
+
+        }
+      }
+    }
+  }
+
+  /**
+   * Replace data-suggestion attributes with suggestion tags.
+   *
+   * This allows for easier and less prone for errors filtering of suggestions.
+   *
+   * @param \DOMDocument $dom
+   *   The Dom document.
+   * @param \DOMElement $suggestion
+   *   An element to process.
+   * @param string $attribute
+   *   An attribute name to process.
+   * @param string $name
+   *   The tag name to create in place of attribute.
+   * @param string $function
+   *   Function to apply on element to place new tag in correct place.
+   *   Most times it'll be 'before' or 'after'.
+   *
+   * @return void
+   *
+   * @throws \DOMException
+   */
+  private function replaceSuggestionAttribute(\DOMDocument $dom, \DOMElement $suggestion, string $attribute, string $qualifiedName, string $function): void {
+    $value = $suggestion->getAttribute($attribute);
+    $elem = new \DOMElement($qualifiedName);
+    $elemNode = $dom->importNode($elem);
+    $elemNode->setAttribute('name', $value);
+    $suggestion->$function($elemNode);
+    $suggestion->removeAttribute($attribute);
+  }
+
+  /**
+   * Add extra span before the br tag in suggestion.
+   *
+   * @param string $context
+   *   Context.
+   *
+   * @return string
+   *   Updated context.
+   */
+  public function detectLineBreaks(string $context):string {
+    $document = Html::load($context);
+    $xpath = new \DOMXPath($document);
+    $queryExpressions = [
+      "//ins//br",
+      "//del//br",
+      "//span[contains(@class, 'marker-insertion')]//br",
+      "//span[contains(@class, 'marker-deletion')]//br",
+    ];
+
+    foreach ($queryExpressions as $query) {
+      $suggestions = $xpath->query($query);
+      foreach ($suggestions as $suggestion) {
+        $domElement = new \DOMElement('span');
+        $nodeElement = $document->importNode($domElement);
+        $nodeElement->setAttribute('class', 'new-line-sign');
+        $suggestion->parentNode->insertBefore($nodeElement, $suggestion);
+      }
+    }
+
+    return $this->getInnerHtml($document);
+  }
+
+  /**
+   * Find and replace paragraphs split in suggestions. Used to display paragraph split in the suggestion notification.
+   *
+   * @param string $context
+   *   Document context.
+   *
+   * @return array|string
+   *   Context.
+   */
+  public function prepareParagraphsSplitSuggestions(string $context): array|string {
+    $matchesInsertion = [];
+    $matchesDeletion = [];
+
+    preg_match_all(
+      '#<suggestion-start[^<>]*insertion[^<>]*></suggestion-start>.*?<suggestion-end[^<>]*insertion[^<>]*></suggestion-end>#',
+      $context,
+      $matchesInsertion,
+      PREG_SET_ORDER);
+    preg_match_all(
+      '#<suggestion-start[^<>]*deletion[^<>]*></suggestion-start>.*?<suggestion-end[^<>]*deletion[^<>]*></suggestion-end>#',
+      $context,
+      $matchesDeletion,
+      PREG_SET_ORDER);
+
+    $matches = array_merge($matchesInsertion, $matchesDeletion);
+    foreach ($matches as $match) {
+      $suggestion = reset($match);
+      $fixedSuggestion = preg_replace('#</p><p[^<>]*>#', '<span class="paragraph-split-sign"></span>', $suggestion);
+      $fixedSuggestion = str_replace('&nbsp;', '', $fixedSuggestion);
+      $context = str_replace($suggestion, $fixedSuggestion, $context);
+    }
+    return $context;
   }
 
 }

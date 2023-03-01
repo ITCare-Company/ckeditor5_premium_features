@@ -19,10 +19,12 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *      "id" = "id",
  *      "entity_type" = "entity_type",
  *      "entity_id" = "entity_id",
+ *      "langcode" = "langcode",
  *      "created" = "created",
  *   },
  *   handlers = {
  *     "storage" = "Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage",
+ *     "storage_schema" = "Drupal\ckeditor5_premium_features\Entity\CollaborationStorageSchema",
  *   }
  * )
  */
@@ -54,7 +56,31 @@ class Channel extends ContentEntityBase implements ChannelInterface {
       ->setLabel(t('Created'))
       ->setDescription(t('The time that the suggestion was created.'));
 
+    $fields['key_id'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Field Key ID'));
+
+    $fields['langcode'] = BaseFieldDefinition::create('language')
+      ->setDefaultValue('x-default')
+      ->setLabel(t('Language code'))
+      ->setDescription(t('The language code.'));
+
     return $fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getKeyId(): ?string {
+    return (string) $this->get('key_id')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setKeyId(string $value): static {
+    $this->set('key_id', $value);
+
+    return $this;
   }
 
 }

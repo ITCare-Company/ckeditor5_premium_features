@@ -40,12 +40,13 @@ trait CollaborationEntityStorageTrait {
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase[] $entities */
     $entities = $this->loadByProperties([
       'entity_id' => $entity->id(),
+      'langcode' => $entity->language()->getId(),
       'entity_type' => $entity->getEntityTypeId(),
     ]);
 
     return array_filter($entities, function ($item) use ($item_key_filter) {
       $attributes = $item->getAttributes();
-      return $item->access('view') && ($item_key_filter == NULL || $attributes['key'] == $item_key_filter);
+      return $item->access('view') && isset($attributes['key']) && ($item_key_filter == NULL || $attributes['key'] == $item_key_filter);
     });
   }
 
@@ -62,6 +63,7 @@ trait CollaborationEntityStorageTrait {
       'key' => $item_key,
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
+      'langcode' => $entity->language()->getId(),
     ];
   }
 
@@ -78,13 +80,17 @@ trait CollaborationEntityStorageTrait {
   public function processSourceData(array $source_data, ContentEntityInterface $entity, string $item_key): array {
     $entity_list = [];
     foreach ($source_data as $element_data) {
+      if (empty($element_data['id'])) {
+        continue;
+      }
       if ($this instanceof StorageIdSpecificationAwareInterface) {
         if ($this->isCommonId($element_data['id'])) {
           $element_data['id'] = sprintf(
-            '%s_%s_%s',
+            '%s_%s_%s_%s',
             $element_data['id'],
             str_replace('-', '', $entity->uuid()),
-            str_replace('-', '', $item_key)
+            str_replace('-', '', $item_key),
+            $entity->language()->getId()
           );
         }
       }

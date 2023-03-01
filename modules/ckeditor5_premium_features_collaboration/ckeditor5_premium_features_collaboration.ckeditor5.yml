@@ -66,17 +66,3 @@ ckeditor5_premium_features_collaboration__collaboration_integration:
     library: ckeditor5_premium_features_collaboration/collaboration-integration
     elements: false
     conditions: [ ]
-
-ckeditor5_premium_features_collaboration__mention_integration:
-  ckeditor5:
-    plugins:
-      - mention.Mention
-      - mentionsIntegration.MentionsIntegration
-  drupal:
-    label: The load & save integration of collaboration tools.
-    library: ckeditor5_premium_features_collaboration/mention-integration
-    elements:
-      - <span>
-      - <span data-mention class="mention">
-    conditions:
-      plugins: [ckeditor5_premium_features_collaboration__collaboration_integration]

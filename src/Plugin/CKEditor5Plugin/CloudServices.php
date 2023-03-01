@@ -49,6 +49,7 @@ class CloudServices extends CKEditor5PluginDefault implements ContainerFactoryPl
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
     $static_plugin_config['cloudServices']['tokenUrl'] = $this->settingsConfigHandler->getTokenUrl();
     $static_plugin_config['cloudServices']['webSocketUrl'] = $this->settingsConfigHandler->getWebSocketUrl();
+    $static_plugin_config['comments']['editorConfig']['extraPlugins'] = [];
 
     return $static_plugin_config;
   }

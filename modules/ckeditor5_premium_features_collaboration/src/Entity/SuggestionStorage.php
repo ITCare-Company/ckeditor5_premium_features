@@ -89,6 +89,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements
     $object_data = [
       'id' => $data->getAlnum('id'),
       'entity_id' => $data->getInt('entity_id'),
+      'langcode' => $data->get('langcode'),
     ];
 
     $original_suggestion = $this->loadOriginalSuggestionFromData($data);
@@ -114,7 +115,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements
       ->setData($suggestion_data)
       ->setAttributes($attributes);
 
-    if (!$suggestion->access('update')) {
+    if (!$suggestion->access('create') && !$suggestion->access('update')) {
       throw new AccessException();
     }
 
@@ -127,7 +128,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements
    * {@inheritdoc}
    */
   public function update(CollaborationEntityInterface $entity, array $raw_data): CollaborationEntityInterface|NULL {
-    if (!$entity->access('update')) {
+    if (!$entity->access('create') && !$entity->access('update')) {
       throw new AccessException();
     }
     if (!$entity instanceof SuggestionInterface) {
@@ -139,6 +140,7 @@ class SuggestionStorage extends SqlContentEntityStorage implements
     $has_comments = $data->getBoolean('has_comments');
     $suggestion_data = $data->get('data') ?? [];
     $suggestion_attributes = $data->get('attributes') ?? [];
+    $suggestion_attributes['key'] = $data->get('key');
     $head_id = $suggestion_attributes['head'] ?? NULL;
 
     $entity

@@ -6,7 +6,7 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
 use Drupal\ckeditor5_premium_features\CKeditorDateFormatterTrait;
 use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -36,6 +36,10 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
       ->setLabel(t('User'))
       ->setSetting('target_type', 'user')
       ->setRequired(TRUE);
+
+    $fields['langcode'] = BaseFieldDefinition::create('language')
+      ->setLabel(t('Language code'))
+      ->setDescription(t('The collaboration entity language code.'));
 
     // We need to have two string (non-reference) fields,
     // because the entity id is not available before
@@ -140,6 +144,21 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
   /**
    * {@inheritdoc}
    */
+  public function getLanguage(): ?string {
+    return $this->get('langcode');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setLanguage(string $langcode): static {
+    $this->set('langcode', $langcode);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getCreatedTime(): int {
     return (int) $this->get('created')->value;
   }
@@ -171,7 +190,7 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function getReferencedEntity(): EntityInterface {
+  public function getReferencedEntity(): ?EntityInterface {
     return $this->entityTypeManager()
       ->getStorage($this->getEntityTypeTargetId())
       ->load($this->getEntityId());
@@ -205,6 +224,17 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
     $attributes = $this->getAttributes();
 
     return $attributes['key'] ?? NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setKey(string $key): static {
+    $attributes = $this->getAttributes();
+    $attributes['key'] = $key;
+    $this->setAttributes($attributes);
+
+    return $this;
   }
 
   /**

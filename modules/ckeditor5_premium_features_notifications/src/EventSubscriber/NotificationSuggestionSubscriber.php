@@ -6,6 +6,8 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\State\StateInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -18,9 +20,13 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
    *
    * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationSender
    *   Notification sender service.
+   * @param \Drupal\Core\Session\AccountInterface $currentUser
+   *   Current user object.
    */
   public function __construct(
-    protected NotificationSender $notificationSender
+    protected NotificationSender $notificationSender,
+    protected AccountInterface $currentUser,
+    protected StateInterface $state
   ) {}
 
   /**
@@ -79,9 +85,26 @@ class NotificationSuggestionSubscriber implements EventSubscriberInterface {
 
     $recipients = $event->getRelatedDocumentAuthors();
 
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion $suggestion */
+    $suggestion = $event->getRelatedEntity();
+    $suggestionAuthor = $suggestion->getAuthorId();
+
+    // There are cases, when an existing suggestion is split by another user.
+    if ($suggestionAuthor != $this->currentUser->id()) {
+      return;
+    }
+
+    $recipients = array_diff($recipients, [$suggestionAuthor]);
+
     if (empty($recipients)) {
       return;
     }
+
+    $suggestionId = $suggestion->getId();
+    $authors = $this->state->get(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY) ?? [];
+    $authors[$suggestionId] = $recipients;
+    $this->state->set(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY, $authors);
+
     $this->notificationSender->sendNotification(
       NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED,
       $recipients,

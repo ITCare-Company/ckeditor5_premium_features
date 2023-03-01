@@ -25,6 +25,8 @@ services:
     class: \Drupal\ckeditor5_premium_features\Utility\CssStyleProvider
     arguments:
       - '@theme.manager'
+      - '@file_system'
+      - '@file_url_generator'
 
   ckeditor5_premium_features.plugin_helper:
     class: \Drupal\ckeditor5_premium_features\Utility\PluginHelper
@@ -37,3 +39,9 @@ services:
     arguments:
       - '@ckeditor5_premium_features.config_handler.settings'
       - '@http_client'
+
+  ckeditor5_premium_features.mention_integrator:
+    class: \Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator
+    arguments:
+      - '@module_handler'
+      - '@service_container'

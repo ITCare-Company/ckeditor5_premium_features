@@ -19,6 +19,8 @@ services:
     class: '\Drupal\ckeditor5_premium_features_notifications\EventSubscriber\NotificationSuggestionSubscriber'
     arguments:
       - '@ckeditor5_premium_features_notifications.notification_sender'
+      - '@current_user'
+      - '@state'
     tags:
       - { name: 'event_subscriber' }
 
@@ -28,6 +30,7 @@ services:
       - '@ckeditor5_premium_features_notifications.notification_sender'
       - '@ckeditor5_premium_features_collaboration.collaborators'
       - '@current_user'
+      - '@state'
     tags:
       - { name: 'event_subscriber' }
 
@@ -52,6 +55,7 @@ services:
       - '@ckeditor5_premium_features_notifications.diff'
       - '@ckeditor5_premium_features_notifications.notification_settings'
       - '@plugin.manager.filter'
+      - '@ckeditor5_premium_features.mention_integrator'
     tags:
       - { name: 'event_subscriber' }
 

@@ -4,31 +4,29 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Utility;
 
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin\ExportBase;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Theme\ThemeManager;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Css style list provider.
  */
-class CssStyleProvider implements ContainerFactoryPluginInterface {
+class CssStyleProvider {
 
   /**
    * Creates CssStyleProvider instance.
    *
    * @param \Drupal\Core\Theme\ThemeManager $themeManager
    *   Theme ThemeManager service.
+   * @param \Drupal\Core\File\FileSystemInterface $fileSystem
+   *   File system service.
+   * @param \Drupal\Core\File\FileUrlGeneratorInterface $fileUrlGenerator
+   *   File Url generator service.
    */
-  public function __construct(protected ThemeManager $themeManager) {
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $container->get('theme.manager'),
-    );
+  public function __construct(protected ThemeManager $themeManager,
+                              protected FileSystemInterface $fileSystem,
+                              protected FileUrlGeneratorInterface $fileUrlGenerator) {
   }
 
   /**
@@ -92,6 +90,52 @@ class CssStyleProvider implements ContainerFactoryPluginInterface {
     $non_fonts = $this->getCssStylesheetsUrls();
 
     return array_merge($fonts, ['EDITOR_STYLES'], $non_fonts);
+  }
+
+  /**
+   * Update file with the custom css.
+   *
+   * Delete file if css content is NULL and the file exists.
+   *
+   * @param string|null $customCss
+   *   CSS content.
+   * @param string $fileName
+   *   File name.
+   * @param string $directoryPath
+   *   Directory path where the file is located.
+   */
+  public function updateCustomCssFile(?string $customCss, string $fileName, string $directoryPath = ExportBase::CUSTOM_CSS_DIRECTORY_PATH): void {
+    $filePath = $directoryPath . $fileName . '.css';
+    if ($customCss) {
+      $this->fileSystem->prepareDirectory($directoryPath, FileSystemInterface::CREATE_DIRECTORY);
+      $this->fileSystem->saveData($customCss, $filePath, FileSystemInterface::EXISTS_REPLACE);
+    }
+    else {
+      $relativePath = $this->fileUrlGenerator->generateString($filePath);
+      if ($this->fileSystem->getDestinationFilename($relativePath, FileSystemInterface::EXISTS_ERROR)) {
+        $this->fileSystem->delete($filePath);
+      }
+    }
+  }
+
+  /**
+   * Get the custom css file path.
+   *
+   * @param string $fileName
+   *   File name.
+   * @param string $directoryPath
+   *   Directory path where the file is located.
+   *
+   * @return bool|string
+   *   Relative path to the file or FALSE.
+   */
+  public function getCustomCssFile(string $fileName, string $directoryPath = ExportBase::CUSTOM_CSS_DIRECTORY_PATH):bool|string {
+    $filePath = $directoryPath . $fileName . '.css';
+    $relativePath = $this->fileUrlGenerator->generateString($filePath);
+    if ($this->fileSystem->getDestinationFilename($relativePath, FileSystemInterface::EXISTS_ERROR)) {
+      return $relativePath;
+    }
+    return FALSE;
   }
 
 }

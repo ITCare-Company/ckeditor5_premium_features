@@ -18,6 +18,8 @@ interface NotificationMessageFactoryInterface {
   const CKEDITOR5_MESSAGE_SUGGESTION_STATUS = 'ckeditor5_message_suggestion_status';
   const CKEDITOR5_MESSAGE_SUGGESTION_ADDED = 'ckeditor5_message_suggestion_added';
 
+  const CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY = 'new_suggestions_sent_to_users';
+
   /**
    * Returns the translated plugin label.
    *

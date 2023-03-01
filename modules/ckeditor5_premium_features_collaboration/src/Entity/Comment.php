@@ -19,9 +19,11 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *      "uid" = "uid",
  *      "entity_type" = "entity_type",
  *      "entity_id" = "entity_id",
+ *      "langcode" = "langcode",
  *   },
  *   handlers = {
  *     "storage" = "Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage",
+ *     "storage_schema" = "Drupal\ckeditor5_premium_features_collaboration\Entity\CommentStorageSchema",
  *     "access" = "Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityAccessControlHandler",
  *   }
  * )
@@ -63,6 +65,7 @@ class Comment extends CollaborationEntityBase implements CommentInterface {
     $data = parent::toArray();
     $data = [
       'content' => $this->getContent(),
+      'thread_id' => $this->getThreadId(),
     ] + $data;
 
     $normalized = static::normalize($data, TRUE);

@@ -11,8 +11,10 @@
   --ck-color-suggestion-marker-format-border: hsla(191, 90%, 40%, .4);
   --ck-color-suggestion-marker-format-border-active: hsla(191, 90%, 40%, .65);
   --ck-color-suggestion-widget-insertion-background: hsla(128, 71%, 65%, .05);
+  --ck-color-suggestion-widget-th-insertion-background: hsla(128.031, 71%, 65%, 0.12);
   --ck-color-suggestion-widget-insertion-background-active: hsla(128, 71%, 50%, .07);
   --ck-color-suggestion-widget-deletion-background: hsla(345, 71%, 65%, .05);
+  --ck-color-suggestion-widget-th-deletion-background: hsla(344.882, 71%, 65%, 0.14);
   --ck-color-suggestion-widget-deletion-background-active: hsla(345, 71%, 45%, .07);
   --ck-color-suggestion-widget-format-background: hsla(191, 90%, 40%, .09);
   --ck-color-suggestion-widget-format-background-active: hsla(191, 90%, 40%, .16);
@@ -41,9 +43,35 @@
   border-radius: 15px;
 }
 
+.context-content img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
 .comment-thread-wrapper {
   padding: 15px;
   margin-top: 15px;
+}
+
+.comments-count-wrapper {
+  padding: 10px;
+  margin: auto;
+}
+
+.comments-count-wrapper .comments-text {
+  text-align: center;
+  padding: 5px;
+}
+
+.comments-count-wrapper .comments-text > span {
+  color: #909090;
+  font-weight: 600;
+}
+
+.comments-count-wrapper .dots {
+  height: 40px;
+  background-image: radial-gradient(circle, #909090 3px, transparent 3px);
+  background-size: 100% 50%;
 }
 
 .highlight-item-wrapper .highlight-item {
@@ -83,6 +111,10 @@
   margin: 10px;
 }
 
+.context-title {
+  font-style: italic;
+}
+
 del,
 del > p {
   background: var(--ck-color-suggestion-marker-deletion-background);
@@ -106,27 +138,202 @@ ins > p {
   display: table;
 }
 
+del:has(img),
+ins:has(img) {
+  background: none;
+  border-bottom: none;
+  border-top: none;
+  margin-right: 8px;
+}
+
+ins > img {
+  outline: 4px var(--ck-color-suggestion-marker-insertion-border) solid;
+}
+
+del > img {
+  outline: 4px var(--ck-color-suggestion-marker-deletion-border) solid;
+}
+ins:has(table),
+del:has(table) {
+  text-decoration: none;
+}
+
+ins > table {
+  outline: 4px var(--ck-color-suggestion-marker-insertion-border) solid;
+}
+
+ins > table > caption {
+  background-color: var(--ck-color-suggestion-widget-insertion-background);
+}
+
+ins > table > tbody > tr > td,
+ins > table > tbody > tr > th,
+ins > table > thead > tr > th {
+  border: 1px var(--ck-color-suggestion-marker-insertion-border) solid;
+  background-color: var(--ck-color-suggestion-widget-insertion-background);
+}
+
+ins > table > tbody > tr > th,
+ins > table > thead > tr > th {
+  background-color: var(--ck-color-suggestion-widget-th-insertion-background);
+}
+
+del > table {
+  outline: 4px var(--ck-color-suggestion-marker-deletion-border) solid;
+}
+
+del > table > caption {
+  background-color: var(--ck-color-suggestion-widget-deletion-background);
+}
+
+del > table > tbody > tr > td,
+del > table > tbody > tr > th,
+del > table > thead > tr > th {
+  border: 1px var(--ck-color-suggestion-marker-deletion-border) solid;
+  background-color: var(--ck-color-suggestion-widget-deletion-background);
+}
+
+del > table > tbody > tr > th,
+del > table > thead > tr > th {
+  background-color: var(--ck-color-suggestion-widget-th-deletion-background);
+}
+
 comment {
   /* Match size with suggestion markers */
   border-top: 3px solid transparent;
   border-bottom: 3px solid transparent;
 }
 
-comment,
+comment:not(:has(img)),
 comment * {
   background: var(--ck-color-comment-marker);
+}
+comment > img {
+  background: none;
+  outline: var(--ck-color-comment-marker) solid;
+}
+
+format,
+format * {
+  border-top: 3px solid var(--ck-color-suggestion-marker-format-border);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-format-border);
+}
+
+formatblock {
+  display: block;
+  background: none;
+  border: 0;
+  box-shadow: -7px 0 0 0 #fff,-10px 0 0 0 var(--ck-color-suggestion-marker-format-border);
 }
 
 span.mention {
   color: var(--ck-color-mention-text);
 }
 
+span.mention > ins {
+  background-color: transparent;
+  border-bottom: none;
+  border-top: none;
+}
+
 .highlight-item-wrapper [data-mention] {
   background-color: transparent;
 }
 
-[data-mention] > ins {
+span.mention.highlight-item > ins {
   border-bottom: none;
   border-top: none;
   background: var(--ck-color-mention-background);
+}
+
+blockquote {
+  border-left: 5px solid #ccc;
+  font-style: italic;
+  margin-left: 0;
+  margin-right: 0;
+  overflow: hidden;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+}
+
+pre {
+  background: hsla(0,0%,78%,.3);
+  border: 1px solid #c4c4c4;
+  border-radius: 2px;
+  color: #353535;
+  direction: ltr;
+  font-style: normal;
+  min-width: 200px;
+  padding: 1em;
+  tab-size: 4;
+  text-align: left;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+td,
+th {
+  border: 1px solid #bfbfbf;
+  min-width: 2em;
+  padding: .4em;
+}
+
+.marker-insertion {
+  background-color: hsl(128deg 89% 85% / 35%);
+}
+.marker-deletion {
+  text-decoration: line-through;
+  background-color: hsl(345deg 100% 91% / 35%);
+  opacity: 60%;
+}
+
+ins > span.paragraph-split-sign::before,
+ins > span.new-line-sign::before {
+  background: var(--ck-color-suggestion-marker-insertion-background);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-insertion-border);
+  border-top: 3px solid var(--ck-color-suggestion-marker-insertion-border);
+  color: var(--ck-color-suggestion-marker-insertion-border);
+  content: "¶";
+}
+
+span.marker-insertion > span.paragraph-split-sign::before,
+span.marker-insertion > span.new-line-sign::before {
+  background-color: hsl(128deg 89% 85% / 35%);
+  color: var(--ck-color-suggestion-marker-insertion-border);
+  content: "¶";
+  opacity: 60%;
+}
+
+del > span.paragraph-split-sign::before,
+del > span.new-line-sign::before {
+  background: var(--ck-color-suggestion-marker-deletion-background);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-deletion-border);
+  border-top: 3px solid var(--ck-color-suggestion-marker-deletion-border);
+  color: var(--ck-color-suggestion-marker-deletion-stroke);
+  content: "¶";
+  text-decoration: line-through;
+  text-decoration-color: var(--ck-color-suggestion-marker-deletion-stroke);
+}
+
+span.marker-deletion > span.paragraph-split-sign::before,
+span.marker-deletion > span.new-line-sign::before {
+  background-color: hsl(345deg 100% 91% / 35%);
+  color: var(--ck-color-suggestion-marker-deletion-stroke);
+  content: "¶";
+  opacity: 60%;
+}
+
+span.marker-insertion > span.paragraph-split-sign::before,
+ins > span.paragraph-split-sign::before,
+span.marker-deletion > span.paragraph-split-sign::before,
+del > span.paragraph-split-sign::before {
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  max-width: fit-content;
 }

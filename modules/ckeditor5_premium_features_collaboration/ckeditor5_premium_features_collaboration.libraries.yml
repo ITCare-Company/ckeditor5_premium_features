@@ -32,11 +32,4 @@ collaboration:
 collaboration-integration:
   js:
     js/build/userAdapter.js: { minified: true }
-    js/build/commentsAdapter.js: { minified: true }
     js/build/trackChangesAdapter.js: { minified: true }
-
-mention-integration:
-  js:
-    js/build/mentionsIntegration.js: { minified: true }
-  dependencies:
-    - ckeditor5_premium_features_collaboration/mention

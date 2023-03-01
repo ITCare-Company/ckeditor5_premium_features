@@ -8,9 +8,12 @@
 declare(strict_types=1);
 
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Element\MentionsIntegration;
 use Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat;
 
 /**
@@ -24,7 +27,6 @@ function ckeditor5_premium_features_collaboration_library_info_build(): array {
     'track-changes',
     'comments',
     'revision-history',
-    'mention',
   ];
 
   $definitions = [];
@@ -70,6 +72,74 @@ function ckeditor5_premium_features_collaboration_field_widget_single_element_fo
 function ckeditor5_premium_features_collaboration_element_info_alter(array &$info): void {
   if (isset($info['text_format'])) {
     $info['text_format']['#process'][] = [TextFormat::class, 'process'];
-    $info['text_format']['#process'][] = [MentionsIntegration::class, 'process'];
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function ckeditor5_premium_features_collaboration_form_alter(&$form, FormStateInterface $form_state) {
+  TextFormat::processFormWithCollaborationStorage($form, $form_state);
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * Remove collaboration entities after parent entity is deleted.
+ */
+function ckeditor5_premium_features_collaboration_entity_delete(EntityInterface $entity): void {
+  ckeditor5_premium_features_collaboration_remove_collaborations_entities($entity);
+}
+
+/**
+ * Implements hook_entity_translation_delete().
+ *
+ * Remove collaboration entities after parent translation entity is deleted.
+ */
+function ckeditor5_premium_features_collaboration_entity_translation_delete(EntityInterface $translation): void {
+  ckeditor5_premium_features_collaboration_remove_collaborations_entities($translation, TRUE);
+}
+
+/**
+ * Removes all collaborations entities related to the entity.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
+ * @param bool $is_translation
+ *   Flag for removing translation.
+ */
+function ckeditor5_premium_features_collaboration_remove_collaborations_entities(EntityInterface $entity, bool $is_translation = FALSE): void {
+  $id = $entity->id();
+
+  if ($entity instanceof CollaborationEntityInterface) {
+    return;
+  }
+
+  $entity_type_manager = Drupal::entityTypeManager();
+  $storages = [
+    SuggestionInterface::ENTITY_TYPE_ID => $entity_type_manager->getStorage(SuggestionInterface::ENTITY_TYPE_ID),
+    CommentInterface::ENTITY_TYPE_ID => $entity_type_manager->getStorage(CommentInterface::ENTITY_TYPE_ID),
+    RevisionInterface::ENTITY_TYPE_ID => $entity_type_manager->getStorage(RevisionInterface::ENTITY_TYPE_ID),
+  ];
+
+  foreach ($storages as $storage) {
+    /** @var \Drupal\Core\Entity\EntityStorageInterface $storage */
+    $query = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('entity_id', $id);
+
+    if ($is_translation) {
+      $langcode = $entity->language()->getId();
+      $query->condition('langcode', $langcode);
+    }
+
+    $ids = $query->execute();
+
+    if (!$ids) {
+      continue;
+    }
+
+    $entities = $storage->loadMultiple($ids);
+    $storage->delete($entities);
   }
 }

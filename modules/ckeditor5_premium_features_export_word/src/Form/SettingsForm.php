@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_export_word\Form;
 
-use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormBase;
+use Drupal\ckeditor5_premium_features\Form\BaseExportSettingsForm;
 use Drupal\ckeditor5_premium_features\Utility\FormElement;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Form\FormStateInterface;
@@ -12,7 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Provides the configuration form of the "Export to Word" feature.
  */
-class SettingsForm extends SharedBuildConfigFormBase {
+class SettingsForm extends BaseExportSettingsForm {
 
   /**
    * {@inheritdoc}
@@ -26,6 +26,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
    */
   public static function getSettingsRouteName(): string {
     return 'ckeditor5_premium_features_export_word.form.settings';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCustomCssFileName(): string {
+    return 'ckeditor5-custom-word-styles';
   }
 
   /**
@@ -68,6 +75,12 @@ class SettingsForm extends SharedBuildConfigFormBase {
     FormElement::pageOrientation($options, [
       '#default_value' => $config->get($options_key . '.page_orientation') ?? 'portrait',
     ]);
+
+    $options['custom_css'] = [
+      '#type' => 'textarea',
+      '#title' => t('Custom css'),
+      '#default_value' => $config->get($options_key . '.custom_css'),
+    ];
 
     $num_headers = $form_state->get('num_headers');
     $num_footers = $form_state->get('num_footers');

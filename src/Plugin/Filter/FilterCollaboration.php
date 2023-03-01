@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Plugin\Filter;
 
-use Drupal\ckeditor5_premium_features\Utility\DomSuggestion;
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\HtmlHelper;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a filter to cleanup the collaboration features markup data.
@@ -18,11 +20,57 @@ use Drupal\filter\Plugin\FilterBase;
  * @Filter(
  *   id = "ckeditor5_premium_features_collaboration_filter",
  *   title = @Translation("Removes the collaboration (suggestions, comments) data from the markup so that the content displayed to your end users did not contain comments/suggestions for content editors."),
+ *   description = @Translation("This filter should be executed as soon as possible. If you encounter missing whitespaces near words that contains suggestions please move it up in the filter processing order."),
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
  *   weight = -100
  * )
  */
-class FilterCollaboration extends FilterBase {
+class FilterCollaboration extends FilterBase implements ContainerFactoryPluginInterface {
+
+  /**
+   * The HTML helper.
+   *
+   * @var \Drupal\ckeditor5_premium_features\Utility\HtmlHelper
+   */
+  protected $htmlHelper;
+
+  /**
+   * Constructs a new FilterCollaboration.
+   *
+   * @param array $configuration
+   *   Configuration.
+   * @param string $plugin_id
+   *   Plugin ID.
+   * @param mixed $plugin_definition
+   *   Definition.
+   * @param \Drupal\ckeditor5_premium_features\Utility\HtmlHelper $html_helper
+   *   HTML helper.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, HtmlHelper $html_helper) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->htmlHelper = $html_helper;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('ckeditor5_premium_features.html_helper')
+    );
+  }
+
+  /**
+   * Get HTML helper utility service.
+   *
+   * @return \Drupal\ckeditor5_premium_features\Utility\HtmlHelper
+   */
+  public function getHtmlHelper(): HtmlHelper {
+    return $this->htmlHelper;
+  }
 
   /**
    * {@inheritdoc}
@@ -32,11 +80,12 @@ class FilterCollaboration extends FilterBase {
     $xpath = new \DOMXPath($dom);
 
     $this->filterComments($xpath);
-    $this->filterSuggestionsTags($xpath);
-    $this->filterSuggestionsAttributes($xpath);
+    $this->htmlHelper->convertSuggestionsAttributes($dom, $xpath);
 
     $dom->saveHTML();
     $text = Html::serialize($dom);
+
+    $this->filterSuggestionsTags($text);
 
     return new FilterProcessResult($text);
   }
@@ -85,115 +134,18 @@ class FilterCollaboration extends FilterBase {
   }
 
   /**
-   * Filter out the suggestion tags or attributes (where needed).
+   * Filter out the suggestion tags.
    *
    * @param \DOMXPath $xpath
    *   The DOM XPath.
    */
-  public function filterSuggestionsTags(\DOMXPath $xpath): void {
-    $suggestions_tags = [
-      'suggestion-start',
-      'suggestion-end',
-    ];
+  public function filterSuggestionsTags(string &$text): void {
+    $text = preg_replace('#<suggestion-start[^<>]*insertion[^<>]*></suggestion-start>#si', '<ins>', $text);
+    $text = preg_replace('#<suggestion-end[^<>]*insertion[^<>]*></suggestion-end>#si', '</ins>', $text);
+    $text = preg_replace('%(<ins.*?>)(.*?)(<\/ins.*?>)%is', '', $text);
 
-    foreach ($suggestions_tags as $suggestion_tag) {
-      $suggestions = $xpath->query('//' . $suggestion_tag);
-
-      if (!$suggestions) {
-        continue;
-      }
-
-      /** @var \DOMElement $suggestion */
-      foreach ($suggestions as $suggestion) {
-        $dom_suggestion = new DomSuggestion($suggestion);
-        if ($dom_suggestion->isInsertion() && $dom_suggestion->isStartTag()) {
-          $this->removeUntilEnd($suggestion, $dom_suggestion->getNameAttributeValue());
-        }
-        else {
-          try {
-            if (!$suggestion || !$suggestion->parentNode) {
-              continue;
-            }
-            $suggestion->remove();
-          }
-          catch (\Throwable) {
-            continue;
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Filter out the suggestion attributes.
-   *
-   * @param \DOMXPath $xpath
-   *   The DOM XPath.
-   */
-  public function filterSuggestionsAttributes(\DOMXPath $xpath): void {
-    $attributes = [
-      'start' => 'data-suggestion-start-before',
-      'end' => 'data-suggestion-end-after',
-    ];
-
-    $suggestions = $xpath->query("//*[@{$attributes['start']}]");
-
-    if (!$suggestions) {
-      return;
-    }
-
-    /** @var \DOMElement $suggestion */
-    foreach ($suggestions as $suggestion) {
-      $dom_suggestion = new DomSuggestion($suggestion);
-      if ($dom_suggestion->isInsertion()) {
-        $suggestion->remove();
-      }
-      else {
-        foreach ($attributes as $attribute) {
-          $suggestion->removeAttribute($attribute);
-        }
-      }
-    }
-  }
-
-  /**
-   * Removes all DOM elements and text until met the end tag or attribute.
-   *
-   * @param \DOMElement|\DOMText $element
-   *   The DOM element.
-   * @param string $name
-   *   The name attribute value.
-   */
-  public function removeUntilEnd(\DOMElement|\DOMText $element, string $name = ''): void {
-    $next = $element->nextSibling;
-    $parent = $element->parentNode;
-    $element->remove();
-
-    if (empty($next)) {
-      $next = $parent?->nextSibling?->firstChild;
-      if (!$parent?->hasChildNodes()) {
-        $parent->remove();
-      }
-    }
-
-    if ($element instanceof \DOMElement) {
-      $dom_element = new DomSuggestion($element);
-      if ($dom_element->isEndTag() && $dom_element->hasName($name)) {
-        // This is the end of the journey because of the html tag.
-        return;
-      }
-      elseif ($dom_element->getEndAttributeValue() === $name) {
-        // This is the end of the journey because of the attribute.
-        return;
-      }
-    }
-
-    if (!$next instanceof \DOMNode) {
-      // Something went wrong, stop further processing.
-      return;
-    }
-
-    $this->removeUntilEnd($next, $name);
+    $text = preg_replace('#<suggestion-start[^<>]*></suggestion-start>#si', '', $text);
+    $text = preg_replace('#<suggestion-end[^<>]*></suggestion-end>#si', '', $text);
   }
 
 }

@@ -69,6 +69,22 @@ interface CollaborationEntityInterface {
   public function setAuthor(?AccountProxyInterface $author): static;
 
   /**
+   * Gets the entity language code.
+   *
+   * @return string|null
+   *   The entity language code.
+   */
+  public function getLanguage(): ?string;
+
+  /**
+   * Sets the entity language code.
+   *
+   * @param string $langcode
+   *   The entity language code.
+   */
+  public function setLanguage(string $langcode): static;
+
+  /**
    * Gets the node creation timestamp.
    *
    * @return int
@@ -106,7 +122,7 @@ interface CollaborationEntityInterface {
    * @return \Drupal\Core\Entity\EntityInterface
    *   Referenced entity.
    */
-  public function getReferencedEntity(): EntityInterface;
+  public function getReferencedEntity(): ?EntityInterface;
 
   /**
    * Gets the JSON suggestion attributes.
@@ -132,6 +148,11 @@ interface CollaborationEntityInterface {
    * Returns key attribute value.
    */
   public function getKey(): string|null;
+
+  /**
+   * Set key attribute value.
+   */
+  public function setKey(string $key): static;
 
   /**
    * Returns formatted date  of creation.

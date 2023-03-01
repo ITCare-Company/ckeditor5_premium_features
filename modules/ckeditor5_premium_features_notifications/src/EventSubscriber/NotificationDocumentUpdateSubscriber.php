@@ -11,7 +11,7 @@ use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\Notifica
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings;
 use Drupal\Component\Plugin\Exception\PluginException;
-use Drupal\Component\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\filter\FilterPluginManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -134,12 +134,17 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
 
     $this->filterCollaboration->filterComments($xpath);
     if ($this->notificationSettings->isMessageEnabled(NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED)) {
-      $this->filterCollaboration->filterSuggestionsTags($xpath);
-      $this->filterCollaboration->filterSuggestionsAttributes($xpath);
+      $this->filterCollaboration->getHtmlHelper()->convertSuggestionsAttributes($dom, $xpath);
     }
 
     $dom->saveHTML();
-    return Html::serialize($dom);
+    $htmlString = Html::serialize($dom);
+
+    if ($this->notificationSettings->isMessageEnabled(NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED)) {
+      $this->filterCollaboration->filterSuggestionsTags($htmlString);
+    }
+
+    return $htmlString;
   }
 
 }
