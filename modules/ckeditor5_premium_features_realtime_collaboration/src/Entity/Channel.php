@@ -15,6 +15,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   id = "ckeditor5_channel",
  *   label = @Translation("CKEditor5 Channel"),
  *   base_table = "ckeditor5_channel",
+ *   internal = TRUE,
  *   entity_keys = {
  *      "id" = "id",
  *      "entity_type" = "entity_type",
