@@ -31,4 +31,17 @@ interface EditorStorageHandlerInterface {
    */
   public function hasCollaborationFeaturesEnabled(array $element): bool;
 
+  /**
+   * Returns an array of editors names with default states of track changes.
+   *
+   * @param array $element
+   *   The form element with the editor format defined.
+   * @param bool $rtc
+   *   Is RTC module.
+   *
+   * @return array
+   *   Array of track changes states.
+   */
+  public function getTrackChangesStates(array $element, bool $rtc = FALSE): array;
+
 }
