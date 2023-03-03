@@ -8,7 +8,10 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
 /**
+ * CKEditor 5 Track changes plugin.
  *
+ * @internal
+ *   Plugin classes are internal.
  */
 class TrackChanges extends Realtime {
 
