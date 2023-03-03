@@ -127,6 +127,25 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
 
+    $this->enableFilter($form_state);
+
+    // Set the dummy enabled flag on the configuration.
+    $toolbars = $this->pluginHelper->getFormToolbars($form_state);
+    /** @var \Drupal\ckeditor5\Plugin\CKEditor5PluginDefinition $definition */
+    $definition = $this->getPluginDefinition();
+    $toolbar_item = array_key_first($definition->getToolbarItems());
+    $status = in_array($toolbar_item, (array) $toolbars, TRUE);
+
+    $this->configuration = [
+      'enabled' => $status,
+    ];
+  }
+
+  /**
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state.
+   */
+  protected function enableFilter(FormStateInterface $form_state):void {
     /** @var \Drupal\Core\Form\FormState $complete_form_state */
     $complete_form_state = $form_state->getCompleteFormState();
 
@@ -139,16 +158,6 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
       'ckeditor5_premium_features_collaboration_filter',
       'status',
     ], $has_any_collaboration_feature);
-
-    // Set the dummy enabled flag on the configuration.
-    /** @var \Drupal\ckeditor5\Plugin\CKEditor5PluginDefinition $definition */
-    $definition = $this->getPluginDefinition();
-    $toolbar_item = array_key_first($definition->getToolbarItems());
-    $status = in_array($toolbar_item, (array) $toolbars, TRUE);
-
-    $this->configuration = [
-      'enabled' => $status,
-    ];
   }
 
   /**

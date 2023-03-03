@@ -1,0 +1,56 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin;
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+
+/**
+ *
+ */
+class TrackChanges extends Collaboration {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration(): array {
+
+    return [
+      'is_turn_on' => FALSE,
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
+    $note = $this->t('In order to setup the annotation sidebar use the <a href="@url">global collaboration configuration instead</a>.', [
+      '@url' => Url::fromRoute('ckeditor5_premium_features_collaboration.form.settings')->toString(),
+    ]);
+    $form['note'] = [
+      ['#markup' => '<p>' . $note . '</p>'],
+    ];
+
+    $form['is_turn_on'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Turn on track changes'),
+      '#default_value' => $this->configuration['is_turn_on'] ?? FALSE,
+      '#description' => t('If checked, track changes will be turned on after editor initialization.'),
+    ];
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
+    $this->enableFilter($form_state);
+
+    $formValues = $form_state->getValues();
+    $isTurnedOn = $formValues['is_turn_on'] ?? FALSE;
+    $this->configuration['is_turn_on'] = (bool) $isTurnedOn;
+  }
+
+}

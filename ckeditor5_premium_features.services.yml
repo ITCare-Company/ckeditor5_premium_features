@@ -45,3 +45,8 @@ services:
     arguments:
       - '@module_handler'
       - '@service_container'
+
+  ckeditor5_premium_features.storage_handler.editor:
+    class: Drupal\ckeditor5_premium_features\Storage\EditorStorageHandler
+    arguments:
+      - '@entity_type.manager'

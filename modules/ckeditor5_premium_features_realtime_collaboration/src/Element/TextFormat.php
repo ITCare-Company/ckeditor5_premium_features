@@ -8,6 +8,7 @@ use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
 use Drupal\ckeditor5_premium_features\Utility\ApiAdapter;
+use Drupal\ckeditor5_premium_features\Storage\EditorStorageHandlerInterface;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Ckeditor5ChannelHandlingException;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\Channel;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
@@ -52,14 +53,17 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   The settings service.
    * @param \Drupal\ckeditor5_premium_features\Utility\ApiAdapter $apiAdapter
    *   The api adapter.
+   * @param \Drupal\ckeditor5_premium_features\Storage\EditorStorageHandlerInterface $editorStorageHandler
+   *   The editor storage handler.
    *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws InvalidPluginDefinitionException
+   * @throws PluginNotFoundException
    */
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
     protected CollaborationSettings $collaborationSettings,
     protected ApiAdapter $apiAdapter,
+    protected EditorStorageHandlerInterface $editorStorageHandler,
   ) {
     $this->channelStorage = $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID);
   }
@@ -123,6 +127,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     }
 
     $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$element_drupal_id] = $channel_id;
+
+    $track_changes_states = $this->editorStorageHandler->getTrackChangesStates($element, TRUE);
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['tracking_changes']['default_state'] = $track_changes_states;
 
     return $element;
   }

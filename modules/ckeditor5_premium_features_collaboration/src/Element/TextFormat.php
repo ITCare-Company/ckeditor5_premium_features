@@ -18,7 +18,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
-use Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface;
+use Drupal\ckeditor5_premium_features\Storage\EditorStorageHandlerInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityInterface;
@@ -79,7 +79,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Storage\EditorStorageHandlerInterface $editorStorageHandler
+   * @param \Drupal\ckeditor5_premium_features\Storage\EditorStorageHandlerInterface $editorStorageHandler
    *   The editor storage handler.
    * @param \Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider $userDataProvider
    *   The user data storage.
@@ -134,7 +134,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       // any collaboration features enabled.
       return $element;
     }
-
     $this->generalProcessElement($element, $form_state, $complete_form, $this->collaborationSettings);
 
     $form_object = $form_state->getFormObject();
@@ -197,6 +196,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface[] $users_data */
     $users_data = array_merge($comments, $suggestions, $revisions);
     $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $this->userDataProvider->getFromEntities($users_data);
+
+    $track_changes_states = $this->editorStorageHandler->getTrackChangesStates($element);
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['tracking_changes']['default_state'] = $track_changes_states;
 
     return $element;
   }

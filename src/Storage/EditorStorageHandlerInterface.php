@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_collaboration\Storage;
+namespace Drupal\ckeditor5_premium_features\Storage;
 
 /**
  * Defines the interface for the handlers of the editor storage.

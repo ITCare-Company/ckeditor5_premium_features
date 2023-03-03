@@ -19,7 +19,7 @@ ckeditor5_premium_features_realtime_collaboration__comment:
     conditions:
       toolbarItem: comment
 
-ckeditor5_premium_features_realtime_collaboration__trackchanges:
+ckeditor5_premium_features_realtime_collaboration__track_changes:
   ckeditor5:
     plugins:
       - cloudServices.CloudServices
@@ -32,7 +32,7 @@ ckeditor5_premium_features_realtime_collaboration__trackchanges:
     label: Track Changes
     library: ckeditor5_premium_features_realtime_collaboration/realtime-track-changes
     admin_library: ckeditor5_premium_features_realtime_collaboration/admin.track-changes
-    class: Drupal\ckeditor5_premium_features_realtime_collaboration\Plugin\CKEditor5Plugin\Realtime
+    class: Drupal\ckeditor5_premium_features_realtime_collaboration\Plugin\CKEditor5Plugin\TrackChanges
     toolbar_items:
       trackChanges:
         label: Track Changes

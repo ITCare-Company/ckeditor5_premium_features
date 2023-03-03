@@ -28,13 +28,13 @@ ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration__comment:
       type: boolean
       label: 'Enabled'
 
-ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration__trackchanges:
+ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration__track_changes:
   type: mapping
   label: 'Realtime'
   mapping:
-    enabled:
+    is_turn_on:
       type: boolean
-      label: 'Enabled'
+      label: 'Turn on track changes'
 
 ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration__revision_history:
   type: mapping

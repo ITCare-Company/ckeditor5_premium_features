@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_collaboration\Storage;
+namespace Drupal\ckeditor5_premium_features\Storage;
 
 use Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\Collaboration;
 use Drupal\Core\Config\Entity\ConfigEntityStorageInterface;
@@ -109,6 +109,40 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
     }
 
     return $this->editorStorage->loadMultiple(array_keys($formats));
+  }
+
+  /**
+   * Returns an array of editors names with default states of track changes.
+   *
+   * @param array $element
+   *   The form element with the editor format defined.
+   * @param bool $rtc
+   *   Is RTC module.
+   *
+   * @return array
+   *   Array of track changes states.
+   */
+  public function getTrackChangesStates(array $element, bool $rtc = FALSE): array {
+    $editors = $this->getAllEditorsFromElement($element);
+    $states = [];
+    $module_name = 'ckeditor5_premium_features_collaboration';
+    if ($rtc) {
+      $module_name = 'ckeditor5_premium_features_realtime_collaboration';
+    }
+    $plugin_name = 'track_changes';
+
+    /**
+     * @var \Drupal\editor\Entity\Editor $editor
+     */
+    foreach ($editors as $editor) {
+      if (!$this->isCkeditor5($element)) {
+        continue;
+      }
+      $settings = $editor->getSettings();
+      $default_state = $settings['plugins'][$module_name . '__' . $plugin_name]['is_turn_on'] ?? FALSE;
+      $states[$editor->id()] = $default_state;
+    }
+    return $states;
   }
 
 }
