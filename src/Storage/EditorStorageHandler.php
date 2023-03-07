@@ -131,7 +131,7 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
         continue;
       }
       $settings = $editor->getSettings();
-      $default_state = $settings['plugins'][$module_name . '__' . $plugin_name]['is_turn_on'] ?? FALSE;
+      $default_state = $settings['plugins'][$module_name . '__' . $plugin_name]['default_state'] ?? FALSE;
       $states[$editor->id()] = $default_state;
     }
     return $states;

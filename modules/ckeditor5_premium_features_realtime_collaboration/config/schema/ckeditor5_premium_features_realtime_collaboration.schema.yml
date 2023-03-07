@@ -32,9 +32,9 @@ ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration__track_change
   type: mapping
   label: 'Realtime'
   mapping:
-    is_turn_on:
+    default_state:
       type: boolean
-      label: 'Turn on track changes'
+      label: 'Enable on editor init'
 
 ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration__revision_history:
   type: mapping

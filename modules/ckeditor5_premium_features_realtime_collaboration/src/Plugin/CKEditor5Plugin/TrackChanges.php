@@ -21,7 +21,7 @@ class TrackChanges extends Realtime {
   public function defaultConfiguration(): array {
 
     return [
-      'is_turn_on' => FALSE,
+      'default_state' => FALSE,
     ];
   }
 
@@ -36,11 +36,11 @@ class TrackChanges extends Realtime {
       ['#markup' => '<p>' . $note . '</p>'],
     ];
 
-    $form['is_turn_on'] = [
+    $form['default_state'] = [
       '#type' => 'checkbox',
-      '#title' => t('Turn on track changes'),
-      '#default_value' => $this->configuration['is_turn_on'] ?? FALSE,
-      '#description' => t('If checked, track changes will be turned on after editor initialization.'),
+      '#title' => t('Enable on editor init'),
+      '#default_value' => $this->configuration['default_state'] ?? FALSE,
+      '#description' => t('If checked, track changes will be active by default after editor is initialized.'),
     ];
     return $form;
   }
@@ -50,8 +50,8 @@ class TrackChanges extends Realtime {
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $formValues = $form_state->getValues();
-    $isTurnedOn = $formValues['is_turn_on'] ?? FALSE;
-    $this->configuration['is_turn_on'] = (bool) $isTurnedOn;
+    $isTurnedOn = $formValues['default_state'] ?? FALSE;
+    $this->configuration['default_state'] = (bool) $isTurnedOn;
   }
 
 }
