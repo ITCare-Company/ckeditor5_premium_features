@@ -57,11 +57,13 @@ class UserAdapter {
     toolbarItems.map(item => {
       if (item.label === 'Source') {
         item.set('isEnabled', false);
+        item.set('isVisible', false);
       }
       if (typeof item.buttonView !== "undefined") {
         if (item.buttonView.label === 'Track changes' ) {
           item.buttonView.actionView.set('isEnabled', false);
           item.buttonView.arrowView.set('isEnabled', false);
+          item.buttonView.arrowView.set('isVisible', false);
         }
         if (item.buttonView.label === 'Revision history') {
           item.set('isEnabled', false);
