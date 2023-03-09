@@ -1,0 +1,15 @@
+collaboration admin:
+  title: 'Collaboration admin'
+  description: 'Permission to accept or reject suggestions and deleting all comments.'
+
+collaboration editor:
+  title: 'Collaboration editor'
+  description: 'Permission to editing content and adding suggestions and comments.'
+
+collaboration comments only:
+  title: 'Comments only permission'
+  description: 'Users can add only comments in the editor'
+
+collaboration suggestions only:
+  title: 'Suggestions only permission'
+  description: 'Users can add only suggestion in the editor'

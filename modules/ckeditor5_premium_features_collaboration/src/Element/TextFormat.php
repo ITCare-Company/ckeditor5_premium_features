@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
+use Drupal\ckeditor5_premium_features\Diff\DocumentDiffHelper;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
@@ -100,7 +101,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     protected CollaborationSettings $collaborationSettings,
     protected EventDispatcherInterface $eventDispatcher,
     protected AccountInterface $currentUser,
-    protected StateInterface $state
+    protected StateInterface $state,
+    protected DocumentDiffHelper $documentDiffHelper
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
     $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
@@ -198,6 +200,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $users_data = array_merge($comments, $suggestions, $revisions);
     $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $this->userDataProvider->getFromEntities($users_data);
 
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['current_user']['editor_permission'] = $this->userDataProvider->getCollaborationPermission($this->currentUser);
+
     return $element;
   }
 
@@ -213,8 +217,47 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $storage = $form_state->getStorage();
 
     if (!empty($storage[static::STORAGE_KEY_COLLABORATION])) {
-      self::addSubmitCallback($form);
+      self::addCallback('onCompleteFormSubmit', [['#submit']], $form);
     }
+  }
+
+  /**
+   * Process the text_format form element.
+   *
+   * @param array $element
+   *   The form element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The state of the form.
+   * @param array $complete_form
+   *   The form structure.
+   *
+   * @return array
+   *   The element data.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array {
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat $service */
+    $service = \Drupal::service('ckeditor5_premium_features_collaboration.element.text_format');
+    return $service->processElement($element, $form_state, $complete_form);
+  }
+
+  /**
+   * The complete form submit callback.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The state of the form.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public static function onCompleteFormSubmit(array &$form, FormStateInterface $form_state): void {
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat $service */
+    $service = \Drupal::service('ckeditor5_premium_features_collaboration.element.text_format');
+    $service->completeFormSubmit($form, $form_state);
   }
 
   /**
@@ -234,7 +277,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       // Do not process anything, the entity is missing.
       return;
     }
-
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
 
     $order_switch = $this->detectOrderChange($form_state, $items);
@@ -281,7 +323,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
           $storage->setSuggestionIds($suggestion_ids);
         }
         if ($storage instanceof CollaborationContentFilteringStorageInterface
-            && $filter_format instanceof FilterFormatInterface) {
+          && $filter_format instanceof FilterFormatInterface) {
           $storage->setSourceFilterFormat($filter_format);
         }
 
@@ -296,42 +338,36 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   }
 
   /**
-   * Process the text_format form element.
-   *
-   * @param array $element
-   *   The form element.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The state of the form.
-   * @param array $complete_form
-   *   The form structure.
-   *
-   * @return array
-   *   The element data.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * {@inheritdoc}
    */
-  public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array {
+  public static function onValidateForm(array &$form, FormStateInterface $form_state): void {
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat $service */
     $service = \Drupal::service('ckeditor5_premium_features_collaboration.element.text_format');
-    return $service->processElement($element, $form_state, $complete_form);
+    $service->validateForm($form, $form_state);
   }
 
   /**
-   * The complete form submit callback.
-   *
-   * @param array $form
-   *   The form structure.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The state of the form.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * {@inheritdoc}
    */
-  public static function onCompleteFormSubmit(array &$form, FormStateInterface $form_state): void {
-    /** @var \Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat $service */
-    $service = \Drupal::service('ckeditor5_premium_features_collaboration.element.text_format');
-    $service->completeFormSubmit($form, $form_state);
+  public function validateForm(array &$form, FormStateInterface $form_state):void {
+    $form_object = $form_state->getFormObject();
+    if (!$this->isFormTypeSupported($form_object)) {
+      // Do not process anything, the entity is missing.
+      return;
+    }
+    $items = $form_state->get(static::STORAGE_KEY) ?? [];
+
+    foreach ($items as $item_parents) {
+      $source_original_data = $this->getFormElementOriginalValue($form, $item_parents);
+
+      if ($source_original_data) {
+        $source_new_data = $form_state->getValue([...$item_parents, 'value']) ?? '';
+        if ($this->documentDiffHelper->isRawDocumentChanged($source_original_data, $source_new_data)
+          && !$this->userDataProvider->isPermittedToEditDocument($this->currentUser)) {
+          $form_state->setError($form, "You don't have a permission to edit the document");
+        }
+      }
+    }
   }
 
   /**

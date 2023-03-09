@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ckeditor5_premium_features_notifications\Diff;
+namespace Drupal\ckeditor5_premium_features\Diff;
 
 /**
  * Interface for Ckeditor5 Diff class.

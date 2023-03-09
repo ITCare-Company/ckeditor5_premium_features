@@ -9,6 +9,7 @@ services:
       - '@event_dispatcher'
       - '@current_user'
       - '@state'
+      - '@ckeditor5_premium_features.document_diff_helper'
 
   ckeditor5_premium_features_collaboration.data_provider.users:
     class: Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider

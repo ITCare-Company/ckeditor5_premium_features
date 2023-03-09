@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ckeditor5_premium_features_notifications\Diff;
+namespace Drupal\ckeditor5_premium_features\Diff;
 
 use Caxy\HtmlDiff\HtmlDiff;
 use Drupal\ckeditor5_premium_features\Utility\Html;

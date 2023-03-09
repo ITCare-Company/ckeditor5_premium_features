@@ -30,6 +30,16 @@ interface Ckeditor5TextFormatInterface {
   public static function onCompleteFormSubmit(array &$form, FormStateInterface $form_state): void;
 
   /**
+   * The validation form callback.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The state of the form.
+   */
+  public static function onValidateForm(array &$form, FormStateInterface $form_state): void;
+
+  /**
    * Process the text_format form element.
    *
    * @param array $element
@@ -77,5 +87,18 @@ interface Ckeditor5TextFormatInterface {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function completeFormSubmit(array &$form, FormStateInterface $form_state): void;
+
+  /**
+   * The form validation submit.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The state of the form.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state):void;
 
 }

@@ -6,7 +6,7 @@ use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
 use Drupal\ckeditor5_premium_features\Plugin\Filter\FilterCollaboration;
 use Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator;
 use Drupal\ckeditor5_premium_features_mentions\Utility\MentionsHelper;
-use Drupal\ckeditor5_premium_features_notifications\Diff\Ckeditor5DiffInterface;
+use Drupal\ckeditor5_premium_features\Diff\Ckeditor5DiffInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
@@ -47,7 +47,7 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
    *   Collaborators service.
    * @param \Drupal\Core\Session\AccountInterface $currentUser
    *   Current user.
-   * @param \Drupal\ckeditor5_premium_features_notifications\Diff\Ckeditor5DiffInterface $ckeditor5Diff
+   * @param \Drupal\ckeditor5_premium_features\Diff\Ckeditor5DiffInterface $ckeditor5Diff
    *   Ckeditor5 diff service.
    * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings $notificationSettings
    *   Notifications settings helper.

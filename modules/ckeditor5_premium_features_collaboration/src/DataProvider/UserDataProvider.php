@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\DataProvider;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\file\Entity\File;
 use Drupal\image\ImageStyleStorageInterface;
@@ -12,9 +13,9 @@ use Drupal\user\UserInterface;
 use Drupal\user\UserStorageInterface;
 
 /**
- * Provides the user data for the editor featuers.
+ * Provides the user data for the editor features.
  */
-class UserDataProvider {
+class UserDataProvider implements UserCollaborationPermissionsInterface {
 
   /**
    * The image style storage.
@@ -50,10 +51,7 @@ class UserDataProvider {
   }
 
   /**
-   * Creates the data provider instance from the given entities.
-   *
-   * @param array|\Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface[] $entities
-   *   The entities related to the user.
+   * {@inheritDoc}
    */
   public function getFromEntities(array $entities): array {
     $users = [];
@@ -144,6 +142,44 @@ class UserDataProvider {
     }
 
     return $picture;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getCollaborationPermission(AccountInterface $user):string {
+    if ($user->hasPermission(
+      UserCollaborationPermissionsInterface::COLLABORATION_PERMISSION_ADMIN)) {
+      return UserCollaborationPermissionsInterface::CKE5_PERMISSION_ADMIN;
+    }
+
+    if ($user->hasPermission(
+      UserCollaborationPermissionsInterface::COLLABORATION_PERMISSION_EDITOR)) {
+      return UserCollaborationPermissionsInterface::CKE5_PERMISSION_EDIT;
+    }
+
+    if ($user->hasPermission(
+      UserCollaborationPermissionsInterface::COLLABORATION_PERMISSION_SUGGESTIONS_ONLY)) {
+      return UserCollaborationPermissionsInterface::CKE5_PERMISSION_SUGGESTIONS_ONLY;
+    }
+
+    if ($user->hasPermission(
+      UserCollaborationPermissionsInterface::COLLABORATION_PERMISSION_COMMENTS_ONLY)) {
+      return UserCollaborationPermissionsInterface::CKE5_PERMISSION_COMMENTS_ONLY;
+    }
+
+    return UserCollaborationPermissionsInterface::CKE5_PERMISSION_READ_ONLY;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function isPermittedToEditDocument(AccountInterface $user): bool {
+    if ($user->hasPermission(UserCollaborationPermissionsInterface::COLLABORATION_PERMISSION_ADMIN) ||
+      $user->hasPermission(UserCollaborationPermissionsInterface::COLLABORATION_PERMISSION_EDITOR)) {
+      return TRUE;
+    }
+    return FALSE;
   }
 
 }

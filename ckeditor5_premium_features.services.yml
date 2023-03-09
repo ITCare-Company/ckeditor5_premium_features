@@ -45,3 +45,19 @@ services:
     arguments:
       - '@module_handler'
       - '@service_container'
+
+  ckeditor5_premium_features.context_helper:
+    class: Drupal\ckeditor5_premium_features\Utility\ContextHelper
+    arguments:
+      - '@ckeditor5_premium_features.html_helper'
+
+  ckeditor5_premium_features.diff:
+    class: Drupal\ckeditor5_premium_features\Diff\Ckeditor5Diff
+    arguments:
+      - '@ckeditor5_premium_features.context_helper'
+
+  ckeditor5_premium_features.document_diff_helper:
+    class: Drupal\ckeditor5_premium_features\Diff\DocumentDiffHelper
+    arguments:
+      - '@ckeditor5_premium_features.diff'
+      - '@plugin.manager.filter'

@@ -60,7 +60,9 @@ trait Ckeditor5TextFormatTrait {
 
       // We need to attach the submit just in case the entity was created
       // before the rtc module was enabled.
-      self::addSubmitCallback($completeForm);
+      self::addCallback('onCompleteFormSubmit', [['#submit']], $completeForm);
+
+      self::addCallback('onValidateForm', [['#validate']], $completeForm);
     }
     else {
       // We still need to process in order to stop our integration from
@@ -100,30 +102,30 @@ trait Ckeditor5TextFormatTrait {
   }
 
   /**
-   * Adds the submit callback to the form.
+   * Adds the callback to the form.
    *
+   * @param string $callbackName
+   *   Callback function name.
+   * @param array $callbackKeys
+   *   Callback keys.
    * @param array $form
    *   The form structure.
    * @param int $nestingCounter
    *   Nesting counter.
    */
-  private static function addSubmitCallback(array &$form, int $nestingCounter = 0): void {
-    $submitCallback = [static::class, 'onCompleteFormSubmit'];
-    $keys = [
-      ['#submit'],
-    ];
-
-    foreach ($keys as $key) {
+  private static function addCallback(string $callbackName, array $callbackKeys, array &$form, int $nestingCounter = 0): void {
+    $callback = [static::class, $callbackName];
+    foreach ($callbackKeys as $key) {
       if (NestedArray::keyExists($form, $key)) {
         $callbacks = NestedArray::getValue($form, $key) ?? [];
 
         // Let's make sure that callback is set only once.
         foreach ($callbacks as $test_callback) {
-          if (is_array($test_callback) && in_array('onCompleteFormSubmit', $test_callback)) {
+          if (is_array($test_callback) && in_array($callbackName, $test_callback)) {
             return;
           }
         }
-        $callbacks[] = $submitCallback;
+        $callbacks[] = $callback;
         NestedArray::setValue($form, $key, $callbacks);
       }
     }
@@ -142,9 +144,8 @@ trait Ckeditor5TextFormatTrait {
         continue;
       }
 
-      self::addSubmitCallback($element, $nestingCounter + 1);
+      self::addCallback($callbackName, $callbackKeys, $element, $nestingCounter + 1);
     }
-
   }
 
   /**
