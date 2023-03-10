@@ -42,12 +42,15 @@ class UserAdapter {
       this.editor.enableReadOnlyMode(this.editor.id);
     } else {
       permissionsPlugin.setPermissions(permissions);
-
       if (userEditorPermission === 'suggestions_only' || userEditorPermission === 'comments_only') {
-        this.disableToolbarItems();
         if (userEditorPermission === 'suggestions_only') {
           this.editor.execute('trackChanges');
+          this.editor.commands.get('acceptSuggestion').forceDisabled('suggestionOnly');
+          this.editor.commands.get('acceptAllSuggestions').forceDisabled('suggestionOnly');
+          this.editor.commands.get('discardAllSuggestions').forceDisabled('suggestionOnly');
+          this.editor.commands.get('discardSuggestion').forceDisabled('suggestionOnly');
         }
+        this.disableToolbarItems();
       }
     }
   }
