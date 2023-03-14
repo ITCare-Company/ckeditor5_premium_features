@@ -7,6 +7,7 @@
 
 declare(strict_types = 1);
 
+use Drupal\ckeditor5\Plugin\CKEditor5PluginDefinition;
 use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
@@ -71,4 +72,40 @@ function ckeditor5_premium_features_editor_xss_filter_alter(
   FilterFormatInterface $format,
   FilterFormatInterface $original_format = NULL) {
   $editor_xss_filter_class = CollaborationXSSFilter::class;
+}
+
+/**
+ * Implements hook_library_info_alter().
+ */
+function ckeditor5_premium_features_library_info_alter(&$libraries, $extension) {
+  // We don't need disableGhsTableIntegration.js for ckeditor5 >35.4.0 which
+  // was introduced in Drupal 10.0.0
+  if ($extension == 'ckeditor5_premium_features') {
+    if (version_compare(\Drupal::VERSION, '10.0.0') >= 0) {
+      unset($libraries["collaboration-integration-base"]["js"]["js/build/disableGhsTableIntegration.js"]);
+    }
+  }
+}
+
+/**
+ * Implements hook_ckeditor5_plugin_info_alter().
+ */
+function ckeditor5_premium_features_ckeditor5_plugin_info_alter(array &$plugin_definitions) {
+  // In order to safely remove disableGhsTableIntegration.js we have to alter
+  // CKEditor5 plugin that wa using this file.
+  if (version_compare(\Drupal::VERSION, '10.0.0') >= 0) {
+    $definition = $plugin_definitions["ckeditor5_premium_features__collaboration_integration_base"];
+    $definition_array = $definition->toArray();
+
+    $key = array_search(
+      'disableGhsTableIntegration.DisableGhsTableIntegration',
+      $definition_array["ckeditor5"]["plugins"]
+    );
+
+    if (is_numeric($key)) {
+      unset($definition_array["ckeditor5"]["plugins"][$key]);
+      $new_definition = new CKEditor5PluginDefinition($definition_array);
+      $plugin_definitions["ckeditor5_premium_features__collaboration_integration_base"] = $new_definition;
+    }
+  }
 }
