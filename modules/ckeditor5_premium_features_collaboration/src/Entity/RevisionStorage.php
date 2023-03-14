@@ -71,11 +71,13 @@ class RevisionStorage extends SqlContentEntityStorage implements
       return $compare_result;
     });
 
+    $initLoaded = FALSE;
     foreach ($entities as $entity) {
-      $entityId = $entity->getId();
-      $langId = $this->languageManager->getCurrentLanguage()->getId();
-      if (str_starts_with($entityId, 'initial_') && !str_ends_with('_' . $langId, $entityId)) {
-        continue;
+      if (str_starts_with($entity->getId(), 'initial_')) {
+        if ($initLoaded) {
+          continue;
+        }
+        $initLoaded = TRUE;
       }
 
       /** @var \Drupal\Core\Entity\EntityInterface $entity */
