@@ -72,6 +72,12 @@ class RevisionStorage extends SqlContentEntityStorage implements
     });
 
     foreach ($entities as $entity) {
+      $entityId = $entity->getId();
+      $langId = $this->languageManager->getCurrentLanguage()->getId();
+      if (str_starts_with($entityId, 'initial_') && !str_ends_with('_' . $langId, $entityId)) {
+        continue;
+      }
+
       /** @var \Drupal\Core\Entity\EntityInterface $entity */
       $serialized[] = $entity->toArray();
     }
