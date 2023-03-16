@@ -149,34 +149,34 @@ class UserDataProvider implements UserCollaborationPermissionsInterface {
    */
   public function getCollaborationPermission(AccountInterface $user):string {
     if ($user->hasPermission(
-      UserCollaborationPermissionsInterface::COLLABORATION_PERMISSION_ADMIN)) {
-      return UserCollaborationPermissionsInterface::CKE5_PERMISSION_ADMIN;
+      self::COLLABORATION_PERMISSION_ADMIN)) {
+      return self::CKE5_PERMISSION_ADMIN;
     }
 
     if ($user->hasPermission(
-      UserCollaborationPermissionsInterface::COLLABORATION_PERMISSION_EDITOR)) {
-      return UserCollaborationPermissionsInterface::CKE5_PERMISSION_EDIT;
+      self::COLLABORATION_PERMISSION_EDITOR)) {
+      return self::CKE5_PERMISSION_EDIT;
     }
 
     if ($user->hasPermission(
-      UserCollaborationPermissionsInterface::COLLABORATION_PERMISSION_SUGGESTIONS_ONLY)) {
-      return UserCollaborationPermissionsInterface::CKE5_PERMISSION_SUGGESTIONS_ONLY;
+      self::COLLABORATION_PERMISSION_SUGGESTIONS_ONLY)) {
+      return self::CKE5_PERMISSION_SUGGESTIONS_ONLY;
     }
 
     if ($user->hasPermission(
-      UserCollaborationPermissionsInterface::COLLABORATION_PERMISSION_COMMENTS_ONLY)) {
-      return UserCollaborationPermissionsInterface::CKE5_PERMISSION_COMMENTS_ONLY;
+      self::COLLABORATION_PERMISSION_COMMENTS_ONLY)) {
+      return self::CKE5_PERMISSION_COMMENTS_ONLY;
     }
 
-    return UserCollaborationPermissionsInterface::CKE5_PERMISSION_READ_ONLY;
+    return self::CKE5_PERMISSION_READ_ONLY;
   }
 
   /**
    * {@inheritDoc}
    */
   public function isPermittedToEditDocument(AccountInterface $user): bool {
-    if ($user->hasPermission(UserCollaborationPermissionsInterface::COLLABORATION_PERMISSION_ADMIN) ||
-      $user->hasPermission(UserCollaborationPermissionsInterface::COLLABORATION_PERMISSION_EDITOR)) {
+    if ($user->hasPermission(self::COLLABORATION_PERMISSION_ADMIN) ||
+      $user->hasPermission(self::COLLABORATION_PERMISSION_EDITOR)) {
       return TRUE;
     }
     return FALSE;

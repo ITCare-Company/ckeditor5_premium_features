@@ -28,6 +28,7 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\filter\FilterFormatInterface;
 use Drupal\user\Entity\User;
@@ -39,6 +40,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class TextFormat implements Ckeditor5TextFormatInterface {
 
   use Ckeditor5TextFormatTrait;
+  use StringTranslationTrait;
 
   /**
    * The suggestion storage.
@@ -364,7 +366,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         $source_new_data = $form_state->getValue([...$item_parents, 'value']) ?? '';
         if ($this->documentDiffHelper->isRawDocumentChanged($source_original_data, $source_new_data)
           && !$this->userDataProvider->isPermittedToEditDocument($this->currentUser)) {
-          $form_state->setError($form, "You don't have a permission to edit the document");
+          $form_state->setError($form, $this->t("You don't have a permission to edit the document"));
         }
       }
     }
