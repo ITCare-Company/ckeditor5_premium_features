@@ -35,23 +35,33 @@ class UserAdapter {
       'comments_only': ['comment:write'],
       'ready_only': [],
     };
+
+    let textFormat = this.editor.sourceElement.getAttribute('data-editor-active-text-format');
     let permissionsPlugin = this.editor.plugins.get('Permissions');
-    let userEditorPermission = drupalSettings.ckeditor5Premium.current_user.editor_permission;
+    let userEditorPermission = drupalSettings.ckeditor5Premium.current_user.editor_permission[textFormat];
     let permissions = availablePermissions[userEditorPermission];
+    const isTrackChangesEnabled = this.editor.plugins.has('TrackChanges');
+
     if (typeof permissions === 'undefined' || permissions === null) {
       this.editor.enableReadOnlyMode(this.editor.id);
     } else {
       permissionsPlugin.setPermissions(permissions);
-      if (userEditorPermission === 'suggestions_only' || userEditorPermission === 'comments_only') {
-        if (userEditorPermission === 'suggestions_only') {
+      if (userEditorPermission === 'comments_only') {
+        this.disableToolbarItems();
+      }
+      if (userEditorPermission === 'suggestions_only') {
+        if (isTrackChangesEnabled) {
           this.editor.execute('trackChanges');
           this.editor.commands.get('acceptSuggestion').forceDisabled('suggestionOnly');
           this.editor.commands.get('acceptAllSuggestions').forceDisabled('suggestionOnly');
           this.editor.commands.get('discardAllSuggestions').forceDisabled('suggestionOnly');
           this.editor.commands.get('discardSuggestion').forceDisabled('suggestionOnly');
+          this.disableToolbarItems();
+        } else {
+          this.editor.enableReadOnlyMode(this.editor.id);
         }
-        this.disableToolbarItems();
       }
+
     }
   }
 

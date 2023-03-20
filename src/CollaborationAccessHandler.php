@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 
 /**
@@ -12,6 +13,15 @@ use Drupal\Core\Session\AccountInterface;
  * @see \Drupal\filter\Entity\FilterFormat
  */
 class CollaborationAccessHandler {
+
+  /**
+   * Constructs a new CollaborationAccessHandler instance.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   */
+  public function __construct(protected EntityTypeManagerInterface $entityTypeManager) {
+  }
 
   /**
    * Checks if the user has permission to edit the document.
@@ -34,7 +44,7 @@ class CollaborationAccessHandler {
   }
 
   /**
-   * Returns a collaboration permission name for the current user.
+   * Returns a collaboration permission name for a given user and filter format.
    *
    * @param \Drupal\Core\Session\AccountInterface $user
    *   Current user.
@@ -67,6 +77,25 @@ class CollaborationAccessHandler {
     }
 
     return CollaborationPermissions::READ_ONLY;
+  }
+
+  /**
+   * Returns array with text formats and permissions for the user.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $user
+   *   Current user.
+   *
+   * @return array
+   *   Permissions for the all text formats.
+   */
+  public function getUserPermissionsForTextFormats(AccountInterface $user): array {
+    $formats = $this->entityTypeManager->getStorage('filter_format')->loadByProperties(['status' => TRUE]);
+    $permissions = [];
+    foreach ($formats as $format) {
+      $formatId = $format->id();
+      $permissions[$formatId] = $this->getCollaborationPermission($user, $formatId);
+    }
+    return $permissions;
   }
 
   /**

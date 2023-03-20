@@ -204,7 +204,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $this->userDataProvider->getFromEntities($users_data);
 
     $element['#attached']['drupalSettings']['ckeditor5Premium']['current_user']['editor_permission'] =
-      $this->collaborationAccessHandler->getCollaborationPermission($this->currentUser, $element['#format']);
+      $this->collaborationAccessHandler->getUserPermissionsForTextFormats($this->currentUser);
 
     return $element;
   }
