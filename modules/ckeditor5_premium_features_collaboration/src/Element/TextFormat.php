@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
+use Drupal\ckeditor5_premium_features\CollaborationAccessHandler;
 use Drupal\ckeditor5_premium_features\Diff\DocumentDiffHelper;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
@@ -104,7 +105,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     protected EventDispatcherInterface $eventDispatcher,
     protected AccountInterface $currentUser,
     protected StateInterface $state,
-    protected DocumentDiffHelper $documentDiffHelper
+    protected DocumentDiffHelper $documentDiffHelper,
+    protected CollaborationAccessHandler $collaborationAccessHandler
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
     $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
@@ -140,7 +142,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     }
 
     $this->generalProcessElement($element, $form_state, $complete_form, $this->collaborationSettings);
-
     $form_object = $form_state->getFormObject();
     $entity = NULL;
 
@@ -202,7 +203,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $users_data = array_merge($comments, $suggestions, $revisions);
     $element['#attached']['drupalSettings']['ckeditor5Premium']['users'] = $this->userDataProvider->getFromEntities($users_data);
 
-    $element['#attached']['drupalSettings']['ckeditor5Premium']['current_user']['editor_permission'] = $this->userDataProvider->getCollaborationPermission($this->currentUser);
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['current_user']['editor_permission'] =
+      $this->collaborationAccessHandler->getCollaborationPermission($this->currentUser, $element['#format']);
 
     return $element;
   }
@@ -364,8 +366,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
       if ($source_original_data) {
         $source_new_data = $form_state->getValue([...$item_parents, 'value']) ?? '';
+        $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
         if ($this->documentDiffHelper->isRawDocumentChanged($source_original_data, $source_new_data)
-          && !$this->userDataProvider->isPermittedToEditDocument($this->currentUser)) {
+          && !$this->collaborationAccessHandler->isPermittedToEditDocument($this->currentUser, $fieldFormat)) {
           $form_state->setError($form, $this->t("You don't have a permission to edit the document"));
         }
       }

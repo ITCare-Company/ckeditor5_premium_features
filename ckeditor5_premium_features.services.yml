@@ -61,3 +61,6 @@ services:
     arguments:
       - '@ckeditor5_premium_features.diff'
       - '@plugin.manager.filter'
+      -
+  ckeditor5_premium_features.access_handler:
+    class: Drupal\ckeditor5_premium_features\CollaborationAccessHandler
