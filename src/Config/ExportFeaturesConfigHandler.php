@@ -6,6 +6,7 @@ namespace Drupal\ckeditor5_premium_features\Config;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\Url;
 
 /**
  * Provides handler for the export features settings configuration.
@@ -52,6 +53,20 @@ class ExportFeaturesConfigHandler implements ExportFeaturesConfigHandlerInterfac
    */
   public function hasConverterUrl(): bool {
     return (bool) $this->getConverterUrl();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEnvironmentId(): ?string {
+    return $this->config->get('env');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAccessKey(): ?string {
+    return $this->config->get('access_key');
   }
 
   /**

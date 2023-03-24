@@ -46,6 +46,22 @@ class SettingsForm extends BaseExportSettingsForm {
       '#default_value' => $config->get('converter_url'),
     ];
 
+    $form['env'] = [
+      '#type' => 'textfield',
+      '#title' => t('Environment ID'),
+      '#required' => FALSE,
+      '#description' =>  t('Leave this field empty unless you are using the on-premises version of Export to PDF.'),
+      '#default_value' => $config->get('env'),
+    ];
+
+    $form['access_key'] = [
+      '#type' => 'textfield',
+      '#title' => t('Access key'),
+      '#required' => FALSE,
+      '#description' => t('Leave this field empty unless you are using the on-premises version of Export to PDF.'),
+      '#default_value' => $config->get('access_key'),
+    ];
+
     $options_key = 'converter_options';
     $form[$options_key] = [
       '#type' => 'details',

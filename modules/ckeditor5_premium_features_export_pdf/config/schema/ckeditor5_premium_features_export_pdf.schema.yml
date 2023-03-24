@@ -6,6 +6,12 @@ ckeditor5.plugin.ckeditor5_premium_features_export_pdf__export_pdf:
     converter_url:
       type: string
       label: 'Converter URL'
+    env:
+      type: string
+      label: 'Environment ID'
+    access_key:
+      type: string
+      label: 'Access key'
     override_global:
       type: integer
       label: 'Override global settings'

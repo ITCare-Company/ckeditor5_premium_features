@@ -6,3 +6,13 @@ ckeditor5_premium_features_export_pdf.form.settings:
   requirements:
     # TODO: It may be more granullar - TBD if there is a need for dedicated permission.
     _permission: 'administer site configuration'
+
+ckeditor5_premium_features_export_pdf.endpoint.jwt_token:
+  path: '/ckeditor5-premium-features/token/export-pdf'
+  defaults:
+    _controller: '\Drupal\ckeditor5_premium_features_export_pdf\Controller\EndpointController::jwtToken'
+  requirements:
+    # TODO: To be verified if any permission will be required for this.
+    _access: 'TRUE'
+  options:
+    no_cache: 'TRUE'

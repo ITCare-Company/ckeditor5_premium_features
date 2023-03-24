@@ -26,6 +26,22 @@ interface ExportFeaturesConfigHandlerInterface {
   public function hasConverterUrl(): bool;
 
   /**
+   * Gets the environment id if defined.
+   *
+   * @return string|null
+   *   The environment id, defaults to null.
+   */
+  public function getEnvironmentId(): ?string;
+
+  /**
+   * Gets the Access key if defined.
+   *
+   * @return string|null
+   *   The access key, defaults to null.
+   */
+  public function getAccessKey(): ?string;
+
+  /**
    * Gets the converter options.
    *
    * It is filtering the empty values
