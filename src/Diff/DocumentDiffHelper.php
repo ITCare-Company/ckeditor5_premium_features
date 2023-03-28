@@ -50,7 +50,8 @@ class DocumentDiffHelper {
     $originalNewDataWithoutCollaborationTags = $this->filterCollaboration->process($newData, NULL)->getProcessedText();
     if (!empty($originalDataWithoutCollaborationTags)) {
       // Check if a raw document without the collaboration tags is changed.
-      if ($this->ckeditor5Diff->getDiff($originalDataWithoutCollaborationTags, $originalNewDataWithoutCollaborationTags)) {
+      $this->ckeditor5Diff->getDiff($originalDataWithoutCollaborationTags, $originalNewDataWithoutCollaborationTags);
+      if ($this->ckeditor5Diff->getDiffContext()) {
         return TRUE;
       }
     }
