@@ -5,7 +5,7 @@ services:
       - '@config.factory'
 
   ckeditor5_premium_features_export_pdf.token_generator:
-    class: Drupal\ckeditor5_premium_features_export_pdf\Generator\TokenGenerator
+    class: Drupal\ckeditor5_premium_features\Generator\ExportTokenGenerator
     arguments:
       - '@current_user'
       - '@ckeditor5_premium_features_export_pdf.config_handler.export_settings'

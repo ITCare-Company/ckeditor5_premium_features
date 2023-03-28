@@ -1,13 +1,16 @@
 <?php
 
-namespace Drupal\ckeditor5_premium_features_export_pdf\Generator;
+namespace Drupal\ckeditor5_premium_features\Generator;
 
 use Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandlerInterface;
-use Drupal\ckeditor5_premium_features\Generator\TokenGeneratorInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Firebase\JWT\JWT;
 
-class TokenGenerator implements TokenGeneratorInterface {
+/**
+ * Provides the JWT Token generator service.
+ */
+
+class ExportTokenGenerator implements TokenGeneratorInterface {
 
   public const ALGORITHM = 'HS512';
 
@@ -41,13 +44,6 @@ class TokenGenerator implements TokenGeneratorInterface {
       'user' => [
         'email' => $this->account->getEmail(),
         'name' => $this->account->getAccountName(),
-      ],
-      'auth' => [
-        'collaboration' => [
-          '*' => [
-            'role' => 'writer',
-          ],
-        ],
       ],
     ];
     if (empty($payload['user']['email'])) {

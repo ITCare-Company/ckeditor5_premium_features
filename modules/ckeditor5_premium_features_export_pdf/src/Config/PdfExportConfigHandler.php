@@ -6,6 +6,10 @@ use Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandler;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Url;
 
+/**
+ * Provides the utility service for handling the stored settings configuration.
+ */
+
 class PdfExportConfigHandler extends ExportFeaturesConfigHandler {
 
   /**

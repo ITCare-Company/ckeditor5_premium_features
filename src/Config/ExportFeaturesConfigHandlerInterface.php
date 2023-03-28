@@ -52,4 +52,12 @@ interface ExportFeaturesConfigHandlerInterface {
    */
   public function getConverterOptions(): array;
 
+  /**
+   * Gets the token URL based on the configuration values.
+   *
+   * @return string
+   *   The token URL.
+   */
+  public function getTokenUrl(): string;
+
 }

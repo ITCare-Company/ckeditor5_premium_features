@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_export_pdf\Controller;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\ckeditor5_premium_features\Controller\EndpointController as MainEndpointController;
 
 /**
  * Provides the controller for endpoints required by the pdf export feature.
  */
-class EndpointController extends \Drupal\ckeditor5_premium_features\Controller\EndpointController {
+class EndpointController extends MainEndpointController {
 
   /**
    * {@inheritdoc}
