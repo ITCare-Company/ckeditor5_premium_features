@@ -28,7 +28,7 @@ class ExportWord extends ExportBase {
       $config['settings_form'],
       $config['file_extension'],
       $container->get('config.factory'),
-      $container->get('ckeditor5_premium_features_export_word.config_handler.export_settings')->setConfig($config['configuration']),
+      $container->get('ckeditor5_premium_features_export_word.config_handler.export_settings'),
       $container->get('ckeditor5_premium_features.file_name_generator'),
       $container->get('ckeditor5_premium_features.css_style_provider'),
       $container->get('file_system'),
