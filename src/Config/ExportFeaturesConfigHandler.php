@@ -78,7 +78,7 @@ class ExportFeaturesConfigHandler implements ExportFeaturesConfigHandlerInterfac
   }
 
   /**
-   * {inheritdoc}
+   * {@inheritdoc}
    */
   public function getTokenUrl(): string {
     return '';

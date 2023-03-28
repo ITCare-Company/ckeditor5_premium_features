@@ -19,9 +19,13 @@ class WordExportConfigHandler extends ExportFeaturesConfigHandler {
    *   The config factory service.
    */
   public function __construct(protected ConfigFactoryInterface $configFactory) {
+    parent::__construct($configFactory);
     $this->config = $this->configFactory->get('ckeditor5_premium_features_export_word.settings');
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getTokenUrl(): string {
     if ($this->getAccessKey() && $this->getEnvironmentId()) {
       return Url::fromRoute('ckeditor5_premium_features_export_word.endpoint.jwt_token')
