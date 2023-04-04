@@ -280,7 +280,30 @@ class HtmlHelper {
   }
 
   /**
+   * Replaces the collaboration attributes with tags in the html string.
    *
+   * @param string $input
+   *   The HTML string.
+   * @return string
+   *   The HTML string with collaboration attributes replaced by collaboration tags.
+   */
+  public function convertCollaborationAttributesInString(string $input): string {
+    $document = Html::load($input);
+    $xpath = new \DOMXPath($document);
+
+    $this->convertSuggestionsAttributes($document, $xpath);
+    $this->convertCommentAttributes($document, $xpath);
+
+    return $this->getInnerHtml($document);
+  }
+
+  /**
+   * Replaces the comment attributes with comment tags.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMXPath $xpath
+   *   The DOM XPath.
    */
   public function convertCommentAttributes(\DOMDocument $dom, \DOMXPath $xpath): void {
     $attributes = [
@@ -294,14 +317,18 @@ class HtmlHelper {
   }
 
   /**
-   * Replaces the suggestion attributes with suggestion tags.
+   * Replaces the collaboration attributes with collaboration tags.
    *
    * @param \DOMDocument $dom
    *   The DOM Document.
    * @param \DOMXPath $xpath
    *   The DOM XPath.
+   * @param string[] $attributes
+   *   An array mapping collaboration attributes to replace.
+   * @param string $type
+   *   A type of collaboration tags to process - 'suggestion' or 'comment'.
    */
-  private function convertAttributes(\DOMDocument $dom, \DOMXPath $xpath, $attributes, $type): void {
+  private function convertAttributes(\DOMDocument $dom, \DOMXPath $xpath, array $attributes, string $type): void {
     foreach ($attributes as $key => $attribute) {
       $queryExpression = "//*[@{$attribute}]";
       $suggestions = $xpath->query($queryExpression);

@@ -17,17 +17,16 @@ class CollaborationPermissions implements ContainerInjectionInterface {
 
   use StringTranslationTrait;
 
-  public const ADMIN = 'admin';
-  public const EDIT = 'edit';
-  public const SUGGESTIONS_ONLY = 'suggestions_only';
-  public const COMMENTS_ONLY = 'comments_only';
-  public const READ_ONLY = 'read_only';
+  public const COMMENTS_WRITE = 'comments_write';
+  public const COMMENTS_ADMIN = 'comments_admin';
+  public const DOCUMENT_SUGGESTIONS = 'document_suggestions';
+  public const DOCUMENT_WRITE = 'document_write';
 
   public const PERMISSIONS = [
-    self::ADMIN,
-    self::EDIT,
-    self::SUGGESTIONS_ONLY,
-    self::COMMENTS_ONLY,
+    self::COMMENTS_WRITE,
+    self::COMMENTS_ADMIN,
+    self::DOCUMENT_SUGGESTIONS,
+    self::DOCUMENT_WRITE,
   ];
 
   use StringTranslationTrait;
@@ -70,12 +69,12 @@ class CollaborationPermissions implements ContainerInjectionInterface {
       if ($formatPermission = $format->getPermissionName()) {
         foreach (self::PERMISSIONS as $collaborationPermission) {
           $description = $this->getPermissionDescription($collaborationPermission);
-          $permissions[$formatPermission . '_' . $collaborationPermission] = [
-            'title' => $this->t('Collaboration "@permission" permission for the <a href=":url">@label</a> text format',
+          $permissions[$formatPermission . ' with collaboration ' . $collaborationPermission] = [
+            'title' => $this->t('Collaboration @permission for the <a href=":url">@format</a> text format',
               [
                 ':url' => $format->toUrl()->toString(),
-                '@label' => $format->label(),
-                '@permission' => $collaborationPermission,
+                '@format' => $format->label(),
+                '@permission' => $this->getPermissionLabel($collaborationPermission),
               ]
             ),
             'description' => [
@@ -97,6 +96,25 @@ class CollaborationPermissions implements ContainerInjectionInterface {
     return $permissions;
   }
 
+    /**
+     * Returns label of the collaboration permission.
+     *
+     * @param string $permission
+     *   Collaboration permission name.
+     *
+     * @return string|TranslatableMarkup
+     *   Permission label
+     */
+  private function getPermissionLabel(string $permission): string|TranslatableMarkup {
+    return match ($permission) {
+      self::COMMENTS_WRITE => $this->t('Write comments'),
+      self::COMMENTS_ADMIN => $this->t('Administer comments'),
+      self::DOCUMENT_SUGGESTIONS => $this->t('Add suggestions'),
+      self::DOCUMENT_WRITE => $this->t('Evaluate suggestions and edit content'),
+      default => '',
+    };
+  }
+
   /**
    * Returns description for the collaboration permission.
    *
@@ -108,10 +126,10 @@ class CollaborationPermissions implements ContainerInjectionInterface {
    */
   private function getPermissionDescription(string $permission): string|TranslatableMarkup {
     return match ($permission) {
-      self::ADMIN => $this->t('Collaboration admin'),
-      self::EDIT => $this->t('Collaboration editor. User can edit document'),
-      self::SUGGESTIONS_ONLY => $this->t('User is able to add only suggestions to the document'),
-      self::COMMENTS_ONLY => $this->t('User is able to add only comments to the document'),
+      self::COMMENTS_WRITE => $this->t('Allows to add and delete own collaboration comments'),
+      self::COMMENTS_ADMIN => $this->t('Allows to add and delete all collaboration comments'),
+      self::DOCUMENT_SUGGESTIONS => $this->t('Allows to add and edit suggestions only. Disallows to make non-suggestion changes'),
+      self::DOCUMENT_WRITE => $this->t('Allows to evaluate suggestions and make non-suggestion changes.'),
       default => '',
     };
   }

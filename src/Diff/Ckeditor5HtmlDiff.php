@@ -36,6 +36,43 @@ class Ckeditor5HtmlDiff extends HtmlDiff {
   }
 
   /**
+   * Returns an array of all changes made to the document..
+   */
+  public function getChanges(): array {
+    $changes = [];
+    $operations = $this->operations();
+    foreach ($operations as $operation) {
+      switch ($operation->action) {
+        case 'equal':
+          break;
+        default:
+          $addedChunks = array_slice(
+            $this->newWords,
+            $operation->startInNew,
+            $operation->endInNew - $operation->startInNew
+          );
+          $added = implode('', $addedChunks);
+
+          $removedChunks = array_slice(
+            $this->oldWords,
+            $operation->startInOld,
+            $operation->endInOld - $operation->startInOld
+          );
+          $removed = implode('', $removedChunks);
+
+          $changes[] = [
+            'action' => $operation->action,
+            'added' => $added,
+            'removed' => $removed,
+          ];
+          break;
+      }
+    }
+
+    return $changes;
+  }
+
+  /**
    * Returns string representing document with marked detected changes.
    */
   public function getContext() :string {

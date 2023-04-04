@@ -28,28 +28,24 @@ class UserAdapter {
   }
 
   setPermissions() {
-    const availablePermissions = {
-      'admin': ['document:write', 'comment:admin'],
-      'edit': ['document:write', 'comment:write'],
-      'suggestions_only': ['document:write'],
-      'comments_only': ['comment:write'],
-      'ready_only': [],
-    };
-
     let textFormat = this.editor.sourceElement.getAttribute('data-editor-active-text-format');
     let permissionsPlugin = this.editor.plugins.get('Permissions');
-    let userEditorPermission = drupalSettings.ckeditor5Premium.current_user.editor_permission[textFormat];
-    let permissions = availablePermissions[userEditorPermission];
+    let permissions = drupalSettings.ckeditor5Premium.current_user.editor_permission[textFormat];
+    let documentAdmin = permissions.indexOf('document:admin');
     const isTrackChangesEnabled = this.editor.plugins.has('TrackChanges');
 
-    if (typeof permissions === 'undefined' || permissions === null) {
+    if (documentAdmin > -1) {
+      permissions.splice(documentAdmin, 1);
+    }
+
+    if (typeof permissions !== 'object') {
       this.editor.enableReadOnlyMode(this.editor.id);
     } else {
       permissionsPlugin.setPermissions(permissions);
-      if (userEditorPermission === 'comments_only') {
+      if (permissions.length === 1 && permissions[0] === 'comment:write') {
         this.disableToolbarItems();
       }
-      if (userEditorPermission === 'suggestions_only') {
+      if (permissions.includes('document:write') && documentAdmin === -1) {
         if (isTrackChangesEnabled) {
           this.editor.execute('trackChanges');
           this.editor.commands.get('acceptSuggestion').forceDisabled('suggestionOnly');

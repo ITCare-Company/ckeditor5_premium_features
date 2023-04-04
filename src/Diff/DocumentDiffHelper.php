@@ -46,17 +46,26 @@ class DocumentDiffHelper {
    *   Is document changed.
    */
   public function isRawDocumentChanged(string $originalData, string $newData): bool {
-    $originalDataWithoutCollaborationTags = $this->filterCollaboration->process($originalData, NULL)->getProcessedText();
+    $originalDataWithoutCollaborationTags = $originalData ? $this->filterCollaboration->process($originalData, NULL)->getProcessedText() : '';
     $originalNewDataWithoutCollaborationTags = $this->filterCollaboration->process($newData, NULL)->getProcessedText();
-    if (!empty($originalDataWithoutCollaborationTags)) {
-      // Check if a raw document without the collaboration tags is changed.
-      $this->ckeditor5Diff->getDiff($originalDataWithoutCollaborationTags, $originalNewDataWithoutCollaborationTags);
-      if ($this->ckeditor5Diff->getDiffContext()) {
-        return TRUE;
-      }
+
+    // Check if a raw document without the collaboration tags is changed.
+    $this->ckeditor5Diff->getDiff($originalDataWithoutCollaborationTags, $originalNewDataWithoutCollaborationTags);
+    if ($this->ckeditor5Diff->getDiffContext()) {
+      return TRUE;
     }
 
     return FALSE;
+  }
+
+  public function getDocumentChanges(string $originalData, string $newData) {
+    $htmlHelper = $this->filterCollaboration->getHtmlHelper();
+
+    // Replace collaboration attributes with tags in parameters.
+    $originalData = $htmlHelper->convertCollaborationAttributesInString($originalData);
+    $newData = $htmlHelper->convertCollaborationAttributesInString($newData);
+
+    return $this->ckeditor5Diff->getDocumentChanges($originalData, $newData);
   }
 
 }

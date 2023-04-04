@@ -24,26 +24,6 @@ class CollaborationAccessHandler {
   }
 
   /**
-   * Checks if the user has permission to edit the document.
-   *
-   * @param \Drupal\Core\Session\AccountInterface $user
-   *   Current user.
-   * @param string $filterFormat
-   *   Filter format.
-   *
-   * @return bool
-   *   Is user has permission to edit the document.
-   */
-  public function isPermittedToEditDocument(AccountInterface $user, string $filterFormat): bool {
-    $filterFormatPermission = $this->filterFormatPermission($filterFormat);
-    if ($user->hasPermission($filterFormatPermission . '_' . CollaborationPermissions::ADMIN) ||
-      $user->hasPermission($filterFormatPermission . '_' . CollaborationPermissions::EDIT)) {
-      return TRUE;
-    }
-    return FALSE;
-  }
-
-  /**
    * Returns a collaboration permission name for a given user and filter format.
    *
    * @param \Drupal\Core\Session\AccountInterface $user
@@ -54,29 +34,29 @@ class CollaborationAccessHandler {
    * @return string
    *   Permission name.
    */
-  public function getCollaborationPermission(AccountInterface $user, string $filterFormat):string {
+  public function getCollaborationPermissionArray(AccountInterface $user, string $filterFormat):array {
     $filterFormatPermission = $this->filterFormatPermission($filterFormat);
+    $collaborationPermissions = [];
     if ($user->hasPermission(
-      $filterFormatPermission . '_' . CollaborationPermissions::ADMIN)) {
-      return CollaborationPermissions::ADMIN;
+      $filterFormatPermission . CollaborationPermissions::COMMENTS_ADMIN)) {
+      $collaborationPermissions[] = 'comment:admin';
+    }
+    elseif ($user->hasPermission(
+      $filterFormatPermission . CollaborationPermissions::COMMENTS_WRITE)) {
+      $collaborationPermissions[] = 'comment:write';
     }
 
     if ($user->hasPermission(
-      $filterFormatPermission . '_' . CollaborationPermissions::EDIT)) {
-      return CollaborationPermissions::EDIT;
+      $filterFormatPermission . CollaborationPermissions::DOCUMENT_WRITE)) {
+      $collaborationPermissions[] = 'document:write';
+      $collaborationPermissions[] = 'document:admin';
+    }
+    elseif ($user->hasPermission(
+      $filterFormatPermission . CollaborationPermissions::DOCUMENT_SUGGESTIONS)) {
+      $collaborationPermissions[] = 'document:write';
     }
 
-    if ($user->hasPermission(
-      $filterFormatPermission . '_' . CollaborationPermissions::SUGGESTIONS_ONLY)) {
-      return CollaborationPermissions::SUGGESTIONS_ONLY;
-    }
-
-    if ($user->hasPermission(
-      $filterFormatPermission . '_' . CollaborationPermissions::COMMENTS_ONLY)) {
-      return CollaborationPermissions::COMMENTS_ONLY;
-    }
-
-    return CollaborationPermissions::READ_ONLY;
+    return $collaborationPermissions;
   }
 
   /**
@@ -93,7 +73,7 @@ class CollaborationAccessHandler {
     $permissions = [];
     foreach ($formats as $format) {
       $formatId = $format->id();
-      $permissions[$formatId] = $this->getCollaborationPermission($user, $formatId);
+      $permissions[$formatId] = $this->getCollaborationPermissionArray($user, $formatId);
     }
     return $permissions;
   }
@@ -107,8 +87,8 @@ class CollaborationAccessHandler {
    * @return string
    *   Permission name.
    */
-  private function filterFormatPermission(string $filterFormat): string {
-    return 'use text format ' . $filterFormat;
+  public function filterFormatPermission(string $filterFormat): string {
+    return 'use text format ' . $filterFormat . ' with collaboration ';
   }
 
 }

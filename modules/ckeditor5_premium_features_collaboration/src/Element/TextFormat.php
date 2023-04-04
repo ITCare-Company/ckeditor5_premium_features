@@ -6,6 +6,7 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features\CollaborationAccessHandler;
+use Drupal\ckeditor5_premium_features\CollaborationPermissions;
 use Drupal\ckeditor5_premium_features\Diff\DocumentDiffHelper;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
@@ -361,17 +362,109 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     }
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
 
-    foreach ($items as $item_parents) {
-      $source_original_data = $this->getFormElementOriginalValue($form, $item_parents);
+    foreach ($items as $item_key => $item_parents) {
+      $source_original_data = $this->getFormElementOriginalValue($form, $item_parents) ?? '';
+      $source_new_data = $form_state->getValue([...$item_parents, 'value']) ?? '';
+      $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
 
-      if ($source_original_data) {
-        $source_new_data = $form_state->getValue([...$item_parents, 'value']) ?? '';
-        $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
-        if ($this->documentDiffHelper->isRawDocumentChanged($source_original_data, $source_new_data)
-          && !$this->collaborationAccessHandler->isPermittedToEditDocument($this->currentUser, $fieldFormat)) {
-          $form_state->setError($form, $this->t("You don't have a permission to edit the document"));
+      $filterFormatPermission = $this->collaborationAccessHandler->filterFormatPermission($fieldFormat);
+
+      $documentWritePermission = $this->currentUser->hasPermission($filterFormatPermission . CollaborationPermissions::DOCUMENT_WRITE);
+      $documentSuggestionPermission = $this->currentUser->hasPermission($filterFormatPermission . CollaborationPermissions::DOCUMENT_SUGGESTIONS);
+      $commentWritePermission = $this->currentUser->hasPermission($filterFormatPermission . CollaborationPermissions::COMMENTS_WRITE);
+      $commentAdminPermission = $this->currentUser->hasPermission($filterFormatPermission . CollaborationPermissions::COMMENTS_ADMIN);
+
+      // User has full access. Skip validation.
+      if ($documentWritePermission && $commentAdminPermission) {
+        continue;
+      }
+
+      // User does not have permission to make non-suggestion changes. Throw
+      // error in case there are changes outside collaboration tags.
+      $isRawDocumentChanged = $this->documentDiffHelper->isRawDocumentChanged($source_original_data, $source_new_data);
+      if (!$documentWritePermission && $isRawDocumentChanged) {
+        $form_state->setError($form, $this->t("You don't have a permission to edit the collaboration document."));
+        return;
+      }
+
+      $changes = $this->documentDiffHelper->getDocumentChanges($source_original_data, $source_new_data);
+
+      // Get comments data from hidden textarea and prepare array with comment
+      // ids. Then we can compare against previously existing comments and
+      // check is any were added or removed.
+      $commentData = $this->getFormElementSourceData($form_state, $item_parents, 'comments', $item_key);
+      $origCommentsData = $this->commentsStorage->loadByEntity($form_object->getEntity(), $item_key);
+
+      $commentIds = [];
+      foreach ($commentData as $thread) {
+        foreach ($thread['comments'] as $comment) {
+          $commentIds[] = $comment['commentId'];
         }
       }
+      $commentIds = array_flip($commentIds);
+
+      $addedComments = array_diff_key($commentIds, $origCommentsData);
+      $removedComments = array_diff_key($origCommentsData, $commentIds);
+
+      if ($addedComments && !$commentAdminPermission && !$commentWritePermission) {
+        $form_state->setError($form, $this->t("You are not allowed to post collaboration comments."));
+        return;
+      }
+
+      if ($removedComments) {
+        if (!$commentAdminPermission && !$commentWritePermission) {
+          $form_state->setError($form, $this->t("You are not allowed to delete collaboration comments."));
+          return;
+        }
+        if (!$commentAdminPermission) {
+          foreach ($removedComments as $removedComment) {
+            if ($removedComment->getAuthorId() != $this->currentUser->id()) {
+              $this->t("You are not allowed to delete other users collaboration comments.");
+              return;
+            }
+          }
+        }
+      }
+
+      // Comment permissions checked. We can remove all comment changes,
+      // so suggestion changes only will remain or empty array.
+      $commentStart = '/<comment-start name="[a-z0-9:]*"><\/comment-start>/';
+      $commentEnd = '/<comment-end name="[a-z0-9:]*"><\/comment-end>/';
+      foreach ($changes as $key => $change) {
+        switch ($change['action']) {
+          case 'insert':
+            $change['added'] = preg_replace($commentStart, '', $change['added']);
+            $change['added'] = preg_replace($commentEnd, '', $change['added']);
+            if (empty($change['added'])) {
+              unset($changes[$key]);
+            }
+            break;
+          case 'delete':
+            $change['removed'] = preg_replace($commentStart, '', $change['removed']);
+            $change['removed'] = preg_replace($commentEnd, '', $change['removed']);
+            if (empty($change['removed'])) {
+              unset($changes[$key]);
+            }
+            break;
+          case 'replace':
+            $change['added'] = preg_replace($commentStart, '', $change['added']);
+            $change['added'] = preg_replace($commentEnd, '', $change['added']);
+            $change['removed'] = preg_replace($commentStart, '', $change['removed']);
+            $change['removed'] = preg_replace($commentEnd, '', $change['removed']);
+            if ($change['added'] == $change['removed']) {
+              unset($changes[$key]);
+            }
+            break;
+        }
+      }
+
+      // If we're here then only suggestion changes should remain in changes
+      // array, check if user has permission for suggestions.
+      if (!$documentSuggestionPermission && !$documentWritePermission && !empty($changes)) {
+        $form_state->setError($form, $this->t("You don't have a permission for collaboration suggestions."));
+        return;
+      }
+
     }
   }
 

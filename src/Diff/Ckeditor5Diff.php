@@ -50,6 +50,26 @@ class Ckeditor5Diff implements Ckeditor5DiffInterface {
   /**
    * {@inheritdoc}
    */
+  public function getDocumentChanges(string $oldDocument, string $newDocument): array {
+    // It will prevent a wall of warnings about invalid html tags.
+    $originalLibxmlErrorState = libxml_use_internal_errors(TRUE);
+
+    $htmlDiff = new Ckeditor5HtmlDiff($oldDocument, $newDocument);
+    $htmlDiff->getConfig()
+      ->setPurifierEnabled(FALSE);
+
+    $this->context = $htmlDiff->build();
+
+    // Clear the buffer and set the original state of libxml errors.
+    libxml_clear_errors();
+    libxml_use_internal_errors($originalLibxmlErrorState);
+
+    return $htmlDiff->getChanges();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getDiffAddedContext(): ?string {
     $highlights = $this->contextHelper->getDocumentChangesContext($this->context, TRUE);
 
