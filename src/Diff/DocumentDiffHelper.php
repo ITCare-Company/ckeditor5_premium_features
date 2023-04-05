@@ -58,6 +58,17 @@ class DocumentDiffHelper {
     return FALSE;
   }
 
+  /**
+   * Returns an array of all changes in the document.
+   *
+   * @param string $originalData
+   *   The original document.
+   * @param string $newData
+   *   The updated document.
+   *
+   * @return array
+   *   Returns an array representing all changes made to the document.
+   */
   public function getDocumentChanges(string $originalData, string $newData) {
     $htmlHelper = $this->filterCollaboration->getHtmlHelper();
 

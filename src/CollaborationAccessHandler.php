@@ -24,17 +24,18 @@ class CollaborationAccessHandler {
   }
 
   /**
-   * Returns a collaboration permission name for a given user and filter format.
+   * Returns a collaboration permissions for a given user and filter format
+   * to be used in CKEditor 5.
    *
    * @param \Drupal\Core\Session\AccountInterface $user
    *   Current user.
    * @param string $filterFormat
    *   Filter format.
    *
-   * @return string
-   *   Permission name.
+   * @return array
+   *   Permissions array in a CKEditor 5 format.
    */
-  public function getCollaborationPermissionArray(AccountInterface $user, string $filterFormat):array {
+  public function getCollaborationPermissionArray(AccountInterface $user, string $filterFormat): array {
     $filterFormatPermission = $this->filterFormatPermission($filterFormat);
     $collaborationPermissions = [];
     if ($user->hasPermission(
@@ -60,7 +61,8 @@ class CollaborationAccessHandler {
   }
 
   /**
-   * Returns array with text formats and permissions for the user.
+   * Returns array with text formats and permissions for the user in a
+   * CKEditor 5 format.
    *
    * @param \Drupal\Core\Session\AccountInterface $user
    *   Current user.
@@ -76,6 +78,27 @@ class CollaborationAccessHandler {
       $permissions[$formatId] = $this->getCollaborationPermissionArray($user, $formatId);
     }
     return $permissions;
+  }
+
+  /**
+   * Get an array of user collaboration access for given filter format.
+   *
+   * @param \Drupal\Core\Session\AccountInterface $user
+   *   Current user.
+   * @param string $filterFormat
+   *   Filter format name.
+   *
+   * @return array
+   */
+  public function getUserCollaborationAccess(AccountInterface $user, string $filterFormat): array {
+    $filterFormatPermission = $this->filterFormatPermission($filterFormat);
+
+    return [
+      'document_write' => $user->hasPermission($filterFormatPermission . CollaborationPermissions::DOCUMENT_WRITE),
+      'document_suggestion' => $user->hasPermission($filterFormatPermission . CollaborationPermissions::DOCUMENT_SUGGESTIONS),
+      'comment_write' => $user->hasPermission($filterFormatPermission . CollaborationPermissions::COMMENTS_WRITE),
+      'comment_admin' => $user->hasPermission($filterFormatPermission . CollaborationPermissions::COMMENTS_ADMIN),
+    ];
   }
 
   /**

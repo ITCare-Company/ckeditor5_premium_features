@@ -6,7 +6,6 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features\CollaborationAccessHandler;
-use Drupal\ckeditor5_premium_features\CollaborationPermissions;
 use Drupal\ckeditor5_premium_features\Diff\DocumentDiffHelper;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
@@ -363,104 +362,60 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
 
     foreach ($items as $item_key => $item_parents) {
-      $source_original_data = $this->getFormElementOriginalValue($form, $item_parents) ?? '';
-      $source_new_data = $form_state->getValue([...$item_parents, 'value']) ?? '';
+      $sourceOriginalData = $this->getFormElementOriginalValue($form, $item_parents) ?? '';
+      $sourceNewData = $form_state->getValue([...$item_parents, 'value']) ?? '';
       $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
 
-      $filterFormatPermission = $this->collaborationAccessHandler->filterFormatPermission($fieldFormat);
-
-      $documentWritePermission = $this->currentUser->hasPermission($filterFormatPermission . CollaborationPermissions::DOCUMENT_WRITE);
-      $documentSuggestionPermission = $this->currentUser->hasPermission($filterFormatPermission . CollaborationPermissions::DOCUMENT_SUGGESTIONS);
-      $commentWritePermission = $this->currentUser->hasPermission($filterFormatPermission . CollaborationPermissions::COMMENTS_WRITE);
-      $commentAdminPermission = $this->currentUser->hasPermission($filterFormatPermission . CollaborationPermissions::COMMENTS_ADMIN);
+      $userAccess = $this->collaborationAccessHandler->getUserCollaborationAccess($this->currentUser, $fieldFormat);
 
       // User has full access. Skip validation.
-      if ($documentWritePermission && $commentAdminPermission) {
+      if ($userAccess['document_write'] && $userAccess['comment_admin']) {
         continue;
       }
 
       // User does not have permission to make non-suggestion changes. Throw
       // error in case there are changes outside collaboration tags.
-      $isRawDocumentChanged = $this->documentDiffHelper->isRawDocumentChanged($source_original_data, $source_new_data);
-      if (!$documentWritePermission && $isRawDocumentChanged) {
+      $isRawDocumentChanged = $this->documentDiffHelper->isRawDocumentChanged($sourceOriginalData, $sourceNewData);
+      if (!$userAccess['document_write'] && $isRawDocumentChanged) {
         $form_state->setError($form, $this->t("You don't have a permission to edit the collaboration document."));
         return;
       }
 
-      $changes = $this->documentDiffHelper->getDocumentChanges($source_original_data, $source_new_data);
-
-      // Get comments data from hidden textarea and prepare array with comment
-      // ids. Then we can compare against previously existing comments and
-      // check is any were added or removed.
-      $commentData = $this->getFormElementSourceData($form_state, $item_parents, 'comments', $item_key);
+      // Get form comments data and original comments data. Compare their ids
+      // and get a list of added and removed comments.
+      $commentsData = $this->getFormElementSourceData($form_state, $item_parents, 'comments', $item_key);
       $origCommentsData = $this->commentsStorage->loadByEntity($form_object->getEntity(), $item_key);
+      $commentsChanged = $this->getChangedComments($commentsData, $origCommentsData);
 
-      $commentIds = [];
-      foreach ($commentData as $thread) {
-        foreach ($thread['comments'] as $comment) {
-          $commentIds[] = $comment['commentId'];
-        }
-      }
-      $commentIds = array_flip($commentIds);
-
-      $addedComments = array_diff_key($commentIds, $origCommentsData);
-      $removedComments = array_diff_key($origCommentsData, $commentIds);
-
-      if ($addedComments && !$commentAdminPermission && !$commentWritePermission) {
+      if ($commentsChanged['added'] && !$userAccess['comment_admin'] && !$userAccess['comment_write']) {
         $form_state->setError($form, $this->t("You are not allowed to post collaboration comments."));
         return;
       }
 
-      if ($removedComments) {
-        if (!$commentAdminPermission && !$commentWritePermission) {
+      if ($commentsChanged['removed']) {
+        if (!$userAccess['comment_admin'] && !$userAccess['comment_write']) {
           $form_state->setError($form, $this->t("You are not allowed to delete collaboration comments."));
           return;
         }
-        if (!$commentAdminPermission) {
-          foreach ($removedComments as $removedComment) {
+        if (!$userAccess['comment_admin']) {
+          foreach ($commentsChanged['removed'] as $removedComment) {
             if ($removedComment->getAuthorId() != $this->currentUser->id()) {
-              $this->t("You are not allowed to delete other users collaboration comments.");
+              $form_state->setError($form, $this->t("You are not allowed to delete other users collaboration comments."));
               return;
             }
           }
         }
       }
 
-      // Comment permissions checked. We can remove all comment changes,
-      // so suggestion changes only will remain or empty array.
-      $commentStart = '/<comment-start name="[a-z0-9:]*"><\/comment-start>/';
-      $commentEnd = '/<comment-end name="[a-z0-9:]*"><\/comment-end>/';
-      foreach ($changes as $key => $change) {
-        switch ($change['action']) {
-          case 'insert':
-            $change['added'] = preg_replace($commentStart, '', $change['added']);
-            $change['added'] = preg_replace($commentEnd, '', $change['added']);
-            if (empty($change['added'])) {
-              unset($changes[$key]);
-            }
-            break;
-          case 'delete':
-            $change['removed'] = preg_replace($commentStart, '', $change['removed']);
-            $change['removed'] = preg_replace($commentEnd, '', $change['removed']);
-            if (empty($change['removed'])) {
-              unset($changes[$key]);
-            }
-            break;
-          case 'replace':
-            $change['added'] = preg_replace($commentStart, '', $change['added']);
-            $change['added'] = preg_replace($commentEnd, '', $change['added']);
-            $change['removed'] = preg_replace($commentStart, '', $change['removed']);
-            $change['removed'] = preg_replace($commentEnd, '', $change['removed']);
-            if ($change['added'] == $change['removed']) {
-              unset($changes[$key]);
-            }
-            break;
-        }
-      }
+      // Comment permissions checked. We can get document changes array
+      // and remove all comment changes, so suggestion changes only will remain
+      // or empty array.
+      $changes = $this->documentDiffHelper->getDocumentChanges($sourceOriginalData, $sourceNewData);
+      $this->removeCommentChanges($changes);
 
       // If we're here then only suggestion changes should remain in changes
       // array, check if user has permission for suggestions.
-      if (!$documentSuggestionPermission && !$documentWritePermission && !empty($changes)) {
+      if (!$userAccess['document_suggestion'] && !$userAccess['document_write'] && !empty($changes)) {
         $form_state->setError($form, $this->t("You don't have a permission for collaboration suggestions."));
         return;
       }
@@ -799,6 +754,73 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         }
       }
     }
+  }
+
+  /**
+   * Process document changes array and remove all that are comments inserts or
+   * removals.
+   *
+   * @param array $changes
+   *   The document changes array.
+   */
+  private function removeCommentChanges(array &$changes): void {
+    $commentStart = '/<comment-start name="[a-z0-9:]*"><\/comment-start>/';
+    $commentEnd = '/<comment-end name="[a-z0-9:]*"><\/comment-end>/';
+    foreach ($changes as $key => $change) {
+      switch ($change['action']) {
+        case 'insert':
+          $change['added'] = preg_replace($commentStart, '', $change['added']);
+          $change['added'] = preg_replace($commentEnd, '', $change['added']);
+          if (empty($change['added'])) {
+            unset($changes[$key]);
+          }
+          break;
+
+        case 'delete':
+          $change['removed'] = preg_replace($commentStart, '', $change['removed']);
+          $change['removed'] = preg_replace($commentEnd, '', $change['removed']);
+          if (empty($change['removed'])) {
+            unset($changes[$key]);
+          }
+          break;
+
+        case 'replace':
+          $change['added'] = preg_replace($commentStart, '', $change['added']);
+          $change['added'] = preg_replace($commentEnd, '', $change['added']);
+          $change['removed'] = preg_replace($commentStart, '', $change['removed']);
+          $change['removed'] = preg_replace($commentEnd, '', $change['removed']);
+          if ($change['added'] == $change['removed']) {
+            unset($changes[$key]);
+          }
+          break;
+      }
+    }
+  }
+
+  /**
+   * Get list of added comments ids and removed comment entities.
+   *
+   * @param array $comments
+   *   Form comments data.
+   * @param object $origComments
+   *   Comments data associated to a specific field in an entity.
+   *
+   * @return array
+   *   An array containing info only for added or removed comments.
+   */
+  private function getChangedComments(array $comments, object $origComments): array {
+    $commentIds = [];
+    foreach ($comments as $thread) {
+      foreach ($thread['comments'] as $comment) {
+        $commentIds[] = $comment['commentId'];
+      }
+    }
+    $commentIds = array_flip($commentIds);
+
+    return [
+      'added' => array_diff_key($commentIds, $origComments),
+      'removed' => array_diff_key($origComments, $commentIds),
+    ];
   }
 
 }
