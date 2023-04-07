@@ -802,13 +802,13 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *
    * @param array $comments
    *   Form comments data.
-   * @param object $origComments
+   * @param array $origComments
    *   Comments data associated to a specific field in an entity.
    *
    * @return array
    *   An array containing info only for added or removed comments.
    */
-  private function getChangedComments(array $comments, object $origComments): array {
+  private function getChangedComments(array $comments, array $origComments): array {
     $commentIds = [];
     foreach ($comments as $thread) {
       foreach ($thread['comments'] as $comment) {
