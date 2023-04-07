@@ -14,6 +14,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   id = "ckeditor5_suggestion",
  *   label = @Translation("CKEditor5 Suggestion"),
  *   base_table = "ckeditor5_suggestion",
+ *   internal = TRUE,
  *   entity_keys = {
  *      "id" = "id",
  *      "uid" = "uid",

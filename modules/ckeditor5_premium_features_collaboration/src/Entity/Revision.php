@@ -14,6 +14,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   id = "ckeditor5_revision",
  *   label = @Translation("CKEditor5 Revision"),
  *   base_table = "ckeditor5_revision",
+ *   internal = TRUE,
  *   entity_keys = {
  *      "id" = "id",
  *      "uid" = "uid",
