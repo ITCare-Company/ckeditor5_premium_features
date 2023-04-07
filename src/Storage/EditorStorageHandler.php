@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_collaboration\Storage;
+namespace Drupal\ckeditor5_premium_features\Storage;
 
 use Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\Collaboration;
 use Drupal\Core\Config\Entity\ConfigEntityStorageInterface;
@@ -109,6 +109,32 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
     }
 
     return $this->editorStorage->loadMultiple(array_keys($formats));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTrackChangesStates(array $element, bool $rtc = FALSE): array {
+    $editors = $this->getAllEditorsFromElement($element);
+    $states = [];
+    $module_name = 'ckeditor5_premium_features_collaboration';
+    if ($rtc) {
+      $module_name = 'ckeditor5_premium_features_realtime_collaboration';
+    }
+    $plugin_name = 'track_changes';
+
+    /**
+     * @var \Drupal\editor\Entity\Editor $editor
+     */
+    foreach ($editors as $editor) {
+      if (!$this->isCkeditor5($element)) {
+        continue;
+      }
+      $settings = $editor->getSettings();
+      $default_state = $settings['plugins'][$module_name . '__' . $plugin_name]['default_state'] ?? FALSE;
+      $states[$editor->id()] = $default_state;
+    }
+    return $states;
   }
 
 }

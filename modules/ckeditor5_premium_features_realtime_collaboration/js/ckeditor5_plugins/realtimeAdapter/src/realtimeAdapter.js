@@ -55,6 +55,14 @@ class RealtimeAdapter {
     this.storage.processCollaborationCommandDisable("trackChanges");
     this.storage.processCollaborationCommandDisable("addCommentThread");
     this.checkIfInitialDataChanged();
+
+    this.editor.on('ready', () => {
+      let textFormat = this.editor.sourceElement.dataset.editorActiveTextFormat;
+      let isTrackingChangesOn = drupalSettings.ckeditor5Premium.tracking_changes.default_state;
+      if (typeof isTrackingChangesOn[textFormat] !== 'undefined' && isTrackingChangesOn[textFormat]) {
+        this.editor.execute('trackChanges');
+      }
+    });
   }
 
   /**

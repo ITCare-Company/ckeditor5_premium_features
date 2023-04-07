@@ -33,6 +33,15 @@ class TrackChangesAdapter {
     if (!trackChangesElement || trackChangesElement.value == '') {
       return
     }
+
+    this.editor.on('ready', () => {
+      let textFormat = this.editor.sourceElement.dataset.editorActiveTextFormat;
+      let isTrackingChangesOn = drupalSettings.ckeditor5Premium.tracking_changes.default_state;
+      if (typeof isTrackingChangesOn[textFormat] !== 'undefined' && isTrackingChangesOn[textFormat]) {
+        this.editor.execute('trackChanges');
+      }
+    });
+
     this.trackedSuggestion = new Map();
 
     // Load suggestions.

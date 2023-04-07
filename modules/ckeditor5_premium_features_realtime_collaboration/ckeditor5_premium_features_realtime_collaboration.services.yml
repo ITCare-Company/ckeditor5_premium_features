@@ -5,6 +5,8 @@ services:
       - '@entity_type.manager'
       - '@ckeditor5_premium_features_realtime_collaboration.collaboration_settings'
       - '@ckeditor5_premium_features.api_adapter'
+      - '@ckeditor5_premium_features.storage_handler.editor'
+
 
   ckeditor5_premium_features_realtime_collaboration.collaboration_settings:
     class: Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\CollaborationSettings
