@@ -387,12 +387,18 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       $origCommentsData = $this->commentsStorage->loadByEntity($form_object->getEntity(), $item_key);
       $commentsChanged = $this->getChangedComments($commentsData, $origCommentsData);
 
+      // We can get document changes array and remove all comment changes,
+      // so suggestion changes only will remain for further validation.
+      $changes = $this->documentDiffHelper->getDocumentChanges($sourceOriginalData, $sourceNewData);
+      $removedContentWithComment = 0;
+      $this->removeCommentChanges($changes, $removedContentWithComment);
+
       if ($commentsChanged['added'] && !$userAccess['comment_admin'] && !$userAccess['comment_write']) {
         $form_state->setError($form, $this->t("You are not allowed to post collaboration comments."));
         return;
       }
 
-      if ($commentsChanged['removed']) {
+      if ($commentsChanged['removed'] && count($commentsChanged['removed_threads']) !== $removedContentWithComment) {
         if (!$userAccess['comment_admin'] && !$userAccess['comment_write']) {
           $form_state->setError($form, $this->t("You are not allowed to delete collaboration comments."));
           return;
@@ -407,11 +413,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         }
       }
 
-      // Comment permissions checked. We can get document changes array
-      // and remove all comment changes, so suggestion changes only will remain
-      // or empty array.
-      $changes = $this->documentDiffHelper->getDocumentChanges($sourceOriginalData, $sourceNewData);
-      $this->removeCommentChanges($changes);
+
 
       // If we're here then only suggestion changes should remain in changes
       // array, check if user has permission for suggestions.
@@ -763,10 +765,11 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @param array $changes
    *   The document changes array.
    */
-  private function removeCommentChanges(array &$changes): void {
+  private function removeCommentChanges(array &$changes, int &$removedWithChanges): void {
     $commentStart = '/<comment-start name="[a-z0-9:]*"><\/comment-start>/';
     $commentEnd = '/<comment-end name="[a-z0-9:]*"><\/comment-end>/';
     foreach ($changes as $key => $change) {
+      $removedCount = 0;
       switch ($change['action']) {
         case 'insert':
           $change['added'] = preg_replace($commentStart, '', $change['added']);
@@ -777,20 +780,26 @@ class TextFormat implements Ckeditor5TextFormatInterface {
           break;
 
         case 'delete':
-          $change['removed'] = preg_replace($commentStart, '', $change['removed']);
+          $change['removed'] = preg_replace($commentStart, '', $change['removed'], -1, $removedCount);
           $change['removed'] = preg_replace($commentEnd, '', $change['removed']);
           if (empty($change['removed'])) {
             unset($changes[$key]);
+          }
+          else {
+            $removedWithChanges += $removedCount;
           }
           break;
 
         case 'replace':
           $change['added'] = preg_replace($commentStart, '', $change['added']);
           $change['added'] = preg_replace($commentEnd, '', $change['added']);
-          $change['removed'] = preg_replace($commentStart, '', $change['removed']);
+          $change['removed'] = preg_replace($commentStart, '', $change['removed'], -1, $removedCount);
           $change['removed'] = preg_replace($commentEnd, '', $change['removed']);
           if ($change['added'] == $change['removed']) {
             unset($changes[$key]);
+          }
+          else {
+            $removedWithChanges += $removedCount;
           }
           break;
       }
@@ -817,9 +826,21 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     }
     $commentIds = array_flip($commentIds);
 
+    $removedComments = array_diff_key($origComments, $commentIds);
+
+    // Gather info about removed threads.
+    $removedThreadIds = [];
+    foreach ($removedComments as $removedComment) {
+      $attributes = $removedComment->getAttributes();
+      if ($attributes['is_reply'] === FALSE) {
+        $removedThreadIds[] = $removedComment->getThreadId();
+      }
+    }
+
     return [
       'added' => array_diff_key($commentIds, $origComments),
-      'removed' => array_diff_key($origComments, $commentIds),
+      'removed' => $removedComments,
+      'removed_threads' => $removedThreadIds,
     ];
   }
 
