@@ -385,7 +385,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       // and get a list of added and removed comments.
       $commentsData = $this->getFormElementSourceData($form_state, $item_parents, 'comments', $item_key);
       $origCommentsData = $this->commentsStorage->loadByEntity($form_object->getEntity(), $item_key);
-      $commentsChanged = $this->getChangedComments($commentsData, $origCommentsData);
+      $commentsChanges = $this->getChangedComments($commentsData, $origCommentsData);
 
       // We can get document changes array and remove all comment changes,
       // so suggestion changes only will remain for further validation.
@@ -393,18 +393,31 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       $removedContentWithComment = 0;
       $this->removeCommentChanges($changes, $removedContentWithComment);
 
-      if ($commentsChanged['added'] && !$userAccess['comment_admin'] && !$userAccess['comment_write']) {
+      if ($commentsChanges['added'] && !$userAccess['comment_admin'] && !$userAccess['comment_write']) {
         $form_state->setError($form, $this->t("You are not allowed to post collaboration comments."));
         return;
       }
 
-      if ($commentsChanged['removed'] && count($commentsChanged['removed_threads']) !== $removedContentWithComment) {
+      foreach ($commentsChanges['changed'] as $uid) {
+        if ($uid != $this->currentUser->id()) {
+          // @TODO once editing all users comments is available in CKEditor we
+          // can change condition here.
+          $form_state->setError($form, $this->t("You are not allowed to edit collaboration comments."));
+          return;
+        }
+        elseif (!$userAccess['comment_admin'] && !$userAccess['comment_write']) {
+          $form_state->setError($form, $this->t("You are not allowed to edit collaboration comments."));
+          return;
+        }
+      }
+
+      if ($commentsChanges['removed'] && count($commentsChanges['removed_threads']) !== $removedContentWithComment) {
         if (!$userAccess['comment_admin'] && !$userAccess['comment_write']) {
           $form_state->setError($form, $this->t("You are not allowed to delete collaboration comments."));
           return;
         }
         if (!$userAccess['comment_admin']) {
-          foreach ($commentsChanged['removed'] as $removedComment) {
+          foreach ($commentsChanges['removed'] as $removedComment) {
             if ($removedComment->getAuthorId() != $this->currentUser->id()) {
               $form_state->setError($form, $this->t("You are not allowed to delete other users collaboration comments."));
               return;
@@ -412,8 +425,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
           }
         }
       }
-
-
 
       // If we're here then only suggestion changes should remain in changes
       // array, check if user has permission for suggestions.
@@ -819,9 +830,16 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    */
   private function getChangedComments(array $comments, array $origComments): array {
     $commentIds = [];
+    $changedComments = [];
     foreach ($comments as $thread) {
       foreach ($thread['comments'] as $comment) {
-        $commentIds[] = $comment['commentId'];
+        $commentId = $comment['commentId'];
+        $commentIds[] = $commentId;
+
+        $origComment = $origComments[$commentId] ?? NULL;
+        if ($origComment && $comment['content'] != $origComment->getContent()) {
+          $changedComments[$commentId] = $origComment->getAuthor()?->id();
+        }
       }
     }
     $commentIds = array_flip($commentIds);
@@ -839,6 +857,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     return [
       'added' => array_diff_key($commentIds, $origComments),
+      'changed' => $changedComments,
       'removed' => $removedComments,
       'removed_threads' => $removedThreadIds,
     ];

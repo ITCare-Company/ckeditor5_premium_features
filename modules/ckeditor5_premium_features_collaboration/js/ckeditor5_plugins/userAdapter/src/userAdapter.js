@@ -31,19 +31,18 @@ class UserAdapter {
     let textFormat = this.editor.sourceElement.getAttribute('data-editor-active-text-format');
     let permissionsPlugin = this.editor.plugins.get('Permissions');
     let permissions = drupalSettings.ckeditor5Premium.current_user.editor_permission[textFormat];
-    let documentAdmin = permissions.indexOf('document:admin');
     const isTrackChangesEnabled = this.editor.plugins.has('TrackChanges');
-
-    if (documentAdmin > -1) {
-      permissions.splice(documentAdmin, 1);
-    }
 
     if (typeof permissions !== 'object') {
       this.editor.enableReadOnlyMode(this.editor.id);
     } else {
+      let documentAdmin = permissions.indexOf('document:admin');
+      if (documentAdmin > -1) {
+        permissions.splice(documentAdmin, 1);
+      }
       permissionsPlugin.setPermissions(permissions);
       if (permissions.length === 1 && permissions[0] === 'comment:write') {
-        this.disableToolbarItems();
+        this.disablePlugins('commentOnly');
       }
       if (permissions.includes('document:write') && documentAdmin === -1) {
         if (isTrackChangesEnabled) {
@@ -52,7 +51,7 @@ class UserAdapter {
           this.editor.commands.get('acceptAllSuggestions').forceDisabled('suggestionOnly');
           this.editor.commands.get('discardAllSuggestions').forceDisabled('suggestionOnly');
           this.editor.commands.get('discardSuggestion').forceDisabled('suggestionOnly');
-          this.disableToolbarItems();
+          this.disablePlugins('suggestionOnly');
         } else {
           this.editor.enableReadOnlyMode(this.editor.id);
         }
@@ -61,24 +60,17 @@ class UserAdapter {
     }
   }
 
-  disableToolbarItems() {
-    let toolbarItems = this.editor.ui.view.toolbar.items;
-    toolbarItems.map(item => {
-      if (item.label === 'Source') {
-        item.set('isEnabled', false);
-        item.set('isVisible', false);
-      }
-      if (typeof item.buttonView !== "undefined") {
-        if (item.buttonView.label === 'Track changes' ) {
-          item.buttonView.actionView.set('isEnabled', false);
-          item.buttonView.arrowView.set('isEnabled', false);
-          item.buttonView.arrowView.set('isVisible', false);
-        }
-        if (item.buttonView.label === 'Revision history') {
-          item.set('isEnabled', false);
-        }
-      }
-    });
+  disablePlugins(id) {
+    const plugins = this.editor.plugins;
+    if (plugins.has('SourceEditing')) {
+      plugins.get('SourceEditing').forceDisabled(id);
+    }
+    if (plugins.has('RevisionTracker')) {
+      plugins.get('RevisionTracker').forceDisabled(id);
+    }
+    if (plugins.has('TrackChanges')) {
+      plugins.get('TrackChanges').forceDisabled(id);
+    }
   }
 
 }
