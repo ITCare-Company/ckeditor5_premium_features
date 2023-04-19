@@ -12,7 +12,6 @@ ckeditor5_premium_features_export_word.endpoint.jwt_token:
   defaults:
     _controller: '\Drupal\ckeditor5_premium_features_export_word\Controller\EndpointController::jwtToken'
   requirements:
-    # TODO: To be verified if any permission will be required for this.
-    _access: 'TRUE'
+    _permission: 'use ckeditor5 access token'
   options:
     no_cache: 'TRUE'
