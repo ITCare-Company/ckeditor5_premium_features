@@ -67,7 +67,7 @@ services:
     arguments:
       - '@entity_type.manager'
 
-  ckeditor5_premium_features.event_subscriber:
+  ckeditor5_premium_features.config_event_subscriber:
     class: Drupal\ckeditor5_premium_features\EventSubscriber\ConfigSubscriber
     arguments: ['@config.factory', '@entity_type.manager']
     tags:
