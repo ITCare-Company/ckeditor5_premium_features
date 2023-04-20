@@ -66,3 +66,9 @@ services:
     class: Drupal\ckeditor5_premium_features\CollaborationAccessHandler
     arguments:
       - '@entity_type.manager'
+
+  ckeditor5_premium_features.event_subscriber:
+    class: Drupal\ckeditor5_premium_features\EventSubscriber\ConfigSubscriber
+    arguments: ['@config.factory', '@entity_type.manager']
+    tags:
+      - { name: event_subscriber }
