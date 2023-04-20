@@ -50,7 +50,7 @@ class SettingsForm extends BaseExportSettingsForm {
       '#type' => 'textfield',
       '#title' => t('Environment ID'),
       '#required' => FALSE,
-      '#description' =>  t('Leave this field empty unless you are using the on-premises version of Export to Word.'),
+      '#description' =>  t('Leave this field empty unless, for Export to Word, you are using a different environment than the one from the main module configuration.'),
       '#default_value' => $config->get('env'),
     ];
 
@@ -58,7 +58,7 @@ class SettingsForm extends BaseExportSettingsForm {
       '#type' => 'textfield',
       '#title' => t('Access key'),
       '#required' => FALSE,
-      '#description' => t('Leave this field empty unless you are using the on-premises version of Export to Word.'),
+      '#description' => t('Leave this field empty unless, for Export to Word, you are using a different environment than the one from the main module configuration.'),
       '#default_value' => $config->get('access_key'),
     ];
 
