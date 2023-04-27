@@ -206,7 +206,93 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $element['#attached']['drupalSettings']['ckeditor5Premium']['current_user']['editor_permission'] =
       $this->collaborationAccessHandler->getUserPermissionsForTextFormats($this->currentUser);
 
+    $element['#element_validate'] = [[$this, 'validateElement']];
     return $element;
+  }
+
+  public function validateElement(array $element, FormStateInterface $form_state, array $form) {
+    if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element, FALSE)) {
+      return;
+    }
+    $form_object = $form_state->getFormObject();
+    if (!$this->isFormTypeSupported($form_object)) {
+      // Do not process anything, the entity is missing.
+      return;
+    }
+    $item_parents = $element['#parents'];
+    $item_key = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
+
+    $sourceOriginalData = $this->getFormElementOriginalValue($form, $item_parents) ?? '';
+    $sourceNewData = $form_state->getValue([...$item_parents, 'value']) ?? '';
+    $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
+
+    $userAccess = $this->collaborationAccessHandler->getUserCollaborationAccess($this->currentUser, $fieldFormat);
+
+    // User has full access. Skip validation.
+    if ($userAccess['document_write'] && $userAccess['comment_admin']) {
+      return;
+    }
+
+    // User does not have permission to make non-suggestion changes. Throw
+    // error in case there are changes outside collaboration tags.
+    $isRawDocumentChanged = $this->documentDiffHelper->isRawDocumentChanged($sourceOriginalData, $sourceNewData);
+    if (!$userAccess['document_write'] && $isRawDocumentChanged) {
+      $form_state->setError($element, $this->t("You are not allowed to edit the %field field.", ['%field' => $element['#title']]));
+      return;
+    }
+
+    // Get form comments data and original comments data. Compare their ids
+    // and get a list of added and removed comments.
+    $commentsData = $this->getFormElementSourceData($form_state, $item_parents, 'comments', $item_key);
+    $origCommentsData = $this->commentsStorage->loadByEntity($form_object->getEntity(), $item_key);
+    $commentsChanges = $this->getChangedComments($commentsData, $origCommentsData);
+
+    // We can get document changes array and remove all comment changes,
+    // so suggestion changes only will remain for further validation.
+    $changes = $this->documentDiffHelper->getDocumentChanges($sourceOriginalData, $sourceNewData);
+    $removedContentWithComment = 0;
+    $this->removeCommentChanges($changes, $removedContentWithComment);
+
+    if ($commentsChanges['added'] && !$userAccess['comment_admin'] && !$userAccess['comment_write']) {
+      $form_state->setError($element, $this->t("You are not allowed to post collaboration comments in %field field.", ['%field' => $element['#title']]));
+      return;
+    }
+
+    foreach ($commentsChanges['changed'] as $uid) {
+      if ($uid != $this->currentUser->id()) {
+        // @TODO once editing all users comments is available in CKEditor we
+        // can change condition here.
+        $form_state->setError($element, $this->t("You are not allowed to edit collaboration comments in %field.", ['%field' => $element['#title']]));
+        return;
+      }
+      elseif (!$userAccess['comment_admin'] && !$userAccess['comment_write']) {
+        $form_state->setError($element, $this->t("You are not allowed to edit collaboration comments in %field.", ['%field' => $element['#title']]));
+        return;
+      }
+    }
+
+    if ($commentsChanges['removed'] && count($commentsChanges['removed_threads']) !== $removedContentWithComment) {
+      if (!$userAccess['comment_admin'] && !$userAccess['comment_write']) {
+        $form_state->setError($element, $this->t("You are not allowed to delete collaboration comments in %field.", ['%field' => $element['#title']]));
+        return;
+      }
+      if (!$userAccess['comment_admin']) {
+        foreach ($commentsChanges['removed'] as $removedComment) {
+          if ($removedComment->getAuthorId() != $this->currentUser->id()) {
+            $form_state->setError($element, $this->t("You are not allowed to delete other users collaboration comments in %field.", ['%field' => $element['#title']]));
+            return;
+          }
+        }
+      }
+    }
+
+    // If we're here then only suggestion changes should remain in changes
+    // array, check if user has permission for suggestions.
+    if (!$userAccess['document_suggestion'] && !$userAccess['document_write'] && !empty($changes)) {
+      $form_state->setError($element, $this->t("You're not allowed to add collaboration suggestions in %field.", ['%field' => $element['#title']]));
+      return;
+    }
+
   }
 
   /**
@@ -353,87 +439,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state):void {
-    $form_object = $form_state->getFormObject();
-    if (!$this->isFormTypeSupported($form_object)) {
-      // Do not process anything, the entity is missing.
-      return;
-    }
-    $items = $form_state->get(static::STORAGE_KEY) ?? [];
-
-    foreach ($items as $item_key => $item_parents) {
-      $sourceOriginalData = $this->getFormElementOriginalValue($form, $item_parents) ?? '';
-      $sourceNewData = $form_state->getValue([...$item_parents, 'value']) ?? '';
-      $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
-
-      $userAccess = $this->collaborationAccessHandler->getUserCollaborationAccess($this->currentUser, $fieldFormat);
-
-      // User has full access. Skip validation.
-      if ($userAccess['document_write'] && $userAccess['comment_admin']) {
-        continue;
-      }
-
-      // User does not have permission to make non-suggestion changes. Throw
-      // error in case there are changes outside collaboration tags.
-      $isRawDocumentChanged = $this->documentDiffHelper->isRawDocumentChanged($sourceOriginalData, $sourceNewData);
-      if (!$userAccess['document_write'] && $isRawDocumentChanged) {
-        $form_state->setError($form, $this->t("You don't have a permission to edit the collaboration document."));
-        return;
-      }
-
-      // Get form comments data and original comments data. Compare their ids
-      // and get a list of added and removed comments.
-      $commentsData = $this->getFormElementSourceData($form_state, $item_parents, 'comments', $item_key);
-      $origCommentsData = $this->commentsStorage->loadByEntity($form_object->getEntity(), $item_key);
-      $commentsChanges = $this->getChangedComments($commentsData, $origCommentsData);
-
-      // We can get document changes array and remove all comment changes,
-      // so suggestion changes only will remain for further validation.
-      $changes = $this->documentDiffHelper->getDocumentChanges($sourceOriginalData, $sourceNewData);
-      $removedContentWithComment = 0;
-      $this->removeCommentChanges($changes, $removedContentWithComment);
-
-      if ($commentsChanges['added'] && !$userAccess['comment_admin'] && !$userAccess['comment_write']) {
-        $form_state->setError($form, $this->t("You are not allowed to post collaboration comments."));
-        return;
-      }
-
-      foreach ($commentsChanges['changed'] as $uid) {
-        if ($uid != $this->currentUser->id()) {
-          // @TODO once editing all users comments is available in CKEditor we
-          // can change condition here.
-          $form_state->setError($form, $this->t("You are not allowed to edit collaboration comments."));
-          return;
-        }
-        elseif (!$userAccess['comment_admin'] && !$userAccess['comment_write']) {
-          $form_state->setError($form, $this->t("You are not allowed to edit collaboration comments."));
-          return;
-        }
-      }
-
-      if ($commentsChanges['removed'] && count($commentsChanges['removed_threads']) !== $removedContentWithComment) {
-        if (!$userAccess['comment_admin'] && !$userAccess['comment_write']) {
-          $form_state->setError($form, $this->t("You are not allowed to delete collaboration comments."));
-          return;
-        }
-        if (!$userAccess['comment_admin']) {
-          foreach ($commentsChanges['removed'] as $removedComment) {
-            if ($removedComment->getAuthorId() != $this->currentUser->id()) {
-              $form_state->setError($form, $this->t("You are not allowed to delete other users collaboration comments."));
-              return;
-            }
-          }
-        }
-      }
-
-      // If we're here then only suggestion changes should remain in changes
-      // array, check if user has permission for suggestions.
-      if (!$userAccess['document_suggestion'] && !$userAccess['document_write'] && !empty($changes)) {
-        $form_state->setError($form, $this->t("You don't have a permission for collaboration suggestions."));
-        return;
-      }
-
-    }
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
+    return;
   }
 
   /**

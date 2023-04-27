@@ -53,15 +53,17 @@ class ConfigSubscriber implements EventSubscriberInterface {
     if ($isEditorConfig !== 0 || $config->isNew()) {
       return;
     }
-    $original = $config->getOriginal();
+    if (!$original = $config->getOriginal()) {
+      return;
+    }
     $premiumPlugins = [
       'ckeditor5_premium_features_collaboration__comments',
       'ckeditor5_premium_features_collaboration__track_changes'
     ];
 
     // Exit if there was no collaboration plugins before.
-    $originalEditorSettings = $original['settings'];
-    $originalPlugins = $originalEditorSettings["plugins"] ? array_keys($originalEditorSettings["plugins"]) : [];
+    $originalEditorSettings = $original['settings'] ?? [];
+    $originalPlugins = isset($originalEditorSettings["plugins"]) ? array_keys($originalEditorSettings["plugins"]) : [];
     if (empty(array_intersect($originalPlugins, $premiumPlugins))) {
       return;
     }

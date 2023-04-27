@@ -7,12 +7,10 @@
 
 declare(strict_types=1);
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 use Drupal\ckeditor5_premium_features\EditorXssFilter\CollaborationXSSFilter;
-use Drupal\Core\Url;
 use Drupal\filter\FilterFormatInterface;
 
 /**
@@ -72,17 +70,4 @@ function ckeditor5_premium_features_editor_xss_filter_alter(
   FilterFormatInterface $format,
   FilterFormatInterface $original_format = NULL) {
   $editor_xss_filter_class = CollaborationXSSFilter::class;
-}
-
-/**
- * Implements hook_form_alter().
- */
-function ckeditor5_premium_features_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  if ($form_id === 'filter_format_edit_form') {
-    $moduleName = basename(__FILE__, '.module');
-    $permissionsUrl = Url::fromRoute('user.admin_permissions.module', ['modules' => $moduleName])->toString();
-    $description = t('In order to setup CKEditor5 Collaboration permissions go to: <a href=":url">Permissions page</a>',
-      [':url' => $permissionsUrl]);
-    $form['roles']['#description'] = $description;
-  }
 }

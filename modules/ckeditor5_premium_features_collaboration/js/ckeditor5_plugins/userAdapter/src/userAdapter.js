@@ -37,9 +37,6 @@ class UserAdapter {
       this.editor.enableReadOnlyMode(this.editor.id);
     } else {
       let documentAdmin = permissions.indexOf('document:admin');
-      if (documentAdmin > -1) {
-        permissions.splice(documentAdmin, 1);
-      }
       permissionsPlugin.setPermissions(permissions);
       if (permissions.length === 1 && permissions[0] === 'comment:write') {
         this.disablePlugins('commentOnly');
@@ -51,6 +48,7 @@ class UserAdapter {
           this.editor.commands.get('acceptAllSuggestions').forceDisabled('suggestionOnly');
           this.editor.commands.get('discardAllSuggestions').forceDisabled('suggestionOnly');
           this.editor.commands.get('discardSuggestion').forceDisabled('suggestionOnly');
+          this.editor.commands.get('trackChanges').forceDisabled('suggestionOnly');
           this.disablePlugins('suggestionOnly');
         } else {
           this.editor.enableReadOnlyMode(this.editor.id);
