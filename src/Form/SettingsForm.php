@@ -96,6 +96,7 @@ class SettingsForm extends ConfigFormBase {
 
     $configuration['license_key'] = [
       '#type' => 'textfield',
+      '#maxlength' => 512,
       '#required' => $this->isNonRealtimeSettingsRequired(),
       '#title' => $this->t('License key'),
       '#description' => $this->t('The license key is required <strong>only</strong> for Revision History, Track changes and Comments (<strong>without</strong> real-time collaboration).'),
