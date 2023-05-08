@@ -402,7 +402,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
           $source_data = array_merge($source_data, $resolved_suggestions_comments);
         }
 
-        if (empty($source_data)) {
+        if (empty($source_data) && !$storage instanceof CommentsStorage) {
           continue;
         }
 
