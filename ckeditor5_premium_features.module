@@ -123,6 +123,14 @@ function ckeditor5_premium_features_module_implements_alter(&$implementations, $
 }
 
 /**
+ * Implements hook_js_settings_alter().
+ */
+function ckeditor5_premium_features_js_settings_alter(array &$settings, \Drupal\Core\Asset\AttachedAssetsInterface $assets) {
+  $moduleHandler = \Drupal::service('module_handler');
+  $settings["ckeditor5Premium"]["isMediaInstalled"] = $moduleHandler->moduleExists('media');
+}
+
+/**
  * Returns version of Ckeditor 5 library.
  *
  * @return string
