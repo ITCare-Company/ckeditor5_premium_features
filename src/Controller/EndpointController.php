@@ -36,7 +36,7 @@ class EndpointController extends ControllerBase {
    * Handle the JWT token endpoint request.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
-   *   The ajax response containg JWT token.
+   *   The ajax response containing JWT token.
    */
   public function jwtToken(): AjaxResponse {
     $response = new AjaxResponse();

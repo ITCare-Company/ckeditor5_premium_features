@@ -130,6 +130,9 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     if ($this->settingsConfigHandler->hasConverterUrl()) {
       $static_plugin_config[$plugin]['converterUrl'] = $this->settingsConfigHandler->getConverterUrl();
     }
+    if ($this->settingsConfigHandler->getEnvironmentId() && $this->settingsConfigHandler->getAccessKey()) {
+      $static_plugin_config[$plugin]['tokenUrl'] = $this->settingsConfigHandler->getTokenUrl();
+    }
 
     $static_plugin_config[$plugin]['converterOptions'] = $this->getCurrentConfiguration();
 

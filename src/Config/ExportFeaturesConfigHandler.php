@@ -57,10 +57,31 @@ class ExportFeaturesConfigHandler implements ExportFeaturesConfigHandlerInterfac
   /**
    * {@inheritdoc}
    */
+  public function getEnvironmentId(): ?string {
+    return $this->config->get('env');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAccessKey(): ?string {
+    return $this->config->get('access_key');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getConverterOptions(): array {
     $options = $this->config->get('converter_options') ?? [];
 
     return array_filter($options);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTokenUrl(): string {
+    return '';
   }
 
 }
