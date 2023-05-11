@@ -13,11 +13,12 @@
       let documentDom = document.createElement('body');
       documentDom.innerHTML = content;
 
-      let elementsAttributes = this.getTagProperties(documentDom);
+      if (drupalSettings.ckeditor5Premium.isMediaInstalled) {
+        let elementsAttributes = this.getTagProperties(documentDom);
+        let mediaPaths = await this.queryMediaPaths(elementsAttributes, format);
 
-      let mediaPaths = await this.queryMediaPaths(elementsAttributes, format);
-
-      this.replaceMediaTags(documentDom, mediaPaths);
+        this.replaceMediaTags(documentDom, mediaPaths);
+      }
 
       return documentDom.innerHTML;
     },
