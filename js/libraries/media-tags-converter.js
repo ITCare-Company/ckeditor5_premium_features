@@ -10,7 +10,8 @@
      * @returns {Promise<string>}
      */
     async convertMediaTags(content, format) {
-      let documentDom = document.createElement('body');
+      const parser = new DOMParser();
+      const documentDom = parser.parseFromString( content, 'text/html' ).body;
       documentDom.innerHTML = content;
 
       if (drupalSettings.ckeditor5Premium.isMediaInstalled) {
