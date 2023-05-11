@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ckeditor5_premium_features_notifications\Diff;
+namespace Drupal\ckeditor5_premium_features\Diff;
 
 /**
  * Interface for Ckeditor5 Diff class.
@@ -25,6 +25,19 @@ interface Ckeditor5DiffInterface {
    * Returns a wider context presenting added parts with surrounding text.
    */
   public function getDiffAddedContext(): ?string;
+
+  /**
+   * Returns an array of all changes in the document.
+   *
+   * @param string $oldDocument
+   *   String representing previous version of a document.
+   * @param string $newDocument
+   *   String representing new version of a document.
+   *
+   * @return array
+   *   Returns an array representing all changes made to the document.
+   */
+  public function getDocumentChanges(string $oldDocument, string $newDocument): array;
 
   /**
    * Returns a wider context presenting all modified document parts.

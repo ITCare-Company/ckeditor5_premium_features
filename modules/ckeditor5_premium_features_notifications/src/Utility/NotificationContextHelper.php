@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
-use Drupal\ckeditor5_premium_features\Utility\HtmlHelper;
+use Drupal\ckeditor5_premium_features\Utility\ContextHelper;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
@@ -16,20 +16,9 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 /**
  * Class offering helper methods for collecting notification context.
  */
-class NotificationContextHelper {
+class NotificationContextHelper extends ContextHelper {
 
   const COMMENTS_LIMIT_IN_THREAD = 5;
-
-  /**
-   * Constructor.
-   *
-   * @param \Drupal\ckeditor5_premium_features\Utility\HtmlHelper $htmlHelper
-   *   Collaboration HTML helper.
-   */
-  public function __construct(
-    protected HtmlHelper $htmlHelper
-  ) {
-  }
 
   /**
    * Collects a context for a collaboration entity using a document entity.
@@ -316,25 +305,6 @@ class NotificationContextHelper {
   }
 
   /**
-   * Returns an array of strings with document detected changes.
-   *
-   * @param string $context
-   *   Document content.
-   * @param bool $onlyInserts
-   *   Flag for determining type of changes to be selected.
-   */
-  public function getDocumentChangesContext(string $context, bool $onlyInserts = FALSE): array {
-    $query = "//ins" . ($onlyInserts ? '' : '|//del');
-
-    $snippets = [];
-    foreach ($this->getMatchingContext($context, $query, FALSE) as $markup) {
-      $snippets[] = $markup;
-    }
-
-    return $snippets;
-  }
-
-  /**
    * Returns a render array with the collaboration entity thread.
    *
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $entity
@@ -372,58 +342,6 @@ class NotificationContextHelper {
       'format',
       'formatblock',
     ]);
-  }
-
-  /**
-   * Returns elements list with optional class for highlighting matched element.
-   *
-   * @param string $context
-   *   Source HTML content.
-   * @param string $query
-   *   XPATH query that will be used for selecting matching HTML part.
-   * @param bool $highlight
-   *   Flag to determine if a found element should receive highlight class.
-   *
-   * @return array
-   *   List of string representing matching element context.
-   */
-  protected function getMatchingContext(string $context, string $query, bool $highlight = TRUE): array {
-    $document = Html::load($context);
-
-    $contextParts = [];
-
-    $xpath = new \DOMXPath($document);
-    $matchingElements = $xpath->query($query);
-    if (!empty($matchingElements)) {
-      /** @var \DOMElement $element */
-      foreach ($matchingElements as $element) {
-        if ($highlight) {
-          $element->setAttribute('class', $element->getAttribute('class') . ' highlight-item');
-        }
-        // Let's prevent selecting same parent node several times (when several
-        // changes were made in the same paragraph tag).
-        $parentNode = $this->htmlHelper->selectElementParentNode($element);
-        $parentPath = $parentNode->getNodePath();
-        $matched = FALSE;
-        foreach ($contextParts as $nodePath => $html) {
-          if (stripos($nodePath, $parentPath) !== FALSE) {
-            // Let's prefer to choose parent node instead of it;s children.
-            unset($contextParts[$nodePath]);
-          }
-          elseif (stripos($parentPath, $nodePath) !== FALSE) {
-            // Let's also detect a situation when we select a child of a parent
-            // that we already selected.
-            $matched = TRUE;
-            break;
-          }
-        }
-        if (!$matched) {
-          $contextParts[$parentPath] = $element->ownerDocument->saveXML($parentNode);
-        }
-      }
-    }
-
-    return $contextParts;
   }
 
   /**

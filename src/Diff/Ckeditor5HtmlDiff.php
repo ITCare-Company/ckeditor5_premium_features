@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\ckeditor5_premium_features_notifications\Diff;
+namespace Drupal\ckeditor5_premium_features\Diff;
 
 use Caxy\HtmlDiff\HtmlDiff;
 use Drupal\ckeditor5_premium_features\Utility\Html;
@@ -33,6 +33,43 @@ class Ckeditor5HtmlDiff extends HtmlDiff {
     $allNewContentParts = implode(PHP_EOL, $addedParts);
 
     return $this->fixHtmlWithPotentiallyImproperHtml($allNewContentParts);
+  }
+
+  /**
+   * Returns an array of all changes made to the document..
+   */
+  public function getChanges(): array {
+    $changes = [];
+    $operations = $this->operations();
+    foreach ($operations as $operation) {
+      switch ($operation->action) {
+        case 'equal':
+          break;
+        default:
+          $addedChunks = array_slice(
+            $this->newWords,
+            $operation->startInNew,
+            $operation->endInNew - $operation->startInNew
+          );
+          $added = implode('', $addedChunks);
+
+          $removedChunks = array_slice(
+            $this->oldWords,
+            $operation->startInOld,
+            $operation->endInOld - $operation->startInOld
+          );
+          $removed = implode('', $removedChunks);
+
+          $changes[] = [
+            'action' => $operation->action,
+            'added' => $added,
+            'removed' => $removed,
+          ];
+          break;
+      }
+    }
+
+    return $changes;
   }
 
   /**

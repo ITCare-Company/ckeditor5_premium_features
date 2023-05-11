@@ -50,3 +50,30 @@ services:
     class: Drupal\ckeditor5_premium_features\Storage\EditorStorageHandler
     arguments:
       - '@entity_type.manager'
+
+  ckeditor5_premium_features.context_helper:
+    class: Drupal\ckeditor5_premium_features\Utility\ContextHelper
+    arguments:
+      - '@ckeditor5_premium_features.html_helper'
+
+  ckeditor5_premium_features.diff:
+    class: Drupal\ckeditor5_premium_features\Diff\Ckeditor5Diff
+    arguments:
+      - '@ckeditor5_premium_features.context_helper'
+
+  ckeditor5_premium_features.document_diff_helper:
+    class: Drupal\ckeditor5_premium_features\Diff\DocumentDiffHelper
+    arguments:
+      - '@ckeditor5_premium_features.diff'
+      - '@plugin.manager.filter'
+
+  ckeditor5_premium_features.access_handler:
+    class: Drupal\ckeditor5_premium_features\CollaborationAccessHandler
+    arguments:
+      - '@entity_type.manager'
+
+  ckeditor5_premium_features.config_event_subscriber:
+    class: Drupal\ckeditor5_premium_features\EventSubscriber\ConfigSubscriber
+    arguments: ['@config.factory', '@entity_type.manager']
+    tags:
+      - { name: event_subscriber }

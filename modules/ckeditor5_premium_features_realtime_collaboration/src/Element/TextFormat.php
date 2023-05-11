@@ -202,6 +202,22 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function onValidateForm(array &$form, FormStateInterface $form_state): void {
+    /** @var \Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat $service */
+    $service = \Drupal::service('ckeditor5_premium_features_realtime_collaboration.element.text_format');
+    $service->validateForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state):void {
+    // @todo validation for RTC document submit
+  }
+
+  /**
    * Handles creating new Channel entity.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity

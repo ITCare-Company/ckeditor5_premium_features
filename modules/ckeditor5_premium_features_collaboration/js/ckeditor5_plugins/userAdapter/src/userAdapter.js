@@ -21,7 +21,56 @@ class UserAdapter {
 
     // Set the current user.
     usersPlugin.defineMe( drupalSettings.user.uid );
+
+    this.editor.on('ready', () => {
+      this.setPermissions();
+    })
   }
+
+  setPermissions() {
+    let textFormat = this.editor.sourceElement.getAttribute('data-editor-active-text-format');
+    let permissionsPlugin = this.editor.plugins.get('Permissions');
+    let permissions = drupalSettings.ckeditor5Premium.current_user.editor_permission[textFormat];
+    const isTrackChangesEnabled = this.editor.plugins.has('TrackChanges');
+
+    if (typeof permissions !== 'object') {
+      this.editor.enableReadOnlyMode(this.editor.id);
+    } else {
+      let documentAdmin = permissions.indexOf('document:admin');
+      permissionsPlugin.setPermissions(permissions);
+      if (permissions.length === 1 && permissions[0] === 'comment:write') {
+        this.disablePlugins('commentOnly');
+      }
+      if (permissions.includes('document:write') && documentAdmin === -1) {
+        if (isTrackChangesEnabled) {
+          this.editor.execute('trackChanges');
+          this.editor.commands.get('acceptSuggestion').forceDisabled('suggestionOnly');
+          this.editor.commands.get('acceptAllSuggestions').forceDisabled('suggestionOnly');
+          this.editor.commands.get('discardAllSuggestions').forceDisabled('suggestionOnly');
+          this.editor.commands.get('discardSuggestion').forceDisabled('suggestionOnly');
+          this.editor.commands.get('trackChanges').forceDisabled('suggestionOnly');
+          this.disablePlugins('suggestionOnly');
+        } else {
+          this.editor.enableReadOnlyMode(this.editor.id);
+        }
+      }
+
+    }
+  }
+
+  disablePlugins(id) {
+    const plugins = this.editor.plugins;
+    if (plugins.has('SourceEditing')) {
+      plugins.get('SourceEditing').forceDisabled(id);
+    }
+    if (plugins.has('RevisionTracker')) {
+      plugins.get('RevisionTracker').forceDisabled(id);
+    }
+    if (plugins.has('TrackChanges')) {
+      plugins.get('TrackChanges').forceDisabled(id);
+    }
+  }
+
 }
 
 export default UserAdapter;
