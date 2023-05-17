@@ -127,7 +127,8 @@ function ckeditor5_premium_features_collaboration_remove_collaborations_entities
     /** @var \Drupal\Core\Entity\EntityStorageInterface $storage */
     $query = $storage->getQuery()
       ->accessCheck(FALSE)
-      ->condition('entity_id', $id);
+      ->condition('entity_id', $id)
+      ->condition('entity_type', $entity->getEntityTypeId());
 
     if ($is_translation) {
       $langcode = $entity->language()->getId();
