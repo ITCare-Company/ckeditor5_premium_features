@@ -27,10 +27,8 @@ export default class FullScreen extends Plugin {
 
 			view.on( 'execute', () => {
 				const sideBarWrapper = editor.sourceElement.closest( '.ck-editor-sidebar-wrapper' );
-        console.log(sideBarWrapper);
 				const sourceElementSibling = editor.sourceElement.nextElementSibling;
 				const targetElement = sideBarWrapper ? sideBarWrapper : sourceElementSibling;
-        console.log(targetElement)
 				const revHistoryElement = targetElement.parentNode.querySelector( '.revision-history-container-data' );
 				if ( document.body.classList.contains( overlayClass ) ) {
 					targetElement.classList.remove( editorFullScreenClass );

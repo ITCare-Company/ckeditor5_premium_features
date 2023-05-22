@@ -4,8 +4,7 @@ ckeditor5_premium_features_fullscreen_fullscreen:
       - fullscreen.FullScreen
   drupal:
     label: CKEditor 5 Full screen mode
-    elements:
-      - <p>
+    elements: false
     library: ckeditor5_premium_features_fullscreen/ckeditor5_fullscreen
     admin_library: ckeditor5_premium_features_fullscreen/admin
     toolbar_items:
