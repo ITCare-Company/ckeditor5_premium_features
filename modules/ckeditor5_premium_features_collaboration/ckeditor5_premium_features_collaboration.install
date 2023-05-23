@@ -127,7 +127,7 @@ function ckeditor5_premium_features_collaboration_update_10001() {
 /**
  *  Change Collaboration Revision entities Id to Uuid.
  */
-function ckeditor5_premium_features_collaboration_update_10005(&$sandbox) {
+function ckeditor5_premium_features_collaboration_update_10002(&$sandbox) {
   $storage = \Drupal::entityTypeManager()->getStorage(RevisionInterface::ENTITY_TYPE_ID);
   updateCollaborationEntities($storage, $sandbox);
 }
@@ -135,7 +135,7 @@ function ckeditor5_premium_features_collaboration_update_10005(&$sandbox) {
 /**
  * Change Collaboration Suggestion entities Id to Uuid.
  */
-function ckeditor5_premium_features_collaboration_update_10006(&$sandbox) {
+function ckeditor5_premium_features_collaboration_update_10003(&$sandbox) {
   $storage = \Drupal::entityTypeManager()->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
   updateCollaborationEntities($storage, $sandbox);
 }
@@ -143,7 +143,7 @@ function ckeditor5_premium_features_collaboration_update_10006(&$sandbox) {
 /**
  *  Change Collaboration Comment entities Id to Uuid.
  */
-function ckeditor5_premium_features_collaboration_update_10007(&$sandbox) {
+function ckeditor5_premium_features_collaboration_update_10004(&$sandbox) {
   $storage = \Drupal::entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID);
   updateCollaborationEntities($storage, $sandbox);
 }
