@@ -62,14 +62,18 @@ class CollaborationEntityAccessControlHandler extends EntityAccessControlHandler
     $entity_type = $entity->getEntityTypeTargetId();
     $entity_id = $entity->getEntityId();
 
+    if ($operation === 'view_new') {
+      $result = AccessResult::allowed();
+      return $return_as_object ? $result : $result->isAllowed();
+    }
+
     try {
       $storage = $this->entityTypeManager->getStorage($entity_type);
-      $related_entity = $storage->load($entity_id);
-
+      $related_entity = $storage->loadByProperties(['uuid' => $entity_id]);
+      $related_entity = reset($related_entity);
       if (!$related_entity instanceof EntityInterface) {
         throw new \Exception();
       }
-
       $result = $related_entity->access($operation, $account, TRUE);
     }
     catch (\Throwable) {

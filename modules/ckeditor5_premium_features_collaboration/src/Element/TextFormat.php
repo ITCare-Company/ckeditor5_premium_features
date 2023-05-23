@@ -29,6 +29,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\filter\FilterFormatInterface;
+use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\user\Entity\User;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -134,13 +135,16 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       // any collaboration features enabled.
       return $element;
     }
-    $this->generalProcessElement($element, $form_state, $complete_form, $this->collaborationSettings);
 
     $form_object = $form_state->getFormObject();
-    $entity = NULL;
 
+    $this->checkIfLayoutParagraphsIsUsed($element, $form_object);
+
+    $this->generalProcessElement($element, $form_state, $complete_form, $this->collaborationSettings);
+
+    $entity = NULL;
     if ($this->isFormTypeSupported($form_object)) {
-      $entity = $form_object->getEntity();
+      $entity = $this->getRelatedEntity($form_object);
     }
 
     $id = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
@@ -248,17 +252,28 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       return;
     }
 
-    $entity = $form_object->getEntity();
+    $entity = $this->getRelatedEntity($form_object);
 
-    if (!$entity->id()) {
+    if (!$entity->uuid()) {
       return;
+    }
+
+    $sendNotifications = TRUE;
+    
+    /*
+     * TODO: Notification for paragraphs
+     */
+    if ($entity instanceof Paragraph) {
+      $sendNotifications = FALSE;
     }
 
     foreach ($items as $item_key => $item_parents) {
       $this->processTemporaryStorageRevisionData($form_state, $item_key);
 
       $source_original_data = $this->getFormElementOriginalValue($form, $item_parents);
-      $this->dispatchDocumentUpdateEvent($entity, $item_key, $source_original_data);
+      if ($sendNotifications) {
+        $this->dispatchDocumentUpdateEvent($entity, $item_key, $source_original_data);
+      }
 
       $resolved_suggestions_comments = $this->getFormElementSourceData($form_state, $item_parents, 'resolved_suggestions_comments', $item_key);
       $suggestion_source_data = $this->getFormElementSourceData($form_state, $item_parents, 'track_changes', $item_key);
@@ -294,7 +309,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     if (!empty($order_switch)) {
       $this->changeValuesOrder($order_switch, $entity);
     }
-    $this->dispatchStoragesEvents();
+    if ($sendNotifications) {
+      $this->dispatchStoragesEvents();
+    }
   }
 
   /**

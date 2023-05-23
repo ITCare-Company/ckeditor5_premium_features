@@ -94,33 +94,35 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     if ($this->isFormTypeSupported($form_object)) {
       /** @var \Drupal\Core\Entity\EntityInterface $entity */
-      $entity = $form_object->getEntity();
-      $entity_language = $entity->language()->getId();
+      $entity = $this->getRelatedEntity($form_object);
+      if ($entity) {
+        $entity_language = $entity->language()->getId();
 
-      $channel_id = NestedArray::getValue(
-        $form_state->getUserInput(),
-        [...$element['#parents'], 'entity_channel']
-      ) ?? $this->getChannelId($entity->uuid(), $element_unique_id, $entity_language);
+        $channel_id = NestedArray::getValue(
+          $form_state->getUserInput(),
+          [...$element['#parents'], 'entity_channel']
+        ) ?? $this->getChannelId($entity->uuid(), $element_unique_id, $entity_language);
 
-      if (!$entity->isNew()) {
-        $channel = $this->channelStorage->loadByEntity($entity, $element_unique_id);
-        if (!$channel) {
-          $channel = $this->handleEntityChannel($entity, $channel_id, $element_unique_id);
+        if (!$entity->isNew()) {
+          $channel = $this->channelStorage->loadByEntity($entity, $element_unique_id);
+          if (!$channel) {
+            $channel = $this->handleEntityChannel($entity, $channel_id, $element_unique_id);
+          }
+          if ($channel instanceof ChannelInterface) {
+            $channel_id = $channel->id();
+          }
+          else {
+            throw new Ckeditor5ChannelHandlingException("Problem occurred while creating Ckeditor5 Channel Entity");
+          }
         }
-        if ($channel instanceof ChannelInterface) {
-          $channel_id = $channel->id();
-        }
-        else {
-          throw new Ckeditor5ChannelHandlingException("Problem occurred while creating Ckeditor5 Channel Entity");
-        }
+
+        $this->apiAdapter->validateLibraryVersion($channel_id);
+
+        $element['entity_channel'] = [
+          '#type' => 'hidden',
+          '#value' => $channel_id,
+        ];
       }
-
-      $this->apiAdapter->validateLibraryVersion($channel_id);
-
-      $element['entity_channel'] = [
-        '#type' => 'hidden',
-        '#value' => $channel_id,
-      ];
     }
     else {
       $channel_id = $this->getChannelId(uniqid(), $element_drupal_id);
@@ -165,7 +167,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     $order_switch = $this->detectOrderChange($form_state, $items);
 
-    $entity = $form_object->getEntity();
+    $entity = $this->getRelatedEntity($form_object);
 
     foreach ($items as $element_key => $element_parents) {
       $entity_channel = $form_state->getValue([

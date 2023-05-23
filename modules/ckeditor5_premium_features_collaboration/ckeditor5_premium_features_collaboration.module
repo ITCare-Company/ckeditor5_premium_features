@@ -59,7 +59,7 @@ function ckeditor5_premium_features_collaboration_field_widget_single_element_fo
 
   if ($entity instanceof EntityInterface) {
     $entity_context = [
-      'data-entity' => $entity->id(),
+      'data-entity' => $entity->uuid(),
       'data-entity-type' => $entity->getEntityTypeId(),
     ];
     $element['#attributes'] = $entity_context + $element['#attributes'];
@@ -82,6 +82,7 @@ function ckeditor5_premium_features_collaboration_form_alter(&$form, FormStateIn
   TextFormat::processFormWithCollaborationStorage($form, $form_state);
 }
 
+
 /**
  * Implements hook_entity_delete().
  *
@@ -100,6 +101,7 @@ function ckeditor5_premium_features_collaboration_entity_translation_delete(Enti
   ckeditor5_premium_features_collaboration_remove_collaborations_entities($translation, TRUE);
 }
 
+
 /**
  * Removes all collaborations entities related to the entity.
  *
@@ -109,9 +111,14 @@ function ckeditor5_premium_features_collaboration_entity_translation_delete(Enti
  *   Flag for removing translation.
  */
 function ckeditor5_premium_features_collaboration_remove_collaborations_entities(EntityInterface $entity, bool $is_translation = FALSE): void {
-  $id = $entity->id();
 
   if ($entity instanceof CollaborationEntityInterface) {
+    return;
+  }
+
+  $id = $entity->uuid();
+
+  if (!$id) {
     return;
   }
 
@@ -126,7 +133,8 @@ function ckeditor5_premium_features_collaboration_remove_collaborations_entities
     /** @var \Drupal\Core\Entity\EntityStorageInterface $storage */
     $query = $storage->getQuery()
       ->accessCheck(FALSE)
-      ->condition('entity_id', $id);
+      ->condition('entity_id', $id)
+      ->condition('entity_type', $entity->getEntityTypeId());
 
     if ($is_translation) {
       $langcode = $entity->language()->getId();
@@ -143,3 +151,4 @@ function ckeditor5_premium_features_collaboration_remove_collaborations_entities
     $storage->delete($entities);
   }
 }
+
