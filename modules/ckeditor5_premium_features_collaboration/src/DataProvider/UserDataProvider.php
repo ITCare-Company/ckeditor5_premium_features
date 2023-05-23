@@ -12,9 +12,9 @@ use Drupal\user\UserInterface;
 use Drupal\user\UserStorageInterface;
 
 /**
- * Provides the user data for the editor featuers.
+ * Provides the user data for the editor features.
  */
-class UserDataProvider {
+class UserDataProvider implements UserCollaborationPermissionsInterface {
 
   /**
    * The image style storage.
@@ -50,10 +50,7 @@ class UserDataProvider {
   }
 
   /**
-   * Creates the data provider instance from the given entities.
-   *
-   * @param array|\Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface[] $entities
-   *   The entities related to the user.
+   * {@inheritDoc}
    */
   public function getFromEntities(array $entities): array {
     $users = [];

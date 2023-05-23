@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
+use Drupal\ckeditor5_premium_features\CollaborationAccessHandler;
+use Drupal\ckeditor5_premium_features\Diff\DocumentDiffHelper;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
@@ -27,6 +29,7 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\filter\FilterFormatInterface;
 use Drupal\paragraphs\Entity\Paragraph;
@@ -39,6 +42,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class TextFormat implements Ckeditor5TextFormatInterface {
 
   use Ckeditor5TextFormatTrait;
+  use StringTranslationTrait;
 
   /**
    * The suggestion storage.
@@ -101,7 +105,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     protected CollaborationSettings $collaborationSettings,
     protected EventDispatcherInterface $eventDispatcher,
     protected AccountInterface $currentUser,
-    protected StateInterface $state
+    protected StateInterface $state,
+    protected DocumentDiffHelper $documentDiffHelper,
+    protected CollaborationAccessHandler $collaborationAccessHandler
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
     $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
@@ -204,7 +210,96 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $track_changes_states = $this->editorStorageHandler->getTrackChangesStates($element);
     $element['#attached']['drupalSettings']['ckeditor5Premium']['tracking_changes']['default_state'] = $track_changes_states;
 
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['current_user']['editor_permission'] =
+      $this->collaborationAccessHandler->getUserPermissionsForTextFormats($this->currentUser);
+
+    $element['#element_validate'] = [[$this, 'validateElement']];
     return $element;
+  }
+
+  public function validateElement(array $element, FormStateInterface $form_state, array $form) {
+    if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element, FALSE)) {
+      return;
+    }
+    $form_object = $form_state->getFormObject();
+    if (!$this->isFormTypeSupported($form_object)) {
+      // Do not process anything, the entity is missing.
+      return;
+    }
+    $item_parents = $element['#parents'];
+    $item_key = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
+
+    $sourceOriginalData = $this->getFormElementOriginalValue($form, $item_parents) ?? '';
+    $sourceNewData = $form_state->getValue([...$item_parents, 'value']) ?? '';
+    $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
+
+    $userAccess = $this->collaborationAccessHandler->getUserCollaborationAccess($this->currentUser, $fieldFormat);
+
+    // User has full access. Skip validation.
+    if ($userAccess['document_write'] && $userAccess['comment_admin']) {
+      return;
+    }
+
+    // User does not have permission to make non-suggestion changes. Throw
+    // error in case there are changes outside collaboration tags.
+    $isRawDocumentChanged = $this->documentDiffHelper->isRawDocumentChanged($sourceOriginalData, $sourceNewData);
+    if (!$userAccess['document_write'] && $isRawDocumentChanged) {
+      $form_state->setError($element, $this->t("You are not allowed to edit the %field field.", ['%field' => $element['#title']]));
+      return;
+    }
+
+    // Get form comments data and original comments data. Compare their ids
+    // and get a list of added and removed comments.
+    $commentsData = $this->getFormElementSourceData($form_state, $item_parents, 'comments', $item_key);
+    $origCommentsData = $this->commentsStorage->loadByEntity($form_object->getEntity(), $item_key);
+    $commentsChanges = $this->getChangedComments($commentsData, $origCommentsData);
+
+    // We can get document changes array and remove all comment changes,
+    // so suggestion changes only will remain for further validation.
+    $changes = $this->documentDiffHelper->getDocumentChanges($sourceOriginalData, $sourceNewData);
+    $removedContentWithComment = 0;
+    $this->removeCommentChanges($changes, $removedContentWithComment);
+
+    if ($commentsChanges['added'] && !$userAccess['comment_admin'] && !$userAccess['comment_write']) {
+      $form_state->setError($element, $this->t("You are not allowed to post collaboration comments in %field field.", ['%field' => $element['#title']]));
+      return;
+    }
+
+    foreach ($commentsChanges['changed'] as $uid) {
+      if ($uid != $this->currentUser->id()) {
+        // @TODO once editing all users comments is available in CKEditor we
+        // can change condition here.
+        $form_state->setError($element, $this->t("You are not allowed to edit collaboration comments in %field.", ['%field' => $element['#title']]));
+        return;
+      }
+      elseif (!$userAccess['comment_admin'] && !$userAccess['comment_write']) {
+        $form_state->setError($element, $this->t("You are not allowed to edit collaboration comments in %field.", ['%field' => $element['#title']]));
+        return;
+      }
+    }
+
+    if ($commentsChanges['removed'] && count($commentsChanges['removed_threads']) !== $removedContentWithComment) {
+      if (!$userAccess['comment_admin'] && !$userAccess['comment_write']) {
+        $form_state->setError($element, $this->t("You are not allowed to delete collaboration comments in %field.", ['%field' => $element['#title']]));
+        return;
+      }
+      if (!$userAccess['comment_admin']) {
+        foreach ($commentsChanges['removed'] as $removedComment) {
+          if ($removedComment->getAuthorId() != $this->currentUser->id()) {
+            $form_state->setError($element, $this->t("You are not allowed to delete other users collaboration comments in %field.", ['%field' => $element['#title']]));
+            return;
+          }
+        }
+      }
+    }
+
+    // If we're here then only suggestion changes should remain in changes
+    // array, check if user has permission for suggestions.
+    if (!$userAccess['document_suggestion'] && !$userAccess['document_write'] && !empty($changes)) {
+      $form_state->setError($element, $this->t("You're not allowed to add collaboration suggestions in %field.", ['%field' => $element['#title']]));
+      return;
+    }
+
   }
 
   /**
@@ -219,98 +314,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $storage = $form_state->getStorage();
 
     if (!empty($storage[static::STORAGE_KEY_COLLABORATION])) {
-      self::addSubmitCallback($form);
-    }
-  }
-
-  /**
-   * The complete form submit callback.
-   *
-   * @param array $form
-   *   The form structure.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The state of the form.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   */
-  public function completeFormSubmit(array &$form, FormStateInterface $form_state): void {
-    $form_object = $form_state->getFormObject();
-    if (!$this->isFormTypeSupported($form_object)) {
-      // Do not process anything, the entity is missing.
-      return;
-    }
-
-    $items = $form_state->get(static::STORAGE_KEY) ?? [];
-
-    $order_switch = $this->detectOrderChange($form_state, $items);
-    $this->filterOrderSwitch($order_switch);
-
-    if ($form_state->isRebuilding()) {
-      $this->storeEntitiesDataInFormStorage($items, $form_state);
-
-      return;
-    }
-
-    $entity = $this->getRelatedEntity($form_object);
-
-    if (!$entity->uuid()) {
-      return;
-    }
-
-    $sendNotifications = TRUE;
-    
-    /*
-     * TODO: Notification for paragraphs
-     */
-    if ($entity instanceof Paragraph) {
-      $sendNotifications = FALSE;
-    }
-
-    foreach ($items as $item_key => $item_parents) {
-      $this->processTemporaryStorageRevisionData($form_state, $item_key);
-
-      $source_original_data = $this->getFormElementOriginalValue($form, $item_parents);
-      if ($sendNotifications) {
-        $this->dispatchDocumentUpdateEvent($entity, $item_key, $source_original_data);
-      }
-
-      $resolved_suggestions_comments = $this->getFormElementSourceData($form_state, $item_parents, 'resolved_suggestions_comments', $item_key);
-      $suggestion_source_data = $this->getFormElementSourceData($form_state, $item_parents, 'track_changes', $item_key);
-      $suggestion_ids = $this->suggestionStorage->getSuggestionEntityIDs($suggestion_source_data);
-
-      $filter_format = $this->getFormElementFilterFormat($form_state, $item_parents);
-
-      foreach ($this->features as $key => $storage) {
-        $source_data = $this->getFormElementSourceData($form_state, $item_parents, $key, $item_key);
-        if ($storage instanceof CommentsStorage && !empty($resolved_suggestions_comments)) {
-          $source_data = array_merge($source_data, $resolved_suggestions_comments);
-        }
-
-        if (empty($source_data)) {
-          continue;
-        }
-
-        if ($source_original_data) {
-          $storage->setDocumentOriginalValue($source_original_data);
-        }
-        if ($storage instanceof CollaborationSuggestionDependingStorageInterface) {
-          $storage->setSuggestionIds($suggestion_ids);
-        }
-        if ($storage instanceof CollaborationContentFilteringStorageInterface
-            && $filter_format instanceof FilterFormatInterface) {
-          $storage->setSourceFilterFormat($filter_format);
-        }
-
-        $entities_data = $storage->processSourceData($source_data, $entity, $item_key);
-        $this->doStorageOperations($entities_data, $storage, $key);
-      }
-    }
-    if (!empty($order_switch)) {
-      $this->changeValuesOrder($order_switch, $entity);
-    }
-    if ($sendNotifications) {
-      $this->dispatchStoragesEvents();
+      self::addCallback('onCompleteFormSubmit', [['#submit']], $form);
     }
   }
 
@@ -351,6 +355,112 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat $service */
     $service = \Drupal::service('ckeditor5_premium_features_collaboration.element.text_format');
     $service->completeFormSubmit($form, $form_state);
+  }
+
+  /**
+   * The complete form submit callback.
+   *
+   * @param array $form
+   *   The form structure.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The state of the form.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function completeFormSubmit(array &$form, FormStateInterface $form_state): void {
+    $form_object = $form_state->getFormObject();
+    if (!$this->isFormTypeSupported($form_object)) {
+      // Do not process anything, the entity is missing.
+      return;
+    }
+    $items = $form_state->get(static::STORAGE_KEY) ?? [];
+
+    $order_switch = $this->detectOrderChange($form_state, $items);
+    $this->filterOrderSwitch($order_switch);
+
+    if ($form_state->isRebuilding()) {
+      $this->storeEntitiesDataInFormStorage($items, $form_state);
+
+      return;
+    }
+
+    $entity = $this->getRelatedEntity($form_object);
+
+    if (!$entity->uuid()) {
+      return;
+    }
+
+    $sendNotifications = TRUE;
+
+    /*
+     * TODO: Notification for paragraphs
+     */
+    if ($entity instanceof Paragraph) {
+      $sendNotifications = FALSE;
+    }
+
+    foreach ($items as $item_key => $item_parents) {
+      $this->processTemporaryStorageRevisionData($form_state, $item_key);
+
+      $source_original_data = $this->getFormElementOriginalValue($form, $item_parents);
+      if ($sendNotifications) {
+        $this->dispatchDocumentUpdateEvent($entity, $item_key, $source_original_data);
+      }
+
+      $resolved_suggestions_comments = $this->getFormElementSourceData($form_state, $item_parents, 'resolved_suggestions_comments', $item_key);
+      $suggestion_source_data = $this->getFormElementSourceData($form_state, $item_parents, 'track_changes', $item_key);
+      $suggestion_ids = $this->suggestionStorage->getSuggestionEntityIDs($suggestion_source_data);
+
+      $filter_format = $this->getFormElementFilterFormat($form_state, $item_parents);
+
+      foreach ($this->features as $key => $storage) {
+        $source_data = $this->getFormElementSourceData($form_state, $item_parents, $key, $item_key);
+        if ($storage instanceof CommentsStorage && !empty($resolved_suggestions_comments)) {
+          $source_data = array_merge($source_data, $resolved_suggestions_comments);
+        }
+
+        if (empty($source_data) && !$storage instanceof CommentsStorage) {
+          continue;
+        }
+
+        if ($source_original_data) {
+          $storage->setDocumentOriginalValue($source_original_data);
+        }
+        if ($storage instanceof CollaborationSuggestionDependingStorageInterface) {
+          $storage->setSuggestionIds($suggestion_ids);
+        }
+        if ($storage instanceof CollaborationContentFilteringStorageInterface
+          && $filter_format instanceof FilterFormatInterface) {
+          $storage->setSourceFilterFormat($filter_format);
+        }
+
+        $entities_data = $storage->processSourceData($source_data, $entity, $item_key);
+        $this->doStorageOperations($entities_data, $storage, $key);
+      }
+    }
+    if (!empty($order_switch)) {
+      $this->changeValuesOrder($order_switch, $entity);
+    }
+    if ($sendNotifications) {
+      $this->dispatchStoragesEvents();
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function onValidateForm(array &$form, FormStateInterface $form_state): void {
+    /** @var \Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat $service */
+    $service = \Drupal::service('ckeditor5_premium_features_collaboration.element.text_format');
+    $service->validateForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
+    return;
   }
 
   /**
@@ -684,6 +794,100 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         }
       }
     }
+  }
+
+  /**
+   * Process document changes array and remove all that are comments inserts or
+   * removals.
+   *
+   * @param array $changes
+   *   The document changes array.
+   */
+  private function removeCommentChanges(array &$changes, int &$removedWithChanges): void {
+    $commentStart = '/<comment-start name="[a-z0-9:]*"><\/comment-start>/';
+    $commentEnd = '/<comment-end name="[a-z0-9:]*"><\/comment-end>/';
+    foreach ($changes as $key => $change) {
+      $removedCount = 0;
+      switch ($change['action']) {
+        case 'insert':
+          $change['added'] = preg_replace($commentStart, '', $change['added']);
+          $change['added'] = preg_replace($commentEnd, '', $change['added']);
+          if (empty($change['added'])) {
+            unset($changes[$key]);
+          }
+          break;
+
+        case 'delete':
+          $change['removed'] = preg_replace($commentStart, '', $change['removed'], -1, $removedCount);
+          $change['removed'] = preg_replace($commentEnd, '', $change['removed']);
+          if (empty($change['removed'])) {
+            unset($changes[$key]);
+          }
+          else {
+            $removedWithChanges += $removedCount;
+          }
+          break;
+
+        case 'replace':
+          $change['added'] = preg_replace($commentStart, '', $change['added']);
+          $change['added'] = preg_replace($commentEnd, '', $change['added']);
+          $change['removed'] = preg_replace($commentStart, '', $change['removed'], -1, $removedCount);
+          $change['removed'] = preg_replace($commentEnd, '', $change['removed']);
+          if ($change['added'] == $change['removed']) {
+            unset($changes[$key]);
+          }
+          else {
+            $removedWithChanges += $removedCount;
+          }
+          break;
+      }
+    }
+  }
+
+  /**
+   * Get list of added comments ids and removed comment entities.
+   *
+   * @param array $comments
+   *   Form comments data.
+   * @param array $origComments
+   *   Comments data associated to a specific field in an entity.
+   *
+   * @return array
+   *   An array containing info only for added or removed comments.
+   */
+  private function getChangedComments(array $comments, array $origComments): array {
+    $commentIds = [];
+    $changedComments = [];
+    foreach ($comments as $thread) {
+      foreach ($thread['comments'] as $comment) {
+        $commentId = $comment['commentId'];
+        $commentIds[] = $commentId;
+
+        $origComment = $origComments[$commentId] ?? NULL;
+        if ($origComment && $comment['content'] != $origComment->getContent()) {
+          $changedComments[$commentId] = $origComment->getAuthor()?->id();
+        }
+      }
+    }
+    $commentIds = array_flip($commentIds);
+
+    $removedComments = array_diff_key($origComments, $commentIds);
+
+    // Gather info about removed threads.
+    $removedThreadIds = [];
+    foreach ($removedComments as $removedComment) {
+      $attributes = $removedComment->getAttributes();
+      if ($attributes['is_reply'] === FALSE) {
+        $removedThreadIds[] = $removedComment->getThreadId();
+      }
+    }
+
+    return [
+      'added' => array_diff_key($commentIds, $origComments),
+      'changed' => $changedComments,
+      'removed' => $removedComments,
+      'removed_threads' => $removedThreadIds,
+    ];
   }
 
 }

@@ -15,6 +15,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Element\TextFormat;
+use Drupal\Core\Url;
 
 /**
  * Implements hook_library_info_build().
@@ -82,7 +83,6 @@ function ckeditor5_premium_features_collaboration_form_alter(&$form, FormStateIn
   TextFormat::processFormWithCollaborationStorage($form, $form_state);
 }
 
-
 /**
  * Implements hook_entity_delete().
  *
@@ -100,7 +100,6 @@ function ckeditor5_premium_features_collaboration_entity_delete(EntityInterface 
 function ckeditor5_premium_features_collaboration_entity_translation_delete(EntityInterface $translation): void {
   ckeditor5_premium_features_collaboration_remove_collaborations_entities($translation, TRUE);
 }
-
 
 /**
  * Removes all collaborations entities related to the entity.
@@ -152,3 +151,13 @@ function ckeditor5_premium_features_collaboration_remove_collaborations_entities
   }
 }
 
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function ckeditor5_premium_features_collaboration_form_filter_format_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $moduleName = basename(__FILE__, '.module');
+  $permissionsUrl = Url::fromRoute('user.admin_permissions.module', ['modules' => $moduleName])->toString();
+  $description = t('In order to setup CKEditor5 Collaboration permissions go to: <a href=":url">Permissions page</a>',
+    [':url' => $permissionsUrl]);
+  $form['roles']['#description'] = $description;
+}
