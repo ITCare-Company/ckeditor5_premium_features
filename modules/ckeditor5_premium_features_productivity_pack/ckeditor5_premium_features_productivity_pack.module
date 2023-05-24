@@ -1,7 +1,16 @@
 <?php
 
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
+use Drupal\ckeditor5_premium_features_productivity_pack\Element\TextFormat;
 
+/**
+ * Implements hook_element_info_alter().
+ */
+function ckeditor5_premium_features_productivity_pack_element_info_alter(array &$info): void {
+  if (isset($info['text_format'])) {
+    $info['text_format']['#process'][] = [TextFormat::class, 'process'];
+  }
+}
 /**
  * Implements hook_library_info_build().
  */

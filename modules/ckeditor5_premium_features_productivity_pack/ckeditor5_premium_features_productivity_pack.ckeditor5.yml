@@ -2,7 +2,16 @@
 # Document outline start
 ######
 
-# Document outline code here
+ckeditor5_premium_features_productivity_pack_document_outline:
+  ckeditor5:
+    plugins:
+      - documentOutlineAdapter.DocumentOutlineAdapter
+      - documentOutline.DocumentOutline
+  drupal:
+    label: Document Outline
+    library: ckeditor5_premium_features_productivity_pack/document_outline.adapter
+    admin_library: ckeditor5_premium_features_productivity_pack/document_outline.admin
+    elements: false
 
 ######
 # Document outline end
