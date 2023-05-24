@@ -42,7 +42,14 @@
 # Slash Commands start
 ######
 
-# Slash Commands code here
+ckeditor5_premium_features_productivity_pack_slash_commands:
+  ckeditor5:
+    plugins:
+      - slashCommand.SlashCommand
+  drupal:
+    label: CKEditor 5 Slash Commands
+    elements: false
+    library: ckeditor5_premium_features_productivity_pack/slash-command
 
 ######
 # Slash Commands end
