@@ -22,7 +22,10 @@
 # Format Painter start
 ######
 
-# Format Painter code here
+admin.format_painter:
+  css:
+    theme:
+      css/format-painter.admin.css: { }
 
 ######
 # Format Painter end
