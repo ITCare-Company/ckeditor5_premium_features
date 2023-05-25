@@ -12,7 +12,10 @@
 # Table of Contents start
 ######
 
-# ToC code here
+admin.table_of_contents:
+  css:
+    theme:
+      css/table-of-contents.admin.css: { }
 
 ######
 # Table of Contents end
