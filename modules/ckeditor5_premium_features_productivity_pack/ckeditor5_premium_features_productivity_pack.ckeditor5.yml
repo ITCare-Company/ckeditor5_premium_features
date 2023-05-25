@@ -32,7 +32,23 @@
 # Templates start
 ######
 
-# Templates code here
+ckeditor5_premium_features_productivity_pack_content_templates:
+  ckeditor5:
+    plugins:
+      - template.Template
+  drupal:
+    label: CKEditor 5 Content templates
+    elements: false
+    library: ckeditor5_premium_features_productivity_pack/template
+    class: Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\Template
+    admin_library: ckeditor5_premium_features_productivity_pack/admin.content_templates
+    toolbar_items:
+      insertTemplate:
+        label: Insert template
+    productivity_pack:
+      plugin: template
+      settings_form: Drupal\ckeditor5_premium_features_productivity_pack\Form\SettingsForm
+      configuration: ckeditor5_premium_features_productivity_pack_content_templates.settings
 
 ######
 # Templates end
