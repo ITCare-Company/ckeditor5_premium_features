@@ -181,7 +181,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $element['comments']['#attributes']['class'] = ['comments-data'];
 
     $items = $form_state->get(static::STORAGE_KEY) ?? [];
-    $items[$id] = $element['#parents'];
+    $items[$id] = [
+      'parents' => $element['#parents'],
+      'array_parents' => $element['#array_parents'],
+    ];
     $form_state->set(static::STORAGE_KEY, $items);
 
     // Setup the revision history.
@@ -222,9 +225,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       return;
     }
     $item_parents = $element['#parents'];
+    $array_parents = $element['#array_parents'];
     $item_key = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
 
-    $sourceOriginalData = $this->getFormElementOriginalValue($form, $item_parents) ?? '';
+    $sourceOriginalData = $this->getFormElementOriginalValue($form, $array_parents) ?? '';
     $sourceNewData = $form_state->getValue([...$item_parents, 'value']) ?? '';
     $fieldFormat = $form_state->getValue([...$item_parents, 'format']);
 
@@ -389,17 +393,17 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     foreach ($items as $item_key => $item_parents) {
       $this->processTemporaryStorageRevisionData($form_state, $item_key);
 
-      $source_original_data = $this->getFormElementOriginalValue($form, $item_parents);
+      $source_original_data = $this->getFormElementOriginalValue($form, $item_parents['array_parents']);
       $this->dispatchDocumentUpdateEvent($entity, $item_key, $source_original_data);
 
-      $resolved_suggestions_comments = $this->getFormElementSourceData($form_state, $item_parents, 'resolved_suggestions_comments', $item_key);
-      $suggestion_source_data = $this->getFormElementSourceData($form_state, $item_parents, 'track_changes', $item_key);
+      $resolved_suggestions_comments = $this->getFormElementSourceData($form_state, $item_parents['parents'], 'resolved_suggestions_comments', $item_key);
+      $suggestion_source_data = $this->getFormElementSourceData($form_state, $item_parents['parents'], 'track_changes', $item_key);
       $suggestion_ids = $this->suggestionStorage->getSuggestionEntityIDs($suggestion_source_data);
 
-      $filter_format = $this->getFormElementFilterFormat($form_state, $item_parents);
+      $filter_format = $this->getFormElementFilterFormat($form_state, $item_parents['parents']);
 
       foreach ($this->features as $key => $storage) {
-        $source_data = $this->getFormElementSourceData($form_state, $item_parents, $key, $item_key);
+        $source_data = $this->getFormElementSourceData($form_state, $item_parents['parents'], $key, $item_key);
         if ($storage instanceof CommentsStorage && !empty($resolved_suggestions_comments)) {
           $source_data = array_merge($source_data, $resolved_suggestions_comments);
         }
@@ -552,7 +556,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $storageData = [];
     foreach ($items as $item_key => $item_parents) {
       foreach ($this->features as $key => $storage) {
-        $source_data = $this->getFormElementSourceData($form_state, $item_parents, $key, $item_key);
+        $source_data = $this->getFormElementSourceData($form_state, $item_parents['parents'], $key, $item_key);
         if (empty($source_data)) {
           continue;
         }
@@ -575,15 +579,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   Array defining path to the field.
    */
   private function getFormElementOriginalValue(array $form, array $item_parents) {
-    $result_path = [];
-    foreach (array_chunk($item_parents, 2) as $subArray) {
-      $result_path[] = array_shift($subArray);
-      $result_path[] = 'widget';
-      $result_path[] = reset($subArray);
-    }
-    $result_path[] = '#default_value';
+    $item_parents[] = '#default_value';
 
-    return NestedArray::getValue($form, $result_path);
+    return NestedArray::getValue($form, $item_parents);
   }
 
   /**
@@ -645,7 +643,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $change_order = [];
 
     foreach ($items as $itemKey => $field_parents) {
-      $newElementId = $this->getOriginalParentsPath($field_parents, $field_storage_parents);
+      $newElementId = $this->getOriginalParentsPath($field_parents['parents'], $field_storage_parents);
 
       if ($newElementId !== NULL && $newElementId != $itemKey) {
         $change_order[$itemKey] = $newElementId;
