@@ -1,0 +1,27 @@
+.document-outline-container {
+  background: var(--ck-color-toolbar-background);
+  border: 1px solid var(--ck-color-toolbar-border);
+  border-right: 0;
+  overflow: hidden;
+  margin: 1.7em 0 0 0;
+  width: 100%;
+}
+
+.ck-fullscreen-overlay .document-outline-container,
+tr.draggable .document-outline-container {
+  margin-top: unset;
+}
+
+.document-outline-container.collapsed {
+  width: 36px;
+  overflow: visible;
+}
+
+.ck-fullscreen-overlay .document-outline-container,
+.ck-fullscreen-overlay .document-outline-container.collapsed {
+  width: 100%;
+}
+
+.ck-fullscreen-overlay .document-outline-container .ck-document-outline-toggle {
+  display: none;
+}

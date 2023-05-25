@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_productivity_pack\Element;
 
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -16,22 +17,20 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @inheritDoc
    */
   public static function onCompleteFormSubmit(array &$form, FormStateInterface $form_state): void {
-    // TODO: Implement onCompleteFormSubmit() method.
+
   }
 
   /**
    * @inheritDoc
    */
   public static function onValidateForm(array &$form, FormStateInterface $form_state): void {
-    // TODO: Implement onValidateForm() method.
+
   }
 
   /**
    * @inheritDoc
    */
   public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-    // TODO: Implement processElement() method.
-
     return $element;
   }
 
@@ -39,37 +38,26 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @inheritDoc
    */
   public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array {
-    //$sidebar_mode = $collaboration_settings->getAnnotationSidebarType();
-//    $sidebar_mode = 'auto';
-//
-//    $sidebar['ck_sidebar_type'] = [
-//      '#type' => 'hidden',
-//      '#value' => $sidebar_mode,
-//    ];
-//    $sidebar['ck_sidebar'] = [
-//      '#type' => 'html_tag',
-//      '#tag' => 'div',
-//      '#attributes' => [
-//        'class' => ['ck-sidebar-wrapper', $sidebar_mode],
-//        'id' => [
-//          $element['#id'] . '-value-ck-sidebar',
-//        ],
-//      ],
-//    ];
-//
-//    $class_wrapper = $element['#id'] . '-value-ck-sidebar-wrapper';
-//    $sidebar_html = \Drupal::service('renderer')->render($sidebar);
-//    $element['value']['#prefix'] = "<div class='ck-editor-sidebar-wrapper $class_wrapper'>";
-//    $element['value']['#suffix'] = $sidebar_html . '</div>';
-//    $element['#attached']['drupalSettings']['ckeditor5SidebarMode'] = $sidebar_mode;
-
-    $element['document_outline_container'] = [
-      '#type' => 'container',
-      '#weight' => -1,
+    // Creates a document outline container with id specific for given field item.
+    $document_outline_container = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
       '#attributes' => [
-        'class' => ['document-outline-container'],
+        'class' => ['document-outline-container', 'collapsed'],
+        'id' => [
+          $element["#attributes"]["data-drupal-selector"] . '-value-ck-document-outline',
+        ],
       ],
     ];
+
+    $container_html = \Drupal::service('renderer')->render($document_outline_container);
+    $element['value']['#prefix'] .= $container_html;
+
+    // Add a wrapper class to the field tag.
+    $parents = array_slice($element["#array_parents"],0, -2);
+    $parent = NestedArray::getValue($complete_form, $parents);
+    $parent["#attributes"]["class"][] = 'ck-document-outline-wrapper';
+    NestedArray::setValue($complete_form, $parents, $parent);
 
     return $element;
   }
@@ -78,14 +66,14 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @inheritDoc
    */
   public function completeFormSubmit(array &$form, FormStateInterface $form_state): void {
-    // TODO: Implement completeFormSubmit() method.
+
   }
 
   /**
    * @inheritDoc
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
-    // TODO: Implement validateForm() method.
+
   }
 
 }

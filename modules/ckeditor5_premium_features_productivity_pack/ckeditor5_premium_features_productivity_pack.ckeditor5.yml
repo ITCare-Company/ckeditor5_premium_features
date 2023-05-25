@@ -10,7 +10,6 @@ ckeditor5_premium_features_productivity_pack_document_outline:
   drupal:
     label: Document Outline
     library: ckeditor5_premium_features_productivity_pack/document_outline.adapter
-    admin_library: ckeditor5_premium_features_productivity_pack/document_outline.admin
     elements: false
 
 ######
