@@ -34,7 +34,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
     $form['definitions'] = [
       '#type' => 'textarea',
       '#title' => t('Template definitions'),
-      '#description' => t('Provide array of JSON objects with template definitions. Each object has to be separated with a comma.'),
+      '#description' => t('Provide array of JSON objects with template definitions.'),
       '#default_value' => $config->get('definitions'),
     ];
 
