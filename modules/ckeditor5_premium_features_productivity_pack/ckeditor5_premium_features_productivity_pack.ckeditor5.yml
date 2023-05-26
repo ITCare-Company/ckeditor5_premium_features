@@ -30,7 +30,18 @@ ckeditor5_premium_features_productivity_pack_document_outline:
 # Format Painter start
 ######
 
-# Format Painter code here
+ckeditor5_premium_features_productivity_pack_format_painter:
+  ckeditor5:
+    plugins:
+      - formatPainter.FormatPainter
+  drupal:
+    label: CKEditor 5 Format Painter
+    elements: false
+    library: ckeditor5_premium_features_productivity_pack/format-painter
+    admin_library: ckeditor5_premium_features_productivity_pack/admin.format_painter
+    toolbar_items:
+      formatPainter:
+        label: Format Painter
 
 ######
 # Format Painter end
