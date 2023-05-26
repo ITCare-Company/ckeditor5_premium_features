@@ -20,7 +20,18 @@ ckeditor5_premium_features_productivity_pack_document_outline:
 # Table of Contents start
 ######
 
-# ToC code here
+ckeditor5_premium_features_productivity_pack_table_of_contents:
+  ckeditor5:
+    plugins:
+      - documentOutline.TableOfContents
+  drupal:
+    label: CKEditor 5 Table of Contents
+    elements: false
+    library: ckeditor5_premium_features_productivity_pack/document-outline
+    admin_library: ckeditor5_premium_features_productivity_pack/admin.table_of_contents
+    toolbar_items:
+      tableOfContents:
+        label: Table of Contents
 
 ######
 # Table of Contents end
