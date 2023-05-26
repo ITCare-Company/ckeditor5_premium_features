@@ -1,0 +1,7 @@
+ckeditor5_premium_features_productivity_pack_content_templates.settings:
+  type: config_object
+  label: 'CKEditor 5 Premium Features - Productivity Pack - Content Templates'
+  mapping:
+    definitions:
+      type: string
+      label: 'Content templates definitions'

@@ -21,6 +21,7 @@ function ckeditor5_premium_features_productivity_pack_library_info_build(): arra
   $libraries = [
     'format-painter',
     'document-outline',
+    'template',
   ];
 
   $definitions = [];

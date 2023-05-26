@@ -46,7 +46,10 @@ admin.format_painter:
 # Templates start
 ######
 
-# Templates code here
+admin.content_templates:
+  css:
+    theme:
+      css/content-templates.admin.css: { }
 
 ######
 # Templates end

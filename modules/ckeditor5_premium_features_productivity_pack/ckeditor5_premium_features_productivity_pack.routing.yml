@@ -1,0 +1,7 @@
+ckeditor5_premium_features_productivity_pack_content_templates.form.settings:
+  path: '/admin/config/ckeditor5-premium-features/productivity-pack/content-templates'
+  defaults:
+    _title: 'Content Templates'
+    _form: 'Drupal\ckeditor5_premium_features_productivity_pack\Form\ContentTemplates\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
