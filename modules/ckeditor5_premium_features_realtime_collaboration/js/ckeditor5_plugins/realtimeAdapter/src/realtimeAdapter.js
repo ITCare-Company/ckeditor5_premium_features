@@ -14,6 +14,7 @@ class RealtimeAdapter {
     this.editor.config._config.collaboration = {
       channelId: drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid],
     }
+    this.setPresenceListContainer();
   }
 
   static get pluginName() {
@@ -21,15 +22,17 @@ class RealtimeAdapter {
   }
 
   init() {
-    const presenceListConfig = this.editor.config._config.presenceList;
     const editor = this.editor;
     const hasRTC = editor.plugins.has('RealTimeCollaborativeEditing');
     const hasSourceEditing = editor.plugins.has('SourceEditing');
-
     if (hasRTC && hasSourceEditing) {
       console.info('The Source editing plugin is not compatible with real-time collaboration, so it has been disabled. If you need it, please contact us to discuss your use case - https://ckeditor.com/contact/');
       editor.plugins.get('SourceEditing').forceDisabled('drupal-rtc');
     }
+  }
+
+  setPresenceListContainer() {
+    const presenceListConfig = this.editor.config._config.presenceList;
     if (!presenceListConfig || typeof presenceListConfig === "undefined") {
       return;
     }
