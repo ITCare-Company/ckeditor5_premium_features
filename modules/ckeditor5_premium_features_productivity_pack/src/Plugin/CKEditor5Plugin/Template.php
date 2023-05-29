@@ -95,7 +95,7 @@ class Template extends CKEditor5PluginDefault implements CKEditor5PluginConfigur
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    // @todo Implement buildConfigurationForm() method.
+    return [];
   }
 
   /**
