@@ -100,7 +100,7 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
       $form_state->setErrorByName('editor', $this->t('Source editing can`t be enabled when Realtime Collaboration module is used'));
     }
     if (in_array('commentsArchive', $toolbars) && !$this->libraryVersionChecker->isLibraryVersionHigherOrEqual('37.1.0')) {
-      $form_state->setErrorByName('editor', $this->t('Comments archive is enabled with Ckeditor5 version 37.1.0 or higher. Update Drupal to use Comments Archive.'));
+      $form_state->setErrorByName('editor', $this->t('The Comments Archive is available since CKEditor 5 v37.1.0. CKEditor 5 v38.0.1 was introduced in Drupal 10.1. Please update your Drupal core in order to use this feature.'));
     }
   }
 
