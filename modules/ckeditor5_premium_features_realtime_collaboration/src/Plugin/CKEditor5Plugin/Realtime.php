@@ -7,6 +7,7 @@ namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Plugin\CKEdit
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
+use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\ckeditor5_premium_features\Utility\PluginHelper;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -33,17 +34,18 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
    */
   public function __construct(
     protected PluginHelper $pluginHelper,
+    protected LibraryVersionChecker $libraryVersionChecker,
   ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
   }
-
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, ...$parent_arguments): static {
     return new static(
       $container->get('ckeditor5_premium_features.plugin_helper'),
+      $container->get('ckeditor5_premium_features.core_library_version_checker'),
       ...$parent_arguments
     );
   }
@@ -96,6 +98,9 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
 
     if (in_array('sourceEditing', $toolbars)) {
       $form_state->setErrorByName('editor', $this->t('Source editing can`t be enabled when Realtime Collaboration module is used'));
+    }
+    if (in_array('commentsArchive', $toolbars) && !$this->libraryVersionChecker->isLibraryVersionHigherOrEqual('37.1.0')) {
+      $form_state->setErrorByName('editor', $this->t('Comments archive is enabled with Ckeditor5 version 37.1.0 or higher. Update Drupal to use Comments Archive.'));
     }
   }
 

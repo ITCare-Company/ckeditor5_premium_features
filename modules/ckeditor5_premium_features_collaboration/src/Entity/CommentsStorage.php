@@ -137,10 +137,18 @@ class CommentsStorage extends SqlContentEntityStorage implements
 
     $serialized = [];
     foreach ($data as $thread_id => $thread_comments) {
-      $serialized[] = [
+      $threadData = [
         'threadId' => $thread_id,
         'comments' => $thread_comments,
       ];
+
+      $resolvedData = $this->isThreadResolved($thread_comments);
+      if (!empty($resolvedData)) {
+        $threadData['resolvedAt'] = $resolvedData['resolved_at'] ?? NULL;
+        $threadData['resolvedBy'] = $resolvedData['resolved_by'] ?? NULL;
+      }
+
+      $serialized[] = $threadData;
     }
 
     return (string) json_encode($serialized);
@@ -185,8 +193,12 @@ class CommentsStorage extends SqlContentEntityStorage implements
         $element_data['thread_id'] = $thread_id;
         $element_data['id'] = $element_data['commentId'];
         $element_data['is_reply'] = $position > 0 || $this->hasSuggestionId($thread_id);
-
         $element_data = array_merge($element_data, $this->getCommonData($entity, $item_key));
+
+        if (isset($thread_data['resolvedBy']) && isset($thread_data['resolvedAt'])) {
+          $element_data['resolved_by'] = $thread_data['resolvedBy'];
+          $element_data['resolved_at'] = $thread_data['resolvedAt'];
+        }
 
         $entity_list[] = $element_data;
 
@@ -225,6 +237,8 @@ class CommentsStorage extends SqlContentEntityStorage implements
       'key' => $data->get('key'),
       'position' => $data->get('position'),
       'is_reply' => $data->get('is_reply'),
+      'resolved_at' => $data->get('resolved_at') ?? NULL,
+      'resolved_by' => $data->get('resolved_by') ?? NULL,
     ] + $data->get('attributes') ?? [];
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment */
@@ -259,6 +273,8 @@ class CommentsStorage extends SqlContentEntityStorage implements
       'key' => $data->get('key'),
       'position' => $data->get('position'),
       'is_reply' => $data->get('is_reply'),
+      'resolved_at' => $data->get('resolved_at') ?? NULL,
+      'resolved_by' => $data->get('resolved_by') ?? NULL,
     ] + $data->get('attributes') ?? [];
 
     $entity
@@ -366,6 +382,29 @@ class CommentsStorage extends SqlContentEntityStorage implements
     self::sortComments($thread);
 
     return $thread;
+  }
+
+  /**
+   * Check if the thread is resolved.
+   *
+   * If comments in thread have resolved attributes thread is resolved.
+   *
+   * @param array $threadComments
+   *   Comments in thread.
+   *
+   * @return array
+   *   The array with resolved parameters or empty array.
+   */
+  private function isThreadResolved(array $threadComments): array {
+    foreach ($threadComments as $comment) {
+      if (isset($comment['attributes']['resolved_at']) && isset($comment['attributes']['resolved_by'])) {
+        return [
+          'resolved_at' => $comment['attributes']['resolved_at'],
+          'resolved_by' => $comment['attributes']['resolved_by'],
+        ];
+      }
+    }
+    return [];
   }
 
 }
