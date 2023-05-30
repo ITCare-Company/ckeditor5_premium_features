@@ -66,9 +66,10 @@ class Template extends CKEditor5PluginDefault implements CKEditor5PluginConfigur
     $config = $this->configFactory->get($this->configId);
 
     $definitions = $config->get('definitions');
-    $definitions = json_decode($definitions, TRUE);
-
-    $static_plugin_config[$plugin]['definitions'] = $definitions;
+    if ($definitions) {
+      $definitions = json_decode($definitions, TRUE);
+      $static_plugin_config[$plugin]['definitions'] = $definitions;
+    }
 
     return $static_plugin_config;
   }
@@ -94,7 +95,7 @@ class Template extends CKEditor5PluginDefault implements CKEditor5PluginConfigur
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    // @todo Implement buildConfigurationForm() method.
+    return [];
   }
 
   /**
