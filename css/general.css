@@ -27,3 +27,8 @@
 .ck-content .ck-suggestion-marker-formatBlock.ck-suggestion-marker--active {
   box-shadow: -0.2em 0 0 0 var(--ck-color-base-background),-0.4em 0 0 0 var(--ck-color-suggestion-marker-format-border-active)!important;
 }
+
+.ck-comments-archive-dropdown .ck-editor__main > :is(.ck-editor__editable, .ck-source-editing-area) {
+  min-height: unset;
+}
+
