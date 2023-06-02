@@ -1,3 +1,7 @@
 .ckeditor5-toolbar-button-comment {
   background-image: url(../icons/comments.svg);
 }
+
+.ckeditor5-toolbar-button-commentsArchive {
+  background-image: url(../icons/comments-archive.svg);
+}

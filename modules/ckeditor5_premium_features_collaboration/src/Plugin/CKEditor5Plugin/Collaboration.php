@@ -8,6 +8,7 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
+use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\ckeditor5_premium_features\Utility\PluginHelper;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -37,6 +38,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
   public function __construct(
     protected SettingsConfigHandlerInterface $settingsConfigHandler,
     protected PluginHelper $pluginHelper,
+    protected LibraryVersionChecker $libraryVersionChecker,
     ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
@@ -49,6 +51,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
     return new static(
       $container->get('ckeditor5_premium_features.config_handler.settings'),
       $container->get('ckeditor5_premium_features.plugin_helper'),
+      $container->get('ckeditor5_premium_features.core_library_version_checker'),
       ...$parent_arguments
     );
   }
@@ -120,6 +123,11 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
+    $toolbars = $this->pluginHelper->getFormToolbars($form_state);
+
+    if (in_array('commentsArchive', $toolbars) && !$this->libraryVersionChecker->isLibraryVersionHigherOrEqual('37.1.0')) {
+      $form_state->setErrorByName('editor', $this->t('The Comments Archive is available since CKEditor 5 v37.1.0. CKEditor 5 v38.0.1 was introduced in Drupal 10.1. Please update your Drupal core in order to use this feature.'));
+    }
   }
 
   /**
