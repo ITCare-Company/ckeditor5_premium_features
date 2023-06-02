@@ -12,6 +12,7 @@ use Drupal\ckeditor5_premium_features\Utility\PluginHelper;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
+use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -48,6 +49,14 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
       $container->get('ckeditor5_premium_features.core_library_version_checker'),
       ...$parent_arguments
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
+    $static_plugin_config['presenceList']['container'] = '';
+    return $static_plugin_config;
   }
 
   /**
