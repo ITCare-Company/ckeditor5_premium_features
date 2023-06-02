@@ -34,6 +34,11 @@ services:
   ckeditor5_premium_features.html_helper:
     class: \Drupal\ckeditor5_premium_features\Utility\HtmlHelper
 
+  ckeditor5_premium_features.permission_helper:
+    class: \Drupal\ckeditor5_premium_features\Utility\PermissionHelper
+    arguments:
+      - '@entity_type.manager'
+
   ckeditor5_premium_features.api_adapter:
     class: Drupal\ckeditor5_premium_features\Utility\ApiAdapter
     arguments:
@@ -74,6 +79,6 @@ services:
 
   ckeditor5_premium_features.config_event_subscriber:
     class: Drupal\ckeditor5_premium_features\EventSubscriber\ConfigSubscriber
-    arguments: ['@config.factory', '@entity_type.manager']
+    arguments: [ '@config.factory', '@entity_type.manager', '@ckeditor5_premium_features.permission_helper' ]
     tags:
       - { name: event_subscriber }

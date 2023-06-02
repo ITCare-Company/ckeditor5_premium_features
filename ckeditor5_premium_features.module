@@ -130,6 +130,15 @@ function ckeditor5_premium_features_js_settings_alter(array &$settings, \Drupal\
 }
 
 /**
+ * Implements hook_filter_format_disable().
+ */
+function ckeditor5_premium_features_filter_format_disable(FilterFormatInterface $format) {
+  // Revoke all collaboration permissions after text format is disabled.
+  /** @var \Drupal\ckeditor5_premium_features\Utility\PermissionHelper $permissionHelper */
+  $permissionHelper = \Drupal::service('ckeditor5_premium_features.permission_helper');
+  $permissionHelper->deleteCollaborationPermissions($format);
+}
+/**
  * Returns version of Ckeditor 5 library.
  *
  * @return string
