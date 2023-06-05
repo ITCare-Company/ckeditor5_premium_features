@@ -1,7 +1,30 @@
-ckeditor5_premium_features_productivity_pack_content_templates.settings:
-  type: config_object
-  label: 'CKEditor 5 Premium Features - Productivity Pack - Content Templates'
+ckeditor5_premium_features_productivity_pack_templates.ckeditor5_templates.*:
+  type: config_entity
+  label: CKEditor5 Content Template
   mapping:
-    definitions:
+    id:
       type: string
-      label: 'Content templates definitions'
+      label: ID
+    uuid:
+      type: string
+    label:
+      type: label
+      label: Title
+    description:
+      type: string
+      label: Description
+    icon:
+      type: string
+      label: Icon
+    data:
+      type: string
+      label: HTML code
+    formats:
+      type: sequence
+      label: Available for
+    weight:
+      type: integer
+      label: Weight
+    status:
+      type: boolean
+      label: Enabled

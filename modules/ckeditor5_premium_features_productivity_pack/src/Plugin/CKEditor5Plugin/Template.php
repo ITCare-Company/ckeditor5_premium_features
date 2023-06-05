@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin;
 
-use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableInterface;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
+use Drupal\ckeditor5\Plugin\CKEditor5PluginInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -19,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  *   Plugin classes are internal.
  */
-class Template extends CKEditor5PluginDefault implements CKEditor5PluginConfigurableInterface, ContainerFactoryPluginInterface {
+class Template extends CKEditor5PluginDefault implements CKEditor5PluginInterface, ContainerFactoryPluginInterface {
 
   use CKEditor5PluginConfigurableTrait;
 
@@ -63,11 +62,9 @@ class Template extends CKEditor5PluginDefault implements CKEditor5PluginConfigur
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
     $plugin = $this->getFeaturedPluginId();
-    $config = $this->configFactory->get($this->configId);
 
-    $definitions = $config->get('definitions');
+    $definitions = $this->getAvailableTemplates($editor);
     if ($definitions) {
-      $definitions = json_decode($definitions, TRUE);
       $static_plugin_config[$plugin]['definitions'] = $definitions;
     }
 
@@ -92,24 +89,32 @@ class Template extends CKEditor5PluginDefault implements CKEditor5PluginConfigur
   }
 
   /**
-   * {@inheritdoc}
+   * Returns array of CKEditor5 templates.
+   *
+   * @param \Drupal\editor\EditorInterface $editor
+   *   Editor.
+   *
+   * @return array
+   *   An Array of CKEditor5 templates definitions for the editor.
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    return [];
-  }
+  protected function getAvailableTemplates(EditorInterface $editor): array {
+    $format = $editor->getFilterFormat()->id();
 
-  /**
-   * {@inheritdoc}
-   */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    // @todo Implement validateConfigurationForm() method.
-  }
+    $entityStorage = \Drupal::service('entity_type.manager')
+      ->getStorage('ckeditor5_template');
+    $query = $entityStorage->getQuery();
+    $query->condition('status', TRUE);
+    $query->condition('textFormats.*', $format, '=');
+    $query->sort('weight');
+    $results = $query->execute();
 
-  /**
-   * {@inheritdoc}
-   */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    // @todo Implement submitConfigurationForm() method.
+    $templates = $entityStorage->loadMultiple($results);
+    $definitions = [];
+    foreach ($templates as $template) {
+      $definitions[] = $template->getDefinition();
+    }
+
+    return $definitions;
   }
 
 }
