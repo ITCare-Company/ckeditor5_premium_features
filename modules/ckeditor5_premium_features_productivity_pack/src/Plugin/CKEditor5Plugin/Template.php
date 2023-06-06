@@ -36,7 +36,6 @@ class Template extends CKEditor5PluginDefault implements CKEditor5PluginInterfac
    */
   public function __construct(
     protected string $featuredPluginId,
-    protected string $configId,
     protected ConfigFactoryInterface $configFactory,
     ...$parent_arguments) {
     parent::__construct(...$parent_arguments);
@@ -50,7 +49,6 @@ class Template extends CKEditor5PluginDefault implements CKEditor5PluginInterfac
 
     return new static(
       $config['plugin'],
-      $config['configuration'],
       $container->get('config.factory'),
       $configuration,
       $plugin_id,

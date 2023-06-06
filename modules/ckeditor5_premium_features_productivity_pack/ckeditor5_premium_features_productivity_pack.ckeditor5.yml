@@ -77,8 +77,6 @@ ckeditor5_premium_features_productivity_pack_content_templates:
         label: Insert template
     productivity_pack:
       plugin: template
-      settings_form: Drupal\ckeditor5_premium_features_productivity_pack\Form\SettingsForm
-      configuration: ckeditor5_premium_features_productivity_pack_content_templates.settings
 
 ######
 # Templates end
