@@ -132,7 +132,7 @@ class CssStyleProvider {
   public function getCustomCssFile(string $fileName, string $directoryPath = ExportBase::CUSTOM_CSS_DIRECTORY_PATH):bool|string {
     $filePath = $directoryPath . $fileName . '.css';
     $relativePath = $this->fileUrlGenerator->generateString($filePath);
-    if ($this->fileSystem->getDestinationFilename($relativePath, FileSystemInterface::EXISTS_ERROR)) {
+    if (!$this->fileSystem->getDestinationFilename($filePath, FileSystemInterface::EXISTS_ERROR)) {
       return $relativePath;
     }
     return FALSE;
