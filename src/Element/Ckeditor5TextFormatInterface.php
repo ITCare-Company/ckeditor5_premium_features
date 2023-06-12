@@ -9,12 +9,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Ckeditor text format interface.
  */
-interface Ckeditor5TextFormatInterface {
-
-  public const STORAGE_KEY = 'ckeditor5-premium';
-  public const STORAGE_KEY_COLLABORATION = 'ckeditor5-premium-collaboration';
-
-  public const NESTING_COUNTER_LIMIT = 10;
+interface Ckeditor5TextFormatInterface extends Ckeditor5TextFormatBaseInterface {
 
   /**
    * The complete form submit callback.
@@ -38,42 +33,6 @@ interface Ckeditor5TextFormatInterface {
    *   The state of the form.
    */
   public static function onValidateForm(array &$form, FormStateInterface $form_state): void;
-
-  /**
-   * Process the text_format form element.
-   *
-   * @param array $element
-   *   The form element.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The state of the form.
-   * @param array $complete_form
-   *   The form structure.
-   *
-   * @return array
-   *   The element data.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   */
-  public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array;
-
-  /**
-   * Process the text_format form element.
-   *
-   * @param array $element
-   *   The form element.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The state of the form.
-   * @param array $complete_form
-   *   The form structure.
-   *
-   * @return array
-   *   The element data.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   */
-  public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array;
 
   /**
    * The complete form submit callback.

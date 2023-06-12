@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features\Storage;
 
 use Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\Collaboration;
+use Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\DocumentOutline;
 use Drupal\Core\Config\Entity\ConfigEntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\editor\EditorInterface;
@@ -73,6 +74,22 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
     }
 
     return (bool) array_intersect($toolbar_items, Collaboration::getToolbars());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasDocumentOutlineFeaturesEnabled(array $element): bool {
+    if (!$this->isCkeditor5($element)) {
+      // Don't process if this is not a CKEditor5.
+      return FALSE;
+    }
+
+    $editor = $this->getEditorFromElement($element);
+
+    $plugins = $editor->getSettings()['plugins'];
+
+    return !empty($plugins[DocumentOutline::DRUPAL_PLUGIN_NAME]['enabled']);
   }
 
   /**
