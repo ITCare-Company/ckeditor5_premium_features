@@ -35,7 +35,7 @@ trait Ckeditor5TextFormatTrait {
   public function generalProcessElement(array &$element, FormStateInterface $formState, array &$completeForm, CommonCollaborationSettingsInterface $commonCollaborationSettings): array {
     $elementUniqueId = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
     $elementDrupalId = CKeditorFieldKeyHelper::cleanElementDrupalId($element['#id']);
-    $idAttribute = 'data-' . Ckeditor5TextFormatInterface::STORAGE_KEY . '-element-id';
+    $idAttribute = 'data-' . Ckeditor5TextFormatBaseInterface::STORAGE_KEY . '-element-id';
 
     $element['sidebar'] = [
       '#type' => 'container',
@@ -54,9 +54,9 @@ trait Ckeditor5TextFormatTrait {
     $element['value']["#attributes"][$idAttribute] = $elementUniqueId;
 
     if ($this->isFormTypeSupported($formObject)) {
-      $items = $formState->get(Ckeditor5TextFormatInterface::STORAGE_KEY) ?? [];
+      $items = $formState->get(Ckeditor5TextFormatBaseInterface::STORAGE_KEY) ?? [];
       $items[$elementUniqueId] = $element['#parents'];
-      $formState->set(Ckeditor5TextFormatInterface::STORAGE_KEY, $items);
+      $formState->set(Ckeditor5TextFormatBaseInterface::STORAGE_KEY, $items);
 
       // We need to attach the submit just in case the entity was created
       // before the rtc module was enabled.
@@ -140,7 +140,7 @@ trait Ckeditor5TextFormatTrait {
 
       // Here we are checking if nesting is not too deep to prevent loops,
       // or some unexpected errors with nesting.
-      if ($nestingCounter > Ckeditor5TextFormatInterface::NESTING_COUNTER_LIMIT) {
+      if ($nestingCounter > Ckeditor5TextFormatBaseInterface::NESTING_COUNTER_LIMIT) {
         continue;
       }
 

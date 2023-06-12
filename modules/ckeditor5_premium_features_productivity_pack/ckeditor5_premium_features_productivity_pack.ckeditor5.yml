@@ -8,9 +8,12 @@ ckeditor5_premium_features_productivity_pack_document_outline:
       - documentOutlineAdapter.DocumentOutlineAdapter
       - documentOutline.DocumentOutline
   drupal:
-    label: Document Outline
+    label: CKEditor 5 Document Outline
     library: ckeditor5_premium_features_productivity_pack/document_outline.adapter
+    class: Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\DocumentOutline
     elements: false
+    productivity_pack:
+      plugin: documentOutline
 
 ######
 # Document outline end
@@ -93,7 +96,10 @@ ckeditor5_premium_features_productivity_pack_slash_commands:
   drupal:
     label: CKEditor 5 Slash Commands
     elements: false
+    class: Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\SlashCommand
     library: ckeditor5_premium_features_productivity_pack/slash-command
+    productivity_pack:
+      plugin: slashCommand
 
 ######
 # Slash Commands end

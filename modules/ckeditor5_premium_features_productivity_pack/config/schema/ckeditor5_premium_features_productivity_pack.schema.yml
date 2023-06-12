@@ -28,3 +28,19 @@ ckeditor5_premium_features_productivity_pack_templates.ckeditor5_templates.*:
     status:
       type: boolean
       label: Enabled
+
+ckeditor5.plugin.ckeditor5_premium_features_productivity_pack_slash_commands:
+  type: mapping
+  label: 'Slash Command'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Enable on editor'
+
+ckeditor5.plugin.ckeditor5_premium_features_productivity_pack_document_outline:
+  type: mapping
+  label: 'Slash Command'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Enable on editor'
