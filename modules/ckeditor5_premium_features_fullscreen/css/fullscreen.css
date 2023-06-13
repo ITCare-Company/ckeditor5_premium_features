@@ -52,3 +52,27 @@
 .ck-fullscreen-overlay .ck-fullscreen .ck-sticky-panel__content {
   top:0 !important;
 }
+
+/* Revision history */
+.ck-fullscreen-overlay .editor-container {
+  height: 100%;
+}
+
+.ck-fullscreen-overlay .revision-viewer-sidebar {
+  max-width: 300px;
+}
+
+.ck-fullscreen-overlay .revision-history-container-data > .editor-container > .ck-editor {
+  width: 100%;
+}
+
+/* Sidebar */
+.ck-fullscreen-overlay .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
+  max-width: 400px;
+  padding: 0 24px;
+}
+
+.ck-fullscreen-overlay .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper,
+.ck-fullscreen-overlay .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper {
+  margin-top: 0!important;
+}
