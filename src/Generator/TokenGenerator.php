@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features\Generator;
 
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
+use Drupal\ckeditor5_premium_features\Utility\UserHelper;
 use Drupal\Core\Session\AccountProxyInterface;
 use Firebase\JWT\JWT;
 
@@ -22,12 +23,15 @@ class TokenGenerator implements TokenGeneratorInterface {
    *   The current user.
    * @param \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $settingsConfigHandler
    *   The settings config handler.
+   * @param \Drupal\ckeditor5_premium_features\Utility\UserHelper $userHelper
+   *   Helper for getting user data.
    *
    * @note The account will be used later in collaboration features.
    */
   public function __construct(
     protected AccountProxyInterface $account,
     protected SettingsConfigHandlerInterface $settingsConfigHandler,
+    protected UserHelper $userHelper,
   ) {
   }
 
@@ -42,10 +46,6 @@ class TokenGenerator implements TokenGeneratorInterface {
       'aud' => $this->settingsConfigHandler->getEnvironmentId(),
       'iat' => time(),
       'sub' => $this->account->id(),
-      'user' => [
-        'email' => $this->account->getEmail(),
-        'name' => $this->account->getAccountName(),
-      ],
       'auth' => [
         'collaboration' => [
           '*' => [
@@ -54,9 +54,8 @@ class TokenGenerator implements TokenGeneratorInterface {
         ],
       ],
     ];
-    if (empty($payload['user']['email'])) {
-      unset($payload['user']['email']);
-    }
+    $userData = $this->userHelper->getUserData($this->account);
+    $payload['user'] = $userData;
 
     return JWT::encode($payload, $this->settingsConfigHandler->getAccessKey(), static::ALGORITHM);
   }
