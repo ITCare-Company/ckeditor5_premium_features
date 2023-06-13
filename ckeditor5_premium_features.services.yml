@@ -84,3 +84,8 @@ services:
     arguments: ['@config.factory', '@entity_type.manager']
     tags:
       - { name: event_subscriber }
+
+  ckeditor5_premium_features.core_library_version_checker:
+    class: Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker
+    arguments:
+      - '@library.discovery'

@@ -7,6 +7,7 @@
 
 declare(strict_types=1);
 
+use Drupal\Core\Asset\AttachedAssetsInterface;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefinition;
 use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -23,7 +24,8 @@ function ckeditor5_premium_features_help($route_name, RouteMatchInterface $route
       $text = file_get_contents(__DIR__ . '/README.md');
       if (!\Drupal::moduleHandler()->moduleExists('markdown')) {
         return '<pre>' . Html::escape($text) . '</pre>';
-      } else {
+      }
+      else {
         // Use the Markdown filter to render the README.
         $filter_manager = \Drupal::service('plugin.manager.filter');
         $settings = \Drupal::configFactory()->get('markdown.settings')->getRawData();
@@ -77,9 +79,9 @@ function ckeditor5_premium_features_editor_xss_filter_alter(
  * Implements hook_library_info_alter().
  */
 function ckeditor5_premium_features_library_info_alter(&$libraries, $extension) {
-  // We don't need disableGhsTableIntegration.js for ckeditor5 >35.4.0
+  // We don't need disableGhsTableIntegration.js for ckeditor5 >35.4.0.
   if ($extension == 'ckeditor5_premium_features') {
-    if (version_compare(ckeditor5_premium_features_library_version(), '35.4.0') >= 0) {
+    if (\Drupal::service('ckeditor5_premium_features.core_library_version_checker')->isLibraryVersionHigherOrEqual('35.4.0')) {
       unset($libraries["collaboration-integration-base"]["js"]["js/build/disableGhsTableIntegration.js"]);
     }
   }
@@ -91,7 +93,7 @@ function ckeditor5_premium_features_library_info_alter(&$libraries, $extension) 
 function ckeditor5_premium_features_ckeditor5_plugin_info_alter(array &$plugin_definitions) {
   // In order to safely remove disableGhsTableIntegration.js we have to alter
   // CKEditor5 plugin that wa using this file.
-  if (version_compare(ckeditor5_premium_features_library_version(), '35.4.0') >= 0) {
+  if (\Drupal::service('ckeditor5_premium_features.core_library_version_checker')->isLibraryVersionHigherOrEqual('35.4.0')) {
     $definition = $plugin_definitions["ckeditor5_premium_features__collaboration_integration_base"];
     $definition_array = $definition->toArray();
 
@@ -124,19 +126,8 @@ function ckeditor5_premium_features_module_implements_alter(&$implementations, $
 /**
  * Implements hook_js_settings_alter().
  */
-function ckeditor5_premium_features_js_settings_alter(array &$settings, \Drupal\Core\Asset\AttachedAssetsInterface $assets) {
+function ckeditor5_premium_features_js_settings_alter(array &$settings, AttachedAssetsInterface $assets) {
   $moduleHandler = \Drupal::service('module_handler');
   $settings["ckeditor5Premium"]["isMediaInstalled"] = $moduleHandler->moduleExists('media');
 }
 
-/**
- * Returns version of Ckeditor 5 library.
- *
- * @return string
- *   Ckeditor 5 library version.
- */
-function ckeditor5_premium_features_library_version() {
-  $library_discovery = \Drupal::service('library.discovery');
-  $lib = $library_discovery->getLibraryByName('core', 'ckeditor5');
-  return $lib['version'];
-}

@@ -31,6 +31,8 @@ ckeditor5_premium_features_collaboration__comments:
     toolbar_items:
       comment:
         label: Comment
+      commentsArchive:
+        label: Comments archive
     elements:
       - '<comment-start name>'
       - '<comment-end name>'
