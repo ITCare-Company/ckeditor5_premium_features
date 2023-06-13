@@ -92,7 +92,7 @@ class SidebarAdapter {
    */
   handleSidebarMode() {
     if (this.sidebarMode !== 'auto') {
-      this.annotationsUIs.switchTo(this.sidebarMode);
+      this.setCkEditorSidebarMode(this.sidebarMode);
       return;
     }
 
