@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features\Form;
 
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
+use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -39,7 +40,8 @@ class SettingsForm extends ConfigFormBase {
    */
   public function __construct(ConfigFactoryInterface $config_factory,
                               protected SettingsConfigHandlerInterface $configHandler,
-                              protected ModuleHandlerInterface $moduleHandler) {
+                              protected ModuleHandlerInterface $moduleHandler,
+                              protected LibraryVersionChecker $libraryVersionChecker) {
     parent::__construct($config_factory);
   }
 
@@ -51,6 +53,7 @@ class SettingsForm extends ConfigFormBase {
       $container->get('config.factory'),
       $container->get('ckeditor5_premium_features.config_handler.settings'),
       $container->get('module_handler'),
+      $container->get('ckeditor5_premium_features.core_library_version_checker'),
     );
   }
 
@@ -94,12 +97,19 @@ class SettingsForm extends ConfigFormBase {
 
     $dashboard_url = 'https://dashboard.ckeditor.com/';
 
+    if ($this->libraryVersionChecker->isLibraryVersionHigherOrEqual('38.0.0')) {
+      $licenseKeyDescription = $this->t('The license key is required only for Revision History, Track changes, Comments (without real-time collaboration) and Productivity Pack. Use the license key <strong>for versions 38.0.0 and above</strong>.');
+    }
+    else {
+      $licenseKeyDescription = $this->t('The license key is required only for Revision History, Track changes and Comments (without real-time collaboration). Use the license key <strong>for versions up to 37.1.0</strong>.');
+    }
+
     $configuration['license_key'] = [
       '#type' => 'textfield',
       '#maxlength' => 512,
       '#required' => $this->isNonRealtimeSettingsRequired(),
       '#title' => $this->t('License key'),
-      '#description' => $this->t('The license key is required <strong>only</strong> for Revision History, Track changes and Comments (<strong>without</strong> real-time collaboration).'),
+      '#description' => $licenseKeyDescription,
     ];
 
     $configuration['auth_type'] = [
