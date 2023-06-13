@@ -15,6 +15,13 @@ services:
     arguments:
       - '@current_user'
       - '@ckeditor5_premium_features.config_handler.settings'
+      - '@ckeditor5_premium_features.user_helper'
+
+  ckeditor5_premium_features.user_helper:
+    class: Drupal\ckeditor5_premium_features\Utility\UserHelper
+    arguments:
+      - '@file_url_generator'
+      - '@entity_type.manager'
 
   ckeditor5_premium_features.file_name_generator:
     class: \Drupal\ckeditor5_premium_features\Generator\FileNameGenerator
@@ -77,3 +84,8 @@ services:
     arguments: ['@config.factory', '@entity_type.manager']
     tags:
       - { name: event_subscriber }
+
+  ckeditor5_premium_features.core_library_version_checker:
+    class: Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker
+    arguments:
+      - '@library.discovery'

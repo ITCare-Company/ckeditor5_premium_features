@@ -13,6 +13,8 @@ ckeditor5_premium_features_realtime_collaboration__comment:
     admin_library: ckeditor5_premium_features_realtime_collaboration/admin.comments
     class: Drupal\ckeditor5_premium_features_realtime_collaboration\Plugin\CKEditor5Plugin\Realtime
     toolbar_items:
+      commentsArchive:
+        label: Comments archive
       comment:
         label: Comments
     elements: false

@@ -70,7 +70,9 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
 
     $toolbar_items = [];
     foreach ($editors as $editor) {
-      $toolbar_items = array_merge($toolbar_items, $editor->getSettings()['toolbar']['items'] ?? []);
+      if ($editor) {
+        $toolbar_items = array_merge($toolbar_items, $editor->getSettings()['toolbar']['items'] ?? []);
+      }
     }
 
     return (bool) array_intersect($toolbar_items, Collaboration::getToolbars());
