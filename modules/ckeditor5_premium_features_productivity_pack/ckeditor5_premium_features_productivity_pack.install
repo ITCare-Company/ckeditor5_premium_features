@@ -9,7 +9,7 @@ function ckeditor5_premium_features_productivity_pack_requirements($phase): arra
   if (($phase === 'install')) {
     if (!\Drupal::service('ckeditor5_premium_features.core_library_version_checker')->isLibraryVersionHigherOrEqual('37.1.0')) {
       $requirements[] = [
-        'description' => t('Productivity Pack features were introduced in CKEditor 5 v37.1.0. Please update Drupal Core to at least version 10.1 which does meet Productivity Pack requirements.'),
+        'description' => t('The Productivity Pack features were introduced in CKEditor 5 v37.1.0. Please update Drupal Core at least to version 10.1, as it meets the Productivity Pack requirements.'),
         'severity' => REQUIREMENT_ERROR,
       ];
     }
