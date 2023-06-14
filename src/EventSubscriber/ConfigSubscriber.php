@@ -3,6 +3,7 @@
 namespace Drupal\ckeditor5_premium_features\EventSubscriber;
 
 use Drupal\ckeditor5_premium_features\CollaborationPermissions;
+use Drupal\ckeditor5_premium_features\Utility\PermissionHelper;
 use Drupal\Core\Config\ConfigCrudEvent;
 use Drupal\Core\Config\ConfigEvents;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -29,6 +30,13 @@ class ConfigSubscriber implements EventSubscriberInterface {
   protected $entityTypeManager;
 
   /**
+   * The permissions helper.
+   *
+   * @var \Drupal\ckeditor5_premium_features\Utility\PermissionHelper
+   */
+  protected $permissionHelper;
+
+  /**
    * Constructs a ConfigSubscriber object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -36,9 +44,10 @@ class ConfigSubscriber implements EventSubscriberInterface {
    * @param \Drupal\Core\Entity\EntityTypeManager
    *   The entity type manager
    */
-  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManager $entity_type_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManager $entity_type_manager, PermissionHelper $permission_helper) {
     $this->configFactory = $config_factory;
     $this->entityTypeManager = $entity_type_manager;
+    $this->permissionHelper = $permission_helper;
   }
 
   /**
@@ -74,21 +83,11 @@ class ConfigSubscriber implements EventSubscriberInterface {
     $plugins = $editorSettings["plugins"] ? array_keys($editorSettings["plugins"]) : [];
     if (empty(array_intersect($plugins, $premiumPlugins))) {
       $formatId = $config->get('format');
-      $formats = \Drupal::entityTypeManager()->getStorage('filter_format')->loadByProperties(['status' => TRUE]);
+      $formats = $this->entityTypeManager->getStorage('filter_format')->loadByProperties(['status' => TRUE]);
       if (!isset($formats[$formatId])) {
         return;
       }
-      $roles = \Drupal::entityTypeManager()->getStorage('user_role')->loadMultiple();
-      foreach ($roles as $role) {
-        $permissions = CollaborationPermissions::PERMISSIONS;
-        foreach ($permissions as $permission) {
-          $permissionName = CollaborationPermissions::getPermissionName($formats[$formatId], $permission);
-          if ($role->hasPermission($permissionName)) {
-            $role->revokePermission($permissionName);
-          }
-        }
-        $role->save();
-      }
+      $this->permissionHelper->deleteCollaborationPermissions($formats[$formatId]);
     }
   }
 
