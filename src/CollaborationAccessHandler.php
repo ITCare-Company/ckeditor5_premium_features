@@ -41,6 +41,7 @@ class CollaborationAccessHandler {
     if ($user->hasPermission(
       $filterFormatPermission . CollaborationPermissions::COMMENTS_ADMIN)) {
       $collaborationPermissions[] = 'comment:admin';
+      $collaborationPermissions[] = 'comment:write';
     }
     elseif ($user->hasPermission(
       $filterFormatPermission . CollaborationPermissions::COMMENTS_WRITE)) {
