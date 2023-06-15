@@ -45,7 +45,7 @@ interface EditorStorageHandlerInterface {
   public function getTrackChangesStates(array $element, bool $rtc = FALSE): array;
 
   /**
-   * Checks if Document Outline feature is enabled.
+   * Checks if Document Outline feature is enabled in any of available text formats.
    *
    * @param array $element
    *   The form element with the editor format defined.
