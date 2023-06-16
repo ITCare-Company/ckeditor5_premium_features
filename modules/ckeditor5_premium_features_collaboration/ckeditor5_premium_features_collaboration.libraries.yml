@@ -2,6 +2,13 @@ admin.comments:
   css:
     theme:
       css/comments.admin.css: { }
+  dependencies:
+    - ckeditor5_premium_features_collaboration/admin.comments-archive
+
+admin.comments-archive:
+  css:
+    theme:
+      css/comments-archive.admin.css: { }
 
 admin.revision-history:
   css:

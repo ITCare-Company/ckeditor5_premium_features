@@ -12,6 +12,13 @@ admin.comments:
   css:
     theme:
       css/comments.admin.css: { }
+  dependencies:
+    - ckeditor5_premium_features_realtime_collaboration/admin.comments-archive
+
+admin.comments-archive:
+  css:
+    theme:
+      css/comments-archive.admin.css: { }
 
 real-time-collaboration:
   js:
