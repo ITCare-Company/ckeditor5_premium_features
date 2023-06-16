@@ -6,6 +6,7 @@ namespace Drupal\ckeditor5_premium_features\Storage;
 
 use Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\Collaboration;
 use Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\DocumentOutline;
+use Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\ProductivityPackBase;
 use Drupal\Core\Config\Entity\ConfigEntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\editor\EditorInterface;
@@ -91,7 +92,7 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
 
     $plugins = $editor->getSettings()['plugins'];
 
-    return !empty($plugins[DocumentOutline::DRUPAL_PLUGIN_NAME]['enabled']);
+    return !empty($plugins[ProductivityPackBase::PLUGIN_CONFIG_NAME][DocumentOutline::CONFIG_FIELD_ENABLED]);
   }
 
   /**

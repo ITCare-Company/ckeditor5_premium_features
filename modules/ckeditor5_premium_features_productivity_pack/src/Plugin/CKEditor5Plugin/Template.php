@@ -7,7 +7,6 @@ namespace Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Pl
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -27,16 +26,12 @@ class Template extends CKEditor5PluginDefault implements CKEditor5PluginInterfac
    *
    * @param string $featuredPluginId
    *   The id of the feature plugin.
-   * @param string $configId
-   *   The configuration settings id.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory.
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    */
   public function __construct(
     protected string $featuredPluginId,
-    protected ConfigFactoryInterface $configFactory,
     ...$parent_arguments) {
     parent::__construct(...$parent_arguments);
   }
@@ -49,7 +44,6 @@ class Template extends CKEditor5PluginDefault implements CKEditor5PluginInterfac
 
     return new static(
       $config['plugin'],
-      $container->get('config.factory'),
       $configuration,
       $plugin_id,
       $plugin_definition);
