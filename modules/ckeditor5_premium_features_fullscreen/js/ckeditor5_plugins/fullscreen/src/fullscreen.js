@@ -38,6 +38,7 @@ export default class FullScreen extends Plugin {
 					document.body.classList.remove( overlayClass );
 					view.set( 'label', 'Maximize' );
 					view.set( 'isOn', false );
+          editor.ui.view.stickyPanel.set('isActive', true);
 				}
 				else {
 					targetElement.classList.add( editorFullScreenClass );
@@ -47,6 +48,7 @@ export default class FullScreen extends Plugin {
 					document.body.classList.add( overlayClass );
 					view.set( 'label', 'Minimize' );
 					view.set( 'isOn', true );
+          editor.ui.view.stickyPanel.set('isActive', false);
 				}
 			} );
 			return view;
