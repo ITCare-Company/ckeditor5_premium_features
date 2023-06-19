@@ -44,6 +44,7 @@ export default class FullScreen extends Plugin {
           stickyPanel.classList.remove('ck-sticky-panel__content_sticky');
           stickyPanel.removeAttribute('style');
           stickyPanelPlaceholder.style.display = 'none';
+          editor.focus();
 				}
 				else {
 					targetElement.classList.add( editorFullScreenClass );
@@ -54,6 +55,7 @@ export default class FullScreen extends Plugin {
 					view.set( 'label', 'Minimize' );
 					view.set( 'isOn', true );
           editor.ui.view.stickyPanel.set('isActive', false);
+          editor.focus();
 				}
 			} );
 			return view;
