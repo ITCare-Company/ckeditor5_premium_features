@@ -30,6 +30,8 @@ export default class FullScreen extends Plugin {
 				const sourceElementSibling = editor.sourceElement.nextElementSibling;
 				const targetElement = sideBarWrapper ? sideBarWrapper : sourceElementSibling;
 				const revHistoryElement = targetElement.parentNode.querySelector( '.revision-history-container-data' );
+        const stickyPanel = targetElement.querySelector('.ck-sticky-panel__content');
+        const stickyPanelPlaceholder = targetElement.querySelector('.ck-sticky-panel__placeholder');
 				if ( document.body.classList.contains( overlayClass ) ) {
 					targetElement.classList.remove( editorFullScreenClass );
 					if ( revHistoryElement ) {
@@ -39,6 +41,9 @@ export default class FullScreen extends Plugin {
 					view.set( 'label', 'Maximize' );
 					view.set( 'isOn', false );
           editor.ui.view.stickyPanel.set('isActive', true);
+          stickyPanel.classList.remove('ck-sticky-panel__content_sticky');
+          stickyPanel.removeAttribute('style');
+          stickyPanelPlaceholder.style.display = 'none';
 				}
 				else {
 					targetElement.classList.add( editorFullScreenClass );
