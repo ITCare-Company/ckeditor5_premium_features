@@ -119,6 +119,6 @@ interface SettingsConfigHandlerInterface {
    * @return bool
    *   True if config field is set to true.
    */
-  public function isNodeFormCssAltered(): bool;
+  public function isAlterNodeFormCssEnabled(): bool;
 
 }

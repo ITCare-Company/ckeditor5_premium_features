@@ -175,7 +175,7 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   /**
    * {@inheritDoc}
    */
-  public function isNodeFormCssAltered(): bool {
+  public function isAlterNodeFormCssEnabled(): bool {
     return (bool) $this->config->get('alter_node_form_css');
   }
 
