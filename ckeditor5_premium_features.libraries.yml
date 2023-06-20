@@ -27,3 +27,8 @@ export-integration:
     - ckeditor5_premium_features/cloud-services
     - ckeditor5_premium_features/collaboration-integration-base
     - ckeditor5_premium_features/media-export-features
+
+claro--override--node-form:
+  css:
+    layout:
+      css/claro/node-form.css: { }

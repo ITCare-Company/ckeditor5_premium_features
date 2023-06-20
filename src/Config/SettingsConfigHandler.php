@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Config;
 
+use Drupal\Core\Asset\LibraryDiscoveryInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Url;
-use Drupal\Core\Asset\LibraryDiscoveryInterface;
 
 /**
  * Provides the utility service for handling the stored settings configuration.
@@ -170,6 +170,13 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    */
   public function getOrganizationId(): ?string {
     return $this->config->get('organization_id');
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function isNodeFormCssAltered(): bool {
+    return (bool) $this->config->get('alter_node_form_css');
   }
 
   /**

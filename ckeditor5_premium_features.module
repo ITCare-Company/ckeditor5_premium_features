@@ -85,6 +85,14 @@ function ckeditor5_premium_features_library_info_alter(&$libraries, $extension) 
       unset($libraries["collaboration-integration-base"]["js"]["js/build/disableGhsTableIntegration.js"]);
     }
   }
+
+  // @todo Change this to use `after` instead of `dependencies` after https://www.drupal.org/project/drupal/issues/1945262 is released.
+  if ($extension === 'claro' && isset($libraries['node-form'])) {
+    $cke5PremiumFeaturesSettings = \Drupal::configFactory()->get('ckeditor5_premium_features.settings');
+    if ($cke5PremiumFeaturesSettings->get('alter_node_form_css')) {
+      $libraries['node-form']['dependencies'][] = 'ckeditor5_premium_features/claro--override--node-form';
+    }
+  }
 }
 
 /**

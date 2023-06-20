@@ -251,6 +251,13 @@ class SettingsForm extends ConfigFormBase {
       ],
     ];
 
+    $advanced['alter_node_form_css'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Allow the module to alter the default Drupal theme CSS to make the editing experience better.'),
+      '#default_value' => $this->configHandler->isNodeFormCssAltered(),
+      '#description' => t('Provides more width (space) for CKEditor in the Claro theme. <br/> <strong>Cache has to be flushed after changing this setting.</strong>'),
+    ];
+
     $this->setDefaultValues($advanced);
 
     $form['advanced'] = $advanced + $form['advanced'];

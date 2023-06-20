@@ -29,3 +29,6 @@ ckeditor5_premium_features.settings:
     organization_id:
       type: string
       label: 'Organization ID'
+    alter_node_form_css:
+      type: boolean
+      label: 'Allow the module to alter the default Drupal theme CSS'
