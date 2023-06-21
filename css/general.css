@@ -32,3 +32,6 @@
   min-height: unset;
 }
 
+.ck.ck-user__img {
+  box-sizing: border-box;
+}
