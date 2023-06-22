@@ -87,7 +87,7 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
     foreach ($editors as $editor) {
       if ($editor && $editor->getEditor() == static::SUPPORTED_EDITOR_ID) {
         $plugins = $editor->getSettings()['plugins'];
-        if ($plugins[DocumentOutline::DRUPAL_PLUGIN_NAME]['enabled']) {
+        if (isset($plugins[DocumentOutline::DRUPAL_PLUGIN_NAME]) && $plugins[DocumentOutline::DRUPAL_PLUGIN_NAME]['enabled']) {
           return TRUE;
         }
       }

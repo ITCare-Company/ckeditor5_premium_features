@@ -12,7 +12,7 @@ export default class DocumentOutlineAdapter {
     const documentOutlineId = this.elementId + '-ck-document-outline';
     let documentOutlineContainer = document.getElementById(documentOutlineId);
 
-    if (typeof documentOutlineContainer === 'undefined' || !documentOutlineContainer) {
+    if (typeof documentOutlineContainer === 'undefined' || !documentOutlineContainer || this.isDocumentOutlineDisabled()) {
       return;
     }
 
@@ -68,7 +68,9 @@ export default class DocumentOutlineAdapter {
   }
 
   destroy() {
-    this.containerVisibilityModify(true);
+    if (this.editor.config._config.documentOutline) {
+      this.containerVisibilityModify(true);
+    }
   }
 
   containerVisibilityModify(hide = false) {
@@ -76,8 +78,11 @@ export default class DocumentOutlineAdapter {
     if (!wrapper || typeof wrapper === 'undefined') {
       return;
     }
-    console.log(wrapper);
     wrapper.classList.toggle('hidden', hide);
+  }
+
+  isDocumentOutlineDisabled() {
+    return this.editor.config._config.removePlugins.includes("DocumentOutline");
   }
 
 }
