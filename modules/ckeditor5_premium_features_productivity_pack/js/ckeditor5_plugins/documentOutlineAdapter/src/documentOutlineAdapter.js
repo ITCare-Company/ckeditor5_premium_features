@@ -47,8 +47,15 @@ export default class DocumentOutlineAdapter {
 
     button.render();
 
-    // Append the button next to the outline in its container.
-    documentOutlineContainer.appendChild( button.element );
+    // Toggle wrapper.
+    let wrapper = document.createElement('div');
+    wrapper.classList.add('ck-document-outline-toggle-wrapper');
+
+    // Append the button next to the outline in its container and toggle wrapper.
+    wrapper.appendChild( button.element );
+    documentOutlineContainer.appendChild( wrapper );
+
+
 
     editor.config._config.documentOutline = {'container': documentOutlineContainer};
   }

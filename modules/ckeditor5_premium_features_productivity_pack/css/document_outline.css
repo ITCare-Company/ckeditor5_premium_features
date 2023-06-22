@@ -3,10 +3,16 @@
   border: 1px solid var(--ck-color-toolbar-border);
   border-right: 0;
   overflow: hidden;
-  margin: 1.7em 0 0 0;
+  margin: 27px 0 0 0;
   width: 100%;
   max-width: 300px;
 }
+
+.document-outline-container .ck-document-outline-toggle-wrapper {
+  height: 39px;
+  border-bottom: 1px solid var(--ck-color-toolbar-border);
+}
+
 .document-outline-container .ck-document-outline-toggle {
   margin-left: calc(100% - 37px);
 }
