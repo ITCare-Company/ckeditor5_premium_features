@@ -82,7 +82,10 @@ export default class DocumentOutlineAdapter {
   }
 
   isDocumentOutlineDisabled() {
-    return this.editor.config._config.removePlugins.includes("DocumentOutline");
+    if (this.editor.config._config.removePlugins) {
+      return this.editor.config._config.removePlugins.includes("DocumentOutline");
+    }
+    return false;
   }
 
 }
