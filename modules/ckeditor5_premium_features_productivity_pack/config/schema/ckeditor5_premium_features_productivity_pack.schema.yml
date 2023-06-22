@@ -1,0 +1,46 @@
+ckeditor5_premium_features_productivity_pack_templates.ckeditor5_templates.*:
+  type: config_entity
+  label: CKEditor5 Content Template
+  mapping:
+    id:
+      type: string
+      label: ID
+    uuid:
+      type: string
+    label:
+      type: label
+      label: Title
+    description:
+      type: string
+      label: Description
+    icon:
+      type: string
+      label: Icon
+    data:
+      type: string
+      label: HTML code
+    formats:
+      type: sequence
+      label: Available for
+    weight:
+      type: integer
+      label: Weight
+    status:
+      type: boolean
+      label: Enabled
+
+ckeditor5.plugin.ckeditor5_premium_features_productivity_pack_slash_commands:
+  type: mapping
+  label: 'Slash Command'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Enable on editor'
+
+ckeditor5.plugin.ckeditor5_premium_features_productivity_pack_document_outline:
+  type: mapping
+  label: 'Slash Command'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Enable on editor'

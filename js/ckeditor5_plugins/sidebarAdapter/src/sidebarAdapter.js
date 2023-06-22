@@ -91,16 +91,19 @@ class SidebarAdapter {
    * Checks sidebar mode setting and attaches event listeners if required.
    */
   handleSidebarMode() {
+    let toggle = this.getSidebarToggle();
+
     if (this.sidebarMode !== 'auto') {
-      this.annotationsUIs.switchTo(this.sidebarMode);
+      this.setCkEditorSidebarMode(this.sidebarMode);
+      if (toggle) {
+        toggle.style.display = 'none';
+      }
       return;
     }
 
     this.updateCkeditorMode();
 
     this.checkEditorLabel();
-
-    let toggle = this.getSidebarToggle();
 
     if (!toggle) {
       return;

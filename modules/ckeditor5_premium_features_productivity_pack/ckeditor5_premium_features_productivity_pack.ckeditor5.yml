@@ -1,0 +1,106 @@
+######
+# Document outline start
+######
+
+ckeditor5_premium_features_productivity_pack_document_outline:
+  ckeditor5:
+    plugins:
+      - documentOutlineAdapter.DocumentOutlineAdapter
+      - documentOutline.DocumentOutline
+  drupal:
+    label: CKEditor 5 Document Outline
+    library: ckeditor5_premium_features_productivity_pack/document_outline.adapter
+    class: Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\DocumentOutline
+    elements: false
+    productivity_pack:
+      plugin: documentOutline
+
+######
+# Document outline end
+######
+
+######
+# Table of Contents start
+######
+
+ckeditor5_premium_features_productivity_pack_table_of_contents:
+  ckeditor5:
+    plugins:
+      - documentOutline.TableOfContents
+  drupal:
+    label: CKEditor 5 Table of Contents
+    elements: false
+    library: ckeditor5_premium_features_productivity_pack/document-outline
+    admin_library: ckeditor5_premium_features_productivity_pack/admin.table_of_contents
+    toolbar_items:
+      tableOfContents:
+        label: Table of Contents
+
+######
+# Table of Contents end
+######
+
+######
+# Format Painter start
+######
+
+ckeditor5_premium_features_productivity_pack_format_painter:
+  ckeditor5:
+    plugins:
+      - formatPainter.FormatPainter
+  drupal:
+    label: CKEditor 5 Format Painter
+    elements: false
+    library: ckeditor5_premium_features_productivity_pack/format-painter
+    admin_library: ckeditor5_premium_features_productivity_pack/admin.format_painter
+    toolbar_items:
+      formatPainter:
+        label: Format Painter
+
+######
+# Format Painter end
+######
+
+######
+# Templates start
+######
+
+ckeditor5_premium_features_productivity_pack_content_templates:
+  ckeditor5:
+    plugins:
+      - template.Template
+  drupal:
+    label: CKEditor 5 Content templates
+    elements: false
+    library: ckeditor5_premium_features_productivity_pack/template
+    class: Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\Template
+    admin_library: ckeditor5_premium_features_productivity_pack/admin.content_templates
+    toolbar_items:
+      insertTemplate:
+        label: Insert template
+    productivity_pack:
+      plugin: template
+
+######
+# Templates end
+######
+
+######
+# Slash Commands start
+######
+
+ckeditor5_premium_features_productivity_pack_slash_commands:
+  ckeditor5:
+    plugins:
+      - slashCommand.SlashCommand
+  drupal:
+    label: CKEditor 5 Slash Commands
+    elements: false
+    class: Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\SlashCommand
+    library: ckeditor5_premium_features_productivity_pack/slash-command
+    productivity_pack:
+      plugin: slashCommand
+
+######
+# Slash Commands end
+######

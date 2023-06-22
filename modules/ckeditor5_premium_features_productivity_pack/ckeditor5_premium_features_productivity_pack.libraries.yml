@@ -1,0 +1,66 @@
+######
+# Document outline start
+######
+
+document_outline.adapter:
+  js:
+    js/build/documentOutlineAdapter.js: { preprocess: false, minified: true }
+  css:
+    base:
+      css/document_outline.css: { }
+  dependencies:
+    - core/ckeditor5
+    - ckeditor5_premium_features_productivity_pack/document-outline
+
+######
+# Document outline end
+######
+
+######
+# Table of Contents start
+######
+
+admin.table_of_contents:
+  css:
+    theme:
+      css/table-of-contents.admin.css: { }
+
+######
+# Table of Contents end
+######
+
+######
+# Format Painter start
+######
+
+admin.format_painter:
+  css:
+    theme:
+      css/format-painter.admin.css: { }
+
+######
+# Format Painter end
+######
+
+######
+# Templates start
+######
+
+admin.content_templates:
+  css:
+    theme:
+      css/content-templates.admin.css: { }
+
+######
+# Templates end
+######
+
+######
+# Slash Commands start
+######
+
+# Slash Commands code here
+
+######
+# Slash Commands end
+######
