@@ -72,7 +72,6 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   display: block;
   width: 37px;
   height: 37px;
-  float: right;
 }
 .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle:hover {
   background: var(--ck-color-button-default-hover-background);
