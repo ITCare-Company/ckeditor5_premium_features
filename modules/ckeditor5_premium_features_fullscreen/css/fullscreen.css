@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
+.ck-fullscreen-overlay {
+  overflow: hidden;
+  --ck-z-default: 2000;
+  --ck-z-modal: calc(var(--ck-z-default) + 999);
+}
+.ck-fullscreen.ck.ck-editor.ck-rounded-corners,
+.ck-fullscreen.revision-history-container-data,
+.ck-fullscreen.ck-editor-sidebar-wrapper {
+  position: fixed !important;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--ck-z-modal);
+}
+.ck-fullscreen-overlay #toolbar-administration,
+.ck-fullscreen-overlay .form-item__label {
+  display:none;
+}
+.ck-fullscreen-overlay .ck-sidebar-wrapper.wideSidebar {
+  margin-top:0;
+}
+.ck-fullscreen-overlay .ck-fullscreen.ck-editor-sidebar-wrapper .form-textarea-wrapper,
+.ck-fullscreen-overlay .ck-fullscreen.ck-editor-sidebar-wrapper .ck.ck-editor.ck-rounded-corners,
+.ck-fullscreen .ck-editor__editable.ck-rounded-corners.ck-editor__editable_inline,
+.ck-fullscreen .ck.ck-editor__main {
+  height: 100%;
+}
+.ck-fullscreen .ck.ck-editor__main .ck-source-editing-area {
+  height: 100%;
+}
+.ck-fullscreen .ck.ck-editor__main .ck-source-editing-area textarea {
+  overflow: auto;
+}
+.ck-fullscreen.revision-history-container-data {
+  background: hsl(0, 0%, 100%);
+  overflow: auto;
+}
+.ck-fullscreen-overlay .ck-fullscreen.ck-sidebar-wrapper.narrowSidebar,
+.ck-fullscreen-overlay .ck-fullscreen.ck-sidebar-wrapper.wideSidebar {
+  margin:0;
+}
+.ck-fullscreen-overlay .ck-fullscreen.ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
+  margin-top:0
+}
+
+.ck-fullscreen-overlay .ck-fullscreen .ck-sticky-panel__content {
+  top:0 !important;
+}
+
+/* Revision history */
+.ck-fullscreen-overlay .editor-container {
+  height: 100%;
+}
+
+.ck-fullscreen-overlay .revision-viewer-sidebar {
+  max-width: 300px;
+}
+
+.ck-fullscreen-overlay .revision-history-container-data > .editor-container > .ck-editor {
+  width: 100%;
+}
+
+/* Sidebar */
+.ck-fullscreen-overlay .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
+  max-width: 400px;
+  padding: 0 24px;
+}
+
+.ck-fullscreen-overlay .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper,
+.ck-fullscreen-overlay .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper {
+  margin-top: 0!important;
+}

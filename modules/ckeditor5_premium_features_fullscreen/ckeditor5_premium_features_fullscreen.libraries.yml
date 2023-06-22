@@ -1,0 +1,12 @@
+ckeditor5_fullscreen:
+  js:
+    js/build/fullscreen.js: { preprocess: false, minified: true }
+  css:
+    base:
+      css/fullscreen.css: { }
+  dependencies:
+    - core/ckeditor5
+admin:
+  css:
+    base:
+      css/fullscreen.admin.css: { }
