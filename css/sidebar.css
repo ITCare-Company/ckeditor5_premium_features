@@ -68,6 +68,9 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   z-index: 10;
   border-bottom: 1px solid var(--ck-color-toolbar-border);
 }
+.ck-editor-sidebar-wrapper.inline .ck-sidebar-auto-toggle-wrapper {
+  display: none;
+}
 .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
   display: block;
   width: 37px;
