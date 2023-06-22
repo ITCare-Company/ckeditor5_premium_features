@@ -60,34 +60,40 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 }*/
 
 /*Toggle*/
-.ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
-  display: block;
-  width: calc(100% + 10px);
+.ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
+  width: calc(100% + 20px);
   height: 38.5px;
   position: relative;
   background: white;
   z-index: 10;
-  padding-left: 10px;
   border-bottom: 1px solid var(--ck-color-toolbar-border);
+}
+.ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
+  display: block;
+  width: 37px;
+  height: 37px;
+  float: right;
+}
+.ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle:hover {
+  background: var(--ck-color-button-default-hover-background);
+}
+.ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
+  width: 100%;
+}
+.ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
   margin-left: -10px;
 }
-.ck-fullscreen-overlay .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
+.ck-fullscreen-overlay .wideSidebar .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
   width: calc(100% + 50px);
   height: 37.5px;
-  margin-left: -24px;
+  margin-left: -24px!important;
 }
 .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
   width: 40px;
   margin: 0;
 }
-.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
-  padding-left: 3px; /* width of the sidebar elements border */
-}
 .ck-fullscreen-overlay .wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
   padding-left: 16px;
-}
-.ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
-  padding: 0px 11px;
 }
 .ck-sidebar-wrapper a.ck-sidebar-auto-toggle:hover {
   text-decoration: none;
@@ -104,6 +110,7 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   height: 20px;
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
+  margin-left: 10px;
 }
 .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
   content: url(../icons/sidebar.svg);
