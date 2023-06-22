@@ -113,4 +113,12 @@ interface SettingsConfigHandlerInterface {
    */
   public function getOrganizationId(): ?string;
 
+  /**
+   * Get alter_node_form_css config field.
+   *
+   * @return bool
+   *   True if config field is set to true.
+   */
+  public function isAlterNodeFormCssEnabled(): bool;
+
 }
