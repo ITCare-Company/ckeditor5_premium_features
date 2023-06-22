@@ -38,11 +38,14 @@ class SidebarAdapter {
     }
 
     this.annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
+    let toggleWrapper = document.createElement('div');
+    toggleWrapper.classList.add('ck-sidebar-auto-toggle-wrapper');
     let toggle = document.createElement('a');
     toggle.classList += 'ck-sidebar-auto-toggle ' + this.sidebarMode;
     toggle.id = 'ck-sidebar-auto-toggle';
 
-    this.sidebarColumn.prepend(toggle);
+    toggleWrapper.prepend(toggle);
+    this.sidebarColumn.prepend(toggleWrapper);
   }
 
   afterInit() {

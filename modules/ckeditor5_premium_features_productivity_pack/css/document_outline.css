@@ -8,14 +8,23 @@
   max-width: 300px;
 }
 
+.document-outline-container .ck-document-outline-toggle .ck-icon {
+  width: 20px;
+  height: 20px;
+}
+
 .ck-fullscreen-overlay .document-outline-container,
 tr.draggable .document-outline-container {
   margin-top: unset;
 }
 
 .document-outline-container.collapsed {
-  width: 36px;
+  width: 37px;
   overflow: visible;
+}
+
+body:not(.ck-fullscreen-overlay) .document-outline-container.collapsed .ck-document-outline {
+  visibility: hidden;
 }
 
 .ck-fullscreen-overlay .document-outline-container,

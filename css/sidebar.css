@@ -15,7 +15,7 @@
   max-width: calc(100% - 300px);
 }
 .ck-editor-sidebar-wrapper.narrowSidebar .form-item {
-  max-width: calc(100% - 65px);
+  max-width: calc(100% - 40px);
 }
 .ck-editor-sidebar-wrapper.slider-off .form-item {
   max-width: unset;
@@ -48,20 +48,46 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   margin: 1.35em 0 0 0;
 }
 .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper {
-  max-width: 65px;
+  max-width: 40px;
 }
 .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
   max-width: 279px;
   padding: 0 10px;
 }
 
+/*.ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar {
+  padding: 0 1px;
+}*/
+
 /*Toggle*/
+.ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
+  display: block;
+  width: calc(100% + 10px);
+  height: 38.5px;
+  position: relative;
+  background: white;
+  z-index: 10;
+  padding-left: 10px;
+  border-bottom: 1px solid var(--ck-color-toolbar-border);
+  margin-left: -10px;
+}
+.ck-fullscreen-overlay .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
+  width: calc(100% + 50px);
+  height: 37.5px;
+  margin-left: -24px;
+}
+.ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
+  width: 40px;
+  margin: 0;
+}
 .wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
   padding-left: 3px; /* width of the sidebar elements border */
 }
+.ck-fullscreen-overlay .wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
+  padding-left: 16px;
+}
 .ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
-  position: absolute;
-  padding: 0px 18px;
+  padding: 0px 11px;
 }
 .ck-sidebar-wrapper a.ck-sidebar-auto-toggle:hover {
   text-decoration: none;
@@ -73,10 +99,15 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
   font-size: 26px;
   color: var(--ck-color-toolbar-border);
+  display: block;
+  width: 20px;
+  height: 20px;
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
 }
 .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
-  content: '«';
+  content: url(../icons/sidebar.svg);
 }
 .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
-  content: '»';
+  content: url(../icons/arrow.svg);
 }
