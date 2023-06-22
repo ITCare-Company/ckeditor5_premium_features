@@ -17,7 +17,7 @@ collaboration-integration-base:
 media-export-features:
   js:
     js/libraries/document-export-base.js: { minified: false }
-    js/libraries/media-tags-converter.js: { minified: false }
+    js/libraries/media-tags-converter.js: { minified: false, attributes: { async: true } }
     js/libraries/relative-paths-processor.js: { minified: false }
 
 export-integration:
