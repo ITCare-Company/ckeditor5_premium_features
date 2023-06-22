@@ -11,6 +11,7 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityFormInterface;
+use Drupal\layout_paragraphs\Contracts\ComponentFormInterface;
 
 /**
  * Trait providing scripts with common preprocessing te input text element.
@@ -33,6 +34,7 @@ trait Ckeditor5TextFormatTrait {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function generalProcessElement(array &$element, FormStateInterface $formState, array &$completeForm, CommonCollaborationSettingsInterface $commonCollaborationSettings): array {
+
     $elementUniqueId = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
     $elementDrupalId = CKeditorFieldKeyHelper::cleanElementDrupalId($element['#id']);
     $idAttribute = 'data-' . Ckeditor5TextFormatBaseInterface::STORAGE_KEY . '-element-id';
@@ -155,7 +157,46 @@ trait Ckeditor5TextFormatTrait {
    *   Form object from the $form_state object.
    */
   private function isFormTypeSupported(FormInterface $formObject): bool {
-    return $formObject instanceof EntityFormInterface && $formObject->getEntity() instanceof FieldableEntityInterface;
+    return ($formObject instanceof EntityFormInterface && $formObject->getEntity() instanceof FieldableEntityInterface)
+        || $formObject instanceof ComponentFormInterface;
+  }
+
+  /**
+   * Get related entity.
+   *
+   * @param \Drupal\Core\Form\FormInterface $formObject
+   *   The Form object.
+   *
+   * @return \Drupal\Core\Entity\FieldableEntityInterface|null
+   *   The Entity or NULL.
+   */
+  private function getRelatedEntity(FormInterface $formObject): ?FieldableEntityInterface {
+    if ($formObject instanceof EntityFormInterface) {
+      return $formObject->getEntity();
+    }
+    if ($formObject instanceof ComponentFormInterface) {
+      $entity = $formObject->getParagraph();
+      if ($entity instanceof FieldableEntityInterface) {
+        return $entity;
+      }
+    }
+    return NULL;
+  }
+
+  /**
+   * Check if LayoutParagraphs module is used.
+   *
+   * @param array $element
+   *   The form element.
+   * @param \Drupal\Core\Form\FormInterface $formObject
+   *   The Form.
+   */
+  private function checkIfLayoutParagraphsIsUsed(array &$element, FormInterface $formObject): void {
+    if ($formObject instanceof ComponentFormInterface) {
+      $paragraph = $formObject->getParagraph();
+      $paragraphUuid = $paragraph->uuid();
+      $element['#id'] = $paragraphUuid . '-' . $element['#id'];
+    }
   }
 
 }

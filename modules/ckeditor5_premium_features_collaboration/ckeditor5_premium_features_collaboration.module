@@ -60,7 +60,7 @@ function ckeditor5_premium_features_collaboration_field_widget_single_element_fo
 
   if ($entity instanceof EntityInterface) {
     $entity_context = [
-      'data-entity' => $entity->id(),
+      'data-entity' => $entity->uuid(),
       'data-entity-type' => $entity->getEntityTypeId(),
     ];
     $element['#attributes'] = $entity_context + $element['#attributes'];
@@ -110,9 +110,14 @@ function ckeditor5_premium_features_collaboration_entity_translation_delete(Enti
  *   Flag for removing translation.
  */
 function ckeditor5_premium_features_collaboration_remove_collaborations_entities(EntityInterface $entity, bool $is_translation = FALSE): void {
-  $id = $entity->id();
 
   if ($entity instanceof CollaborationEntityInterface) {
+    return;
+  }
+
+  $id = $entity->uuid();
+
+  if (!$id) {
     return;
   }
 

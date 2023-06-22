@@ -69,9 +69,9 @@ class Collaborators {
    *   A list of collaborators id.
    */
   public function getCollaborators(FieldableEntityInterface $entity, int $userIdExclude = 0): array {
-    $suggestionAuthors = $this->getEntityCollaboratorType(SuggestionInterface::ENTITY_TYPE_ID, $entity->id(), $entity->getEntityTypeId(), $userIdExclude);
-    $revisionAuthors = $this->getEntityCollaboratorType(RevisionInterface::ENTITY_TYPE_ID, $entity->id(), $entity->getEntityTypeId(), $userIdExclude);
-    $commentAuthors = $this->getEntityCollaboratorType(CommentInterface::ENTITY_TYPE_ID, $entity->id(), $entity->getEntityTypeId(), $userIdExclude);
+    $suggestionAuthors = $this->getEntityCollaboratorType(SuggestionInterface::ENTITY_TYPE_ID, $entity->uuid(), $entity->getEntityTypeId(), $userIdExclude);
+    $revisionAuthors = $this->getEntityCollaboratorType(RevisionInterface::ENTITY_TYPE_ID, $entity->uuid(), $entity->getEntityTypeId(), $userIdExclude);
+    $commentAuthors = $this->getEntityCollaboratorType(CommentInterface::ENTITY_TYPE_ID, $entity->uuid(), $entity->getEntityTypeId(), $userIdExclude);
 
     if (empty($suggestionAuthors) && empty($revisionAuthors) && empty($commentAuthors)) {
       return [];

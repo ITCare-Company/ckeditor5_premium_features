@@ -97,7 +97,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
     $object_data = [
       'id' => $data->get('id'),
       'uid' => $data->getInt('creator'),
-      'entity_id' => $data->getInt('entity_id'),
+      'entity_id' => $data->get('entity_id'),
       'created' => $data->getInt('created'),
       'langcode' => $data->get('langcode'),
     ];

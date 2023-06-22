@@ -5,7 +5,11 @@
  * Contains CKEditor 5 Premium Features Collaboration module install functions.
  */
 
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\Revision;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion;
+use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\Core\Url;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features\Entity\CollaborationStorageSchema;
@@ -13,7 +17,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentStorageSchema;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorageSchema;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
-
+use \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment as CollaborationComment;
 /**
  * Implements hook_requirements().
  */
@@ -27,8 +31,7 @@ function ckeditor5_premium_features_collaboration_requirements($phase): array {
         'description' => t('You cannot install CKEditor 5 Realtime Collaboration and CKEditor 5 Non-realtime Collaboration modules at the same time.'),
         'severity' => REQUIREMENT_ERROR,
       ];
-    }
-    else {
+    } else {
       // phpcs:ignore
       define('COLLABORATION_INSTALLING', TRUE);
     }
@@ -85,26 +88,26 @@ function ckeditor5_premium_features_collaboration_update_10001() {
   \Drupal::entityDefinitionUpdateManager()
     ->installFieldStorageDefinition(
       'langcode',
-      \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface::ENTITY_TYPE_ID,
+      CommentInterface::ENTITY_TYPE_ID,
       'ckeditor5_premium_features_collaboration',
       $field_storage_definition
     );
   \Drupal::entityDefinitionUpdateManager()
     ->installFieldStorageDefinition(
       'langcode',
-      \Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface::ENTITY_TYPE_ID,
+      SuggestionInterface::ENTITY_TYPE_ID,
       'ckeditor5_premium_features_collaboration',
       $field_storage_definition
     );
   \Drupal::entityDefinitionUpdateManager()
     ->installFieldStorageDefinition(
       'langcode',
-      \Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface::ENTITY_TYPE_ID,
+      RevisionInterface::ENTITY_TYPE_ID,
       'ckeditor5_premium_features_collaboration',
       $field_storage_definition
     );
 
-  $initialRevisions = \Drupal::entityTypeManager()->getStorage(\Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface::ENTITY_TYPE_ID)
+  $initialRevisions = \Drupal::entityTypeManager()->getStorage(RevisionInterface::ENTITY_TYPE_ID)
     ->loadByProperties([
       'name' => 'Initial revision'
     ]);
@@ -120,3 +123,99 @@ function ckeditor5_premium_features_collaboration_update_10001() {
     $revision->delete();
   }
 }
+
+/**
+ *  Change Collaboration Revision entities Id to Uuid.
+ */
+function ckeditor5_premium_features_collaboration_update_10002(&$sandbox) {
+  $storage = \Drupal::entityTypeManager()->getStorage(RevisionInterface::ENTITY_TYPE_ID);
+  updateCollaborationEntities($storage, $sandbox);
+}
+
+/**
+ * Change Collaboration Suggestion entities Id to Uuid.
+ */
+function ckeditor5_premium_features_collaboration_update_10003(&$sandbox) {
+  $storage = \Drupal::entityTypeManager()->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
+  updateCollaborationEntities($storage, $sandbox);
+}
+
+/**
+ *  Change Collaboration Comment entities Id to Uuid.
+ */
+function ckeditor5_premium_features_collaboration_update_10004(&$sandbox) {
+  $storage = \Drupal::entityTypeManager()->getStorage(CommentInterface::ENTITY_TYPE_ID);
+  updateCollaborationEntities($storage, $sandbox);
+}
+
+/**
+ * Change Collaboration entities Id to Uuid.
+ */
+function updateCollaborationEntities($storage, &$sandbox) {
+  $sandbox['entities_uuid'] = [];
+  $query = $storage->getQuery();
+  $query->accessCheck(FALSE);
+  $entities = $query->execute();
+  $perBatch = 50;
+
+  if (!isset($sandbox['total'])) {
+    $sandbox['total'] = count($entities);
+    $sandbox['current'] = 0;
+
+    if (empty($sandbox['total'])) {
+      $sandbox['#finished'] = 1;
+    }
+  }
+  $query = $storage->getQuery();
+  $query->accessCheck(FALSE);
+  $entitiesIds = $query->range($sandbox['current'], $perBatch)
+    ->execute();
+
+  foreach ($entitiesIds as $entityId) {
+    $collaborationEntity = match(true) {
+      $storage instanceof RevisionStorage => Revision::load($entityId),
+      $storage instanceof SuggestionStorage => Suggestion::load($entityId),
+      $storage instanceof CommentsStorage => CollaborationComment::load($entityId),
+      default => NULL
+    };
+
+    if (!$collaborationEntity) {
+      $sandbox['current']++;
+      continue;
+    }
+
+    $relatedEntityId = $collaborationEntity->getEntityId();
+    if (!isset($sandbox['entities_uuid'][$relatedEntityId])) {
+      $entityTypeTargetId = $collaborationEntity->getEntityTypeTargetId();
+      $entityStorage = \Drupal::entityTypeManager()->getStorage($entityTypeTargetId);
+      if ($entityStorage) {
+        $relatedEntity = $entityStorage->load($relatedEntityId);
+        if (!$relatedEntity) {
+          $sandbox['current']++;
+          continue;
+        }
+        $relatedEntityUuid = $relatedEntity->uuid();
+        $sandbox['entities_uuid'][$relatedEntityId] = $relatedEntityUuid;
+      }
+    }
+
+    $collaborationEntity->set('entity_id', $sandbox['entities_uuid'][$relatedEntityId]);
+    $collaborationEntity->save();
+    $sandbox['current']++;
+  }
+
+  if (empty($entitiesIds)) {
+    $sandbox['#finished'] = 1;
+  }
+
+  \Drupal::messenger()
+    ->addMessage('('. $storage->getEntityTypeId() . ')' .$sandbox['current'] . ' collaboration entities processed.');
+
+  if ($sandbox['current'] >= $sandbox['total']) {
+    $sandbox['#finished'] = 1;
+  } else {
+    $sandbox['#finished'] = ($sandbox['current'] / $sandbox['total']);
+  }
+
+}
+

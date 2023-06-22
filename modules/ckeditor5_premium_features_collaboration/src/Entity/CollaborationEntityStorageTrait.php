@@ -6,6 +6,7 @@ namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\paragraphs\Entity\Paragraph;
 
 /**
  * Provides the methods used/reused by the collaboration entities.
@@ -33,20 +34,26 @@ trait CollaborationEntityStorageTrait {
    *   The entities matching the given entity.
    */
   public function loadByEntity(EntityInterface $entity, string $item_key_filter = NULL): array {
-    if (!$entity->id()) {
+    if (!$entity->uuid()) {
       return [];
     }
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase[] $entities */
     $entities = $this->loadByProperties([
-      'entity_id' => $entity->id(),
+      'entity_id' => $entity->uuid(),
       'langcode' => $entity->language()->getId(),
       'entity_type' => $entity->getEntityTypeId(),
     ]);
 
-    return array_filter($entities, function ($item) use ($item_key_filter) {
+    return array_filter($entities, function ($item) use ($item_key_filter, $entity) {
       $attributes = $item->getAttributes();
-      return $item->access('view') && isset($attributes['key']) && ($item_key_filter == NULL || $attributes['key'] == $item_key_filter);
+      if ($entity instanceof Paragraph && $entity->isNew()) {
+        $access = $item->access('view_new');
+      }
+      else {
+        $access = $item->access('view');
+      }
+      return $access && isset($attributes['key']) && ($item_key_filter == NULL || $attributes['key'] == $item_key_filter);
     });
   }
 
@@ -62,7 +69,7 @@ trait CollaborationEntityStorageTrait {
     return [
       'key' => $item_key,
       'entity_type' => $entity->getEntityTypeId(),
-      'entity_id' => $entity->id(),
+      'entity_id' => $entity->uuid(),
       'langcode' => $entity->language()->getId(),
     ];
   }
