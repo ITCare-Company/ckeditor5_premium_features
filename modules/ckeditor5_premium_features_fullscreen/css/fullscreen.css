@@ -22,8 +22,8 @@
 .ck-fullscreen-overlay .form-item__label {
   display:none;
 }
-.ck-fullscreen-overlay .ck-sidebar-wrapper.wideSidebar {
-  margin-top:0;
+.ck-fullscreen-overlay .ck-sidebar-wrapper {
+  margin-top:0!important;
 }
 .ck-fullscreen-overlay .ck-fullscreen.ck-editor-sidebar-wrapper .form-textarea-wrapper,
 .ck-fullscreen-overlay .ck-fullscreen.ck-editor-sidebar-wrapper .ck.ck-editor.ck-rounded-corners,
@@ -70,9 +70,4 @@
 .ck-fullscreen-overlay .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
   max-width: 400px;
   padding: 0 24px;
-}
-
-.ck-fullscreen-overlay .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper,
-.ck-fullscreen-overlay .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper {
-  margin-top: 0!important;
 }
