@@ -81,6 +81,11 @@ class CKEditor5TemplateListBuilder extends DraggableListBuilder {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    // Ensure empty array is passed when trying to submit form with no entities
+    // to avoid warning message.
+    if (!$form_state->getValue('entities')) {
+      $form_state->setValue('entities', []);
+    }
     parent::submitForm($form, $form_state);
     $this->messenger->addStatus($this->t('CKEditor5 Content Templates Configuration settings have been updated.'));
   }
