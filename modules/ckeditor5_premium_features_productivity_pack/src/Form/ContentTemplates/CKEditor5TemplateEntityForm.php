@@ -52,7 +52,7 @@ class CKEditor5TemplateEntityForm extends EntityForm {
       '#type' => 'textarea',
       '#title' => $this->t('SVG icon code'),
       '#default_value' => $this->entity->get('icon'),
-      '#description' => $this->t('The SVG code'),
+      '#description' => $this->t('The SVG code.<br /><strong>Attributes: "viewBox" and "xmlns" are required</strong>'),
       '#required' => FALSE,
     ];
 
@@ -184,6 +184,17 @@ class CKEditor5TemplateEntityForm extends EntityForm {
     $response = new AjaxResponse();
     $response->addCommand(new HtmlCommand('#cke5-content-icon-container', $data));
     return $response;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    parent::validateForm($form, $form_state);
+    $iconField = $form_state->getValue('icon');
+    if ($iconField && !preg_match('/^<svg\b[^>]*\s*(?=.*viewBox=\"\b[^>]*\")(?=.*xmlns=\"\b[^>]*\").*?>[\s\S]*?<\/svg>/', $iconField)) {
+      $form_state->setErrorByName('icon', $this->t('Wrong icon format. Make sure that svg code is valid and contains proper <strong>viewBox</strong> and <strong>xmlns</strong> attributes.'));
+    }
   }
 
 }
