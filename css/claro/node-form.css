@@ -3,5 +3,19 @@
   .layout-region--node-footer {
     /* @todo Remove the `!important` once https://www.drupal.org/project/drupal/issues/1945262 is released. */
     width: 100% !important;
+    padding-right: unset !important;
   }
+}
+
+@media screen and (min-width: 61rem) {
+  .layout-region--node-main .layout-region__content,
+  .layout-region--node-footer .layout-region__content {
+    max-width: none !important;
+  }
+}
+
+.layout-node-form {
+  display: grid;
+  grid-template-columns: 3fr minmax(22.5rem, 1fr);
+  gap: var(--space-l);
 }
