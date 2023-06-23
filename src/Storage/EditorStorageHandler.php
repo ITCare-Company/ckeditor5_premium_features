@@ -83,16 +83,18 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
    * {@inheritdoc}
    */
   public function hasDocumentOutlineFeaturesEnabled(array $element): bool {
-    if (!$this->isCkeditor5($element)) {
-      // Don't process if this is not a CKEditor5.
-      return FALSE;
+    $editors = $this->getAllEditorsFromElement($element);
+
+    foreach ($editors as $editor) {
+      if ($editor && $editor->getEditor() == static::SUPPORTED_EDITOR_ID) {
+        $plugins = $editor->getSettings()['plugins'];
+        if (isset($plugins[ProductivityPackBase::PLUGIN_CONFIG_NAME]) && $plugins[ProductivityPackBase::PLUGIN_CONFIG_NAME][DocumentOutline::CONFIG_FIELD_ENABLED]) {
+          return TRUE;
+        }
+      }
     }
 
-    $editor = $this->getEditorFromElement($element);
-
-    $plugins = $editor->getSettings()['plugins'];
-
-    return !empty($plugins[ProductivityPackBase::PLUGIN_CONFIG_NAME][DocumentOutline::CONFIG_FIELD_ENABLED]);
+    return FALSE;
   }
 
   /**
