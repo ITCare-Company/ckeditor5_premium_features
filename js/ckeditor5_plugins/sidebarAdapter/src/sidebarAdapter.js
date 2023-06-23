@@ -139,7 +139,7 @@ class SidebarAdapter {
     if (!this.sidebar || typeof this.sidebar === 'undefined') {
       return null;
     }
-    return this.sidebar.querySelector(".ck-sidebar-auto-toggle");
+    return this.sidebar.querySelector(".ck-sidebar-auto-toggle-wrapper");
   }
 
   /**
