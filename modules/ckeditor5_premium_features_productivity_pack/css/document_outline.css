@@ -3,9 +3,23 @@
   border: 1px solid var(--ck-color-toolbar-border);
   border-right: 0;
   overflow: hidden;
-  margin: 1.7em 0 0 0;
+  margin: 27px 0 0 0;
   width: 100%;
   max-width: 300px;
+}
+
+.document-outline-container .ck-document-outline-toggle-wrapper {
+  height: 39px;
+  border-bottom: 1px solid var(--ck-color-toolbar-border);
+}
+
+.document-outline-container .ck-document-outline-toggle {
+  margin-left: calc(100% - 37px);
+}
+
+.document-outline-container .ck-document-outline-toggle .ck-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .ck-fullscreen-overlay .document-outline-container,
@@ -14,8 +28,12 @@ tr.draggable .document-outline-container {
 }
 
 .document-outline-container.collapsed {
-  width: 36px;
+  width: 37px;
   overflow: visible;
+}
+
+body:not(.ck-fullscreen-overlay) .document-outline-container.collapsed .ck-document-outline {
+  visibility: hidden;
 }
 
 .ck-fullscreen-overlay .document-outline-container,
