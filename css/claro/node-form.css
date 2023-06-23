@@ -3,7 +3,6 @@
   .layout-region--node-footer {
     /* @todo Remove the `!important` once https://www.drupal.org/project/drupal/issues/1945262 is released. */
     width: 100% !important;
-    padding-right: unset !important;
   }
 }
 
