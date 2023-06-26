@@ -8,6 +8,11 @@
   max-width: 300px;
 }
 
+.document-outline-container .ck-document-outline {
+  max-height: calc(100vh - var(--drupal-displace-offset-top,0px) - var(--drupal-displace-offset-bottom,0px) + 101px);
+  overflow-y: auto;
+}
+
 .document-outline-container .ck-document-outline-toggle-wrapper {
   height: 39px;
   border-bottom: 1px solid var(--ck-color-toolbar-border);
@@ -29,6 +34,7 @@ tr.draggable .document-outline-container {
 
 .document-outline-container.collapsed {
   width: 37px;
+  min-width: 37px;
   overflow: visible;
 }
 
