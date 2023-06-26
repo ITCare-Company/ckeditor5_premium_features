@@ -1,5 +1,6 @@
 
 collaboration-integration-base:
+  version: 20230626
   css:
     theme:
       css/sidebar.css: { }
@@ -15,12 +16,14 @@ collaboration-integration-base:
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
 
 media-export-features:
+  version: 20230626
   js:
     js/libraries/document-export-base.js: { minified: false }
     js/libraries/media-tags-converter.js: { minified: false, attributes: { async: true } }
     js/libraries/relative-paths-processor.js: { minified: false }
 
 export-integration:
+  version: 20230626
   js:
     js/build/exportAdapters.js: { minified: true }
   dependencies:
@@ -29,6 +32,7 @@ export-integration:
     - ckeditor5_premium_features/media-export-features
 
 claro--override--node-form:
+  version: 20230626
   css:
     layout:
       css/claro/node-form.css: { }

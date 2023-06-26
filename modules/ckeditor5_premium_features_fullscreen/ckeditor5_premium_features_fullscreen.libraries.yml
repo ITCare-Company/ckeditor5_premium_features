@@ -1,4 +1,5 @@
 ckeditor5_fullscreen:
+  version: 20230626
   js:
     js/build/fullscreen.js: { preprocess: false, minified: true }
   css:
@@ -6,7 +7,9 @@ ckeditor5_fullscreen:
       css/fullscreen.css: { }
   dependencies:
     - core/ckeditor5
+
 admin:
+  version: 20230626
   css:
     base:
       css/fullscreen.admin.css: { }
