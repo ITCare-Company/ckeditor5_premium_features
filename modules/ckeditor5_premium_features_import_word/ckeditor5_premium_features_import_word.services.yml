@@ -1,0 +1,5 @@
+services:
+  ckeditor5_premium_features_import_word.config_handler.settings:
+    class: Drupal\ckeditor5_premium_features_import_word\Config\ImportWordConfigHandler
+    arguments:
+      - '@config.factory'
