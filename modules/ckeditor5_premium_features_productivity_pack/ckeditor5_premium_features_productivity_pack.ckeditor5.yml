@@ -14,11 +14,12 @@ ckeditor5_premium_features_productivity_pack_document_outline:
 ckeditor5_premium_features_productivity_pack_table_of_contents:
   ckeditor5:
     plugins:
+      - tableOfContentsAdapter.TableOfContentsAdapter
       - documentOutline.TableOfContents
   drupal:
     label: Table of Contents
     elements: false
-    library: ckeditor5_premium_features_productivity_pack/document-outline
+    library: ckeditor5_premium_features_productivity_pack/table_of_contents.adapter
     admin_library: ckeditor5_premium_features_productivity_pack/admin.table_of_contents
     toolbar_items:
       tableOfContents:
