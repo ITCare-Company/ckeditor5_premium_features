@@ -28,7 +28,7 @@ class CKEditor5ImportWordImageUploadController extends CKEditor5ImageController 
 
       // While importing a Word file with multiple images, all of them will be uploaded simultaneously with the same file name.
       // That will cause an upload error, this code will add extra has to the file name and prevent this issue.
-      if (in_array('importWord', $toolbar)) {
+      if (is_array($toolbar) && in_array('importWord', $toolbar)) {
         $upload = $request->files->get('upload');
         $filename = bin2hex(random_bytes(5)) . '_' . $upload->getClientOriginalName();
         $newUploadedFile = new UploadedFile($upload->getRealPath(), $filename, $upload->getMimeType(), $upload->getError(), FALSE);
