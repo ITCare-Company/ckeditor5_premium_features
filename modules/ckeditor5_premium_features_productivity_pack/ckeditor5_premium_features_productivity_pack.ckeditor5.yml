@@ -1,7 +1,3 @@
-######
-# Document outline start
-######
-
 ckeditor5_premium_features_productivity_pack_document_outline:
   ckeditor5:
     plugins:
@@ -14,14 +10,6 @@ ckeditor5_premium_features_productivity_pack_document_outline:
     elements: false
     productivity_pack:
       plugin: documentOutline
-
-######
-# Document outline end
-######
-
-######
-# Table of Contents start
-######
 
 ckeditor5_premium_features_productivity_pack_table_of_contents:
   ckeditor5:
@@ -36,14 +24,6 @@ ckeditor5_premium_features_productivity_pack_table_of_contents:
       tableOfContents:
         label: Table of Contents
 
-######
-# Table of Contents end
-######
-
-######
-# Format Painter start
-######
-
 ckeditor5_premium_features_productivity_pack_format_painter:
   ckeditor5:
     plugins:
@@ -56,14 +36,6 @@ ckeditor5_premium_features_productivity_pack_format_painter:
     toolbar_items:
       formatPainter:
         label: Format Painter
-
-######
-# Format Painter end
-######
-
-######
-# Templates start
-######
 
 ckeditor5_premium_features_productivity_pack_content_templates:
   ckeditor5:
@@ -81,14 +53,6 @@ ckeditor5_premium_features_productivity_pack_content_templates:
     productivity_pack:
       plugin: template
 
-######
-# Templates end
-######
-
-######
-# Slash Commands start
-######
-
 ckeditor5_premium_features_productivity_pack_slash_commands:
   ckeditor5:
     plugins:
@@ -100,10 +64,6 @@ ckeditor5_premium_features_productivity_pack_slash_commands:
     library: ckeditor5_premium_features_productivity_pack/slash-command
     productivity_pack:
       plugin: slashCommand
-
-######
-# Slash Commands end
-######
 
 ckeditor5_premium_features_productivity_pack_base:
   ckeditor5:
