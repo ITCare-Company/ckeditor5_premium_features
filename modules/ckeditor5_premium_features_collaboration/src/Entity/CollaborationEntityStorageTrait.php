@@ -23,6 +23,13 @@ trait CollaborationEntityStorageTrait {
   protected string $originalDocument;
 
   /**
+   * New Document content (after submitting).
+   *
+   * @var string
+   */
+  protected string $newDocument;
+
+  /**
    * Loads the entities by the parent/context entity.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
@@ -125,6 +132,23 @@ trait CollaborationEntityStorageTrait {
    */
   public function getDocumentOriginalValue(): ?string {
     return $this->originalDocument ?? NULL;
+  }
+
+  /**
+   * Sets the new source document (after submitting) content .
+   *
+   * @param string $content
+   *   String with document content.
+   */
+  public function setDocumentNewValue(string $content): void {
+    $this->newDocument = $content;
+  }
+
+  /**
+   * Returns stored document new value or NULL if not set.
+   */
+  public function getDocumentNewValue(): ?string {
+    return $this->newDocument ?? NULL;
   }
 
 }

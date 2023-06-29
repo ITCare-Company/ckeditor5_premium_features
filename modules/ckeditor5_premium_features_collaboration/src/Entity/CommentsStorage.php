@@ -23,11 +23,11 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * Provides the storage class for the Comments entity.
  */
 class CommentsStorage extends SqlContentEntityStorage implements
-    CollaborationEntityStorageInterface,
-    EditorDataStorageProviderInterface,
-    CollaborationSuggestionDependingStorageInterface,
-    CollaborationContentFilteringStorageInterface,
-    CollaborationEntityEventDispatcherInterface {
+  CollaborationEntityStorageInterface,
+  EditorDataStorageProviderInterface,
+  CollaborationSuggestionDependingStorageInterface,
+  CollaborationContentFilteringStorageInterface,
+  CollaborationEntityEventDispatcherInterface {
 
   use CollaborationEntityStorageTrait {
     loadByEntity as public traitLoadByEntity;
@@ -297,8 +297,12 @@ class CommentsStorage extends SqlContentEntityStorage implements
    * {@inheritdoc}
    */
   public function dispatchNewEntity(CollaborationEntityInterface $entity): void {
+    $event = new CollaborationEventBase($entity, $this->user, CollaborationEventBase::COMMENT_ADDED);
+    if ($newContent = $this->getDocumentNewValue()) {
+      $event->setNewContent($newContent);
+    }
     $this->event_dispatcher->dispatch(
-      new CollaborationEventBase($entity, $this->user, CollaborationEventBase::COMMENT_ADDED),
+      $event,
       CollaborationEventBase::COMMENT_ADDED
     );
   }

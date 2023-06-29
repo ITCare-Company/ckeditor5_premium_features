@@ -64,6 +64,7 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
   $key = $data['key_id'] ?? NULL;
   $marker = $data['marker'] ?? NULL;
   $originalContent = $data['original_content'] ?? NULL;
+  $newContent = $data['new_content'] ?? NULL;
   $isDefaultContextRequired = $data['is_default'] ?? FALSE;
 
   /** @var \Drupal\Core\Render\RendererInterface $renderer */
@@ -100,7 +101,7 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
             $result = $contextHelper->getFullContextFromDocument($originalContent, $suggestion);
           }
           if (empty($originalContent) || empty($result)) {
-            $result = $contextHelper->getFullContext($node, $key, $suggestion);
+            $result = $contextHelper->getFullContext($node, $key, $suggestion, $newContent);
           }
           $replacements[$original] = $renderer->renderPlain($result);
           break;
@@ -111,7 +112,12 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'context':
-          $result = $contextHelper->getFullContext($node, $key, $comment);
+          if (!empty($originalContent)) {
+            $result = $contextHelper->getFullContextFromDocument($originalContent, $comment);
+          }
+          if (empty($originalContent) || empty($result)) {
+            $result = $contextHelper->getFullContext($node, $key, $comment, $newContent);
+          }
           $replacements[$original] = $renderer->renderPlain($result);
           break;
       }
@@ -123,7 +129,7 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
       switch ($name) {
         case 'context':
           if ($comment instanceof CommentInterface) {
-            $result = $contextHelper->getFullContext($node, $key, $comment);
+            $result = $contextHelper->getFullContext($node, $key, $comment, $newContent);
           }
           else {
             $result = $contextHelper->getDocumentMentionContext($node, $key, $marker, $originalContent);
