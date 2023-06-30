@@ -9,10 +9,12 @@ At the moment the CKEditor 5 Premium features offer:
  * Comments
  * Revision history - a more sophisticated history of changes inside the document
  * Notifications - configurable notifications to stay up to date whenever someone mentions you in a document, comment, accepts/rejects suggestions, replies to your comment and so on. You may use your own plugin for notifications to get e.g. notifications on slack.
+ * Productivity pack - set of exclusive premium features, that make editing faster, easier, and more efficient.
+ * Full screen mode - a free-to-use plugin that allows maximising the editing area
 
 It also provides the following file formats converters:
 
- * Export to Word - marked as experimental (works but requires manual corrections to CSS for the best experience) 
+ * Export to Word - marked as experimental (works but requires manual corrections to CSS for the best experience)
  * Export to PDF - marked as experimental (works but requires manual corrections to CSS for the best experience)
 
 For a full description of the module, visit the
@@ -29,9 +31,9 @@ The CKEditor 5 Premium Features module: [project page](https://www.drupal.org/pr
 Online documentation: [CKEditor 5 Premium Features](https://www.drupal.org/docs/contributed-modules/ckeditor-5-premium-features)
 
 
-## Status 🚧
+## Status
 
-The module is currently under development. You are free to try it out and experiment. Have questions about the status, roadmap or would you like to use it in your project? Contact us: [ckeditor](https://ckeditor.com/contact/)
+The module is actively maintained. Have questions about the status, roadmap or would you like to use it in your project? Contact us: [ckeditor](https://ckeditor.com/contact/)
 
 Reporting issues: [issue queue](https://www.drupal.org/project/issues/ckeditor5_premium_features)
 
@@ -43,6 +45,7 @@ information, see
 [Installing Drupal Modules](https://www.drupal.org/docs/extending-drupal/installing-drupal-modules).
 
 ### Using composer:
+
 ```composer require drupal/ckeditor5_premium_features```
 
 
@@ -65,12 +68,16 @@ In order to use the module, you will need to sign up to the free trial of CKEdit
 
 ## Uninstallation
 
+Uninstall all submodules and the main CKEditor 5 Premium Features module in the administrative GUI: /admin/modules/uninstall
+
 ### Using composer:
-```composer require remove/ckeditor5_premium_features```
+
+To remove module files after uninstallation run
+```composer remove drupal/ckeditor5_premium_features```
 
 
 ## License
 
-Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
+Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
 
 Licensed under the terms of GNU General Public License Version 2 or later.
