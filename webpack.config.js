@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
 const path = require('path');
 const glob = require('glob');
 const webpack = require('webpack');
@@ -27,9 +32,9 @@ Object.entries(entries).forEach((mapping) => {
       minimizer: [
         new TerserPlugin({
           terserOptions: {
-            format: {
-              comments: false,
-            },
+            output: {
+              comments: /^!/
+            }
           },
           test: /\.js(\?.*)?$/i,
           extractComments: false,
@@ -48,6 +53,7 @@ Object.entries(entries).forEach((mapping) => {
       libraryExport: 'default',
     },
     plugins: [
+      new webpack.BannerPlugin("Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.\nFor licensing, see https://ckeditor.com/legal/ckeditor-oss-license"),
       new webpack.DllReferencePlugin({
         manifest: require('./node_modules/ckeditor5/build/ckeditor5-dll.manifest.json'), // eslint-disable-line global-require, import/no-unresolved
         scope: 'ckeditor5/src',

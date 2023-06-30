@@ -1,5 +1,10 @@
 <?php
 
+/*
+ * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
 namespace Drupal\ckeditor5_premium_features_export_pdf\Config;
 
 use Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandler;

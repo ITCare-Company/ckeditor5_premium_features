@@ -7,13 +7,13 @@
     "homepage": "https://www.drupal.org/project/ckeditor5_premium_features",
     "authors": [
         {
-            "name": "Mariusz Andrzejewski (sayco)",
-            "homepage": "https://www.drupal.org/u/sayco",
+            "name": "Wojciech Kukowski (salmonek)",
+            "homepage": "https://www.drupal.org/u/salmonek",
             "role": "Maintainer"
         },
         {
-            "name": "Paweł Górski (Pawelgorski87)",
-            "homepage": "https://www.drupal.org/u/pawelgorski87",
+            "name": "Dawid Olszewski (dolszewski)",
+            "homepage": "https://www.drupal.org/u/dolszewski",
             "role": "Maintainer"
         }
     ],
