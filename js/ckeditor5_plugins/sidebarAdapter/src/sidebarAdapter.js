@@ -153,7 +153,11 @@ class SidebarAdapter {
       return;
     }
     if (this.sidebar.classList.contains('manual-toggled') && newMode === 'wideSidebar') {
-      return;
+      if (this.annotationsUIs.isActive('inline') || this.annotationsUIs.isActive('wideSidebar')) {
+        newMode = 'narrowSidebar';
+      } else {
+        return;
+      }
     }
 
     this.sidebar.classList.remove('inline', 'narrowSidebar', 'wideSidebar');
@@ -164,7 +168,7 @@ class SidebarAdapter {
   /**
    * Setup sidebar mode depends on resolution.
    */
-  updateCkeditorMode = function() {
+  updateCkeditorMode() {
     // TODO: move to config?
     let w = document.documentElement.clientWidth;
     let newMode = w >= 1200 ? 'wideSidebar' : (w >= 500 ? 'narrowSidebar' : 'inline');
