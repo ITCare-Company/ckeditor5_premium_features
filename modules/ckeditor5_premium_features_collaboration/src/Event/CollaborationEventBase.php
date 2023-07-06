@@ -38,6 +38,13 @@ class CollaborationEventBase extends Event {
   protected string $originalContent;
 
   /**
+   * New document content.
+   *
+   * @var string
+   */
+  protected string $newContent;
+
+  /**
    * Optionally referened user ID.
    *
    * @var string
@@ -113,6 +120,10 @@ class CollaborationEventBase extends Event {
   public function getRelatedDocumentContent(): string|null {
     if ($this->getEventType() == self::SUGGESTION_DISCARD || $this->getEventType() == self::SUGGESTION_ACCEPT) {
       return $this->getOriginalContent();
+    }
+
+    if ($newContent = $this->getNewContent()) {
+      return $newContent;
     }
 
     $relatedDocument = $this->getRelatedDocument();
@@ -226,6 +237,23 @@ class CollaborationEventBase extends Event {
    */
   public function setOriginalContent(string $documentContent) {
     $this->originalContent = $documentContent;
+  }
+
+  /**
+   * Returns the new document content string.
+   */
+  public function getNewContent(): ?string {
+    return $this->newContent ?? NULL;
+  }
+
+  /**
+   * Sets the new document content string.
+   *
+   * @param string $documentContent
+   *   String with new content.
+   */
+  public function setNewContent(string $documentContent) {
+    $this->newContent = $documentContent;
   }
 
   /**

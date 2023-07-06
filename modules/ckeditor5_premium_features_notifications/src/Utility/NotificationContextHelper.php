@@ -6,10 +6,10 @@ namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features\Utility\ContextHelper;
+use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
-use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\FieldableEntityInterface;
 
@@ -29,8 +29,20 @@ class NotificationContextHelper extends ContextHelper {
    *   Unique key ID to collect document value from.
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $entity
    *   Collaboration entity.
+   * @param string $newContent
+   *   A new content of document.
+   *
+   * @return array
+   *   Array with the context.
    */
-  public function getFullContext(FieldableEntityInterface $document, string $key, CollaborationEntityInterface $entity): array {
+  public function getFullContext(FieldableEntityInterface $document,
+                                 string $key,
+                                 CollaborationEntityInterface $entity,
+                                 ?string $newContent): array {
+    if ($newContent) {
+      return $this->getFullContextFromDocument($newContent, $entity) ?? [];
+    }
+
     $context = self::getDocumentFieldContent($document, $key);
 
     return is_string($context) ? $this->getFullContextFromDocument($context, $entity) : [];
