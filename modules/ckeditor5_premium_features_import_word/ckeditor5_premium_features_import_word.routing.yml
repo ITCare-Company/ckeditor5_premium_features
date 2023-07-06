@@ -1,0 +1,7 @@
+ckeditor5_premium_features_import_word.form.settings:
+  path: '/admin/config/ckeditor5-premium-features/import-word'
+  defaults:
+    _title: 'Import from Word'
+    _form: 'Drupal\ckeditor5_premium_features_import_word\Form\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
