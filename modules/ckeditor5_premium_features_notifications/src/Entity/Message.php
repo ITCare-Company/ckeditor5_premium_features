@@ -173,7 +173,7 @@ class Message extends ContentEntityBase implements MessageInterface {
             break;
 
           default:
-            $groupedMessageItems[NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT . $item->getUid()] = $item;
+            $groupedMessageItems[NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_MENTION_DOCUMENT . '-' . $item->getKeyId() . '-' . $item->getUid()] = $item;
             break;
         }
       }

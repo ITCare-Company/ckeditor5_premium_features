@@ -15,18 +15,19 @@
      * @returns {Promise<string>}
      */
     async convertMediaTags(content, format) {
-      const parser = new DOMParser();
-      const documentDom = parser.parseFromString( content, 'text/html' ).body;
-      documentDom.innerHTML = content;
+      return new Promise( async resolve => {
+        const parser = new DOMParser();
+        const documentDom = parser.parseFromString( content, 'text/html' ).body;
+        documentDom.innerHTML = content;
 
-      if (drupalSettings.ckeditor5Premium.isMediaInstalled) {
-        let elementsAttributes = this.getTagProperties(documentDom);
-        let mediaPaths = await this.queryMediaPaths(elementsAttributes, format);
+        if (drupalSettings.ckeditor5Premium.isMediaInstalled) {
+          let elementsAttributes = this.getTagProperties(documentDom);
+          let mediaPaths = await this.queryMediaPaths(elementsAttributes, format);
 
-        this.replaceMediaTags(documentDom, mediaPaths);
-      }
-
-      return documentDom.innerHTML;
+          this.replaceMediaTags(documentDom, mediaPaths);
+        }
+        resolve(documentDom.innerHTML);
+      });
     },
 
     /**

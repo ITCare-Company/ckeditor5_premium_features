@@ -1,0 +1,8 @@
+# Schema for the configuration files of the CKEditor 5 Import from Word module.
+ckeditor5_premium_features_import_word.settings:
+  type: config_object
+  label: 'CKEditor 5 Import from Word settings'
+  mapping:
+    word_styles:
+      type: boolean
+      label: "Word's styles"

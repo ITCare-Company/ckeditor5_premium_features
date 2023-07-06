@@ -1,6 +1,6 @@
 
 collaboration-integration-base:
-  version: 20230626
+  version: 20230705
   css:
     theme:
       css/sidebar.css: { }
@@ -16,10 +16,10 @@ collaboration-integration-base:
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
 
 media-export-features:
-  version: 20230626
+  version: 20230704
   js:
     js/libraries/document-export-base.js: { minified: false }
-    js/libraries/media-tags-converter.js: { minified: false, attributes: { async: true } }
+    js/libraries/media-tags-converter.js: { minified: false }
     js/libraries/relative-paths-processor.js: { minified: false }
 
 export-integration:

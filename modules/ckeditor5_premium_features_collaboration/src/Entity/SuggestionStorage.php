@@ -22,9 +22,9 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * Provides the storage class for the Suggestion entity.
  */
 class SuggestionStorage extends SqlContentEntityStorage implements
-    CollaborationEntityStorageInterface,
-    EditorDataStorageProviderInterface,
-    CollaborationEntityEventDispatcherInterface {
+  CollaborationEntityStorageInterface,
+  EditorDataStorageProviderInterface,
+  CollaborationEntityEventDispatcherInterface {
 
   use CollaborationEntityStorageTrait;
 
@@ -180,9 +180,14 @@ class SuggestionStorage extends SqlContentEntityStorage implements
     if ($entity->isInChain() && !$entity->isHeadOfChain()) {
       return;
     }
+    $event = new CollaborationEventBase($entity, $this->user, CollaborationEventBase::SUGGESTION_ADDED);
+
+    if ($newContent = $this->getDocumentNewValue()) {
+      $event->setNewContent($newContent);
+    }
 
     $this->event_dispatcher->dispatch(
-      new CollaborationEventBase($entity, $this->user, CollaborationEventBase::SUGGESTION_ADDED),
+      $event,
       CollaborationEventBase::SUGGESTION_ADDED
     );
   }
@@ -217,6 +222,10 @@ class SuggestionStorage extends SqlContentEntityStorage implements
     $event = new CollaborationEventBase($newEntity, $this->user, $event_type);
     if ($originalContent = $this->getDocumentOriginalValue()) {
       $event->setOriginalContent($originalContent);
+    }
+
+    if ($newContent = $this->getDocumentNewValue()) {
+      $event->setNewContent($newContent);
     }
 
     $this->event_dispatcher->dispatch(

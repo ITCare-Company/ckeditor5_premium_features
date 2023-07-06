@@ -183,6 +183,9 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
     if ($originalContent = $event->getOriginalContent()) {
       $parameters['original_content'] = $originalContent;
     }
+    if ($newContent = $event->getNewContent()) {
+      $parameters['new_content'] = $newContent;
+    }
 
     if ($messageType == self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS) {
       $parameters['suggestion'] = $event;

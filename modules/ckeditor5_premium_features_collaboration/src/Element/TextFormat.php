@@ -14,6 +14,7 @@ use Drupal\ckeditor5_premium_features\CollaborationAccessHandler;
 use Drupal\ckeditor5_premium_features\Diff\DocumentDiffHelper;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
+use Drupal\ckeditor5_premium_features\Storage\EditorStorageHandlerInterface;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationContentFilteringStorageInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityEventDispatcherInterface;
@@ -25,7 +26,6 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
-use Drupal\ckeditor5_premium_features\Storage\EditorStorageHandlerInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityInterface;
@@ -225,6 +225,16 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     return $element;
   }
 
+  /**
+   * Validate element.
+   *
+   * @param array $element
+   *   The form element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The state of the form.
+   * @param array $form
+   *   The form.
+   */
   public function validateElement(array $element, FormStateInterface $form_state, array $form) {
     if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element, FALSE)) {
       return;
@@ -276,7 +286,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     foreach ($commentsChanges['changed'] as $uid) {
       if ($uid != $this->currentUser->id()) {
-        // @TODO once editing all users comments is available in CKEditor we
+        // @todo once editing all users comments is available in CKEditor we
         // can change condition here.
         $form_state->setError($element, $this->t("You are not allowed to edit collaboration comments in %field.", ['%field' => $element['#title']]));
         return;
@@ -403,7 +413,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $sendNotifications = TRUE;
 
     /*
-     * TODO: Notification for paragraphs
+     * TODO: Notification for paragraphs entities
      */
     if ($entity instanceof Paragraph) {
       $sendNotifications = FALSE;
@@ -413,8 +423,14 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       $this->processTemporaryStorageRevisionData($form_state, $item_key);
 
       $source_original_data = $this->getFormElementOriginalValue($form, $item_parents['array_parents']);
+      $source_new_data = $form_state->getValue(
+        [...$item_parents['parents'],
+          'value',
+        ]
+      ) ?? '';
+
       if ($sendNotifications) {
-        $this->dispatchDocumentUpdateEvent($entity, $item_key, $source_original_data);
+        $this->dispatchDocumentUpdateEvent($entity, $item_key, $source_original_data, $source_new_data);
       }
 
       $resolved_suggestions_comments = $this->getFormElementSourceData($form_state, $item_parents['parents'], 'resolved_suggestions_comments', $item_key);
@@ -433,9 +449,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
           continue;
         }
 
-        if ($source_original_data) {
-          $storage->setDocumentOriginalValue($source_original_data);
-        }
         if ($storage instanceof CollaborationSuggestionDependingStorageInterface) {
           $storage->setSuggestionIds($suggestion_ids);
         }
@@ -445,7 +458,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         }
 
         $entities_data = $storage->processSourceData($source_data, $entity, $item_key);
-        $this->doStorageOperations($entities_data, $storage, $key);
+        $this->doStorageOperations($entities_data, $storage, $key, $item_key, $source_original_data, $source_new_data);
       }
     }
     if (!empty($order_switch)) {
@@ -468,9 +481,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state): void {
-    return;
-  }
+  public function validateForm(array &$form, FormStateInterface $form_state): void {}
 
   /**
    * Execute the storage commands based on the given markup data.
@@ -480,7 +491,12 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @param object $storage
    *   The related type storage.
    */
-  private function doStorageOperations(array $entities_data, object $storage, string $storageKey): void {
+  private function doStorageOperations(array $entities_data,
+                                       object $storage,
+                                       string $storageKey,
+                                       string $itemKey,
+                                       ?string $originalContent,
+                                       ?string $newContent): void {
     $added = [];
     $updated = [];
     foreach ($entities_data as $element_data) {
@@ -510,8 +526,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       });
     }
 
-    $this->storagesOperations[$storageKey]['added'] = $added;
-    $this->storagesOperations[$storageKey]['updated'] = $updated;
+    $this->storagesOperations[$storageKey][$itemKey]['added'] = $added;
+    $this->storagesOperations[$storageKey][$itemKey]['updated'] = $updated;
+    $this->storagesOperations[$storageKey][$itemKey]['original_content'] = $originalContent;
+    $this->storagesOperations[$storageKey][$itemKey]['new_content'] = $newContent;
   }
 
   /**
@@ -631,15 +649,21 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @param string|null $original_value
    *   Optional original document value.
    */
-  protected function dispatchDocumentUpdateEvent(FieldableEntityInterface $entity, string $key, string $original_value = NULL): void {
+  protected function dispatchDocumentUpdateEvent(FieldableEntityInterface $entity,
+                                                 string $key,
+                                                 string $original_value = NULL,
+                                                 string $new_value = NULL): void {
     $event = new CollaborationEventBase(
       $entity,
       User::load($this->currentUser->id()),
-      CollaborationEventBase::DOCUMENT_UPDATED
+      CollaborationEventBase::DOCUMENT_UPDATED,
     );
     $event->setRelatedDocumentKey($key);
     if (!empty($original_value)) {
       $event->setOriginalContent($original_value);
+    }
+    if (!empty($new_value)) {
+      $event->setNewContent($new_value);
     }
 
     $this->eventDispatcher->dispatch(
@@ -784,16 +808,24 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         continue;
       }
       $operations = $this->storagesOperations[$key];
-      $added = $operations['added'] ?? [];
-      $updated = $operations['updated'] ?? [];
-      if ($added) {
-        foreach ($added as $added_entity) {
-          $storage->dispatchNewEntity($added_entity);
+
+      foreach ($operations as $itemOperations) {
+        $originalContent = $itemOperations['original_content'] ?? '';
+        $newContent = $itemOperations['new_content'] ?? '';
+        $storage->setDocumentOriginalValue($originalContent);
+        $storage->setDocumentNewValue($newContent);
+
+        $added = $itemOperations['added'] ?? [];
+        $updated = $itemOperations['updated'] ?? [];
+        if ($added) {
+          foreach ($added as $added_entity) {
+            $storage->dispatchNewEntity($added_entity);
+          }
         }
-      }
-      if ($updated) {
-        foreach ($updated as $upd_info) {
-          $storage->dispatchUpdatedEntity($upd_info['old'], $upd_info['new']);
+        if ($updated) {
+          foreach ($updated as $upd_info) {
+            $storage->dispatchUpdatedEntity($upd_info['old'], $upd_info['new']);
+          }
         }
       }
     }
