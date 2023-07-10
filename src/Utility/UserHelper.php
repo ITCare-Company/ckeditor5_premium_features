@@ -63,13 +63,15 @@ class UserHelper {
     }
 
     $user = $this->userStorage->load($account->id());
-    $userPicture = $user->get('user_picture');
-    $file = $userPicture->entity;
-    if ($file) {
-      $fileUri = $file->getFileUri();
-      $fileFullUrl = $this->fileUrlGenerator->generateAbsoluteString($fileUri);
-      if ($fileFullUrl) {
-        $data['avatar'] = $fileFullUrl;
+    if ($user && $user->hasField('user_picture')) {
+      $userPicture = $user->get('user_picture');
+      $file = $userPicture->entity;
+      if ($file) {
+        $fileUri = $file->getFileUri();
+        $fileFullUrl = $this->fileUrlGenerator->generateAbsoluteString($fileUri);
+        if ($fileFullUrl) {
+          $data['avatar'] = $fileFullUrl;
+        }
       }
     }
 
