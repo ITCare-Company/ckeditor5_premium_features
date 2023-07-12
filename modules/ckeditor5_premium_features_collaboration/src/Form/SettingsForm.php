@@ -62,6 +62,58 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#description' => t('If you leave this unchecked, new revisions will only be saved on demand.'),
     ];
 
+    $form['revision_history']['limits'] = [
+      '#type' => 'details',
+      '#title' => t('Revisions Limits'),
+      '#description' => t(
+        '<strong>Warning</strong><br />
+        This setting will remove only ckeditor5 revisions. <br/>
+        If both checkboxes are checked a revisions will be removed after provided a number of days <strong>AND</strong> when reached maximum quantity.<br/> <br/>
+        eg. Quantity limitation is set to 30 revisions and time limitation to 14 days.
+        If a new node is created and during 14 days 50 revisions were created, the 20 oldest revisions will be removed on save after 14 days.<br/>
+        If during that 14 days 20 revisions were created, none will be removed after 14 days.
+        '),
+    ];
+
+    $form['revision_history']['limits']['revisions_quantity_limitation'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Quantity limitation'),
+      '#default_value' => $config->get('revisions_quantity_limitation') ?? FALSE,
+      '#description' => t('Remove old revisions after reaching provided quantity.'),
+    ];
+
+    $form['revision_history']['limits']['revisions_quantity_limit'] = [
+      '#type' => 'number',
+      '#title' => t('Maximum revisions per node'),
+      '#min' => 0,
+      '#default_value' => $config->get('revisions_quantity_limit') ?? 0,
+      '#description' => t('Old revisions will be removed after reached provided quantity.'),
+      '#states' => [
+        'visible' => [
+          ':input[name="revisions_quantity_limitation"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['revision_history']['limits']['revisions_time_limitation'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Time limitation'),
+      '#default_value' => $config->get('revisions_time_limitation') ?? FALSE,
+      '#description' => t('Remove old revisions after reaching number of days'),
+    ];
+
+    $form['revision_history']['limits']['revisions_time_limit'] = [
+      '#type' => 'number',
+      '#title' => t('Maximum lifetime of revision.'),
+      '#min' => 0,
+      '#default_value' => $config->get('revisions_time_limit') ?? 0,
+      '#description' => t('Revisions older than a provided number of days will be removed.'),
+      '#states' => [
+        'visible' => [
+          ':input[name="revisions_time_limitation"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
     return $form;
   }
 

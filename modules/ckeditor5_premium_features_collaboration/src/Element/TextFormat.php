@@ -27,6 +27,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
+use Drupal\ckeditor5_premium_features_collaboration\Utility\RevisionsLimitHandler;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -99,6 +100,14 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   Event dispatcher service.
    * @param \Drupal\Core\Session\AccountInterface $currentUser
    *   Current user.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state object.
+   * @param \Drupal\ckeditor5_premium_features\Diff\DocumentDiffHelper $documentDiffHelper
+   *   Document diff helper.
+   * @param \Drupal\ckeditor5_premium_features\CollaborationAccessHandler $collaborationAccessHandler
+   *   Access handler.
+   * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\RevisionsLimitHandler $revisionsLimitHandler
+   *   Revisions limit handler.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -112,7 +121,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     protected AccountInterface $currentUser,
     protected StateInterface $state,
     protected DocumentDiffHelper $documentDiffHelper,
-    protected CollaborationAccessHandler $collaborationAccessHandler
+    protected CollaborationAccessHandler $collaborationAccessHandler,
+    protected RevisionsLimitHandler $revisionsLimitHandler
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
     $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
@@ -460,6 +470,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         $entities_data = $storage->processSourceData($source_data, $entity, $item_key);
         $this->doStorageOperations($entities_data, $storage, $key, $item_key, $source_original_data, $source_new_data);
       }
+      if ($this->collaborationSettings->isRevisionsLimitationEnabled()) {
+        $this->revisionsLimitHandler->clearRevisions($entity, $item_key);
+      }
     }
     if (!empty($order_switch)) {
       $this->changeValuesOrder($order_switch, $entity);
@@ -497,6 +510,12 @@ class TextFormat implements Ckeditor5TextFormatInterface {
                                        string $itemKey,
                                        ?string $originalContent,
                                        ?string $newContent): void {
+
+    // Prevent saving revision if no changes were made.
+    if ($storage instanceof RevisionStorage && $originalContent === $newContent) {
+      return;
+    }
+
     $added = [];
     $updated = [];
     foreach ($entities_data as $element_data) {

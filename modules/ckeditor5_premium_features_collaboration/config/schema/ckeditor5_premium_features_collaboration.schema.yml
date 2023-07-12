@@ -5,6 +5,21 @@ ckeditor5.plugin.ckeditor5_premium_features_collaboration.settings:
     sidebar:
       type: string
       label: 'Annotation sidebar'
+    add_revision_on_submit:
+      type: boolean
+      label: 'Add revisions on form submit'
+    revisions_quantity_limitation:
+      type: boolean
+      label: 'Quantity limitation'
+    revisions_quantity_limit:
+      type: integer
+      label: 'Maximum revision per node'
+    revisions_time_limitation:
+      type: boolean
+      label: 'Time limitation'
+    revisions_time_limit:
+      type: integer
+      label: 'Day limit for revisions'
 ckeditor5.plugin.ckeditor5_premium_features_collaboration__comments:
   type: mapping
   label: 'Comments'

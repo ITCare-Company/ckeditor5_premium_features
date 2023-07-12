@@ -17,4 +17,29 @@ interface CommonCollaborationSettingsInterface {
    */
   public function getAnnotationSidebarType(): string;
 
+  /**
+   * Checks if revision quantity limitation is enabled.
+   */
+  public function isRevisionQuantityLimitation(): bool;
+
+  /**
+   * Checks if revision time limitation is enabled.
+   */
+  public function isRevisionTimeLimitation(): bool;
+
+  /**
+   * Returns a number of revisions for quantity limitation.
+   */
+  public function getRevisionQuantityLimit(): int;
+
+  /**
+   * Returns number of days for revisions time limitation.
+   */
+  public function getRevisionTimeLimit(): int;
+
+  /**
+   * Checks if any of the revisions limitation is enabled.
+   */
+  public function isRevisionsLimitationEnabled(): bool;
+
 }

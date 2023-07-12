@@ -5,6 +5,8 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
+declare(strict_types=1);
+
 namespace Drupal\ckeditor5_premium_features_collaboration\Utility;
 
 use Drupal\ckeditor5_premium_features\Utility\CommonCollaborationSettingsInterface;
@@ -46,6 +48,46 @@ class CollaborationSettings implements CommonCollaborationSettingsInterface {
    */
   public function isRevisionHistoryOnSubmit(): bool {
     return (bool) ($this->collaborationSettings->get('add_revision_on_submit') ?? TRUE);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRevisionQuantityLimitation(): bool {
+    return (bool) ($this->collaborationSettings->get('revisions_quantity_limitation') ?? TRUE);
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRevisionTimeLimitation(): bool {
+    return (bool) ($this->collaborationSettings->get('revisions_time_limitation') ?? TRUE);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRevisionQuantityLimit(): int {
+    return (int) ($this->collaborationSettings->get('revisions_quantity_limit') ?? 0);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRevisionTimeLimit(): int {
+    return (int) ($this->collaborationSettings->get('revisions_time_limit') ?? 0);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isRevisionsLimitationEnabled(): bool {
+    if ($this->isRevisionQuantityLimitation() ||
+      $this->isRevisionTimeLimitation()) {
+      return TRUE;
+    }
+    return FALSE;
   }
 
 }
