@@ -13,10 +13,12 @@
 declare(strict_types=1);
 
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderMailBulk;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcCommentNotificationEntity;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcSuggestionNotificationEntity;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Markup;
 
@@ -61,7 +63,7 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
     return [];
   }
 
-  /** @var \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $suggestionEvent */
+  /** @var \Drupal\ckeditor5_premium_features\Event\CollaborationEventBase $suggestionEvent */
   $suggestionEvent = $data['suggestion'] ?? NULL;
   $suggestion = $data['ckeditor5_suggestion'] ?? NULL;
   $comment = $data['ckeditor5_comment'] ?? NULL;
@@ -98,7 +100,7 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
     }
   }
 
-  if ($suggestion instanceof SuggestionInterface) {
+  if ($suggestion instanceof SuggestionInterface || $suggestion instanceof RtcSuggestionNotificationEntity) {
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'context':
@@ -113,7 +115,7 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
       }
     }
   }
-  elseif ($comment instanceof CommentInterface) {
+  elseif ($comment instanceof CommentInterface || $comment instanceof RtcCommentNotificationEntity) {
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'context':
@@ -133,7 +135,7 @@ function ckeditor5_premium_features_notifications_tokens($type, $tokens, array $
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'context':
-          if ($comment instanceof CommentInterface) {
+          if ($comment instanceof CommentInterface || $comment instanceof RtcCommentNotificationEntity) {
             $result = $contextHelper->getFullContext($node, $key, $comment, $newContent);
           }
           else {

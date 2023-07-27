@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_notifications\Entity;
 
-use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\user\UserInterface;
 

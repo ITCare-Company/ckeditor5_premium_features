@@ -94,3 +94,16 @@ services:
     class: Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker
     arguments:
       - '@library.discovery'
+
+  ckeditor5_premium_features.collaborators:
+    class: Drupal\ckeditor5_premium_features\Utility\Collaborators
+    arguments:
+      - '@database'
+      - '@entity_type.manager'
+      - '@ckeditor5_premium_features.mention_integrator'
+      - '@ckeditor5_premium_features.collaboration_module_integrator'
+
+  ckeditor5_premium_features.collaboration_module_integrator:
+    class: Drupal\ckeditor5_premium_features\Utility\CollaborationModuleIntegrator
+    arguments:
+      - '@module_handler'

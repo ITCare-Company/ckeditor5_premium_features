@@ -5,10 +5,13 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-namespace Drupal\ckeditor5_premium_features_collaboration\Event;
+declare(strict_types=1);
 
-use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase;
+namespace Drupal\ckeditor5_premium_features\Event;
+
+use Drupal\ckeditor5_premium_features\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextHelper;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcNotificationEntityInterface;
 use Drupal\Component\EventDispatcher\Event;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Session\AccountInterface;
@@ -21,6 +24,9 @@ use Symfony\Contracts\Translation\TranslatorTrait;
 class CollaborationEventBase extends Event {
 
   use TranslatorTrait;
+
+  const COLLABORATION_TYPE_NON_RTC = 'ck5_non_rtc_event';
+  const COLLABORATION_TYPE_RTC = 'ck5_rtc_event';
 
   const DOCUMENT_UPDATED = 'ck5_collaboration_document_updated';
   const COMMENT_ADDED = 'ck5_collaboration_comment_added';
@@ -66,14 +72,15 @@ class CollaborationEventBase extends Event {
    * @param string $eventType
    *   Type of event.
    */
-  public function __construct(protected ContentEntityBase $relatedEntity,
+  public function __construct(protected ContentEntityBase|RtcNotificationEntityInterface $relatedEntity,
                               protected AccountInterface $account,
-                              protected string $eventType) {}
+                              protected string $eventType,
+                              protected string $collaborationType = self::COLLABORATION_TYPE_NON_RTC) {}
 
   /**
    * Returns event related entity.
    */
-  public function getRelatedEntity(): ContentEntityBase {
+  public function getRelatedEntity() {
     return $this->relatedEntity;
   }
 
@@ -83,17 +90,17 @@ class CollaborationEventBase extends Event {
    * @param \Drupal\Core\Entity\ContentEntityBase $relatedEntity
    *   Related entity.
    */
-  public function setRelatedEntity(ContentEntityBase $relatedEntity): void {
+  public function setRelatedEntity($relatedEntity): void {
     $this->relatedEntity = $relatedEntity;
   }
 
   /**
    * Returns related document. It can be the same as getRelatedEntity result.
    */
-  public function getRelatedDocument(): ContentEntityBase|NULL {
+  public function getRelatedDocument() {
     $relatedEntity = $this->getRelatedEntity();
 
-    if (!$relatedEntity instanceof CollaborationEntityBase) {
+    if (!$relatedEntity instanceof CollaborationEntityInterface && !$relatedEntity instanceof RtcNotificationEntityInterface) {
       return $relatedEntity;
     }
 
@@ -112,7 +119,7 @@ class CollaborationEventBase extends Event {
   public function getRelatedDocumentFieldId(): string|null {
     $relatedEntity = $this->getRelatedEntity();
 
-    if (!$relatedEntity instanceof CollaborationEntityBase) {
+    if (!$relatedEntity instanceof CollaborationEntityInterface) {
       return $this->relatedDocumentKey ?? NULL;
     }
 
@@ -215,7 +222,7 @@ class CollaborationEventBase extends Event {
    * @throws \Exception
    *   Exception if type is not supported.
    */
-  public static function getEventLabel(string $eventType): string {
+  public static function getEventLabel(string $eventType): string|TranslatableMarkup {
     $supportedTypes = [
       self::SUGGESTION_ACCEPT => new TranslatableMarkup('accepted'),
       self::SUGGESTION_DISCARD => new TranslatableMarkup('rejected'),

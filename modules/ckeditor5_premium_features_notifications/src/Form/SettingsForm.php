@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_notifications\Form;
 
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormBase;
+use Drupal\ckeditor5_premium_features\Utility\CollaborationModuleIntegrator;
 use Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryDefault;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
@@ -43,7 +44,8 @@ class SettingsForm extends SharedBuildConfigFormBase {
   public function __construct(ConfigFactoryInterface $configFactory,
                               protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager,
                               protected NotificationSenderPluginManager $senderPluginManager,
-                              protected MentionsIntegrator $mentionsIntegrator) {
+                              protected MentionsIntegrator $mentionsIntegrator,
+                              protected CollaborationModuleIntegrator $collaborationModuleIntegrator) {
     parent::__construct($configFactory);
   }
 
@@ -56,6 +58,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
       $container->get('plugin.manager.notification_message_factory'),
       $container->get('plugin.manager.notification_sender'),
       $container->get('ckeditor5_premium_features.mention_integrator'),
+      $container->get('ckeditor5_premium_features.collaboration_module_integrator'),
     );
   }
 
@@ -85,7 +88,9 @@ class SettingsForm extends SharedBuildConfigFormBase {
     // Collect plugins information.
     $messageFactoryDefinitions = $this->messageFactoryPluginManager->getDefinitions();
     $senderDefinitions = $this->senderPluginManager->getDefinitions();
-
+    if ($this->collaborationModuleIntegrator->isRtcEnabled() && isset($senderDefinitions['ck5_notifications_email_bulk'])) {
+      unset($senderDefinitions['ck5_notifications_email_bulk']);
+    }
     $form['message_factory_plugin'] = [
       '#type' => 'select',
       '#title' => 'Message content factory',

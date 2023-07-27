@@ -64,6 +64,51 @@ class RealtimeAdapter {
     this.storage.processCollaborationCommandDisable("addCommentThread");
     this.checkIfInitialDataChanged();
 
+    if (drupalSettings.ckeditor5Premium.tracking_changes) {
+      // Hook to form submit.
+      const form = this.editor.sourceElement.closest('form');
+      form.addEventListener("submit", () => {
+        const isCommentsEnabled = this.editor.plugins.has('Comments');
+        const isTrackChangesEnabled = this.editor.plugins.has('Comments');
+        if (!isCommentsEnabled || !isTrackChangesEnabled) {
+          return
+        }
+
+        const elementId = this.editor.sourceElement.dataset.ckeditor5PremiumElementId
+        const types = {
+          'trackChanges': '.track-changes',
+          'comments': '.comments',
+        };
+        const dataAttribute = `[data-ckeditor5-premium-element-id="${elementId}"]`;
+
+        if (isTrackChangesEnabled) {
+          let trackedSuggestion = new Map()
+          const trackChangesCssClass = types['trackChanges'] + '-data';
+          const trackChangesPlugin = this.editor.plugins.get( 'TrackChanges' );
+          const suggestions = trackChangesPlugin.getSuggestions({skipNotAttached: false});
+          const trackChangesElement = document.querySelector(trackChangesCssClass + dataAttribute);
+          for (let i in suggestions) {
+            if (suggestions[i].head != null && (suggestions[i].next != null || suggestions[i].previous != null)) {
+              suggestions[i].setAttribute('head', suggestions[i].head.id);
+            }
+            trackedSuggestion.set(suggestions[i].id, suggestions[i]);
+          }
+          trackChangesElement.value = JSON.stringify(Array.from(trackedSuggestion.values()));
+        }
+
+        if (isCommentsEnabled) {
+          const commentsCssClass = types['comments'] + '-data';
+          const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
+          const commentsElement = document.querySelector(commentsCssClass + dataAttribute);
+          commentsElement.value = JSON.stringify(commentsRepositoryPlugin.getCommentThreads({
+            skipNotAttached: true,
+            skipEmpty: true,
+            toJSON: true
+          }));
+        }
+      });
+    }
+
     this.editor.on('ready', () => {
       let textFormat = this.editor.sourceElement.dataset.editorActiveTextFormat;
       let isTrackingChangesOn = drupalSettings.ckeditor5Premium.tracking_changes.default_state;

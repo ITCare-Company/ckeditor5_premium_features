@@ -5,13 +5,17 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
+declare(strict_types=1);
+
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
+use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features\Utility\CollaborationModuleIntegrator;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
-use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcCommentNotificationEntity;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
@@ -37,16 +41,30 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
 
   /**
    * Constructor.
+   *
+   * @param array $configuration
+   * @param $pluginId
+   * @param $pluginDefinition
+   * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings $notificationSettings
+   * @param \Drupal\Core\Utility\Token $tokenService
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   * @param \Drupal\ckeditor5_premium_features\Utility\CollaborationModuleIntegrator $collaborationModuleIntegrator
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function __construct(array $configuration,
                               $pluginId,
                               $pluginDefinition,
                               protected NotificationSettings $notificationSettings,
                               protected Token $tokenService,
-                              protected EntityTypeManagerInterface $entityTypeManager) {
+                              protected EntityTypeManagerInterface $entityTypeManager,
+                              protected CollaborationModuleIntegrator $collaborationModuleIntegrator) {
     parent::__construct($configuration, $pluginId, $pluginDefinition);
 
-    $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
+    if ($collaborationModuleIntegrator->isNonRtcEnabled()) {
+      $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
+    }
   }
 
   /**
@@ -59,6 +77,7 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
       $container->get('ckeditor5_premium_features_notifications.notification_settings'),
       $container->get('token'),
       $container->get('entity_type.manager'),
+      $container->get('ckeditor5_premium_features.collaboration_module_integrator')
     );
   }
 
@@ -125,7 +144,7 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
    *
    * @param string $messageType
    *   Type of message.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   * @param \Drupal\ckeditor5_premium_features\Event\CollaborationEventBase $event
    *   Collaboration event.
    *
    * @return array
@@ -151,8 +170,14 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
 
     switch ($messageType) {
       case self::CKEDITOR5_MESSAGE_SUGGESTION_REPLY:
-        $relatedSuggestion = $this->suggestionStorage->load($relatedEntity->getThreadId());
-        $parameters[$relatedSuggestion->getEntityTypeId()] = $relatedSuggestion;
+        if ($relatedEntity instanceof RtcCommentNotificationEntity) {
+          $relatedSuggestion = $relatedEntity->getRelatedSuggestion();
+          $parameters[$relatedSuggestion->getEntityTypeId()] = $relatedSuggestion;
+        }
+        else {
+          $relatedSuggestion = $this->suggestionStorage->load($relatedEntity->getThreadId());
+          $parameters[$relatedSuggestion->getEntityTypeId()] = $relatedSuggestion;
+        }
         break;
 
       case self::CKEDITOR5_MESSAGE_SUGGESTION_STATUS:

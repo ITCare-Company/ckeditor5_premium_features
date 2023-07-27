@@ -12,21 +12,26 @@ namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Element;
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
-use Drupal\ckeditor5_premium_features\Utility\ApiAdapter;
 use Drupal\ckeditor5_premium_features\Storage\EditorStorageHandlerInterface;
+use Drupal\ckeditor5_premium_features\Utility\ApiAdapter;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Ckeditor5ChannelHandlingException;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\Channel;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\CollaborationSettings;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\NotificationDocumentHelper;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\NotificationIntegrator;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Defines the Text Format utility class for handling the collaboration data.
@@ -69,6 +74,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     protected CollaborationSettings $collaborationSettings,
     protected ApiAdapter $apiAdapter,
     protected EditorStorageHandlerInterface $editorStorageHandler,
+    protected EventDispatcherInterface $eventDispatcher,
+    protected AccountInterface $currentUser,
+    protected NotificationIntegrator $notificationIntegrator,
+    protected ModuleHandlerInterface $moduleHandler
   ) {
     $this->channelStorage = $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID);
   }
@@ -78,9 +87,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    */
   public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array {
     $this->generalProcessElement($element, $form_state, $complete_form, $this->collaborationSettings);
-
     $element_unique_id = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
     $element_drupal_id = CKeditorFieldKeyHelper::cleanElementDrupalId($element['#id']);
+    $id_attribute = 'data-' . static::STORAGE_KEY . '-element-id';
 
     $element['presence_list'] = [
       '#type' => 'container',
@@ -92,7 +101,29 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         'id' => $element_drupal_id . '-value-presence-list-container',
       ],
     ];
+    $isNotificationEnabled = FALSE;
+    if ($this->moduleHandler->moduleExists('ckeditor5_premium_features_notifications')) {
+      $isNotificationEnabled = TRUE;
+      $default_element_keys = [
+        '#type' => 'textarea',
+        '#attributes' => [
+        // The admin theme may vary, so this is the safest solution.
+          'style' => 'display: none;',
+          $id_attribute => $element_unique_id,
+        ],
+        '#theme_wrappers' => [],
+      ];
+      $element['track_changes'] = [
+        '#default_value' => [],
+      ] + $default_element_keys;
+      $element['track_changes']['#attributes']['class'] = ['track-changes-data'];
 
+      $element['comments'] = [
+        '#default_value' => [],
+      ] + $default_element_keys;
+      $element['comments']['#attributes']['class'] = ['comments-data'];
+    }
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['notificationsEnabled'] = $isNotificationEnabled;
     $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->collaborationSettings->getPresenceListCollapseAt();
 
     $form_object = $form_state->getFormObject();
@@ -132,6 +163,14 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     else {
       $channel_id = $this->getChannelId(uniqid(), $element_drupal_id);
     }
+
+    $items = $form_state->get(static::STORAGE_KEY) ?? [];
+    $items[$element_unique_id] = [
+      'parents' => $element['#parents'],
+      'array_parents' => $element['#array_parents'],
+      'changed' => $form_state->getValue('changed'),
+    ];
+    $form_state->set(static::STORAGE_KEY, $items);
 
     $element['#attached']['drupalSettings']['ckeditor5ChannelId'][$element_drupal_id] = $channel_id;
 
@@ -176,7 +215,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     foreach ($items as $element_key => $element_parents) {
       $entity_channel = $form_state->getValue([
-        ...$element_parents,
+        ...$element_parents['parents'],
         'entity_channel',
       ]);
 
@@ -195,13 +234,43 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     foreach ($items as $element_key => $element_parents) {
       $entity_channel = $form_state->getValue([
-        ...$element_parents,
+        ...$element_parents['parents'],
         'entity_channel',
       ]);
 
       if (!$entity_channel || isset($order_switch[$element_key]) && $order_switch[$element_key] === FALSE) {
         $this->channelStorage->deleteChannels($entity, $element_key);
         continue;
+      }
+      if ($this->moduleHandler->moduleExists('ckeditor5_premium_features_notifications')) {
+        $array_parents = $element_parents['array_parents'] ?? [];
+
+        $source_original_data = $this->getFormElementOriginalValue($form, $array_parents);
+        $source_new_data = $form_state->getValue(
+        [...$element_parents['parents'],
+          'value',
+        ]
+        ) ?? '';
+        $changed = $element_parents['changed'] ?? 0;
+
+        $commentsData = $this->getFormElementSourceData($form_state, $element_parents['parents'], 'comments', $element_key);
+        $this->notificationIntegrator->transformCommentsData($commentsData);
+
+        $documentHelper = new NotificationDocumentHelper($element_key, $source_original_data, $source_new_data,);
+
+        $suggestionData = $this->apiAdapter->getDocumentSuggestions(
+            $entity_channel, [
+              'include_deleted' => TRUE,
+              'sort_by' => 'updated_at',
+              'order' => 'desc',
+            ]
+        );
+
+        $chainedSuggestions = $this->notificationIntegrator->chainSuggestion($suggestionData);
+
+        $this->notificationIntegrator->handleDocumentUpdateEvent($entity, $documentHelper);
+        $this->notificationIntegrator->handleSuggestionsEvent($entity, $documentHelper, $changed, $chainedSuggestions, $commentsData);
+        $this->notificationIntegrator->handleCommentsEvent($entity, $documentHelper, $changed, $commentsData, $chainedSuggestions);
       }
 
       $this->handleEntityChannel($entity, $entity_channel, $element_key, $order_switch[$element_key] ?? NULL);
@@ -307,7 +376,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $change_order = [];
 
     foreach ($items as $item_key => $field_parents) {
-      $new_element_id = $this->getElementIdAfterOrderChanging($field_parents, $field_storage_parents);
+      $new_element_id = $this->getElementIdAfterOrderChanging($field_parents['parents'], $field_storage_parents);
 
       if ($new_element_id === FALSE) {
         if (empty($change_order[$item_key])) {

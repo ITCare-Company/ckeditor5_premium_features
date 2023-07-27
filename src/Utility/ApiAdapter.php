@@ -61,6 +61,42 @@ class ApiAdapter {
   }
 
   /**
+   * Gets document suggestions.
+   *
+   * @param string $documentId
+   *   The document id.
+   *
+   * @return array
+   *   Array of suggestions.
+   */
+  public function getDocumentSuggestions(string $documentId, $parameters = []): array {
+    $path = 'suggestions?document_id=' . $documentId;
+    foreach ($parameters as $key => $parameter) {
+      $path .= '&' . $key . '=' . $parameter;
+    }
+    $response = $this->sendRequest('GET', $path);
+    return $response['data'] ?? [];
+  }
+
+  /**
+   * Gets document comments.
+   *
+   * @param string $documentId
+   *   The document id.
+   *
+   * @return array
+   *   Array of comments.
+   */
+  public function getDocumentComments(string $documentId, $parameters = []): array {
+    $path = 'comments?document_id=' . $documentId;
+    foreach ($parameters as $key => $parameter) {
+      $path .= '&' . $key . '=' . $parameter;
+    }
+    $response = $this->sendRequest('GET', $path);
+    return $response['data'] ?? [];
+  }
+
+  /**
    * Check the library version used in last session.
    *
    * @param string $documentId
