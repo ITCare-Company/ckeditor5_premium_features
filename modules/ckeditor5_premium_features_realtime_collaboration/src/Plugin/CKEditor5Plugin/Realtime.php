@@ -14,6 +14,7 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
 use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\ckeditor5_premium_features\Utility\PluginHelper;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\CollaborationSettings;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
@@ -41,6 +42,7 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
   public function __construct(
     protected PluginHelper $pluginHelper,
     protected LibraryVersionChecker $libraryVersionChecker,
+    protected CollaborationSettings $collaborationSettings,
   ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
@@ -52,6 +54,7 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
     return new static(
       $container->get('ckeditor5_premium_features.plugin_helper'),
       $container->get('ckeditor5_premium_features.core_library_version_checker'),
+      $container->get('ckeditor5_premium_features_realtime_collaboration.collaboration_settings'),
       ...$parent_arguments
     );
   }
@@ -61,6 +64,9 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
     $static_plugin_config['presenceList']['container'] = '';
+    if (!$this->collaborationSettings->isPresenceListEnabled()) {
+      $static_plugin_config['removePlugins'] = ['PresenceList'];
+    }
     return $static_plugin_config;
   }
 
