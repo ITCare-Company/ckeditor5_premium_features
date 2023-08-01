@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
-use Drupal\ckeditor5_premium_features\CollaborationAccessHandler;
+use Drupal\ckeditor5_premium_features\CollaborationAccessHandlerInterface;
 use Drupal\ckeditor5_premium_features\Diff\DocumentDiffHelper;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
@@ -119,7 +119,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     protected EventDispatcherInterface $eventDispatcher,
     protected AccountInterface $currentUser,
     protected DocumentDiffHelper $documentDiffHelper,
-    protected CollaborationAccessHandler $collaborationAccessHandler,
+    protected CollaborationAccessHandlerInterface $collaborationAccessHandler,
     protected RevisionsLimitHandler $revisionsLimitHandler
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);

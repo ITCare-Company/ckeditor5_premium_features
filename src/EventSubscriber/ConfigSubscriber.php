@@ -72,7 +72,9 @@ class ConfigSubscriber implements EventSubscriberInterface {
     }
     $premiumPlugins = [
       'ckeditor5_premium_features_collaboration__comments',
-      'ckeditor5_premium_features_collaboration__track_changes'
+      'ckeditor5_premium_features_collaboration__track_changes',
+      'ckeditor5_premium_features_realtime_collaboration__comment',
+      'ckeditor5_premium_features_realtime_collaboration__track_changes',
     ];
 
     // Exit if there was no collaboration plugins before.

@@ -63,6 +63,12 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#default_value' => $config->get('presence_list_collapse_at') ?? 8,
     ];
 
+    $form['realtime_permissions'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Enable Realtime Collaboration permissions'),
+      '#default_value' => $config->get('realtime_permissions') ?? FALSE,
+    ];
+
     return $form;
   }
 

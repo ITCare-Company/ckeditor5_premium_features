@@ -12,12 +12,7 @@ namespace Drupal\ckeditor5_premium_features;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 
-/**
- * Defines the access control handler for the filter format entity type.
- *
- * @see \Drupal\filter\Entity\FilterFormat
- */
-class CollaborationAccessHandler {
+class CollaborationAccessHandler implements CollaborationAccessHandlerInterface {
 
   /**
    * Constructs a new CollaborationAccessHandler instance.
@@ -29,20 +24,12 @@ class CollaborationAccessHandler {
   }
 
   /**
-   * Returns a collaboration permissions for a given user and filter format
-   * to be used in CKEditor 5.
-   *
-   * @param \Drupal\Core\Session\AccountInterface $user
-   *   Current user.
-   * @param string $filterFormat
-   *   Filter format.
-   *
-   * @return array
-   *   Permissions array in a CKEditor 5 format.
+   * {@inheritdoc}
    */
   public function getCollaborationPermissionArray(AccountInterface $user, string $filterFormat): array {
     $filterFormatPermission = $this->filterFormatPermission($filterFormat);
-    $collaborationPermissions = [];
+    // Read permissions required for RTC.
+    $collaborationPermissions = ['document:read', 'comment:read'];
     if ($user->hasPermission(
       $filterFormatPermission . CollaborationPermissions::COMMENTS_ADMIN)) {
       $collaborationPermissions[] = 'comment:admin';
@@ -58,23 +45,12 @@ class CollaborationAccessHandler {
       $collaborationPermissions[] = 'document:write';
       $collaborationPermissions[] = 'document:admin';
     }
-    elseif ($user->hasPermission(
-      $filterFormatPermission . CollaborationPermissions::DOCUMENT_SUGGESTIONS)) {
-      $collaborationPermissions[] = 'document:write';
-    }
 
     return $collaborationPermissions;
   }
 
   /**
-   * Returns array with text formats and permissions for the user in a
-   * CKEditor 5 format.
-   *
-   * @param \Drupal\Core\Session\AccountInterface $user
-   *   Current user.
-   *
-   * @return array
-   *   Permissions for the all text formats.
+   * {@inheritdoc}
    */
   public function getUserPermissionsForTextFormats(AccountInterface $user): array {
     $formats = $this->entityTypeManager->getStorage('filter_format')->loadByProperties(['status' => TRUE]);
@@ -87,34 +63,20 @@ class CollaborationAccessHandler {
   }
 
   /**
-   * Get an array of user collaboration access for given filter format.
-   *
-   * @param \Drupal\Core\Session\AccountInterface $user
-   *   Current user.
-   * @param string $filterFormat
-   *   Filter format name.
-   *
-   * @return array
+   * {@inheritdoc}
    */
   public function getUserCollaborationAccess(AccountInterface $user, string $filterFormat): array {
     $filterFormatPermission = $this->filterFormatPermission($filterFormat);
 
     return [
       'document_write' => $user->hasPermission($filterFormatPermission . CollaborationPermissions::DOCUMENT_WRITE),
-      'document_suggestion' => $user->hasPermission($filterFormatPermission . CollaborationPermissions::DOCUMENT_SUGGESTIONS),
       'comment_write' => $user->hasPermission($filterFormatPermission . CollaborationPermissions::COMMENTS_WRITE),
       'comment_admin' => $user->hasPermission($filterFormatPermission . CollaborationPermissions::COMMENTS_ADMIN),
     ];
   }
 
   /**
-   * Returns use permission name for provided filter format.
-   *
-   * @param string $filterFormat
-   *   Filter format name.
-   *
-   * @return string
-   *   Permission name.
+   * {@inheritdoc}
    */
   public function filterFormatPermission(string $filterFormat): string {
     return 'use text format ' . $filterFormat . ' with collaboration ';
