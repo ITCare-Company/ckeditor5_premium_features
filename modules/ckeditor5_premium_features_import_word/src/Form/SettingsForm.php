@@ -38,7 +38,7 @@ class SettingsForm extends ConfigFormBase {
     $form['word_styles'] = [
       '#type' => 'checkbox',
       '#title' => $this->t("Word's default styles"),
-      '#description' => $this->t('If checked, Word’s default styles will be preserved in the imported content. You can learn more about that feature in the <a target="_blank" href="https://ckeditor.com/docs/cs/latest/guides/import-from-word/styles.html#default-styles">Styles</a> guide for Import from Word.'),
+      '#description' => $this->t('If checked, Word’s default styles will be preserved in the imported content. You can learn more about that feature in the <a target="_blank" href="@guides-url">Styles</a> guide for Import from Word.', ['@guides-url' => 'https://ckeditor.com/docs/cs/latest/guides/import-from-word/styles.html#default-styles']),
       '#default_value' => $this->config('ckeditor5_premium_features_import_word.settings')->get('word_styles'),
     ];
     return parent::buildForm($form, $form_state);
