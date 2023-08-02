@@ -12,6 +12,10 @@ namespace Drupal\ckeditor5_premium_features_collaboration;
 use Drupal\ckeditor5_premium_features\CollaborationAccessHandler;
 use Drupal\Core\Session\AccountInterface;
 
+/**
+ * Defines the access control handler for the text format which uses non-realtime
+ * collaboration plugins.
+ */
 class NonRealtimeCollaborationAccessHandler extends CollaborationAccessHandler {
 
   /**

@@ -13,6 +13,10 @@ use Drupal\ckeditor5_premium_features\CollaborationPermissions;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
+/**
+ * Provides dynamic permissions for text formats which uses realtime
+ * collaboration plugins.
+ */
 class RealtimeCollaborationPermissions extends CollaborationPermissions {
 
   /**

@@ -15,6 +15,10 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 
+/**
+ * Provides dynamic permissions for text formats which uses non-realtime
+ * collaboration plugins..
+ */
 class NonRealtimeCollaborationPermissions extends CollaborationPermissions {
 
   use StringTranslationTrait;
@@ -45,6 +49,9 @@ class NonRealtimeCollaborationPermissions extends CollaborationPermissions {
     parent::__construct($entity_type_manager, $config_factory);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function permissions(): array {
 
     $premiumPlugins = [
@@ -55,10 +62,16 @@ class NonRealtimeCollaborationPermissions extends CollaborationPermissions {
     return parent::getPermissions($premiumPlugins, $this->permissions);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function getModulePermissions(): array {
     return array_merge(static::COMMON_PERMISSIONS, self::SPECIFIC_PERMISSIONS);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   protected function getPermissionLabel(string $permission): string|TranslatableMarkup {
     $label = match ($permission) {
       self::DOCUMENT_SUGGESTIONS => $this->t('Add suggestions'),
@@ -68,6 +81,9 @@ class NonRealtimeCollaborationPermissions extends CollaborationPermissions {
     return $label ? $label : parent::getPermissionLabel($permission);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   protected function getPermissionDescription(string $permission): string|TranslatableMarkup {
     $description = match ($permission) {
       self::DOCUMENT_SUGGESTIONS => $this->t('Allows to add and edit suggestions only.'),

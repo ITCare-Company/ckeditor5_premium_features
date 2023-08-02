@@ -12,6 +12,10 @@ namespace Drupal\ckeditor5_premium_features;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 
+/**
+ * Defines the access control handler for the text format which uses realtime
+ * collaboration plugins.
+ */
 class CollaborationAccessHandler implements CollaborationAccessHandlerInterface {
 
   /**
