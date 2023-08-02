@@ -40,9 +40,13 @@ class NotificationIntegrator {
    * NotificationIntegrator constructor.
    *
    * @param \Drupal\ckeditor5_premium_features\Utility\ApiAdapter $apiAdapter
+   *   Api adapter.
    * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
+   *   Current user.
    * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $eventDispatcher
+   *   Event dispatcher.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   Entity type manager.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -60,6 +64,7 @@ class NotificationIntegrator {
    * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
    *   Source entity.
    * @param NotificationDocumentHelper $documentHelper
+   *   Notification Document helper.
    */
   public function handleDocumentUpdateEvent(FieldableEntityInterface $entity,
                                             NotificationDocumentHelper $documentHelper): void {
@@ -70,14 +75,19 @@ class NotificationIntegrator {
    * Prepare and send suggestions evens.
    *
    * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
+   *   Related entity.
    * @param NotificationDocumentHelper $documentHelper
-   * @param $changeDate
+   *   Notification document helper.
+   * @param string $changeDate
+   *   Last date of change.
    * @param array $suggestions
+   *   Array of suggestions.
    * @param array $commentsThreads
+   *   Array of comments threads.
    */
   public function handleSuggestionsEvent(FieldableEntityInterface $entity,
                                          NotificationDocumentHelper $documentHelper,
-                                         $changeDate,
+                                         string $changeDate,
                                          array $suggestions,
                                          array $commentsThreads): void {
     if (empty($suggestions)) {
@@ -100,11 +110,16 @@ class NotificationIntegrator {
   /**
    * Prepare suggestion event object.
    *
-   * @param $suggestion
-   * @param $entity
-   * @param $documentHelper
+   * @param array $suggestion
+   *   The suggestion.
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
+   *   Related entity.
+   * @param NotificationDocumentHelper $documentHelper
+   *   Notification document helper.
    */
-  public function dispatchSuggestionEvent($suggestion, $entity, $documentHelper): void {
+  public function dispatchSuggestionEvent(array $suggestion,
+                                          FieldableEntityInterface $entity,
+                                          NotificationDocumentHelper $documentHelper): void {
     $rtcSuggestion = new RtcSuggestionNotificationEntity();
     $thread = [];
     $author = $this->userStorage->load($suggestion['author_id']);
@@ -148,16 +163,21 @@ class NotificationIntegrator {
    * Check if new comment has been added.
    *
    * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
+   *   Related entity.
    * @param NotificationDocumentHelper $documentHelper
-   * @param $changeDate
-   * @param $commentsThreads
-   * @param $suggestions
+   *   Notification document helper.
+   * @param string $changeDate
+   *   Last date of change.
+   * @param array $commentsThreads
+   *   Array of comments threads.
+   * @param array $suggestions
+   *   Array of suggestions.
    */
   public function handleCommentsEvent(FieldableEntityInterface $entity,
                                       NotificationDocumentHelper $documentHelper,
-                                      $changeDate,
-                                      $commentsThreads,
-                                      $suggestions): void {
+                                      string $changeDate,
+                                      array $commentsThreads,
+                                      array $suggestions): void {
     if (empty($commentsThreads)) {
       return;
     }
@@ -236,10 +256,15 @@ class NotificationIntegrator {
    * Dispatch event.
    *
    * @param \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcNotificationEntityInterface|FieldableEntityInterface $entity
+   *   Related entity.
    * @param string $eventType
+   *   Event type.
    * @param NotificationDocumentHelper $documentHelper
+   *   Notification document helper.
    */
-  private function dispatchEvent(RtcNotificationEntityInterface|FieldableEntityInterface $entity, string $eventType, NotificationDocumentHelper $documentHelper): void {
+  private function dispatchEvent(RtcNotificationEntityInterface|FieldableEntityInterface $entity,
+                                 string $eventType,
+                                 NotificationDocumentHelper $documentHelper): void {
     $event = new CollaborationEventBase(
       $entity,
       $this->userStorage->load($this->currentUser->id()),

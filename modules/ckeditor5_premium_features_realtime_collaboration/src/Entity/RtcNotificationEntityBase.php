@@ -18,31 +18,43 @@ use Drupal\user\UserInterface;
 abstract class RtcNotificationEntityBase implements RtcNotificationEntityInterface {
 
   /**
+   * The id.
+   *
    * @var string
    */
   private string $id;
 
   /**
+   * The author.
+   *
    * @var \Drupal\user\UserInterface|null
    */
   private ?UserInterface $author;
 
   /**
+   * Entity type target id.
+   *
    * @var string
    */
   private string $entityTypeTargetId;
 
   /**
+   * Referenced entity.
+   *
    * @var \Drupal\Core\Entity\FieldableEntityInterface
    */
   private FieldableEntityInterface $referencedEntity;
 
   /**
+   * Thread.
+   *
    * @var array
    */
   private array $thread;
 
   /**
+   * Thread id.
+   *
    * @var string
    */
   private string $threadId;

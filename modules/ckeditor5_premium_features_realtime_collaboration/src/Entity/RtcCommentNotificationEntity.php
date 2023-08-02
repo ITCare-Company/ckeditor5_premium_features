@@ -17,54 +17,73 @@ class RtcCommentNotificationEntity extends RtcNotificationEntityBase {
   public const ENTITY_TYPE_ID = 'ckeditor5_comment';
 
   /**
+   * The content.
+   *
    * @var string
    */
   private string $content;
 
   /**
+   * Is reply.
+   *
    * @var bool
    */
   private bool $isReply;
 
   /**
+   * Is suggestion comment.
+   *
    * @var bool
    */
   private bool $isSuggestionComment = FALSE;
 
   /**
+   * Related suggestion.
+   *
    * @var RtcSuggestionNotificationEntity|null
    */
   private ?RtcSuggestionNotificationEntity $relatedSuggestion = NULL;
 
   /**
+   * Created date.
+   *
    * @var string
    */
   private string $createdDate;
 
   /**
-   *
+   * {@inheritDoc}
    */
   public function getEntityTypeId(): string {
     return self::ENTITY_TYPE_ID;
   }
 
   /**
-   * @param mixed $content
+   * Sets content.
+   *
+   * @param string $content
+   *   The current object.
    */
-  public function setContent($content): static {
+  public function setContent(string $content): static {
     $this->content = $content;
     return $this;
   }
 
   /**
+   * Returns content.
    *
+   * @return string
+   *   The content.
    */
   public function getContent(): string {
     return $this->content;
   }
 
   /**
+   * Sets created date.
+   *
    * @param string $createdDate
+   *   The current object.
    */
   public function setCreatedDate(string $createdDate): static {
     $this->createdDate = $createdDate;
@@ -72,29 +91,44 @@ class RtcCommentNotificationEntity extends RtcNotificationEntityBase {
   }
 
   /**
+   * Returns created date.
    *
+   * @return string
+   *   Created date.
    */
   public function getCreatedDate():string {
     return $this->createdDate;
   }
 
   /**
+   * Is comment reply.
    *
+   * @return bool
+   *   True if comment is reply.
    */
   public function isReply():bool {
     return $this->isReply;
   }
 
   /**
+   * Sets value for is reply field.
    *
+   * @param bool $isReply
+   *   True or false.
+   *
+   * @return RtcCommentNotificationEntity
+   *   The current object.
    */
-  public function setIsReply($isReply):static {
+  public function setIsReply(bool $isReply):static {
     $this->isReply = $isReply;
     return $this;
   }
 
   /**
+   * Returns content without HTML markup.
    *
+   * @return string|null
+   *   The content.
    */
   public function getContentPlain(): string|null {
     $content = $this->getContent();
@@ -106,7 +140,13 @@ class RtcCommentNotificationEntity extends RtcNotificationEntityBase {
   }
 
   /**
+   * Sets is suggestion comment value.
    *
+   * @param bool $isSuggestionComment
+   *   True or false.
+   *
+   * @return RtcCommentNotificationEntity
+   *   The current object.
    */
   public function setIsSuggestionComment(bool $isSuggestionComment): static {
     $this->isSuggestionComment = $isSuggestionComment;
@@ -114,14 +154,23 @@ class RtcCommentNotificationEntity extends RtcNotificationEntityBase {
   }
 
   /**
+   * Is comment is in a suggestion.
    *
+   * @return bool
+   *   True if comment is in a suggestion.
    */
   public function isSuggestionComment(): bool {
     return $this->isSuggestionComment;
   }
 
   /**
+   * Sets related suggestion if exists.
    *
+   * @param RtcSuggestionNotificationEntity $suggestion
+   *   The suggestion object.
+   *
+   * @return RtcCommentNotificationEntity
+   *   The current object.
    */
   public function setRelatedSuggestion(RtcSuggestionNotificationEntity $suggestion):static {
     $this->relatedSuggestion = $suggestion;
@@ -129,14 +178,20 @@ class RtcCommentNotificationEntity extends RtcNotificationEntityBase {
   }
 
   /**
+   * Returns related suggestion.
    *
+   * @return RtcSuggestionNotificationEntity
+   *   The suggestion object or null if not exists.
    */
   public function getRelatedSuggestion():RtcSuggestionNotificationEntity {
     return $this->relatedSuggestion;
   }
 
   /**
+   * Returns related suggestion author id.
    *
+   * @return int|null
+   *   The author id.
    */
   public function getRelatedSuggestionAuthorId(): ?int {
     return $this->relatedSuggestion?->getAuthorId();

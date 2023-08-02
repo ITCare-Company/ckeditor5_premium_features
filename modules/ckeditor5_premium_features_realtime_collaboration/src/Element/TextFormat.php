@@ -213,9 +213,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     $entity = $this->getRelatedEntity($form_object);
 
-    foreach ($items as $element_key => $element_parents) {
+    foreach ($items as $element_key => $element_data) {
       $entity_channel = $form_state->getValue([
-        ...$element_parents['parents'],
+        ...$element_data['parents'],
         'entity_channel',
       ]);
 
@@ -232,9 +232,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     }
 
-    foreach ($items as $element_key => $element_parents) {
+    foreach ($items as $element_key => $element_data) {
       $entity_channel = $form_state->getValue([
-        ...$element_parents['parents'],
+        ...$element_data['parents'],
         'entity_channel',
       ]);
 
@@ -243,17 +243,17 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         continue;
       }
       if ($this->moduleHandler->moduleExists('ckeditor5_premium_features_notifications')) {
-        $array_parents = $element_parents['array_parents'] ?? [];
+        $array_parents = $element_data['array_parents'] ?? [];
 
         $source_original_data = $this->getFormElementOriginalValue($form, $array_parents);
         $source_new_data = $form_state->getValue(
-        [...$element_parents['parents'],
+        [...$element_data['parents'],
           'value',
         ]
         ) ?? '';
-        $changed = $element_parents['changed'] ?? 0;
+        $changed = $element_data['changed'] ?? 0;
 
-        $commentsData = $this->getFormElementSourceData($form_state, $element_parents['parents'], 'comments', $element_key);
+        $commentsData = $this->getFormElementSourceData($form_state, $element_data['parents'], 'comments', $element_key);
         $this->notificationIntegrator->transformCommentsData($commentsData);
 
         $documentHelper = new NotificationDocumentHelper($element_key, $source_original_data, $source_new_data,);
@@ -375,8 +375,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     $change_order = [];
 
-    foreach ($items as $item_key => $field_parents) {
-      $new_element_id = $this->getElementIdAfterOrderChanging($field_parents['parents'], $field_storage_parents);
+    foreach ($items as $item_key => $item_data) {
+      $new_element_id = $this->getElementIdAfterOrderChanging($item_data['parents'], $field_storage_parents);
 
       if ($new_element_id === FALSE) {
         if (empty($change_order[$item_key])) {
@@ -393,7 +393,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       }
     }
 
-    foreach ($items as $item_key => $field_parents) {
+    foreach ($items as $item_key => $item_data) {
       if (in_array($item_key, $change_order) && !isset($change_order[$item_key])) {
         $change_order[$item_key] = FALSE;
       }

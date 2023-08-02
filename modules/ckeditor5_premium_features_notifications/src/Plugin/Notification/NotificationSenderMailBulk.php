@@ -86,7 +86,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
           $message->getType(),
           $message->getSourceEvent()->getEventType(),
           empty($originalContent) ? $documentContent : $originalContent,
-          $message->getSourceEvent()->getAccount()->id(),
+          strval($message->getSourceEvent()->getAccount()->id()),
           $message->getSourceEvent()->getRelatedDocumentFieldId(),
           $message->getSourceEvent()->getReferencedUserId()
         );
