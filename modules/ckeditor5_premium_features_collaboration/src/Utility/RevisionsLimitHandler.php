@@ -69,10 +69,10 @@ class RevisionsLimitHandler {
     }
 
     if ($revisionsLimit || $timestamp) {
-      $revisions = $this->revisionStorage->getRevisionIdsToBeRemoved($entity, $keyId, $revisionsLimit, $timestamp);
-      if (!empty($revisions)) {
-        $revisionsObjArr = $this->revisionStorage->loadMultiple($revisions);
-        $this->revisionStorage->delete($revisionsObjArr);
+      $revisionsIds = $this->revisionStorage->getRevisionIds($entity, $keyId, $revisionsLimit, $timestamp);
+      if (!empty($revisionsIds)) {
+        $revisions = $this->revisionStorage->loadMultiple($revisionsIds);
+        $this->revisionStorage->delete($revisions);
       }
     }
   }

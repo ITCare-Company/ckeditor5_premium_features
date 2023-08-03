@@ -190,7 +190,7 @@ class RevisionStorage extends SqlContentEntityStorage implements
    * @return array
    *   Array of ids.
    */
-  public function getRevisionIdsToBeRemoved(EntityInterface $entity, string $keyId, int $offset = 0, int $created = 0): array {
+  public function getRevisionIds(EntityInterface $entity, string $keyId, int $offset = 0, int $created = 0): array {
     if (!$entity->uuid()) {
       return [];
     }
