@@ -260,7 +260,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
         $suggestionData = $this->apiAdapter->getDocumentSuggestions(
             $entity_channel, [
-              'include_deleted' => TRUE,
+              'include_deleted' => 'true',
               'sort_by' => 'updated_at',
               'order' => 'desc',
             ]
