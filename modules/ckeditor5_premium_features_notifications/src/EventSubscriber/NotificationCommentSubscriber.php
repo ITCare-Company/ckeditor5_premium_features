@@ -79,7 +79,8 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     $participators = array_diff($participators, $newSuggestionParticipators);
 
     if (!$collaborationEntity->isReply()) {
-      $replyRecipients = array_merge($participators, $authors);
+      // If it's not a reply, notify only the document authors.
+      $replyRecipients = $authors;
 
       if (empty($replyRecipients)) {
         return;

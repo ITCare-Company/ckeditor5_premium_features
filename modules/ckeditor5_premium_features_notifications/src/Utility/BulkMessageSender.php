@@ -143,11 +143,14 @@ class BulkMessageSender {
   private function sendMail(string $title, array $body, User $user): void {
     $params["subject"] = $title;
     $params["body"] = $body;
-
+    $userMail = $user->getEmail();
+    if (!$userMail) {
+      return;
+    }
     $this->mailManager->mail(
       "ckeditor5_premium_features_notifications",
       NotificationSenderMailBulk::BULK_MAIL_TYPE,
-      $user->getEmail(),
+      $userMail,
       NULL,
       $params
     );

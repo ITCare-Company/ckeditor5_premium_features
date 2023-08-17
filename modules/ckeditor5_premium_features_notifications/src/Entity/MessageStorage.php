@@ -40,14 +40,14 @@ class MessageStorage extends SqlContentEntityStorage {
   /**
    * Returns message entity matching passed user and document parameters.
    *
-   * @param int $userId
+   * @param string $userId
    *   ID of the related user.
    * @param string $documentId
    *   ID of the related entity.
    * @param string $documentType
    *   Type of the related entity.
    */
-  public function getMessageForUserAndDocument(int $userId, string $documentId, string $documentType): Message|NULL {
+  public function getMessageForUserAndDocument(string $userId, string $documentId, string $documentType): Message|NULL {
     $result = $this->loadByProperties([
       'uid' => $userId,
       'entity_id' => $documentId,

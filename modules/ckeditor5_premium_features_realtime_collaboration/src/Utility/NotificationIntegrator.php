@@ -249,6 +249,12 @@ class NotificationIntegrator {
         }
       }
       $this->dispatchEvent($rtcComment, CollaborationEventBase::COMMENT_ADDED, $documentHelper);
+
+      // Send mail to document author about new thread with comments.
+      if (count($commentThread['new']) === count($commentThread['comments'])) {
+        $rtcComment->setIsReply(FALSE);
+        $this->dispatchEvent($rtcComment, CollaborationEventBase::COMMENT_ADDED, $documentHelper);
+      }
     }
   }
 

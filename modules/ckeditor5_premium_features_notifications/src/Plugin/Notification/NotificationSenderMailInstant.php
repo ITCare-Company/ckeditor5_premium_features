@@ -84,6 +84,9 @@ class NotificationSenderMailInstant extends NotificationSenderBase implements Co
     $parameters['body'] = $message->getMessageBody();
 
     foreach ($mails as $targetMail) {
+      if (!$targetMail) {
+        continue;
+      }
       $this->mailManager->mail(
         'ckeditor5_premium_features_notifications',
         $message->getType(),
