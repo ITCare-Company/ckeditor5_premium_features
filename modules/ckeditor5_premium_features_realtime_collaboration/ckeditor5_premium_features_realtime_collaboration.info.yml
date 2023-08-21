@@ -1,4 +1,4 @@
-name: CKEditor 5 Realtime Collaboration
+name: CKEditor 5 Premium Features Realtime Collaboration
 type: module
 description: "Provides Realtime collaborative editing along with Track Changes, Comments and Revision History features. WARNING: Do not enable it together with CKEditor 5 Non-realtime Collaboration."
 package: CKEditor 5 Premium
