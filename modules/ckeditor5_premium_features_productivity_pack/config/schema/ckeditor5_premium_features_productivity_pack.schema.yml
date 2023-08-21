@@ -39,3 +39,6 @@ ckeditor5.plugin.ckeditor5_premium_features_productivity_pack_base:
     slash_command_enabled:
       type: boolean
       label: 'Slash Command Enabled'
+    paste_from_office_enhanced_enabled:
+      type: boolean
+      label: 'Paste from Office Enhanced Enabled'
