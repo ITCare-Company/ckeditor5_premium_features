@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Utility;
 
 use Drupal\ckeditor5_premium_features\Utility\CommonCollaborationSettingsInterface;
+use Drupal\ckeditor5_premium_features\Utility\RevisionLimitationSettingsInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Form\SettingsForm;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
@@ -17,7 +18,7 @@ use Drupal\Core\Config\ImmutableConfig;
 /**
  * Class for accessing collaboration config values.
  */
-class CollaborationSettings implements CommonCollaborationSettingsInterface {
+class CollaborationSettings implements CommonCollaborationSettingsInterface, RevisionLimitationSettingsInterface {
 
   /**
    * Config object.
