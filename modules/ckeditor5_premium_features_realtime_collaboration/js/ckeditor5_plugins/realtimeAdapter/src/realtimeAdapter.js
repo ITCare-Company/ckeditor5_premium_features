@@ -64,12 +64,12 @@ class RealtimeAdapter {
     this.storage.processCollaborationCommandDisable("addCommentThread");
     this.checkIfInitialDataChanged();
 
-    if (drupalSettings.ckeditor5Premium.tracking_changes) {
+    if (drupalSettings.ckeditor5Premium.notificationsEnabled) {
       // Hook to form submit.
       const form = this.editor.sourceElement.closest('form');
       form.addEventListener("submit", () => {
-        const isCommentsEnabled = this.editor.plugins.has('Comments');
-        const isTrackChangesEnabled = this.editor.plugins.has('Comments');
+        const isCommentsEnabled = this.editor.plugins.has('CommentsRepository');
+        const isTrackChangesEnabled = this.editor.plugins.has('TrackChanges');
         if (!isCommentsEnabled || !isTrackChangesEnabled) {
           return
         }
