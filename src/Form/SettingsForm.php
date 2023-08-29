@@ -221,7 +221,7 @@ class SettingsForm extends ConfigFormBase {
     $form['advanced'] = [
       '#type' => 'details',
       '#title' => $this->t('Advanced settings'),
-      '#open' => TRUE,
+      '#open' => FALSE,
       '#description' =>
       $this->t('CKEditor Premium Features needs to load additional plugins (“DLLs”) in order to run. By default this module will detect the version of CKEditor your website is running and load required plugins from a CDN automatically.')
       . '<br>'
@@ -266,16 +266,25 @@ class SettingsForm extends ConfigFormBase {
       ],
     ];
 
-    $advanced['alter_node_form_css'] = [
+    $this->setDefaultValues($advanced);
+
+    $form['advanced'] = $advanced + $form['advanced'];
+
+    $form['appearance'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Appearance settings'),
+      '#open' => FALSE,
+      '#description' => $this->t('Additional appearance settings'),
+    ];
+
+    $appearance['alter_node_form_css'] = [
       '#type' => 'checkbox',
       '#title' => t('Allow the module to alter the default Drupal theme CSS to make the editing experience better.'),
       '#default_value' => $this->configHandler->isAlterNodeFormCssEnabled(),
       '#description' => t('Provides more width (space) for CKEditor in the Claro theme. <br/> <strong>Cache has to be flushed after changing this setting.</strong>'),
     ];
 
-    $this->setDefaultValues($advanced);
-
-    $form['advanced'] = $advanced + $form['advanced'];
+    $form['appearance'] += $appearance;
 
     return $form;
   }
