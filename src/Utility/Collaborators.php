@@ -5,9 +5,10 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-namespace Drupal\ckeditor5_premium_features_collaboration\Utility;
+declare(strict_types=1);
 
-use Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator;
+namespace Drupal\ckeditor5_premium_features\Utility;
+
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\Comment;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
@@ -15,6 +16,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentsStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcCommentNotificationEntity;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -45,21 +47,22 @@ class Collaborators {
    *   Database connection.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings $collaborationSettings
-   *   Collaboration settings.
-   * @param \Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator $mentionsIntegrator
+   * @param MentionsIntegrator $mentionsIntegrator
    *   Mentions integrator service.
+   * @param CollaborationModuleIntegrator $collaborationModuleIntegrator
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function __construct(protected Connection $connection,
                               protected EntityTypeManagerInterface $entityTypeManager,
-                              protected CollaborationSettings $collaborationSettings,
-                              protected MentionsIntegrator $mentionsIntegrator
+                              protected MentionsIntegrator $mentionsIntegrator,
+                              protected CollaborationModuleIntegrator $collaborationModuleIntegrator
   ) {
-    $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
-    $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
+    if ($collaborationModuleIntegrator->isNonRtcEnabled()) {
+      $this->commentsStorage = $this->entityTypeManager->getStorage(CommentInterface::ENTITY_TYPE_ID);
+      $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
+    }
   }
 
   /**
@@ -91,8 +94,13 @@ class Collaborators {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $comment
    *   Comment to be checked.
    */
-  public function getParticipators(CollaborationEntityInterface $comment): array {
-    $commentsInThread = $this->getCommentsThread($comment->getThreadId());
+  public function getParticipators(CollaborationEntityInterface|RtcCommentNotificationEntity $comment): array {
+    if ($comment instanceof RtcCommentNotificationEntity) {
+      $commentsInThread = $comment->getThread();
+    }
+    else {
+      $commentsInThread = $this->getCommentsThread($comment->getThreadId());
+    }
 
     if (empty($commentsInThread)) {
       return [];
@@ -134,7 +142,11 @@ class Collaborators {
    * @return int|null
    *   Returns author ID or NULL if no suggestion matches the comment.
    */
-  public function getThreadSuggestionAuthor(Comment $comment): int|NULL {
+  public function getThreadSuggestionAuthor(Comment|RtcCommentNotificationEntity $comment): int|NULL {
+    if ($comment instanceof RtcCommentNotificationEntity) {
+      return $comment->getRelatedSuggestionAuthorId();
+    }
+
     if (!$this->isCommentInSuggestionThread($comment)) {
       return NULL;
     }
@@ -176,7 +188,7 @@ class Collaborators {
    *
    * @param string $collaborationEntityType
    *   Collaboration entity type.
-   * @param int $entityId
+   * @param string $entityId
    *   Referenced entity.
    * @param string $entityTypeId
    *   Referenced entity type id.
@@ -186,7 +198,7 @@ class Collaborators {
    * @return array
    *   A list of author ids.
    */
-  protected function getEntityCollaboratorType(string $collaborationEntityType, int $entityId, string $entityTypeId, int $userIdExclude = 0): array {
+  protected function getEntityCollaboratorType(string $collaborationEntityType, string $entityId, string $entityTypeId, int $userIdExclude = 0): array {
     $query = $this->connection->select($collaborationEntityType, 'd')
       ->fields('d', ['uid'])
       ->condition('entity_id', $entityId)
@@ -222,7 +234,7 @@ class Collaborators {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface $comment
    *   Comment object.
    */
-  public function getCommentMentions(CommentInterface $comment): array {
+  public function getCommentMentions(CommentInterface|RtcCommentNotificationEntity $comment): array {
     if (!$this->mentionsIntegrator->isMentionInstalled()) {
       return [];
     }
@@ -260,7 +272,10 @@ class Collaborators {
    * @return bool
    *   Return true if the comment is in the suggestion tread.
    */
-  public function isCommentInSuggestionThread(Comment $comment): bool {
+  public function isCommentInSuggestionThread(Comment|RtcCommentNotificationEntity $comment): bool {
+    if ($comment instanceof RtcCommentNotificationEntity) {
+      return $comment->isSuggestionComment();
+    }
     // Get thread.
     $commentsInThread = $this->getCommentsThread($comment->getThreadId());
 
@@ -279,7 +294,10 @@ class Collaborators {
    * @return bool
    *   Return true if suggestion exists and is not discarded or accepted.
    */
-  public function isSuggestionExists(Comment $comment): bool {
+  public function isSuggestionExists(Comment|RtcCommentNotificationEntity $comment): bool {
+    if ($comment instanceof RtcCommentNotificationEntity) {
+      return $comment->isSuggestionComment();
+    }
     /**
      * @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion $suggestion
      */

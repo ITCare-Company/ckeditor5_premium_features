@@ -14,6 +14,7 @@ use Drupal\ckeditor5_premium_features\CollaborationAccessHandler;
 use Drupal\ckeditor5_premium_features\Diff\DocumentDiffHelper;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
+use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features\Storage\EditorStorageHandlerInterface;
 use Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationContentFilteringStorageInterface;
@@ -25,7 +26,6 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
-use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\RevisionsLimitHandler;
 use Drupal\Component\Utility\NestedArray;
@@ -34,7 +34,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\filter\FilterFormatInterface;
@@ -119,7 +118,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     protected CollaborationSettings $collaborationSettings,
     protected EventDispatcherInterface $eventDispatcher,
     protected AccountInterface $currentUser,
-    protected StateInterface $state,
     protected DocumentDiffHelper $documentDiffHelper,
     protected CollaborationAccessHandler $collaborationAccessHandler,
     protected RevisionsLimitHandler $revisionsLimitHandler
@@ -552,35 +550,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   }
 
   /**
-   * Returns the form element source value array.
-   *
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   Form state object.
-   * @param array $item_parents
-   *   Form item parents.
-   * @param string $key
-   *   Type of the data stored.
-   * @param string $element_id
-   *   ID of the document field.
-   *
-   * @return array
-   *   Returns a decoded array of JSON object.
-   */
-  private function getFormElementSourceData(FormStateInterface $form_state, array $item_parents, string $key, string $element_id): array {
-    $source = $form_state->getValue([...$item_parents, $key]) ?? '';
-
-    if (empty($source)) {
-      $storageCollaborationData = $form_state->get(static::STORAGE_KEY_COLLABORATION);
-
-      if (isset($storageCollaborationData[$element_id][$key])) {
-        $source = $storageCollaborationData[$element_id][$key];
-      }
-    }
-
-    return (array) json_decode($source, TRUE);
-  }
-
-  /**
    * Additional processing required for handling data stored in form state.
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
@@ -628,20 +597,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     if (!empty($storageData)) {
       $form_state->set(static::STORAGE_KEY_COLLABORATION, $storageData);
     }
-  }
-
-  /**
-   * Returns an original value set for the element.
-   *
-   * @param array $form
-   *   Form array.
-   * @param array $item_parents
-   *   Array defining path to the field.
-   */
-  private function getFormElementOriginalValue(array $form, array $item_parents) {
-    $item_parents[] = '#default_value';
-
-    return NestedArray::getValue($form, $item_parents);
   }
 
   /**

@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
 use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
-use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
 use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessException;

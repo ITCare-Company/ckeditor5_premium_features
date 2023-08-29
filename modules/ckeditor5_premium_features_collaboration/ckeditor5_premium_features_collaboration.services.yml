@@ -8,7 +8,6 @@ services:
       - '@ckeditor5_premium_features_collaboration.collaboration_settings'
       - '@event_dispatcher'
       - '@current_user'
-      - '@state'
       - '@ckeditor5_premium_features.document_diff_helper'
       - '@ckeditor5_premium_features.access_handler'
       - '@ckeditor5_premium_features_collaboration.revision_limit_handler'
@@ -18,14 +17,6 @@ services:
     arguments:
       - '@current_user'
       - '@entity_type.manager'
-
-  ckeditor5_premium_features_collaboration.collaborators:
-    class: Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators
-    arguments:
-      - '@database'
-      - '@entity_type.manager'
-      - '@ckeditor5_premium_features_collaboration.collaboration_settings'
-      - '@ckeditor5_premium_features.mention_integrator'
 
   ckeditor5_premium_features_collaboration.collaboration_settings:
     class: Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings

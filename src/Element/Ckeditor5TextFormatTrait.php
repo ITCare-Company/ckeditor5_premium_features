@@ -12,10 +12,10 @@ namespace Drupal\ckeditor5_premium_features\Element;
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
 use Drupal\ckeditor5_premium_features\Utility\CommonCollaborationSettingsInterface;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\layout_paragraphs\Contracts\ComponentFormInterface;
 
 /**
@@ -202,6 +202,49 @@ trait Ckeditor5TextFormatTrait {
       $paragraphUuid = $paragraph->uuid();
       $element['#id'] = $paragraphUuid . '-' . $element['#id'];
     }
+  }
+
+  /**
+   * Returns an original value set for the element.
+   *
+   * @param array $form
+   *   Form array.
+   * @param array $item_parents
+   *   Array defining path to the field.
+   */
+  private function getFormElementOriginalValue(array $form, array $item_parents) {
+    $item_parents[] = '#default_value';
+
+    return NestedArray::getValue($form, $item_parents);
+  }
+
+  /**
+   * Returns the form element source value array.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object.
+   * @param array $item_parents
+   *   Form item parents.
+   * @param string $key
+   *   Type of the data stored.
+   * @param string $element_id
+   *   ID of the document field.
+   *
+   * @return array
+   *   Returns a decoded array of JSON object.
+   */
+  private function getFormElementSourceData(FormStateInterface $form_state, array $item_parents, string $key, string $element_id): array {
+    $source = $form_state->getValue([...$item_parents, $key]) ?? '';
+
+    if (empty($source)) {
+      $storageCollaborationData = $form_state->get(static::STORAGE_KEY_COLLABORATION);
+
+      if (isset($storageCollaborationData[$element_id][$key])) {
+        $source = $storageCollaborationData[$element_id][$key];
+      }
+    }
+
+    return (array) json_decode($source, TRUE);
   }
 
 }

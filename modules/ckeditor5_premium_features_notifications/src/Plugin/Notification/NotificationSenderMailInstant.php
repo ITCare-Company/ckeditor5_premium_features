@@ -5,6 +5,8 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
+declare(strict_types=1);
+
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
 use Drupal\Core\Database\Connection;
@@ -82,6 +84,9 @@ class NotificationSenderMailInstant extends NotificationSenderBase implements Co
     $parameters['body'] = $message->getMessageBody();
 
     foreach ($mails as $targetMail) {
+      if (!$targetMail) {
+        continue;
+      }
       $this->mailManager->mail(
         'ckeditor5_premium_features_notifications',
         $message->getType(),

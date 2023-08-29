@@ -7,7 +7,7 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
-use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
 
 /**
  * Defines interface for notification message objects.
@@ -35,7 +35,7 @@ interface NotificationMessageInterface {
   /**
    * Returns source collaboration event.
    *
-   * @return \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase
+   * @return \Drupal\ckeditor5_premium_features\Event\CollaborationEventBase
    *   Collaboration event.
    */
   public function getSourceEvent(): CollaborationEventBase;

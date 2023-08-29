@@ -5,9 +5,11 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
+declare(strict_types=1);
+
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
-use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
 
 /**
  * Interface for notification_message plugins.
@@ -38,7 +40,7 @@ interface NotificationMessageFactoryInterface {
    *
    * @param string $messageType
    *   Type of the message.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   * @param \Drupal\ckeditor5_premium_features\Event\CollaborationEventBase $event
    *   Collaboration event object.
    *
    * @return \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageInterface|null

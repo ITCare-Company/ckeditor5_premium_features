@@ -5,6 +5,8 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
+declare(strict_types=1);
+
 namespace Drupal\ckeditor5_premium_features_notifications\Plugin\Notification;
 
 use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
@@ -84,7 +86,7 @@ class NotificationSenderMailBulk extends NotificationSenderBase implements Conta
           $message->getType(),
           $message->getSourceEvent()->getEventType(),
           empty($originalContent) ? $documentContent : $originalContent,
-          $message->getSourceEvent()->getAccount()->id(),
+          strval($message->getSourceEvent()->getAccount()->id()),
           $message->getSourceEvent()->getRelatedDocumentFieldId(),
           $message->getSourceEvent()->getReferencedUserId()
         );

@@ -15,6 +15,9 @@ use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionInterface;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcCommentNotificationEntity;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcNotificationEntityInterface;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcSuggestionNotificationEntity;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\FieldableEntityInterface;
 
@@ -42,7 +45,7 @@ class NotificationContextHelper extends ContextHelper {
    */
   public function getFullContext(FieldableEntityInterface $document,
                                  string $key,
-                                 CollaborationEntityInterface $entity,
+                                 CollaborationEntityInterface|RtcNotificationEntityInterface $entity,
                                  ?string $newContent): array {
     if ($newContent) {
       return $this->getFullContextFromDocument($newContent, $entity) ?? [];
@@ -61,15 +64,15 @@ class NotificationContextHelper extends ContextHelper {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $entity
    *   Collaboration entity.
    */
-  public function getFullContextFromDocument(string $context, CollaborationEntityInterface $entity): array {
+  public function getFullContextFromDocument(string $context, CollaborationEntityInterface|RtcNotificationEntityInterface $entity): array {
     $thread = $this->renderEntityThread($entity);
 
     $isFormattingSuggestion = FALSE;
     $snippets = [];
-    if ($entity instanceof CommentInterface) {
+    if ($entity instanceof CommentInterface || $entity instanceof RtcCommentNotificationEntity) {
       $snippets = $this->getHighlightedComment($context, $entity);
     }
-    if ($entity instanceof SuggestionInterface) {
+    if ($entity instanceof SuggestionInterface || $entity instanceof RtcSuggestionNotificationEntity) {
       $snippets = $this->getHighlightedSuggestion($context, $entity, $isFormattingSuggestion);
     }
 
@@ -147,7 +150,7 @@ class NotificationContextHelper extends ContextHelper {
    * @param \Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface $comment
    *   Comment to be highlighted.
    */
-  public function getHighlightedComment(string $context, CommentInterface $comment): array {
+  public function getHighlightedComment(string $context, CommentInterface|RtcCommentNotificationEntity $comment): array {
     $threadID = $comment->getThreadId();
 
     $matchingSelectRule = "contains(@name,'$threadID')";
@@ -197,15 +200,22 @@ class NotificationContextHelper extends ContextHelper {
    * @param bool $formattingSuggestionDetected
    *   Returns boolean determining if the script detected formatting suggestion.
    */
-  public function getHighlightedSuggestion(string $context, SuggestionInterface $suggestion, bool &$formattingSuggestionDetected = FALSE): array {
+  public function getHighlightedSuggestion(string $context, SuggestionInterface|RtcSuggestionNotificationEntity $suggestion, bool &$formattingSuggestionDetected = FALSE): array {
     $suggestionChain = $suggestion->getChain();
 
     $queryOrParts = [];
-    foreach ($suggestionChain as $suggestion) {
-      $chainSuggestionId = $suggestion->id();
+    foreach ($suggestionChain as $chainSuggestion) {
+      if ($suggestion instanceof RtcSuggestionNotificationEntity) {
+        $chainSuggestionId = $chainSuggestion['id'];
+      }
+      else {
+        $chainSuggestionId = $chainSuggestion->id();
+      }
+
       $queryOrParts[] = "contains(@name,'$chainSuggestionId')";
       $queryOrParts[] = "contains(@data-suggestion-start-before,'$chainSuggestionId')";
     }
+
     $matchingSelectRule = implode(' or ', $queryOrParts);
 
     $context = $this->htmlHelper->prepareParagraphsSplitSuggestions($context);
@@ -330,7 +340,7 @@ class NotificationContextHelper extends ContextHelper {
    * @return array
    *   List of render arrays representing collaboration thread.
    */
-  public function renderEntityThread(CollaborationEntityInterface $entity): array {
+  public function renderEntityThread(CollaborationEntityInterface|RtcNotificationEntityInterface $entity): array {
     $result = [];
     foreach ($entity->getThread() as $threadItem) {
       $result[] = [

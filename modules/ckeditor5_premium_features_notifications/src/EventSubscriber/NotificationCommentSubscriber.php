@@ -5,14 +5,18 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
+declare(strict_types=1);
+
 namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
+use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\Comment;
-use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
-use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcCommentNotificationEntity;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcNotificationEntityInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -27,7 +31,7 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
    *
    * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationSender
    *   Notification sender service.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators $collaboratorsService
+   * @param \Drupal\ckeditor5_premium_features\Utility\Collaborators $collaboratorsService
    *   Collaborators utility service.
    * @param \Drupal\Core\Session\AccountInterface $currentUser
    *   Current user.
@@ -51,12 +55,12 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
   /**
    * Sends notifications.
    *
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   * @param \Drupal\ckeditor5_premium_features\Event\CollaborationEventBase $event
    *   Suggestion event object.
    */
   public function commentAdded(CollaborationEventBase $event): void {
     $collaborationEntity = $event->getRelatedEntity();
-    if (!$collaborationEntity instanceof Comment) {
+    if (!$collaborationEntity instanceof Comment && !$collaborationEntity instanceof RtcCommentNotificationEntity) {
       return;
     }
 
@@ -75,7 +79,8 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
     $participators = array_diff($participators, $newSuggestionParticipators);
 
     if (!$collaborationEntity->isReply()) {
-      $replyRecipients = array_merge($participators, $authors);
+      // If it's not a reply, notify only the document authors.
+      $replyRecipients = $authors;
 
       if (empty($replyRecipients)) {
         return;
@@ -157,7 +162,7 @@ class NotificationCommentSubscriber implements EventSubscriberInterface {
    * @return array
    *   The array of users to be excluded in comment notification
    */
-  protected function getSuggestionNotificationUsers(CollaborationEntityInterface $collaborationEntity): array {
+  protected function getSuggestionNotificationUsers(CollaborationEntityInterface|RtcNotificationEntityInterface $collaborationEntity): array {
     $notificationSentToUsers = $this->state->get(NotificationMessageFactoryInterface::CKEDITOR5_SUGGESTION_SENT_TO_USERS_STATE_KEY);
     $threadId = $collaborationEntity->getThreadId();
     $newSuggestionParticipators = $notificationSentToUsers[$threadId] ?? [];

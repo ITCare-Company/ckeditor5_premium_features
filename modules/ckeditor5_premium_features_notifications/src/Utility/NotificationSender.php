@@ -7,7 +7,7 @@
 
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
-use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderInterface;
@@ -47,7 +47,7 @@ class NotificationSender {
    *   Message type.
    * @param array $recipientIds
    *   List of user IDs.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   * @param \Drupal\ckeditor5_premium_features\Event\CollaborationEventBase $event
    *   Collaboration event.
    *
    * @return bool|array
@@ -96,7 +96,7 @@ class NotificationSender {
    *   Message factory plugin.
    * @param array $recipientIds
    *   User IDs.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   * @param \Drupal\ckeditor5_premium_features\Event\CollaborationEventBase $event
    *   Event entity.
    * @param string $messageType
    *   Type of message.
@@ -126,7 +126,7 @@ class NotificationSender {
    *   Message factory plugin.
    * @param array $recipientIds
    *   User IDs.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   * @param \Drupal\ckeditor5_premium_features\Event\CollaborationEventBase $event
    *   Event entity.
    * @param string $messageType
    *   Type of message.

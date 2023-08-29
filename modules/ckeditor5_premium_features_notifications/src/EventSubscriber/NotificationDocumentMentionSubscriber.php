@@ -12,8 +12,8 @@ use Drupal\ckeditor5_premium_features\Plugin\Filter\FilterCollaboration;
 use Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator;
 use Drupal\ckeditor5_premium_features_mentions\Utility\MentionsHelper;
 use Drupal\ckeditor5_premium_features\Diff\Ckeditor5DiffInterface;
-use Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase;
-use Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators;
+use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features\Utility\Collaborators;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings;
@@ -48,7 +48,7 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
    *
    * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender $notificationSender
    *   Notification sender service.
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Utility\Collaborators $collaboratorsService
+   * @param \Drupal\ckeditor5_premium_features\Utility\Collaborators $collaboratorsService
    *   Collaborators service.
    * @param \Drupal\Core\Session\AccountInterface $currentUser
    *   Current user.
@@ -91,7 +91,7 @@ class NotificationDocumentMentionSubscriber implements EventSubscriberInterface 
   /**
    * Sends notifications.
    *
-   * @param \Drupal\ckeditor5_premium_features_collaboration\Event\CollaborationEventBase $event
+   * @param \Drupal\ckeditor5_premium_features\Event\CollaborationEventBase $event
    *   Suggestion event object.
    */
   public function documentUpdated(CollaborationEventBase $event): void {

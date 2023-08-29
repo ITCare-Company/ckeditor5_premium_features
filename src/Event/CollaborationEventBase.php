@@ -5,12 +5,17 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-namespace Drupal\ckeditor5_premium_features_collaboration\Event;
+declare(strict_types=1);
 
-use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityBase;
+namespace Drupal\ckeditor5_premium_features\Event;
+
+use Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextHelper;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcNotificationEntityInterface;
 use Drupal\Component\EventDispatcher\Event;
 use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Contracts\Translation\TranslatorTrait;
@@ -50,7 +55,7 @@ class CollaborationEventBase extends Event {
   protected string $newContent;
 
   /**
-   * Optionally referened user ID.
+   * Optionally referenced user ID.
    *
    * @var string
    */
@@ -66,34 +71,40 @@ class CollaborationEventBase extends Event {
    * @param string $eventType
    *   Type of event.
    */
-  public function __construct(protected ContentEntityBase $relatedEntity,
+  public function __construct(protected ContentEntityBase|RtcNotificationEntityInterface $relatedEntity,
                               protected AccountInterface $account,
                               protected string $eventType) {}
 
   /**
    * Returns event related entity.
+   *
+   * @return \Drupal\Core\Entity\ContentEntityBase|RtcNotificationEntityInterface
+   *   Related entity.
    */
-  public function getRelatedEntity(): ContentEntityBase {
+  public function getRelatedEntity():ContentEntityBase|RtcNotificationEntityInterface {
     return $this->relatedEntity;
   }
 
   /**
    * Sets related entity property.
    *
-   * @param \Drupal\Core\Entity\ContentEntityBase $relatedEntity
+   * @param \Drupal\Core\Entity\ContentEntityBase|RtcNotificationEntityInterface $relatedEntity
    *   Related entity.
    */
-  public function setRelatedEntity(ContentEntityBase $relatedEntity): void {
+  public function setRelatedEntity(ContentEntityBase|RtcNotificationEntityInterface $relatedEntity): void {
     $this->relatedEntity = $relatedEntity;
   }
 
   /**
    * Returns related document. It can be the same as getRelatedEntity result.
+   *
+   * @return \Drupal\Core\Entity\ContentEntityBase|EntityInterface|RtcNotificationEntityInterface|FieldableEntityInterface|null
+   *   Related document entity.
    */
-  public function getRelatedDocument(): ContentEntityBase|NULL {
+  public function getRelatedDocument(): ContentEntityBase|EntityInterface|RtcNotificationEntityInterface|FieldableEntityInterface|null {
     $relatedEntity = $this->getRelatedEntity();
 
-    if (!$relatedEntity instanceof CollaborationEntityBase) {
+    if (!$relatedEntity instanceof CollaborationEntityInterface && !$relatedEntity instanceof RtcNotificationEntityInterface) {
       return $relatedEntity;
     }
 
@@ -108,11 +119,14 @@ class CollaborationEventBase extends Event {
 
   /**
    * Returns "key" attribute from the related collaboration entity or NULL.
+   *
+   * @return string|null
+   *   Related document field id.
    */
   public function getRelatedDocumentFieldId(): string|null {
     $relatedEntity = $this->getRelatedEntity();
 
-    if (!$relatedEntity instanceof CollaborationEntityBase) {
+    if (!$relatedEntity instanceof CollaborationEntityInterface) {
       return $this->relatedDocumentKey ?? NULL;
     }
 
@@ -121,6 +135,9 @@ class CollaborationEventBase extends Event {
 
   /**
    * Returns content of the proper field from related content entity.
+   *
+   * @return string|null
+   *   Related document content.
    */
   public function getRelatedDocumentContent(): string|null {
     if ($this->getEventType() == self::SUGGESTION_DISCARD || $this->getEventType() == self::SUGGESTION_ACCEPT) {
@@ -143,6 +160,9 @@ class CollaborationEventBase extends Event {
 
   /**
    * Setter for the related document "key" property.
+   *
+   * @param string $key
+   *   The document key.
    */
   public function setRelatedDocumentKey(string $key): void {
     $this->relatedDocumentKey = $key;
@@ -174,6 +194,9 @@ class CollaborationEventBase extends Event {
 
   /**
    * Returns event account.
+   *
+   * @return \Drupal\Core\Session\AccountInterface
+   *   Event account.
    */
   public function getAccount(): AccountInterface {
     return $this->account;
@@ -191,6 +214,9 @@ class CollaborationEventBase extends Event {
 
   /**
    * Returns event type.
+   *
+   * @return string
+   *   Event type.
    */
   public function getEventType(): string {
     return $this->eventType;
@@ -215,7 +241,7 @@ class CollaborationEventBase extends Event {
    * @throws \Exception
    *   Exception if type is not supported.
    */
-  public static function getEventLabel(string $eventType): string {
+  public static function getEventLabel(string $eventType): string|TranslatableMarkup {
     $supportedTypes = [
       self::SUGGESTION_ACCEPT => new TranslatableMarkup('accepted'),
       self::SUGGESTION_DISCARD => new TranslatableMarkup('rejected'),
@@ -229,6 +255,9 @@ class CollaborationEventBase extends Event {
 
   /**
    * Returns the original document content string.
+   *
+   * @return string|null
+   *   The original content.
    */
   public function getOriginalContent(): ?string {
     return $this->originalContent ?? NULL;
@@ -246,6 +275,9 @@ class CollaborationEventBase extends Event {
 
   /**
    * Returns the new document content string.
+   *
+   * @return string|null
+   *   The new content.
    */
   public function getNewContent(): ?string {
     return $this->newContent ?? NULL;
@@ -263,6 +295,9 @@ class CollaborationEventBase extends Event {
 
   /**
    * Returns the referenced user ID property value.
+   *
+   * @return string|null
+   *   The referenced user ID.
    */
   public function getReferencedUserId(): ?string {
     return $this->referencedUserId ?? NULL;
@@ -270,6 +305,9 @@ class CollaborationEventBase extends Event {
 
   /**
    * Sets the referenced user ID property value.
+   *
+   * @param string $referencedUserId
+   *   The referenced user ID.
    */
   public function setReferencedUserId(string $referencedUserId): void {
     $this->referencedUserId = $referencedUserId;
