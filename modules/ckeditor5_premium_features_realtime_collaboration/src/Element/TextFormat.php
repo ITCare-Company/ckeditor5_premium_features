@@ -82,18 +82,20 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $element_unique_id = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
     $element_drupal_id = CKeditorFieldKeyHelper::cleanElementDrupalId($element['#id']);
 
-    $element['presence_list'] = [
-      '#type' => 'container',
-      '#weight' => -5,
-      '#attributes' => [
-        'class' => [
-          'ck-presence-list-container',
+    if ($this->collaborationSettings->isPresenceListEnabled()) {
+      $element['presence_list'] = [
+        '#type' => 'container',
+        '#weight' => -5,
+        '#attributes' => [
+          'class' => [
+            'ck-presence-list-container',
+          ],
+          'id' => $element_drupal_id . '-value-presence-list-container',
         ],
-        'id' => $element_drupal_id . '-value-presence-list-container',
-      ],
-    ];
+      ];
 
-    $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->collaborationSettings->getPresenceListCollapseAt();
+      $element['#attached']['drupalSettings']['presenceListCollapseAt'] = $this->collaborationSettings->getPresenceListCollapseAt();
+    }
 
     $form_object = $form_state->getFormObject();
 

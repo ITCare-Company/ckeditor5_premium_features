@@ -58,6 +58,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
 
     $form['presence_list_collapse_at'] = [
       '#type' => 'number',
+      '#min' => 1,
       '#title' => t('Presence list collapse items'),
       '#default_value' => $config->get('presence_list_collapse_at') ?? 8,
     ];
