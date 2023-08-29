@@ -11,6 +11,7 @@ services:
       - '@state'
       - '@ckeditor5_premium_features.document_diff_helper'
       - '@ckeditor5_premium_features.access_handler'
+      - '@ckeditor5_premium_features_collaboration.revision_limit_handler'
 
   ckeditor5_premium_features_collaboration.data_provider.users:
     class: Drupal\ckeditor5_premium_features_collaboration\DataProvider\UserDataProvider
@@ -30,3 +31,9 @@ services:
     class: Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings
     arguments:
       - '@config.factory'
+
+  ckeditor5_premium_features_collaboration.revision_limit_handler:
+    class: Drupal\ckeditor5_premium_features_collaboration\Utility\RevisionsLimitHandler
+    arguments:
+      - '@ckeditor5_premium_features_collaboration.collaboration_settings'
+      - '@entity_type.manager'

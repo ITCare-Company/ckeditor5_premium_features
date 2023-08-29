@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
 use Drupal\Core\Access\AccessException;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -20,9 +21,9 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * Provides the storage class for the Revision entity.
  */
 class RevisionStorage extends SqlContentEntityStorage implements
-    CollaborationEntityStorageInterface,
-    EditorDataStorageProviderInterface,
-    StorageIdSpecificationAwareInterface {
+  CollaborationEntityStorageInterface,
+  EditorDataStorageProviderInterface,
+  StorageIdSpecificationAwareInterface {
 
   use CollaborationEntityStorageTrait;
 
@@ -174,6 +175,60 @@ class RevisionStorage extends SqlContentEntityStorage implements
    */
   public function isCommonId(string $id): bool {
     return $id == 'initial';
+  }
+
+  /**
+   * Returns array of revisions ids.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Related entity.
+   * @param int $offset
+   *   Maximum number of revisions.
+   * @param int $created
+   *   Timestamp date.
+   *
+   * @return array
+   *   Array of ids.
+   */
+  public function getRevisionIds(EntityInterface $entity, string $keyId, int $offset = 0, int $created = 0): array {
+    if (!$entity->uuid()) {
+      return [];
+    }
+    $query = $this->getQuery()
+      ->condition('entity_id', $entity->uuid())
+      ->condition('uid', 0, '!=')
+      ->condition('attributes', "%\"key\":\"" . $keyId . "\"%", 'LIKE')
+      ->condition('name', NULL, 'IS NOT NULL')
+      ->sort('created', 'DESC')
+      ->accessCheck(FALSE);
+
+    if ($offset && $created) {
+      $createdQuery = clone $query;
+      $createdQuery->condition('created', $created, '<');
+      // Query returns revisions older than provided date.
+      $createdQueryResult = $createdQuery->execute();
+
+      $allRevisionQuery = $query;
+      // Query returns all revisions.
+      $allRevisionQueryResults = $allRevisionQuery->execute();
+      // Get revisions which will be kept.
+      $revisionsToKept = array_slice($allRevisionQueryResults, 0, $offset);
+
+      // Return array without ids from revisionsToKept array.
+      return array_diff($createdQueryResult, $revisionsToKept);
+    }
+
+    if ($created) {
+      $query->condition('created', $created, '<');
+      return $query->execute();
+    }
+
+    if ($offset) {
+      $result = $query->execute();
+      return array_slice($result, $offset);
+    }
+
+    return [];
   }
 
 }
