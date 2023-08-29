@@ -66,6 +66,18 @@ ckeditor5_premium_features_productivity_pack_slash_commands:
     productivity_pack:
       plugin: slashCommand
 
+ckeditor5_premium_features_productivity_pack_paste_from_office_enhanced:
+  ckeditor5:
+    plugins:
+      - pasteFromOfficeEnhanced.PasteFromOfficeEnhanced
+  drupal:
+    label: Paste from Office enhanced
+    elements: false
+    class: Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\PasteFromOfficeEnhanced
+    library: ckeditor5_premium_features_productivity_pack/paste-from-office-enhanced
+    productivity_pack:
+      plugin: pasteFromOfficeEnhanced
+
 ckeditor5_premium_features_productivity_pack_base:
   ckeditor5:
     plugins: [ ]
