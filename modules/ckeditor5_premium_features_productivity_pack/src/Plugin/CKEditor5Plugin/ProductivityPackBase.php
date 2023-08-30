@@ -98,7 +98,9 @@ class ProductivityPackBase extends CKEditor5PluginDefault implements CKEditor5Pl
     ];
     if (!$this->libraryVersionChecker->isLibraryVersionHigherOrEqual('39.0.0')) {
       $form[PasteFromOfficeEnhanced::CONFIG_FIELD_ENABLED]['#attributes']['disabled'] = 'disabled';
-      $descriptionSuffix = $this->t('The feature is available for CKEditor 5 version 39.0.0 or higher. CKEditor 5 was updated to version 39.0.1 in Drupal 10.1.3');
+      $currentVersion = $this->libraryVersionChecker->getCurrentVersion();
+      $descriptionSuffix = $this->t('The feature is available for CKEditor 5 version 39.0.0 or higher. Currently installed version is ');
+      $descriptionSuffix .= $currentVersion;
       $form[PasteFromOfficeEnhanced::CONFIG_FIELD_ENABLED]['#description'] .= "<br />" . $descriptionSuffix;
 
     }

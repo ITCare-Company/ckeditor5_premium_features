@@ -52,4 +52,14 @@ class LibraryVersionChecker {
     return FALSE;
   }
 
+  /**
+   * Get CKEditor 5 version installed in the system.
+   *
+   * @return string
+   *    CKEditor 5 version.
+   */
+  public function getCurrentVersion(): string {
+    return $this->ckeditor5Version;
+  }
+
 }
