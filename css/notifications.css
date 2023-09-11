@@ -1,6 +1,7 @@
 .ck-notification {
-  width: 250px;
-  height: 60px;
+  min-width: 250px;
+  max-width: 325px;
+  max-height: 70px;
 
   display: flex;
   flex-direction: column;

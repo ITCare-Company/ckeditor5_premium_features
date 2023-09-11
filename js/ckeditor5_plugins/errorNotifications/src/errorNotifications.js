@@ -4,20 +4,30 @@
  */
 
 const { View } = window.CKEditor5.ui;
-const { Rect } = window.CKEditor5.utils;
+const { Rect, Collection } = window.CKEditor5.utils;
 const { Plugin } = window.CKEditor5.core;
 
-const ERROR_NOTIFICATION_DEFINITION = {
-  header: 'Oops...',
-  description: 'It seems that the editor encountered an error. Check the browser\'s console for more details.',
-  type: 'error'
-}
+const definitions = [
+  {
+    header: 'Oops...',
+    description: 'It seems that the editor encountered an error. Save your content and refresh the page. If the error persists, contact your site administrator.',
+    type: 'error',
+    reactsTo: { name: 'CKEditorError' }
+  },
+  {
+    header: 'Trial limit exceeded',
+    description: 'Your premium features trial limit for this node has been exceeded. Create a new node or contact sales@cksource.com if you want to upgrade to the full version. ',
+    type: 'error',
+    reactsTo: { message: 'trial-license-key-reached-limit' }
+  }
+]
 
 class ErrorNotifications extends Plugin {
   constructor( ...args ) {
     super( ...args );
 
-    this.errorNotificationView = null;
+    this.availableNotifications = new Collection();
+    this.activeNotification = null;
   }
 
   static get pluginName() {
@@ -27,23 +37,13 @@ class ErrorNotifications extends Plugin {
   init() {
     const editor = this.editor;
 
-    this.errorNotificationView = new NotificationView( editor.locale, ERROR_NOTIFICATION_DEFINITION )
+    this._setupNotifications( definitions );
 
     this.set( '_editable', null );
 
-    this.errorNotificationView.bind( '_editable' ).to( this, '_editable' );
-
     editor.ui.once( 'ready', () => this.set( '_editable', editor.ui.view.editable.element ) );
 
-    editor.ui.view.main.add( this.errorNotificationView );
-
     this._attachListeners();
-
-    this.errorNotificationView.on( 'closeNotification', evt => {
-      this.errorNotificationView.hide();
-
-      editor.editing.view.focus();
-    } );
   }
 
   afterInit() {
@@ -53,7 +53,7 @@ class ErrorNotifications extends Plugin {
       editor.model.change( writer => {
         writer.insertElement( 'paragraph', editor.model.document.getRoot(), 'before')
       })
-    }, 2000 )
+    }, 500 )
 
     setTimeout( () => {
       editor.model.change( writer => {
@@ -68,6 +68,25 @@ class ErrorNotifications extends Plugin {
     super.destroy();
   }
 
+  _setupNotifications( definitions ) {
+    for ( const definition of definitions ) {
+      const notification = new NotificationView( this.editor.locale, definition );
+
+      notification.bind( '_editable' ).to( this, '_editable' );
+
+      notification.on( 'closeNotification', () => {
+        notification.hide();
+
+        this.activeNotification = null;
+        this.editor.ui.view.main.remove( notification );
+
+        this.editor.editing.view.focus();
+      } );
+
+      this.availableNotifications.add( notification )
+    }
+  }
+
   _attachListeners() {
     window.addEventListener( 'error', this._handleError.bind( this ) );
     window.addEventListener( 'unhandledrejection', this._handleError.bind( this ) );
@@ -78,18 +97,36 @@ class ErrorNotifications extends Plugin {
     window.removeEventListener( 'unhandledrejection', this._handleError.bind( this ) );
   }
 
-  _handleError( { error } ) {
-    const { name } = error;
+  _handleError( evt ) {
+    let notificationToShow = null;
 
-    if ( name && !name.includes( 'CKEditorError' ) ) {
+    const matches = new Collection();
+
+    if ( this.activeNotification ) {
       return;
     }
 
-    if ( this.errorNotificationView.isVisible ) {
-      return;
+    for ( const notification of this.availableNotifications ) {
+      const reactsTo = notification.reactsTo;
+
+      for ( const key in reactsTo ) {
+        if ( evt.error[ key ] && evt.error[ key ].includes( reactsTo[ key ] ) ) {
+          matches.add( notification );
+        }
+      }
     }
 
-    this.errorNotificationView.show();
+    // Notifications that react to the specific error message have higher priority
+    if ( matches.length > 1 ) {
+      notificationToShow = matches.find( notification => notification.reactsTo.message );
+    } else {
+      notificationToShow = matches.first;
+    }
+
+    this.activeNotification = notificationToShow;
+    this.activeNotification.show();
+
+    this.editor.ui.view.main.add( this.activeNotification );
   }
 }
 
@@ -97,6 +134,7 @@ class NotificationView extends View {
   constructor( locale, definition ) {
     super( locale );
 
+    this.reactsTo = definition.reactsTo;
     this.closeNotificationButton = null;
 
     this.set( '_editable', null );
