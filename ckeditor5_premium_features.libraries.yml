@@ -5,7 +5,6 @@ collaboration-integration-base:
     theme:
       css/sidebar.css: { }
       css/general.css: { }
-      css/notifications.css: { }
   js:
     js/ckeditor5_premium_features.js: { minified: false }
     js/build/sidebarAdapter.js: { minified: true }
@@ -40,5 +39,8 @@ claro--override--node-form:
 
 error-notifications:
   version: 20230626
+  css:
+    theme:
+      css/notifications.css: { }
   js:
       js/build/errorNotifications.js: { minified: true }
