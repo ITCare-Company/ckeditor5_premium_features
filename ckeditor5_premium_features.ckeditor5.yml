@@ -13,7 +13,7 @@ ckeditor5_premium_features__collaboration_integration_base:
       - disableCollaborationMarkersInCaption.DisableCollaborationMarkersInCaption
       - sidebarAdapter.SidebarAdapter
       - removeIncorrectCollaborationMarkers.RemoveIncorrectCollaborationMarkers
-      - errorNotifications.ErrorNotifications
+
   drupal:
     label: The load & save integration of collaboration tools.
     library: ckeditor5_premium_features/collaboration-integration-base
@@ -27,4 +27,13 @@ ckeditor5_premium_features__export_adapter:
   drupal:
     label: Export Adapter
     library: ckeditor5_premium_features/export-integration
+    elements: false
+
+ckeditor5_premium_features__error_notifications:
+  ckeditor5:
+    plugins:
+      - errorNotifications.ErrorNotifications
+  drupal:
+    label: Error notifications
+    library: ckeditor5_premium_features/error-notifications
     elements: false

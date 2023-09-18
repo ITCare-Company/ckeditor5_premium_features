@@ -46,23 +46,8 @@ class ErrorNotifications extends Plugin {
     this._attachListeners();
   }
 
-  afterInit() {
-    const editor = this.editor;
-
-    setTimeout( () => {
-      editor.model.change( writer => {
-        writer.insertElement( 'paragraph', editor.model.document.getRoot(), 'before')
-      })
-    }, 500 )
-
-    setTimeout( () => {
-      editor.model.change( writer => {
-        writer.insertElement( 'paragraph', editor.model.document.getRoot(), 'before')
-      })
-    }, 5000 )
-  }
-
   destroy() {
+    this.activeNotification = null;
     this._detachListeners();
 
     super.destroy();

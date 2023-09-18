@@ -13,7 +13,6 @@ collaboration-integration-base:
     js/build/disableCollaborationMarkersInCaption.js: { minified: true }
     js/build/removeIncorrectCollaborationMarkers.js: { minified: true }
     js/build/commentsAdapter.js: { minified: true }
-    js/build/errorNotifications.js: { minified: true }
   dependencies:
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
 
@@ -38,3 +37,8 @@ claro--override--node-form:
   css:
     layout:
       css/claro/node-form.css: { }
+
+error-notifications:
+  version: 20230626
+  js:
+      js/build/errorNotifications.js: { minified: true }
