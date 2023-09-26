@@ -260,7 +260,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
         $commentsData = $this->getFormElementSourceData($form_state, $element_data['parents'], 'comments', $element_key);
         $this->notificationIntegrator->transformCommentsData($commentsData);
 
-        $documentHelper = new NotificationDocumentHelper($element_key, $source_original_data, $source_new_data,);
+        $documentHelper = new NotificationDocumentHelper($element_key, $source_original_data, $source_new_data);
 
         $suggestionData = $this->apiAdapter->getDocumentSuggestions(
             $entity_channel, [

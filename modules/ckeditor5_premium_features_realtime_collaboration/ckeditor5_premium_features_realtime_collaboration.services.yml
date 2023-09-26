@@ -24,3 +24,19 @@ services:
       - '@current_user'
       - '@event_dispatcher'
       - '@entity_type.manager'
+
+  ckeditor5_premium_features_realtime_collaboration.bulk_notification_integrator:
+    class: Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\BulkNotificationIntegrator
+    arguments:
+      - '@ckeditor5_premium_features.api_adapter'
+      - '@current_user'
+      - '@event_dispatcher'
+      - '@entity_type.manager'
+      - '@ckeditor5_premium_features_realtime_collaboration.notification_integrator'
+
+  ckeditor5_premium_features_realtime_collaboration.bulk_message_body_handler:
+    class: Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\RtcBulkMessageBodyHandler
+    arguments:
+      - '@ckeditor5_premium_features_realtime_collaboration.bulk_notification_integrator'
+    tags:
+      - { name: bulk_message_body_handler, priority: 90 }
