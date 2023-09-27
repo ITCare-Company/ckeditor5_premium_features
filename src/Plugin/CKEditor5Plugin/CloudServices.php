@@ -11,6 +11,7 @@ namespace Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin;
 
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -28,11 +29,14 @@ class CloudServices extends CKEditor5PluginDefault implements ContainerFactoryPl
    *
    * @param \Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface $settingsConfigHandler
    *   The settings configuration handler.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The config factory.
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    */
   public function __construct(
     protected SettingsConfigHandlerInterface $settingsConfigHandler,
+    protected ConfigFactoryInterface $configFactory,
     ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
@@ -44,6 +48,7 @@ class CloudServices extends CKEditor5PluginDefault implements ContainerFactoryPl
   public static function create(ContainerInterface $container, ...$parent_arguments): static {
     return new static(
       $container->get('ckeditor5_premium_features.config_handler.settings'),
+      $container->get('config.factory'),
       ...$parent_arguments
     );
   }
@@ -55,6 +60,14 @@ class CloudServices extends CKEditor5PluginDefault implements ContainerFactoryPl
     $filterFormatId = $editor->getFilterFormat()->id();
     $static_plugin_config['cloudServices']['tokenUrl'] = $this->settingsConfigHandler->getTokenUrl($filterFormatId);
     $static_plugin_config['cloudServices']['webSocketUrl'] = $this->settingsConfigHandler->getWebSocketUrl();
+
+    $config = $this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.config');
+    $bundles = $config->get('bundles') ?? [];
+    $bundleVersion = $bundles[$editor->id()] ?? '';
+    if ($bundleVersion) {
+      $static_plugin_config['cloudServices']['bundleVersion'] = $bundleVersion;
+    }
+
     $static_plugin_config['comments']['editorConfig']['extraPlugins'] = [];
 
     return $static_plugin_config;

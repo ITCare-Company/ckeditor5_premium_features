@@ -13,6 +13,7 @@ collaboration-integration-base:
     js/build/removeIncorrectCollaborationMarkers.js: { minified: true }
     js/build/commentsAdapter.js: { minified: true }
   dependencies:
+    - core/ckeditor5
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
 
 media-export-features:
@@ -28,6 +29,7 @@ export-integration:
   js:
     js/build/exportAdapters.js: { minified: true }
   dependencies:
+    - core/ckeditor5
     - ckeditor5_premium_features/cloud-services
     - ckeditor5_premium_features/collaboration-integration-base
     - ckeditor5_premium_features/media-export-features

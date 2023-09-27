@@ -24,6 +24,7 @@ real-time-collaboration:
   js:
     js/build/realtimeAdapter.js: { minified: true }
   dependencies:
+    - core/ckeditor5
     - ckeditor5_premium_features/cloud-services
     - ckeditor5_premium_features/collaboration-integration-base
 
@@ -34,15 +35,18 @@ realtime-revision-history:
   js:
     js/build/realtimeRevisionHistoryAdapter.js: { minified: true }
   dependencies:
+    - core/ckeditor5
     - ckeditor5_premium_features_realtime_collaboration/real-time-collaboration
     - ckeditor5_premium_features_realtime_collaboration/revision-history
 
 realtime-comments:
   dependencies:
+    - core/ckeditor5
     - ckeditor5_premium_features_realtime_collaboration/real-time-collaboration
     - ckeditor5_premium_features_realtime_collaboration/comments
 
 realtime-track-changes:
   dependencies:
+    - core/ckeditor5
     - ckeditor5_premium_features_realtime_collaboration/realtime-comments
     - ckeditor5_premium_features_realtime_collaboration/track-changes

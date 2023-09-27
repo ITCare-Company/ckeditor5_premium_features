@@ -162,7 +162,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
           }
         }
 
-        $this->apiAdapter->validateLibraryVersion($channel_id);
+        $this->apiAdapter->validateBundleVersion($channel_id, $element['#format']);
 
         $element['entity_channel'] = [
           '#type' => 'hidden',
@@ -187,7 +187,34 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $track_changes_states = $this->editorStorageHandler->getTrackChangesStates($element, TRUE);
     $element['#attached']['drupalSettings']['ckeditor5Premium']['tracking_changes']['default_state'] = $track_changes_states;
 
+    $element['#element_validate'] = [[$this, 'validateElement']];
     return $element;
+  }
+
+  /**
+   * Validation function for text fields with realtime collaboration enabled.
+   *
+   * @param array $element
+   *   The form element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The state of the form.
+   * @param array $form
+   *   The form structure.
+   */
+  public function validateElement(array $element, FormStateInterface $form_state, array $form): void {
+    $channelId = $form_state->getValue([...$element["#parents"], 'entity_channel']);
+
+    $response = $this->apiAdapter->exportDocument($channelId);
+
+    if(isset($response['code'])) {
+      $form_state->setError($element, 'An error occurred during document export for validation. Please check details in Drupal watchdog and contact support in case you need assistance solving the issue.');
+      return;
+    }
+
+    // Set the value retrieved from cloud. This is done instead validation in
+    // case other user with broader permissions made changes that are not allowed
+    // for user that is saving the entity.
+    $form_state->setValue([...$element["#parents"], 'value'], array_shift($response));
   }
 
   /**
@@ -301,8 +328,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state):void {
-    // @todo validation for RTC document submit
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
+    // Validation is performed on single elements separately.
   }
 
   /**
