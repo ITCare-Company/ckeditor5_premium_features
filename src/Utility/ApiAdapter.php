@@ -11,6 +11,11 @@ namespace Drupal\ckeditor5_premium_features\Utility;
 
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Config\ConfigException;
+use Drupal\Core\Logger\LoggerChannelTrait;
+use Drupal\Core\Messenger\MessengerTrait;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Utility\Error;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -19,6 +24,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Provides the CKEditor API connection.
  */
 class ApiAdapter {
+
+  use LoggerChannelTrait;
+  use MessengerTrait;
+  use StringTranslationTrait;
 
   /**
    * Creates the Track Changes plugin instance.
@@ -169,6 +178,10 @@ class ApiAdapter {
       $data .= JSON::encode($body);
     }
     $key = $this->settingsConfigHandler->getApiKey();
+
+    if (!$key) {
+      throw new ConfigException('Missing API Key');
+    }
     return hash_hmac('sha256', $data, $key);
   }
 
@@ -186,8 +199,19 @@ class ApiAdapter {
   private function sendRequest(string $method, string $path): array {
     $url = $this->getBaseUrl() . $path;
     $timestamp = hrtime(TRUE);
-
-    $signature = $this->generateSignature($method, $url, $timestamp, []);
+    try {
+      $signature = $this->generateSignature($method, $url, $timestamp, []);
+    }
+    catch (ConfigException $e) {
+      Error::logException($this->getLogger('ckeditor5_premium_features'), $e, $e->getMessage());
+      $this->messenger()->addWarning(
+        $this->t('Invalid configuration for CKEditor5 premium features. %error_message </br> Check <a href="@config_url">Premium features configuration.</a>',
+          [
+            '%error_message' => $e->getMessage(),
+            '@config_url' => '/admin/config/ckeditor5-premium-features/settings',
+          ]));
+      return [];
+    }
 
     $options = [
       'headers' => [
@@ -201,7 +225,7 @@ class ApiAdapter {
     }
     catch (GuzzleException $e) {
       // Log the error.
-      watchdog_exception('ckeditor5_premium_features', $e);
+      Error::logException($this->getLogger('ckeditor5_premium_features'), $e, $e->getMessage());
       return [];
     }
 

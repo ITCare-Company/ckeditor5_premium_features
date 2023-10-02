@@ -12,6 +12,7 @@ namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Plugin\CKEdit
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
+use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\ckeditor5_premium_features\Utility\PluginHelper;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\CollaborationSettings;
@@ -43,10 +44,12 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
     protected PluginHelper $pluginHelper,
     protected LibraryVersionChecker $libraryVersionChecker,
     protected CollaborationSettings $collaborationSettings,
+    protected SettingsConfigHandlerInterface $settingsConfigHandler,
   ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
   }
+
   /**
    * {@inheritdoc}
    */
@@ -55,6 +58,7 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
       $container->get('ckeditor5_premium_features.plugin_helper'),
       $container->get('ckeditor5_premium_features.core_library_version_checker'),
       $container->get('ckeditor5_premium_features_realtime_collaboration.collaboration_settings'),
+      $container->get('ckeditor5_premium_features.config_handler.settings'),
       ...$parent_arguments
     );
   }
@@ -115,6 +119,29 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $toolbars = $this->pluginHelper->getFormToolbars($form_state);
+
+    if (!$this->settingsConfigHandler->getApiKey()) {
+      if (in_array('comment', $toolbars)) {
+        $form_state->setErrorByName('comments',
+          $this->t('API Key required for using comments.  Check <a href="@config_page">Premium features configuration.</a>',
+            ['@config_page' => '/admin/config/ckeditor5-premium-features/settings']));
+      }
+      if (in_array('trackChanges', $toolbars)) {
+        $form_state->setErrorByName('track_changes',
+          $this->t('API Key required for using track changes.  Check <a href="@config_page">Premium features configuration.</a>',
+            ['@config_page' => '/admin/config/ckeditor5-premium-features/settings']));
+      }
+      if (in_array('revisionHistory', $toolbars)) {
+        $form_state->setErrorByName('revision_history',
+          $this->t('API Key required for using revision history. Check <a href="@config_page">Premium features configuration.</a>',
+            ['@config_page' => '/admin/config/ckeditor5-premium-features/settings']));
+      }
+      if (in_array('commentsArchive', $toolbars)) {
+        $form_state->setErrorByName('comments_archive',
+          $this->t('API Key required for using comments archive. Check <a href="@config_page">Premium features configuration.</a>',
+            ['@config_page' => '/admin/config/ckeditor5-premium-features/settings']));
+      }
+    }
 
     if (in_array('sourceEditing', $toolbars)) {
       $form_state->setErrorByName('editor', $this->t('Source editing can`t be enabled when Realtime Collaboration module is used'));
