@@ -64,6 +64,14 @@ class BundleUploadHelper {
   ) {
   }
 
+  /**
+   * Upload editor bundle to the cloud server.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The editor entity.
+   *
+   * @return void
+   */
   public function uploadBundle(EntityInterface $entity): void {
     $format = $entity->id();
     $formatBundle = $format . '_' . time();
