@@ -6,10 +6,9 @@ services:
       - '@ckeditor5_premium_features_realtime_collaboration.collaboration_settings'
       - '@ckeditor5_premium_features.api_adapter'
       - '@ckeditor5_premium_features.storage_handler.editor'
-      - '@event_dispatcher'
-      - '@current_user'
       - '@ckeditor5_premium_features_realtime_collaboration.notification_integrator'
       - '@module_handler'
+      - '@config.factory'
 
 
   ckeditor5_premium_features_realtime_collaboration.collaboration_settings:
@@ -24,6 +23,19 @@ services:
       - '@current_user'
       - '@event_dispatcher'
       - '@entity_type.manager'
+
+  ckeditor5_premium_features_realtime_collaboration.bundle_upload_helper:
+    class: Drupal\ckeditor5_premium_features_realtime_collaboration\BundleUploadHelper
+    arguments:
+      - '@messenger'
+      - '@logger.factory'
+      - '@config.factory'
+      - '@plugin.manager.editor'
+      - '@library.dependency_resolver'
+      - '@library.discovery'
+      - '@http_client'
+      - '@ckeditor5_premium_features.api_adapter'
+      - '@module_handler'
 
   ckeditor5_premium_features_realtime_collaboration.bulk_notification_integrator:
     class: Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\BulkNotificationIntegrator

@@ -11,6 +11,9 @@ ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration.settings:
     sidebar:
       type: string
       label: 'Annotations sidebar'
+    editor_bundles:
+      type: sequence
+      label: 'Editor bundles'
 
 ckeditor5.plugin.ckeditor5_premium_features_realtime_collaboration__realtime:
   type: mapping

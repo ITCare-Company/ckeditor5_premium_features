@@ -23,15 +23,13 @@ use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\Notificatio
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\NotificationIntegrator;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Config\Config;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Session\AccountInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Defines the Text Format utility class for handling the collaboration data.
@@ -39,13 +37,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class TextFormat implements Ckeditor5TextFormatInterface {
 
   use Ckeditor5TextFormatTrait;
-
-  /**
-   * The collaboration config.
-   *
-   * @var \Drupal\Core\Config\Config
-   */
-  protected Config $config;
 
   /**
    * Channel storage.
@@ -74,10 +65,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     protected CollaborationSettings $collaborationSettings,
     protected ApiAdapter $apiAdapter,
     protected EditorStorageHandlerInterface $editorStorageHandler,
-    protected EventDispatcherInterface $eventDispatcher,
-    protected AccountInterface $currentUser,
     protected NotificationIntegrator $notificationIntegrator,
-    protected ModuleHandlerInterface $moduleHandler
+    protected ModuleHandlerInterface $moduleHandler,
+    protected ConfigFactoryInterface $configFactory
   ) {
     $this->channelStorage = $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID);
   }
@@ -202,6 +192,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   The form structure.
    */
   public function validateElement(array $element, FormStateInterface $form_state, array $form): void {
+    if (!$this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings')->get('realtime_permissions')) {
+      return;
+    }
     $channelId = $form_state->getValue([...$element["#parents"], 'entity_channel']);
 
     $response = $this->apiAdapter->exportDocument($channelId);
