@@ -170,7 +170,7 @@ abstract class NotificationIntegratorBase {
       ->setAuthor($author)
       ->setEntityTypeTargetId($entity->getEntityTypeId())
       ->setReferencedEntity($entity)
-      ->setChain($suggestion['chain'] ?? [])
+      ->setChain($suggestion['chain'] ?? [$suggestion['id'] => $suggestion])
       ->setThread($thread)
       ->setThreadId($suggestion['id']);
     return $rtcSuggestion;

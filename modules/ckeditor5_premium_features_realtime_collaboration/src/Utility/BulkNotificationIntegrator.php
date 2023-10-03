@@ -79,7 +79,12 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
 
       $this->processDocumentUpdate($body, $keyMessageItem);
 
-      $channel = $this->channelStorage->loadByProperties(['key_id' => $key]);
+      $channel = $this->channelStorage->loadByProperties(
+        [
+          'entity_id' => $entity->uuid(),
+          'key_id' => $key,
+        ]
+      );
       $channel = reset($channel);
       $documentData = NotificationContextHelper::getDocumentFieldContent($entity, $key);
 
@@ -95,6 +100,9 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
           $suggestionData = $this->apiAdapter->getSingleSuggestion($messageItem->getRelatedEntityId(), $channel->id(), [
             'include_deleted' => 'true',
           ]);
+          if (empty($suggestionData)) {
+            continue;
+          }
           $content = $this->getProperMessageItemContent($messageItem);
           $suggestionData['document_content'] = $content;
           $suggestionData['event_type'] = $messageItem->getEventType();
@@ -104,6 +112,9 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
           $commentData = $this->apiAdapter->getSingleComment($messageItem->getRelatedEntityId(), $channel->id(), [
             'include_deleted' => 'true',
           ]);
+          if (empty($commentData)) {
+            continue;
+          }
           $content = $this->getProperMessageItemContent($messageItem);
           $commentData['document_content'] = $content;
           $commentData['event_type'] = $messageItem->getEventType();
@@ -381,13 +392,14 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
    */
   protected function createCommentsEvents(array $threads, FieldableEntityInterface $entity, NotificationDocumentHelper $documentHelper): array {
     $commentEvents = [];
+    $commentAuthor = NULL;
     foreach ($threads as $key => $commentThread) {
       $thread = [];
       foreach ($commentThread['comments'] as $comment) {
         $authorId = $comment['user']['id'] ?? 0;
-        $author = $this->userStorage->load($authorId);
+        $commentAuthor = $this->userStorage->load($authorId);
         $comment['commentId'] = $comment['id'];
-        $rtcComment = $this->createCommentEntity($comment, $author, $comment['created_at']);
+        $rtcComment = $this->createCommentEntity($comment, $commentAuthor, $comment['created_at']);
         $thread[$comment['id']] = $rtcComment;
       }
       $newComment = end($commentThread['new']);
@@ -412,12 +424,12 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
       }
       $event = new CollaborationEventBase(
         $rtcComment,
-        $this->userStorage->load($this->currentUser->id()),
+        $commentAuthor,
         CollaborationEventBase::COMMENT_ADDED,
       );
       $event->setRelatedDocumentKey($documentHelper->getElementId());
       if (!empty($commentThread['comments'][$rtcComment->getId()]['document_content'])) {
-        $event->setOriginalContent($documentHelper->getOriginalData());
+        $event->setOriginalContent($commentThread['comments'][$rtcComment->getId()]['document_content']);
       }
       if (!empty($documentHelper->getNewData())) {
         $event->setNewContent($documentHelper->getNewData());
@@ -451,7 +463,8 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
     foreach ($newSuggestions as $key => $suggestion) {
       $newSuggestions[$key]['thread'] = $commentsThreads[$key] ?? [];
     }
-    foreach ($newSuggestions as $suggestion) {
+    foreach ($newSuggestions as $key => $suggestion) {
+      $suggestion['chain'] = [$key => $suggestion];
       $event = $this->createSuggestionEvent($suggestion, $entity, $documentHelper);
       $events[] = $event;
     }
@@ -502,7 +515,7 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
 
     $event = new CollaborationEventBase(
       $rtcSuggestion,
-      $this->userStorage->load($this->currentUser->id()),
+      $author,
       $eventType,
     );
     $event->setRelatedDocumentKey($documentHelper->getElementId());
