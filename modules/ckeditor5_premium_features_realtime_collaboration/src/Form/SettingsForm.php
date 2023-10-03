@@ -10,8 +10,12 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Form;
 
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormBase;
+use Drupal\ckeditor5_premium_features_realtime_collaboration\BundleUploadHelper;
 use Drupal\Core\Config\Config;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides the configuration form of the "Realtime collaboration" feature.
@@ -19,6 +23,35 @@ use Drupal\Core\Form\FormStateInterface;
 class SettingsForm extends SharedBuildConfigFormBase {
 
   const COLLABORATION_SETTINGS_ID = 'ckeditor5_premium_features_realtime_collaboration.settings';
+
+  /**
+   * Constructs a \Drupal\system\ConfigFormBase object.
+   *
+   * @param ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
+   * @param EntityTypeManagerInterface $entityTypeManager
+   *   The entity type manager.
+   * @param BundleUploadHelper $bundleUploadHelper
+   *   The bundle upload helper.
+   */
+  public function __construct(
+      ConfigFactoryInterface $config_factory,
+      protected EntityTypeManagerInterface $entityTypeManager,
+      protected BundleUploadHelper $bundleUploadHelper
+  ) {
+    parent::__construct($config_factory);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container): static {
+    return new static(
+        $container->get('config.factory'),
+        $container->get('entity_type.manager'),
+        $container->get('ckeditor5_premium_features_realtime_collaboration.bundle_upload_helper')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -72,4 +105,37 @@ class SettingsForm extends SharedBuildConfigFormBase {
     return $form;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
+    parent::submitForm($form, $form_state);
+    $this->uploadEditorBundles($form, $form_state);
+  }
+
+  /**
+   * Upload editor bundles having collaboration plugins active when permissions are being enabled.
+   *
+   * @param array $form
+   *    An associative array containing the structure of the form.
+   * @param FormStateInterface $form_state
+   *    The current state of the form.
+   */
+  public function uploadEditorBundles(array $form, FormStateInterface $form_state): void {
+    $original = $form["realtime_permissions"]["#default_value"];
+    $current = $form_state->getValue('realtime_permissions');
+    if ($current == 0 || $original == $current) {
+      return;
+    }
+
+    $editors = $this->entityTypeManager->getStorage('editor')->loadMultiple();
+    foreach ($editors as $editor) {
+      $toolbarItems = $editor->getSettings()['toolbar']['items'] ?? [];
+
+      if (array_intersect($toolbarItems, $this->bundleUploadHelper::COLLABORATION_TOOLBAR_ITEMS)) {
+        $this->bundleUploadHelper->uploadBundle($editor);
+      }
+    }
+  }
+  
 }
