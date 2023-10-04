@@ -1,7 +1,6 @@
 .ck-notification {
   min-width: 250px;
   max-width: 325px;
-  max-height: 70px;
 
   display: flex;
   flex-direction: column;
@@ -16,14 +15,6 @@
 
   background: #fffbfb;
   box-shadow: 5px 2px 16px -10px rgba(66,68,90,1);
-
-  opacity: .7;
-  transition: opacity 1s;
-}
-
-.ck-notification:hover {
-  opacity: 1;
-  transition: opacity 1s;
 }
 
 .ck-notification__error::after {
@@ -39,7 +30,7 @@
 .ck-notification__header {
   font-weight: 600;
   padding: 5px 10px 0 10px;
-  font-size: .8em;
+  font-size: 1em;
   margin: 0;
   line-height: unset;
 }
@@ -52,7 +43,7 @@
   font-weight: 400;
   color: #3f3f3f;
   padding: 0 10px 10px 10px;
-  font-size: .6em;
+  font-size: .8em;
   margin: 0;
   line-height: unset;
 }
@@ -62,7 +53,7 @@
   top: 3px;
   right: 10px;
 
-  font-size: .8em;
+  font-size: 1.2em;
   color: #d8d3d3;
 
   transition: color .5s;
