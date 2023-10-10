@@ -22,7 +22,6 @@ use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Render\Markup;
 use Drupal\Core\Session\AccountProxyInterface;
 
 /**
@@ -77,7 +76,7 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
 
     foreach ($groupedMessageItems as $key => $keyMessageItem) {
 
-      $this->processDocumentUpdate($body, $keyMessageItem);
+      $this->processDocumentUpdate($body, $keyMessageItem, $messageFactory);
 
       $channel = $this->channelStorage->loadByProperties(
         [
@@ -118,6 +117,7 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
           $content = $this->getProperMessageItemContent($messageItem);
           $commentData['document_content'] = $content;
           $commentData['event_type'] = $messageItem->getEventType();
+          $commentData['ref_uid'] = $messageItem->getRefUid();
           $commentsArr[$commentData['id']] = $commentData;
         }
       }
@@ -206,7 +206,7 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
    * @param array $keyMessageItem
    *   The message item.
    */
-  protected function processDocumentUpdate(array &$body, array &$keyMessageItem):void {
+  protected function processDocumentUpdate(array &$body, array &$keyMessageItem, NotificationMessageFactoryInterface $messageFactory):void {
     $documentsUpdate = [];
     foreach ($keyMessageItem as $eventKey => $eventMessage) {
       if ($eventMessage->getEventType() === CollaborationEventBase::DOCUMENT_UPDATED) {
@@ -215,8 +215,13 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
       }
     }
     foreach ($documentsUpdate as $documentUpdate) {
-      $messageBodyArray = [Markup::create($documentUpdate->getMessageContent())];
-      $body[$documentUpdate->id()] = [
+      $messageContent = $messageFactory->getMessage(
+        $documentUpdate->getType(),
+      $documentUpdate->getEvent()
+      );
+
+      $messageBodyArray = $messageContent->getMessageBody();
+      $body[] = [
         '#theme' => 'notification_context',
         '#messageContent' => [
           '#markup' => implode('', $messageBodyArray),
@@ -243,7 +248,7 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
       $threadId = $comment['thread_id'];
       $threadsArr[$threadId] = $comment['thread'];
       $threadComments = $this->apiAdapter->getDocumentComments($channel->id(), [
-        'include_deleted' => 'true',
+        'include_deleted' => 'false',
         'thread_id' => $threadId,
         'sort_by' => 'updated_at',
         'order' => 'asc',
@@ -252,6 +257,9 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
         $threadComments[$threadComment['id']] = $threadComment;
         if (!empty($commentsArr[$threadComment['id']]['document_content'])) {
           $threadComments[$threadComment['id']]['document_content'] = $commentsArr[$threadComment['id']]['document_content'];
+        }
+        if (!empty($commentsArr[$threadComment['id']]['ref_uid'])) {
+          $threadComments[$threadComment['id']]['ref_uid'] = $commentsArr[$threadComment['id']]['ref_uid'];
         }
         unset($threadComments[$tKey]);
       }
@@ -412,21 +420,26 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
         $suggestion = $this->apiAdapter->getSingleSuggestion($key, $commentThread['document_id'], [
           'include_deleted' => 'true',
         ]);
-        if ($suggestion) {
-          $author = $this->userStorage->load($suggestion['author_id']);
-          $rtcSuggestion = $this->createSuggestionEntity($entity, $suggestion, $thread, $author);
-
-          $rtcComment
-            ->setRelatedSuggestion($rtcSuggestion)
-            ->setIsSuggestionComment($commentThread['isSuggestionComment'])
-            ->setIsReply(TRUE);
+        if (empty($suggestion)) {
+          continue;
         }
+
+        $author = $this->userStorage->load($suggestion['author_id']);
+        $rtcSuggestion = $this->createSuggestionEntity($entity, $suggestion, $thread, $author);
+
+        $rtcComment
+          ->setRelatedSuggestion($rtcSuggestion)
+          ->setIsSuggestionComment($commentThread['isSuggestionComment'])
+          ->setIsReply(TRUE);
       }
       $event = new CollaborationEventBase(
         $rtcComment,
         $commentAuthor,
         CollaborationEventBase::COMMENT_ADDED,
       );
+      if (!empty($newComment['ref_uid'])) {
+        $event->setReferencedUserId($newComment['ref_uid']);
+      }
       $event->setRelatedDocumentKey($documentHelper->getElementId());
       if (!empty($commentThread['comments'][$rtcComment->getId()]['document_content'])) {
         $event->setOriginalContent($commentThread['comments'][$rtcComment->getId()]['document_content']);

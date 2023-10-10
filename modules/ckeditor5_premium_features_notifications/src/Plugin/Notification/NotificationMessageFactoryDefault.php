@@ -188,6 +188,13 @@ class NotificationMessageFactoryDefault extends PluginBase implements Notificati
         // Check if mention is in suggestion comment.
         // If so, then set suggestion in $parameters.
         // This will provide valid context in notification.
+        if ($relatedEntity instanceof RtcCommentNotificationEntity) {
+          $relatedSuggestion = $relatedEntity->getRelatedSuggestion();
+          if ($relatedSuggestion) {
+            $parameters[$relatedSuggestion->getEntityTypeId()] = $relatedSuggestion;
+            break;
+          }
+        }
         if ($relatedEntity instanceof CommentInterface) {
           $relatedSuggestion = $this->suggestionStorage->load($relatedEntity->getThreadId());
           if ($relatedSuggestion) {

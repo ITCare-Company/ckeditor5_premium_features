@@ -54,10 +54,13 @@ class NotificationIntegrator extends NotificationIntegratorBase {
       return;
     }
     $newSuggestions = array_filter($suggestions, function ($suggestion) use ($changeDate) {
-      if (empty($suggestion['updated_at'])) {
+      if (empty($suggestion['created_at'])) {
         return FALSE;
       }
-      return strtotime($suggestion['updated_at']) > $changeDate;
+      if (strtotime($suggestion['updated_at']) > $changeDate && $suggestion['state'] != 'open') {
+        return TRUE;
+      }
+      return strtotime($suggestion['created_at']) > $changeDate;
     });
     foreach ($newSuggestions as $key => $suggestion) {
       $newSuggestions[$key]['thread'] = $commentsThreads[$key] ?? [];
@@ -183,14 +186,16 @@ class NotificationIntegrator extends NotificationIntegratorBase {
       $this->addThreadToCommentEntity($rtcComment, $thread, $key, $entity, $commentThread['isReply'] ?? FALSE);
       if ($commentThread['isSuggestionComment']) {
         $suggestion = $suggestions[$key] ?? NULL;
-        if ($suggestion) {
-          $author = $this->userStorage->load($suggestion['author_id']);
-          $rtcSuggestion = $this->createSuggestionEntity($entity, $suggestion, $thread, $author);
-          $rtcComment
-            ->setRelatedSuggestion($rtcSuggestion)
-            ->setIsSuggestionComment($commentThread['isSuggestionComment'])
-            ->setIsReply(TRUE);
+        if (empty($suggestion)) {
+          continue;
         }
+
+        $author = $this->userStorage->load($suggestion['author_id']);
+        $rtcSuggestion = $this->createSuggestionEntity($entity, $suggestion, $thread, $author);
+        $rtcComment
+          ->setRelatedSuggestion($rtcSuggestion)
+          ->setIsSuggestionComment($commentThread['isSuggestionComment'])
+          ->setIsReply(TRUE);
       }
       $this->dispatchEvent($rtcComment, CollaborationEventBase::COMMENT_ADDED, $documentHelper);
 
