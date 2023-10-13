@@ -40,3 +40,24 @@
 .ck.ck-user__img {
   box-sizing: border-box;
 }
+
+.ck-toolbar-container .ck.ck-toolbar {
+  border: 1px solid var(--ck-color-toolbar-border)!important;
+  border-bottom: 0!important;
+}
+
+.ck-editor-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  position: relative;
+}
+
+.ck-editor-container .ck-editor-instance {
+  width: 100%;
+}
+
+.ck-editor-container .ck-editor-instance .ck-content{
+  word-break: break-word;
+  min-height: 250px;
+}

@@ -54,7 +54,7 @@ class TextFormat implements Ckeditor5TextFormatBaseInterface {
     ];
 
     $container_html = \Drupal::service('renderer')->render($document_outline_container);
-    $element['value']['#prefix'] .= $container_html;
+    $element['value']['#document_outline'] = $container_html;
 
     // Add a wrapper class to the field tag.
     $parents = array_slice($element["#array_parents"], 0, -2);

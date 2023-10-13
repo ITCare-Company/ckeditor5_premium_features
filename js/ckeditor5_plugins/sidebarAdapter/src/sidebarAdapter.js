@@ -20,6 +20,7 @@ class SidebarAdapter {
     }
     this.sidebarColumn = sidebar_column;
     this.sidebar = sidebar_column.parentElement;
+    this.editorContainer = this.sidebar.parentElement;
 
     this.editor.config._config.sidebar = {
       container: sidebar_column,
@@ -111,8 +112,6 @@ class SidebarAdapter {
 
     this.updateCkeditorMode();
 
-    this.checkEditorLabel();
-
     if (!toggle) {
       return;
     }
@@ -178,20 +177,10 @@ class SidebarAdapter {
     let w = document.documentElement.clientWidth;
     let newMode = w >= 1200 ? 'wideSidebar' : (w >= 500 ? 'narrowSidebar' : 'inline');
     // Check editor container width
-    if (this.sidebar.clientWidth < 720) {
-      newMode = this.sidebar.clientWidth >= 500 ? 'narrowSidebar' : 'inline'
+    if (this.editorContainer.clientWidth < 720) {
+      newMode = this.editorContainer.clientWidth >= 500 ? 'narrowSidebar' : 'inline'
     }
     this.setCkEditorSidebarMode(newMode);
-  }
-
-  /**
-   * Check if there is a label right above the editor.
-   */
-  checkEditorLabel() {
-    let label = this.sidebar.querySelector('label');
-    if (label && typeof label !== 'undefined' && !label.classList.contains('visually-hidden')) {
-      this.sidebarColumn.style.marginTop = label.clientHeight + "px";
-    }
   }
 
   /**
@@ -233,7 +222,6 @@ class SidebarAdapter {
   setObserverToElement(element) {
     this.setObserver(element).then(() => {
       this.updateCkeditorMode();
-      this.checkEditorLabel();
     });
   }
 
@@ -258,6 +246,5 @@ class SidebarAdapter {
   }
 
 }
-
 
 export default SidebarAdapter;

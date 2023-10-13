@@ -3,45 +3,57 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-.ck-editor-sidebar-wrapper {
+.ck-editor-container .ck-editor-sidebar-wrapper {
   display: flex;
 }
-.ck-editor-sidebar-wrapper .form-item__label {
+.ck-editor-container .ck-editor-sidebar-wrapper .form-item__label {
   margin: 0;
   line-height: 27px;
 }
-.ck-editor-sidebar-wrapper .form-item {
+.ck-editor-container .ck-editor-sidebar-wrapper {
+  width: 0;
+}
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar {
+  width: 300px;
+  min-width: 300px;
+}
+.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar {
+  width: 41px;
+}
+.ck-editor-container .ck-editor-sidebar-wrapper.slider-off {
+  display: none;
+}
+.ck-editor-container .ck-editor-sidebar-wrapper .form-item {
   margin: 0;
   flex: 0 1 auto;
   min-width: 0;
   width: 100%;
 }
-.ck-editor-sidebar-wrapper.wideSidebar .form-item {
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .form-item {
   max-width: calc(100% - 300px);
 }
-.ck-editor-sidebar-wrapper.narrowSidebar .form-item {
+.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .form-item {
   max-width: calc(100% - 40px);
 }
-.ck-editor-sidebar-wrapper.slider-off .form-item {
+.ck-editor-container .ck-editor-sidebar-wrapper.slider-off .form-item {
   max-width: unset;
 }
 
-.ck-editor-sidebar-wrapper .ck-content:not(.ck-comment__input *) {
+.ck-editor-container .ck-editor-sidebar-wrapper .ck-content:not(.ck-comment__input *) {
   min-height: 120px;
   padding-bottom: 120px;
 }
 
 /*sidebar */
-.ck-editor-sidebar-wrapper.slider-off .ck-sidebar-wrapper {
+.ck-editor-container .ck-editor-sidebar-wrapper.slider-off .ck-sidebar-wrapper {
   display: none;
 }
-.ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper,
-.ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper {
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper,
+.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper {
   background: var(--ck-color-toolbar-background);
   border: 1px solid var(--ck-color-toolbar-border);
   border-left: 0;
   overflow: hidden;
-  margin: 1.7em 0 0 0;
   width: 100%;
 }
 
@@ -52,28 +64,23 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 #block-bartik-content .ck-sidebar-wrapper.wideSidebar {
   margin: 1.35em 0 0 0;
 }
-.ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper {
+.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper {
   max-width: 40px;
 }
-.ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
   max-width: 279px;
   padding: 0 10px;
 }
 
-/*.ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar {
-  padding: 0 1px;
-}*/
-
 /*Toggle*/
 .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
-  width: calc(100% + 20px);
-  height: 38.5px;
+  width: 39px;
+  height: 39px;
   position: relative;
   background: white;
   z-index: 10;
-  border-bottom: 1px solid var(--ck-color-toolbar-border);
 }
-.ck-editor-sidebar-wrapper.inline .ck-sidebar-auto-toggle-wrapper {
+.ck-editor-container .ck-editor-sidebar-wrapper.inline .ck-sidebar-auto-toggle-wrapper {
   display: none;
 }
 .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
@@ -84,10 +91,10 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle:hover {
   background: var(--ck-color-button-default-hover-background);
 }
-.ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
+.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
   width: 100%;
 }
-.ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
   margin-left: -10px;
 }
 .ck-fullscreen-overlay .wideSidebar .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
@@ -95,12 +102,9 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   height: 37.5px;
   margin-left: -24px!important;
 }
-.ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
+.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
   width: 40px;
   margin: 0;
-}
-.ck-fullscreen-overlay .wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle {
-  padding-left: 16px;
 }
 .ck-sidebar-wrapper a.ck-sidebar-auto-toggle:hover {
   text-decoration: none;
@@ -108,8 +112,8 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 }
 
 /*Toggle Icon*/
-.ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after,
-.ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
+.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after,
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
   font-size: 26px;
   color: var(--ck-color-toolbar-border);
   display: block;
@@ -119,9 +123,9 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   transform: scaleX(-1);
   margin-left: 10px;
 }
-.ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
+.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
   content: url(../icons/sidebar.svg);
 }
-.ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
   content: url(../icons/arrow.svg);
 }

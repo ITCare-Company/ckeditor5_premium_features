@@ -3,6 +3,7 @@ ckeditor5_premium_features_productivity_pack_document_outline:
     plugins:
       - documentOutlineAdapter.DocumentOutlineAdapter
       - documentOutline.DocumentOutline
+      - toolbarAdapter.ToolbarAdapter
   drupal:
     label: Document Outline
     library: ckeditor5_premium_features_productivity_pack/document_outline.adapter
