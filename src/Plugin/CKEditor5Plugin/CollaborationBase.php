@@ -57,4 +57,18 @@ class CollaborationBase extends CKEditor5PluginDefault implements ContainerFacto
     return $static_plugin_config;
   }
 
+  /**
+   * Gets the list of all toolbars related to the collaboration features.
+   *
+   * @return string[]
+   *   The toolbar names.
+   */
+  public static function getToolbars(): array {
+    return [
+      'trackChanges',
+      'comment',
+      'revisionHistory',
+    ];
+  }
+
 }

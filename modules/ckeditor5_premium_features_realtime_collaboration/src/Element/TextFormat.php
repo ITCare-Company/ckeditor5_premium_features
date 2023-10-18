@@ -86,6 +86,12 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * {@inheritdoc}
    */
   public function processElement(array &$element, FormStateInterface $form_state, array &$complete_form): array {
+    if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element)) {
+      // Don't process as the editor does not have
+      // any collaboration features enabled.
+      return $element;
+    }
+
     $this->generalProcessElement($element, $form_state, $complete_form, $this->collaborationSettings);
     $element_unique_id = CKeditorFieldKeyHelper::getElementUniqueId($element['#id']);
     $element_drupal_id = CKeditorFieldKeyHelper::cleanElementDrupalId($element['#id']);

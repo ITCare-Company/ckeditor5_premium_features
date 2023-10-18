@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Storage;
 
-use Drupal\ckeditor5_premium_features_collaboration\Plugin\CKEditor5Plugin\Collaboration;
+use Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin\CollaborationBase;
 use Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\DocumentOutline;
 use Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\ProductivityPackBase;
 use Drupal\Core\Config\Entity\ConfigEntityStorageInterface;
@@ -81,7 +81,7 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
       }
     }
 
-    return (bool) array_intersect($toolbar_items, Collaboration::getToolbars());
+    return (bool) array_intersect($toolbar_items, CollaborationBase::getToolbars());
   }
 
   /**

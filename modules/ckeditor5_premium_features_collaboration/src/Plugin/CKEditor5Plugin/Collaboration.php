@@ -13,6 +13,7 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginElementsSubsetInterface;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
+use Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin\CollaborationBase;
 use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\ckeditor5_premium_features\Utility\PluginHelper;
 use Drupal\Core\Form\FormStateInterface;
@@ -74,20 +75,6 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
       '<suggestion-start name>',
       '<suggestion-end>',
       '<suggestion-end name>',
-    ];
-  }
-
-  /**
-   * Gets the list of all toolbars related to the collaboration features.
-   *
-   * @return string[]
-   *   The toolbar names.
-   */
-  public static function getToolbars(): array {
-    return [
-      'trackChanges',
-      'comment',
-      'revisionHistory',
     ];
   }
 
@@ -165,7 +152,7 @@ class Collaboration extends CKEditor5PluginDefault implements CKEditor5PluginEle
     $toolbars = $this->pluginHelper->getFormToolbars($form_state);
 
     // Enable filter if any collaboration feature is enabled.
-    $has_any_collaboration_feature = (bool) array_intersect($toolbars, static::getToolbars());
+    $has_any_collaboration_feature = (bool) array_intersect($toolbars, CollaborationBase::getToolbars());
     $complete_form_state->setValue([
       'filters',
       'ckeditor5_premium_features_collaboration_filter',
