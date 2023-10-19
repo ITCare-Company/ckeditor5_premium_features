@@ -40,13 +40,13 @@ tr.draggable .document-outline-container {
 }
 
 .document-outline-container.collapsed {
-  width: 37px;
-  min-width: 37px;
+  width: 40px;
+  min-width: 40px;
   overflow: visible;
 }
 
 body:not(.ck-fullscreen-overlay) .document-outline-container.collapsed .ck-document-outline {
-  visibility: hidden;
+  display: none;
 }
 
 .ck-fullscreen-overlay .document-outline-container,

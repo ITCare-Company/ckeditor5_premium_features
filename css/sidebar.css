@@ -14,8 +14,8 @@
   width: 0;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar {
-  width: 300px;
-  min-width: 300px;
+  width: 250px;
+  min-width: 250px;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar {
   width: 41px;
@@ -30,7 +30,7 @@
   width: 100%;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .form-item {
-  max-width: calc(100% - 300px);
+  max-width: calc(100% - 250px);
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .form-item {
   max-width: calc(100% - 40px);
@@ -68,14 +68,14 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   max-width: 40px;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
-  max-width: 279px;
+  max-width: 250px;
   padding: 0 10px;
 }
 
 /*Toggle*/
 .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
-  width: 39px;
-  height: 39px;
+  width: 40px;
+  height: 40px;
   position: relative;
   background: white;
   z-index: 10;
@@ -85,8 +85,8 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 }
 .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
   display: block;
-  width: 37px;
-  height: 37px;
+  width: 40px;
+  height: 40px;
 }
 .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle:hover {
   background: var(--ck-color-button-default-hover-background);
@@ -114,14 +114,14 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 /*Toggle Icon*/
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after,
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
-  font-size: 26px;
+  margin-left: 10px;
+  padding-top: 10px;
   color: var(--ck-color-toolbar-border);
   display: block;
   width: 20px;
   height: 20px;
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
-  margin-left: 10px;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
   content: url(../icons/sidebar.svg);

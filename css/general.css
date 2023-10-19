@@ -55,9 +55,9 @@
 
 .ck-editor-container .ck-editor-instance {
   width: 100%;
+  overflow-x: auto;
 }
 
 .ck-editor-container .ck-editor-instance .ck-content{
   word-break: break-word;
-  min-height: 250px;
 }
