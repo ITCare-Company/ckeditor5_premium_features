@@ -14,6 +14,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Config\ConfigException;
 use Drupal\Core\Logger\LoggerChannelTrait;
 use Drupal\Core\Messenger\MessengerTrait;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Utility\Error;
 use GuzzleHttp\ClientInterface;
@@ -37,16 +38,9 @@ class ApiAdapter {
    * @param \GuzzleHttp\ClientInterface $http_client
    *   The HTTP client.
    */
-  public function __construct(protected SettingsConfigHandlerInterface $settingsConfigHandler, protected ClientInterface $http_client) {
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container): static {
-    return new static(
-      $container->get('ckeditor5_premium_features.config_handler.settings')
-    );
+  public function __construct(protected SettingsConfigHandlerInterface $settingsConfigHandler,
+                              protected ClientInterface $http_client,
+                              protected AccountProxyInterface $account) {
   }
 
   /**
@@ -203,13 +197,17 @@ class ApiAdapter {
       $signature = $this->generateSignature($method, $url, $timestamp, []);
     }
     catch (ConfigException $e) {
-      Error::logException($this->getLogger('ckeditor5_premium_features'), $e, $e->getMessage());
-      $this->messenger()->addWarning(
-        $this->t('Invalid configuration for CKEditor5 premium features. %error_message </br> Check <a href="@config_url">Premium features configuration.</a>',
-          [
-            '%error_message' => $e->getMessage(),
-            '@config_url' => '/admin/config/ckeditor5-premium-features/settings',
-          ]));
+      if ($this->account->hasPermission('use ckeditor5 access token')) {
+        Error::logException($this->getLogger('ckeditor5_premium_features'), $e, $e->getMessage());
+        $this->messenger()->addWarning(
+          $this->t('Invalid configuration for CKEditor5 premium features. %error_message </br> Check <a href="@config_url">Premium features configuration.</a>',
+            [
+              '%error_message' => $e->getMessage(),
+              '@config_url' => '/admin/config/ckeditor5-premium-features/settings',
+            ]
+          )
+        );
+      }
       return [];
     }
 

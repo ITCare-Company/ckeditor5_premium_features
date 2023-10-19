@@ -51,6 +51,7 @@ services:
     arguments:
       - '@ckeditor5_premium_features.config_handler.settings'
       - '@http_client'
+      - '@current_user'
 
   ckeditor5_premium_features.mention_integrator:
     class: \Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator
