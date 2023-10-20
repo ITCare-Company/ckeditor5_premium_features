@@ -21,12 +21,10 @@
   overflow-y: auto;
 }
 
-.document-outline-container .ck-document-outline-toggle-wrapper {
-  height: 39px;
-}
-
 .document-outline-container .ck-document-outline-toggle {
-  margin-left: calc(100% - 37px);
+  margin-left: calc(100% - 40px);
+  height: 40px;
+  width: 40px;
 }
 
 .document-outline-container .ck-document-outline-toggle .ck-icon {

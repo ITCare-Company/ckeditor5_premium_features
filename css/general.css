@@ -61,3 +61,11 @@
 .ck-editor-container .ck-editor-instance .ck-content{
   word-break: break-word;
 }
+
+.ck-editor-container .ck-editor-instance .ck-editor,
+.ck-editor-container .ck-editor-instance .ck-editor .ck-editor__main,
+.ck-editor-container .ck-editor-instance .ck-editor .ck-editor__main .ck-content {
+  box-sizing: border-box;
+  height: 100%;
+}
+

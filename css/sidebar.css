@@ -12,9 +12,10 @@
 }
 .ck-editor-container .ck-editor-sidebar-wrapper {
   width: 0;
+  min-height: var(--ck-min-height);
+  max-height: calc(100vh - var(--drupal-displace-offset-top, 0px) - var(--drupal-displace-offset-bottom, 0px) - 20px);
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar {
-  width: 250px;
   min-width: 250px;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar {
@@ -38,10 +39,14 @@
 .ck-editor-container .ck-editor-sidebar-wrapper.slider-off .form-item {
   max-width: unset;
 }
-
 .ck-editor-container .ck-editor-sidebar-wrapper .ck-content:not(.ck-comment__input *) {
   min-height: 120px;
   padding-bottom: 120px;
+}
+
+/* set padding on editing area to prevent top comment being partially hidden below sidebar toggle */
+.ck-editor-container .ck-editor-instance .ck-editor__editable {
+  padding-top: 40px;
 }
 
 /*sidebar */
@@ -64,17 +69,14 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 #block-bartik-content .ck-sidebar-wrapper.wideSidebar {
   margin: 1.35em 0 0 0;
 }
-.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper {
-  max-width: 40px;
-}
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
-  max-width: 250px;
   padding: 0 10px;
+  overflow-y: auto;
 }
 
 /*Toggle*/
 .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
-  width: 40px;
+  width: 100%;
   height: 40px;
   position: relative;
   background: white;
@@ -96,11 +98,6 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
   margin-left: -10px;
-}
-.ck-fullscreen-overlay .wideSidebar .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
-  width: calc(100% + 50px);
-  height: 37.5px;
-  margin-left: -24px!important;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
   width: 40px;
@@ -129,3 +126,12 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
   content: url(../icons/arrow.svg);
 }
+
+/* Fullscreen mode */
+.ck-fullscreen .ck-editor-container .ck-editor-sidebar-wrapper {
+  max-height: 100%;
+}
+.ck-fullscreen .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar {
+  min-width: 350px;
+}
+
