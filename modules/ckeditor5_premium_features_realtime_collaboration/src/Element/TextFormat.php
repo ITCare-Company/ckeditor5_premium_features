@@ -180,7 +180,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     $track_changes_states = $this->editorStorageHandler->getTrackChangesStates($element, TRUE);
     $element['#attached']['drupalSettings']['ckeditor5Premium']['tracking_changes']['default_state'] = $track_changes_states;
-
+    $element['value']['#theme'] = 'ckeditor5_textarea';
     return $element;
   }
 

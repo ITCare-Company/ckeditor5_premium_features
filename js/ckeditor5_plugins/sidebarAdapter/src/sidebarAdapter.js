@@ -50,6 +50,8 @@ class SidebarAdapter {
     toggle.classList += 'ck-sidebar-auto-toggle ' + this.sidebarMode;
     toggle.id = 'ck-sidebar-auto-toggle';
 
+    this.editorContainer.classList += ' ck-sidebar-enabled';
+
     toggleWrapper.prepend(toggle);
     this.sidebarColumn.prepend(toggleWrapper);
   }

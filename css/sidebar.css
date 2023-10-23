@@ -45,7 +45,7 @@
 }
 
 /* set padding on editing area to prevent top comment being partially hidden below sidebar toggle */
-.ck-editor-container .ck-editor-instance .ck-editor__editable {
+.ck-editor-container.ck-sidebar-enabled .ck-editor-instance .ck-editor__editable {
   padding-top: 40px;
 }
 

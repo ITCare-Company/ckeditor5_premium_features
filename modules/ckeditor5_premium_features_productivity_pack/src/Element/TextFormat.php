@@ -61,6 +61,7 @@ class TextFormat implements Ckeditor5TextFormatBaseInterface {
     $parent = NestedArray::getValue($complete_form, $parents);
     $parent["#attributes"]["class"][] = 'ck-document-outline-wrapper';
     NestedArray::setValue($complete_form, $parents, $parent);
+    $element['value']['#theme'] = 'ckeditor5_textarea';
     return $element;
   }
 
