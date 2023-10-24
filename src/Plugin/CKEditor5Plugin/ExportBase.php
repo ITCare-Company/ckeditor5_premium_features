@@ -37,7 +37,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
   use CKEditor5PluginConfigurableTrait;
 
   const CUSTOM_CSS_DIRECTORY_PATH = 'public://styles/ckeditor5/export/';
-
+  const CONVERT_IMAGES_TO_BASE_64_CONFIG_NAME = 'convertImagesToBase64';
   /**
    * The settings form object.
    *
@@ -150,6 +150,11 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     if ($customCssFile) {
       $static_plugin_config[$plugin]['stylesheets'][] = $customCssFile;
     }
+
+    $settings = $editor->getSettings();
+    $base64Converter = $settings['plugins'][$this->pluginId]['convert_images_to_base64'] ?? FALSE;
+    $static_plugin_config[$plugin][self::CONVERT_IMAGES_TO_BASE_64_CONFIG_NAME] = $base64Converter;
+
     return $static_plugin_config;
   }
 
@@ -197,7 +202,15 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     if (!$override_global) {
       FormElement::disableFormFields($export_form);
     }
+    $export_form['converter_options']['#open'] = FALSE;
 
+    $export_form['convert_images_to_base64'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable Base64 image converter'),
+      '#default_value' => $this->configuration['convert_images_to_base64'] ?? FALSE,
+      '#description' => $this->t('It will process the whole document and change all image URLs into Base64 representation of the images.
+                                  <br/> <b>This setting may cause server overload.</b> '),
+    ];
     return $export_form;
   }
 

@@ -16,11 +16,12 @@ collaboration-integration-base:
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
 
 media-export-features:
-  version: 20230704
+  version: 20231024
   js:
     js/libraries/document-export-base.js: { minified: false }
     js/libraries/media-tags-converter.js: { minified: false }
     js/libraries/relative-paths-processor.js: { minified: false }
+    js/libraries/base64-image-converter.js: { minified: false }
 
 export-integration:
   version: 20230626

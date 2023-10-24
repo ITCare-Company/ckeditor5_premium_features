@@ -6,15 +6,19 @@
 (function ($, Drupal) {
   Drupal.CKEditor5PremiumFeatures = {
 
-    editorContentExportProcessor: async function(editor, enableHighlighting = true) {
+    editorContentExportProcessor: async function(editor, config = { enableHighlighting : true }) {
       this.editor = editor;
-
-      let editorContent = this.getEditorContent(enableHighlighting);
-
+      let editorContent = this.getEditorContent(config.enableHighlighting);
       editorContent = await Drupal.CKEditor5PremiumFeatures.mediaTagsConverter.convertMediaTags(
         editorContent,
         editor.sourceElement.dataset.editorActiveTextFormat
       );
+
+      if (config.convertImagesToBase64) {
+        editorContent = await Drupal.CKEditor5PremiumFeatures.base64ImageConverter.convert(
+          editorContent,
+        );
+      }
       editorContent = Drupal.CKEditor5PremiumFeatures.relativePathsProcessor(editorContent);
 
       return editorContent;
