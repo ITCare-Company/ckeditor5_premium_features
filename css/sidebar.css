@@ -76,7 +76,7 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 
 /*Toggle*/
 .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
-  width: 100%;
+  width: calc(100% + 20px);
   height: 40px;
   position: relative;
   background: white;
