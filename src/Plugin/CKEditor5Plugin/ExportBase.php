@@ -208,7 +208,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       '#type' => 'checkbox',
       '#title' => $this->t('Enable Base64 image converter'),
       '#default_value' => $this->configuration['convert_images_to_base64'] ?? FALSE,
-      '#description' => $this->t('It will process the whole document and change all image URLs into Base64 representation of the images.
+      '#description' => $this->t('It will process the whole document and change all image URLs into Base64 representations.
                                   <br/> <b>This setting may cause server overload.</b> '),
     ];
     return $export_form;
