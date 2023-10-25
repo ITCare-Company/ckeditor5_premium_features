@@ -78,4 +78,18 @@ class UserHelper {
     return $data;
   }
 
+  /**
+   * Returns user uuid.
+   *
+   * @param \Drupal\Core\Session\AccountProxyInterface $account
+   *   The current user.
+   *
+   * @return string|null
+   *   User uuid or null.
+   */
+  public function getUserUuid(AccountProxyInterface $account):string|null {
+    $user = $this->userStorage->load($account->id());
+    return $user->uuid();
+  }
+
 }
