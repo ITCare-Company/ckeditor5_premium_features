@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Controller;
 
+use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Controller\ControllerBase;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class Base64ImageConverterController extends ControllerBase {
 
+  use CKeditorPremiumLoggerChannelTrait;
   /**
    * Constructor.
    *
@@ -77,7 +79,9 @@ class Base64ImageConverterController extends ControllerBase {
     }
 
     $dom = new \DOMDocument();
-    $dom->loadHTML($document);
+    // Ignore warnings about wrong html tags.
+    @$dom->loadHTML($document);
+
     $images = $dom->getElementsByTagName('img');
     foreach ($images as $img) {
       try {
@@ -108,6 +112,7 @@ class Base64ImageConverterController extends ControllerBase {
         }
       }
       catch (\Exception $e) {
+        $this->logException('Exception occurred during convert image to base64.', $e);
         continue;
       }
     }
