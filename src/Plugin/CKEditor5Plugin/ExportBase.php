@@ -152,8 +152,10 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     }
 
     $settings = $editor->getSettings();
-    $base64Converter = $settings['plugins'][$this->pluginId]['convert_images_to_base64'] ?? FALSE;
-    $static_plugin_config[$plugin][self::CONVERT_IMAGES_TO_BASE_64_CONFIG_NAME] = $base64Converter;
+    $isBase64ConverterEnabled = $settings['plugins'][$this->pluginId]['base64_converter']['convert_images_to_base64'] ?? FALSE;
+    $base64ConverterFilesType = $settings['plugins'][$this->pluginId]['base64_converter']['images_to_base64_files_type'] ?? NULL;
+    $static_plugin_config[$plugin][self::CONVERT_IMAGES_TO_BASE_64_CONFIG_NAME]['enabled'] = $isBase64ConverterEnabled;
+    $static_plugin_config[$plugin][self::CONVERT_IMAGES_TO_BASE_64_CONFIG_NAME]['filesType'] = $base64ConverterFilesType;
 
     return $static_plugin_config;
   }
@@ -204,13 +206,31 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     }
     $export_form['converter_options']['#open'] = FALSE;
 
-    $export_form['convert_images_to_base64'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Enable Base64 image converter'),
-      '#default_value' => $this->configuration['convert_images_to_base64'] ?? FALSE,
-      '#description' => $this->t('It will process the whole document and change all image URLs into Base64 representations.
-                                  <br/> <b>This setting may cause server overload.</b> '),
+    $export_form['base64_converter'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Base64 image converter settings'),
+      '#open' => FALSE,
     ];
+
+    $export_form['base64_converter']['convert_images_to_base64'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable the Base64 image converter'),
+      '#default_value' => $this->configuration['convert_images_to_base64'] ?? FALSE,
+      '#description' => $this->t('It will process the whole document and change all image URLs into their Base64-encoded representations.
+                                  <br/> <b>Attention! This setting may cause server overload.</b> '),
+    ];
+
+    $export_form['base64_converter']['images_to_base64_files_type'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Image file type'),
+      '#options' => [
+        'private' => $this->t('Only private images'),
+        'all' => $this->t('All images (private and public)'),
+      ],
+      '#default_value' => 'private',
+      '#description' => $this->t('Choose whether only private images or all images should be converted into base64-encoded ones in the document.'),
+    ];
+
     return $export_form;
   }
 

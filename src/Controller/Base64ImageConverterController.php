@@ -26,6 +26,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class Base64ImageConverterController extends ControllerBase {
 
   use CKeditorPremiumLoggerChannelTrait;
+
+  const CONVERTER_TYPE_PRIVATE = 'private';
+  const CONVERTER_TYPE_ALL = 'all';
+
   /**
    * Constructor.
    *
@@ -70,7 +74,9 @@ class Base64ImageConverterController extends ControllerBase {
   public function convertImages(Request $request) {
     $args = $request->request;
     $content = $args->get('document');
-    if (!$content) {
+    $type = $args->get('filesType');
+
+    if (!$content || !$type) {
       return new AjaxResponse(NULL, 400);
     }
     $document = Json::decode($content);
@@ -86,19 +92,33 @@ class Base64ImageConverterController extends ControllerBase {
     foreach ($images as $img) {
       try {
         $imageSrc = $img->getAttribute('src');
-        if (str_contains($imageSrc, '?')) {
-          $imageSrc = strstr($imageSrc, '?', TRUE);
+
+        $urlArr = parse_url($imageSrc);
+        if (empty($urlArr['path'])) {
+          continue;
         }
+        if (!empty($urlArr['host']) && $urlArr['host'] !== $request->getHost()) {
+          continue;
+        }
+        $imageSrc = $urlArr['path'];
+
         if (str_starts_with($imageSrc, '/system/files/')) {
           $scheme = 'private';
           $imageSrc = preg_replace('|^\/system\/files\/|', '', $imageSrc);
           $uri = $this->streamWrapperManager->normalizeUri($scheme . '://' . $imageSrc);
         }
-        else {
+        elseif ($type === self::CONVERTER_TYPE_ALL) {
           $uri = \Drupal::root() . $imageSrc;
+        }
+        else {
+          continue;
         }
 
         $image = $this->imageFactory->get($uri);
+        if (!$image->isValid()) {
+          continue;
+        }
+
         $mimeType = $image->getMimeType();
         $path = $this->fileSystem->realpath($uri);
 

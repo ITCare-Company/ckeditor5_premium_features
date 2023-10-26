@@ -10,19 +10,25 @@
      * Convert images url into base64 in HTML
      * @param content
      *   Document content.
+     * @param filesType
+     *   Type of conversion. Private or All files.
      *
      * @returns {Promise<string>}
      */
-    async convert(content) {
+    async convert(content, filesType) {
       return new Promise( async resolve => {
         let result = await new Promise( resolve => {
           $.post('/ck5/api/base64-image-converter', {
             document: JSON.stringify(content),
+            filesType: filesType,
           }).done(function(result) {
-            resolve(result);
+            if(!result.document) {
+              resolve(content);
+            }
+            resolve(result.document);
           });
         });
-        resolve(result.document);
+        resolve(result);
       });
     },
   }

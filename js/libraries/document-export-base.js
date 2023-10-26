@@ -14,9 +14,10 @@
         editor.sourceElement.dataset.editorActiveTextFormat
       );
 
-      if (config.convertImagesToBase64) {
+      if (config.convertImagesToBase64.enabled) {
         editorContent = await Drupal.CKEditor5PremiumFeatures.base64ImageConverter.convert(
           editorContent,
+          config.convertImagesToBase64.filesType
         );
       }
       editorContent = Drupal.CKEditor5PremiumFeatures.relativePathsProcessor(editorContent);
