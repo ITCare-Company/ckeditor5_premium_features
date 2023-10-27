@@ -17,6 +17,7 @@ use Drupal\ckeditor5_premium_features_productivity_pack\Element\TextFormat as Te
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\editor\EditorInterface;
 
 /**
  * Implements hook_library_info_build().
@@ -149,7 +150,7 @@ function ckeditor5_premium_features_realtime_collaboration_remove_channels_entit
  * @param \Drupal\Core\Entity\EntityInterface $entity
  *    The editor entity.
  */
-function ckeditor5_premium_features_realtime_collaboration_upload_bundle(\Drupal\Core\Entity\EntityInterface $entity): void {
+function ckeditor5_premium_features_realtime_collaboration_upload_bundle(EditorInterface $entity): void {
   if (Drupal::config('ckeditor5_premium_features_realtime_collaboration.settings')
     ->get('realtime_permissions')) {
     $bundleUploadHelper = Drupal::service('ckeditor5_premium_features_realtime_collaboration.bundle_upload_helper');
@@ -165,7 +166,7 @@ function ckeditor5_premium_features_realtime_collaboration_upload_bundle(\Drupal
 /**
  * Implements hook_ENTITY_TYPE_update().
  */
-function ckeditor5_premium_features_realtime_collaboration_editor_update(\Drupal\Core\Entity\EntityInterface $entity): void {
+function ckeditor5_premium_features_realtime_collaboration_editor_update(EditorInterface $entity): void {
   if ($entity->status()) {
     ckeditor5_premium_features_realtime_collaboration_upload_bundle($entity);
   }
@@ -174,6 +175,6 @@ function ckeditor5_premium_features_realtime_collaboration_editor_update(\Drupal
 /**
  * Implements hook_ENTITY_TYPE_insert().
  */
-function ckeditor5_premium_features_realtime_collaboration_editor_insert(\Drupal\Core\Entity\EntityInterface $entity): void {
+function ckeditor5_premium_features_realtime_collaboration_editor_insert(EditorInterface $entity): void {
   ckeditor5_premium_features_realtime_collaboration_upload_bundle($entity);
 }
