@@ -175,8 +175,8 @@ class CollaborationPermissions implements ContainerInjectionInterface {
    */
   protected function getPermissionDescription(string $permission): string|TranslatableMarkup {
     return match ($permission) {
-      self::COMMENTS_WRITE => $this->t('Allows to add, modify and delete own collaboration comments.'),
-      self::COMMENTS_ADMIN => $this->t('Allows to add and delete all collaboration comments.'),
+      self::COMMENTS_WRITE => $this->t('Allows to add, modify, and delete own collaboration comments. It also allows to resolve all collaboration comment threads.'),
+      self::COMMENTS_ADMIN => $this->t('Allows to add, modify, and delete own collaboration comments. It also allows to resolve and delete all collaboration comment threads.'),
       self::DOCUMENT_WRITE => $this->t('Allows to add, evaluate suggestions and make non-suggestion changes.'),
       default => '',
     };

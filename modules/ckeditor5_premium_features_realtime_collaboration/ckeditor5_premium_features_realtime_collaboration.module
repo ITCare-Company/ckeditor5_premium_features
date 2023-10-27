@@ -142,13 +142,14 @@ function ckeditor5_premium_features_realtime_collaboration_remove_channels_entit
 }
 
 /**
- * Implements hook_ENTITY_TYPE_update().
+ * Send CKEditor 5 bundle to the cloud server after editor is created or updated.
+ * It will be used to export document HTML code in the process of validation
+ * when permissions system is used in RTC mode.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *    The editor entity.
  */
-function ckeditor5_premium_features_realtime_collaboration_editor_update(\Drupal\Core\Entity\EntityInterface $entity) {
-  // Send CKEditor 5 bundle to the cloud server after editor is updated.
-  // It will be used to export document HTML code in the process of validation
-  // when permissions system is used in RTC mode.
-
+function ckeditor5_premium_features_realtime_collaboration_upload_bundle(\Drupal\Core\Entity\EntityInterface $entity): void {
   if (Drupal::config('ckeditor5_premium_features_realtime_collaboration.settings')
     ->get('realtime_permissions')) {
     $bundleUploadHelper = Drupal::service('ckeditor5_premium_features_realtime_collaboration.bundle_upload_helper');
@@ -159,4 +160,20 @@ function ckeditor5_premium_features_realtime_collaboration_editor_update(\Drupal
       $bundleUploadHelper->uploadBundle($entity);
     }
   }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function ckeditor5_premium_features_realtime_collaboration_editor_update(\Drupal\Core\Entity\EntityInterface $entity): void {
+  if ($entity->status()) {
+    ckeditor5_premium_features_realtime_collaboration_upload_bundle($entity);
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function ckeditor5_premium_features_realtime_collaboration_editor_insert(\Drupal\Core\Entity\EntityInterface $entity): void {
+  ckeditor5_premium_features_realtime_collaboration_upload_bundle($entity);
 }

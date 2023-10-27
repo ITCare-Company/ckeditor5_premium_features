@@ -75,7 +75,8 @@ class BundleUploadHelper {
   public function uploadBundle(EntityInterface $entity): void {
     $format = $entity->id();
     $formatBundle = $format . '_' . time();
-    $config = $this->configFactory->getEditable('ckeditor5_premium_features_realtime_collaboration.settings');
+    $config = $this->configFactory->get('ckeditor5_premium_features.settings');
+    $realtimeConfig = $this->configFactory->getEditable('ckeditor5_premium_features_realtime_collaboration.settings');
     $plugin = $this->pluginManager->createInstance('ckeditor5');
 
     $libraries = $plugin->getLibraries($entity);
@@ -131,6 +132,7 @@ class BundleUploadHelper {
       'RealtimeAdapter',
       'CommentsAdapter',
       'RemoveIncorrectCollaborationMarkers',
+      'RealtimeRevisionHistoryAdapter'
     ];
 
     $excludeCustomPlugins = $this->moduleHandler->invokeAll('ckeditor5_premium_features_exclude_bundle_plugins');
@@ -145,6 +147,8 @@ class BundleUploadHelper {
     $bundleConfig['cloudServices']['bundleVersion'] = $formatBundle;
     $bundleConfig['removePlugins'] = $excludePlugins;
     $bundleConfig['toolbar'] = $conf["toolbar"];
+    $bundleConfig['htmlSupport']['allow'] = ["/.*/"];
+    $bundleConfig['licenseKey'] = $config->get('license_key');
 
     $response = $this->apiAdapter->postEditor($bundleConfig, $code);
 
@@ -158,11 +162,11 @@ class BundleUploadHelper {
       $logger->warning('Bundle upload failed. Server response: %response', ['%response' => $response['message']]);
     }
     elseif ($response) {
-      $bundles = $config->get('editor_bundles') ?? [];
+      $bundles = $realtimeConfig->get('editor_bundles') ?? [];
       $bundles[$format] = $formatBundle;
       $this->messenger->addStatus('Uploaded CKEditor5 bundle ' . $formatBundle . ' to the cloud server.');
-      $config->set('editor_bundles', $bundles);
-      $config->save();
+      $realtimeConfig->set('editor_bundles', $bundles);
+      $realtimeConfig->save();
     }
   }
 

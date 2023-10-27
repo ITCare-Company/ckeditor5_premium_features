@@ -195,6 +195,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     if (!$this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings')->get('realtime_permissions')) {
       return;
     }
+    if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element, FALSE)) {
+      return;
+    }
+
     $channelId = $form_state->getValue([...$element["#parents"], 'entity_channel']);
 
     $response = $this->apiAdapter->exportDocument($channelId);
