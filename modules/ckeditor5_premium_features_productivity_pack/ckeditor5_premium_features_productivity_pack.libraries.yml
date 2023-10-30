@@ -10,9 +10,12 @@ document_outline.adapter:
     - ckeditor5_premium_features_productivity_pack/document-outline
 
 table_of_contents.adapter:
-  version: 20230628
+  version: 20231030
   js:
     js/build/tableOfContentsAdapter.js: { minified: true }
+  css:
+    base:
+      css/table_of_contents.css: { }
   dependencies:
     - core/ckeditor5
     - ckeditor5_premium_features_productivity_pack/document-outline
