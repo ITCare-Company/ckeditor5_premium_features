@@ -21,6 +21,13 @@
 .ck-fullscreen.revision-history-container-data {
   z-index: calc(var(--ck-z-modal) + 1);
 }
+.ck-fullscreen.revision-history-container-data .ck-editor__main {
+  height: calc(100% - 40px);
+}
+.ck-fullscreen.revision-history-container-data .ck-editor__main .ck-content{
+  height: 100%;
+  max-height: 100%;
+}
 .ck-fullscreen-overlay #toolbar-administration,
 .ck-fullscreen-overlay .form-item__label {
   display:none;
