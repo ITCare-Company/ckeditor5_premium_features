@@ -18,6 +18,9 @@
   right: 0;
   z-index: var(--ck-z-modal);
 }
+.ck-fullscreen.revision-history-container-data {
+  z-index: calc(var(--ck-z-modal) + 1);
+}
 .ck-fullscreen-overlay #toolbar-administration,
 .ck-fullscreen-overlay .form-item__label {
   display:none;

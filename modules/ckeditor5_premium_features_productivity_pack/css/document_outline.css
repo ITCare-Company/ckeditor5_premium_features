@@ -14,10 +14,10 @@
   overflow: hidden;
   width: 100%;
   max-width: 300px;
+  max-height: calc(100vh - var(--drupal-displace-offset-top,0px) - var(--drupal-displace-offset-bottom,0px) - 22px);
 }
 
 .document-outline-container .ck-document-outline {
-  max-height: calc(100vh - var(--drupal-displace-offset-top,0px) - var(--drupal-displace-offset-bottom,0px) + 101px);
   overflow-y: auto;
 }
 

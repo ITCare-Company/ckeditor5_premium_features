@@ -18,6 +18,7 @@
 
 .ck-editor__main .ck-content:not(.ck-comment__input *) {
   min-height: 200px;
+  word-break: break-word;
 }
 
 .revision-history-container-data > .editor-container > .ck-editor {

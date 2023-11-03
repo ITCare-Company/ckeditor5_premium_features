@@ -45,7 +45,7 @@
 }
 
 /* set padding on editing area to prevent top comment being partially hidden below sidebar toggle */
-.ck-editor-container.ck-sidebar-enabled .ck-editor-instance .ck-editor__editable {
+.ck-editor-container.ck-sidebar-enabled .ck-editor-instance .ck-editor__main > .ck-editor__editable {
   padding-top: 40px;
 }
 
@@ -70,7 +70,7 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   margin: 1.35em 0 0 0;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
-  padding: 0 10px;
+  padding: 10px;
   overflow-y: auto;
 }
 

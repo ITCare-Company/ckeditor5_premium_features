@@ -78,18 +78,14 @@ export default class DocumentOutlineAdapter {
   }
 
   destroy() {
-    if (!this.documentOutlineContainer || typeof this.documentOutlineContainer === 'undefined') {
-      return;
-    }
     this.containerVisibilityModify(true);
   }
 
   containerVisibilityModify(hide = false) {
-    const wrapper = this.editor.config._config.documentOutline.container
-    if (!wrapper || typeof wrapper === 'undefined') {
+    if (!this.documentOutlineContainer || typeof this.documentOutlineContainer === 'undefined') {
       return;
     }
-    wrapper.classList.toggle('hidden', hide);
+    this.documentOutlineContainer.classList.toggle('hidden', hide);
   }
 
   isDocumentOutlineDisabled() {
