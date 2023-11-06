@@ -62,6 +62,9 @@ class LibraryDefinitionItem {
       'type' => 'external',
       'minified' => 'true',
       'preprocess' => FALSE,
+      'attributes' => [
+        'crossorigin' => 'anonymous'
+      ]
     ];
   }
 

@@ -36,3 +36,11 @@ claro--override--node-form:
   css:
     layout:
       css/claro/node-form.css: { }
+
+error-notifications:
+  version: 20230626
+  css:
+    theme:
+      css/notifications.css: { }
+  js:
+      js/build/errorNotifications.js: { minified: true }
