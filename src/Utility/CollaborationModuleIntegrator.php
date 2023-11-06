@@ -12,7 +12,7 @@ namespace Drupal\ckeditor5_premium_features\Utility;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
- * CollaborationModuleIntegrator class.
+ * Class responsible for checking which collaboration module is enabled.
  */
 class CollaborationModuleIntegrator {
 
@@ -27,7 +27,10 @@ class CollaborationModuleIntegrator {
   private bool $isRtcModuleInstalled;
 
   /**
+   * Constructor.
    *
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
+   *   The module handler.
    */
   public function __construct(protected ModuleHandlerInterface $moduleHandler) {
     $this->isNonRtcModuleInstalled = $moduleHandler->moduleExists('ckeditor5_premium_features_collaboration');

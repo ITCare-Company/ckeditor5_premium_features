@@ -143,11 +143,15 @@ class Collaborators {
    *   Returns author ID or NULL if no suggestion matches the comment.
    */
   public function getThreadSuggestionAuthor(Comment|RtcCommentNotificationEntity $comment): int|NULL {
-    if ($comment instanceof RtcCommentNotificationEntity) {
-      return $comment->getRelatedSuggestionAuthorId();
+    if (!$this->isCommentInSuggestionThread($comment)) {
+      return NULL;
     }
 
-    if (!$this->isCommentInSuggestionThread($comment)) {
+    if ($comment instanceof RtcCommentNotificationEntity) {
+      $suggestionAuthorId = $comment->getRelatedSuggestionAuthorId();
+      if ($suggestionAuthorId != $comment->getAuthorId()) {
+        return $suggestionAuthorId;
+      }
       return NULL;
     }
 

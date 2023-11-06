@@ -72,6 +72,7 @@ services:
       - '@plugin.manager.mail'
       - '@renderer'
       - '@ckeditor5_premium_features_notifications.notification_settings'
+      - '@ckeditor5_premium_features_notifications.bulk_message_body_handler_manager'
 
   ckeditor5_premium_features_notifications.notification_context_helper:
     class: Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextHelper
@@ -82,3 +83,14 @@ services:
     class: Drupal\ckeditor5_premium_features\Diff\Ckeditor5Diff
     arguments:
       - '@ckeditor5_premium_features_notifications.notification_context_helper'
+
+  ckeditor5_premium_features_notifications.bulk_message_body_handler_manager:
+    class: Drupal\ckeditor5_premium_features_notifications\Utility\BulkMessageBodyHandlerManager
+    tags:
+      - { name: service_collector, tag: bulk_message_body_handler, call: addHandler }
+
+  ckeditor5_premium_features_notifications.default_bulk_message_body_handler:
+    class: Drupal\ckeditor5_premium_features_notifications\Utility\DefaultBulkMessageBodyHandler
+    tags:
+      - { name: bulk_message_body_handler, priority: 100 }
+

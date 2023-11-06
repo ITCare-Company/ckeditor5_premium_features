@@ -128,15 +128,28 @@ class Message extends ContentEntityBase implements MessageInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Returns related message items.
    */
-  public function getItems(): array {
+  public function getRelatedMessagesItems(): array {
     try {
       $messageItems = $this->entityTypeManager()
         ->getStorage(MessageItemInterface::ENTITY_TYPE_ID)
         ->loadByProperties([
           'message_id' => $this->id(),
         ]);
+      return $messageItems;
+    }
+    catch (\Exception) {
+      return [];
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getItems(): array {
+    try {
+      $messageItems = $this->getRelatedMessagesItems();
 
       $groupedMessageItems = [];
 

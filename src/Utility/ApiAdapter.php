@@ -68,11 +68,13 @@ class ApiAdapter {
    *
    * @param string $documentId
    *   The document id.
+   * @param array $parameters
+   *   Optional parameters.
    *
    * @return array
    *   Array of suggestions.
    */
-  public function getDocumentSuggestions(string $documentId, $parameters = []): array {
+  public function getDocumentSuggestions(string $documentId, array $parameters = []): array {
     $path = 'suggestions?document_id=' . $documentId;
     foreach ($parameters as $key => $parameter) {
       $path .= '&' . $key . '=' . $parameter;
@@ -82,21 +84,67 @@ class ApiAdapter {
   }
 
   /**
+   * Gets document suggestions.
+   *
+   * @param string $suggestionId
+   *   The suggestion id.
+   * @param string $documentId
+   *   The document id.
+   * @param array $parameters
+   *   Optional request parameters.
+   *
+   * @return array
+   *   Array of suggestions.
+   */
+  public function getSingleSuggestion(string $suggestionId, string $documentId, array $parameters = []): array {
+    $path = 'suggestions/' . $suggestionId . '?document_id=' . $documentId;
+    foreach ($parameters as $key => $parameter) {
+      $path .= '&' . $key . '=' . $parameter;
+    }
+    $response = $this->sendRequest('GET', $path);
+    return $response ?? [];
+  }
+
+  /**
    * Gets document comments.
    *
    * @param string $documentId
    *   The document id.
+   * @param array $parameters
+   *   Optional request parameters.
    *
    * @return array
    *   Array of comments.
    */
-  public function getDocumentComments(string $documentId, $parameters = []): array {
+  public function getDocumentComments(string $documentId, array $parameters = []): array {
     $path = 'comments?document_id=' . $documentId;
     foreach ($parameters as $key => $parameter) {
       $path .= '&' . $key . '=' . $parameter;
     }
     $response = $this->sendRequest('GET', $path);
     return $response['data'] ?? [];
+  }
+
+  /**
+   * Get single comment.
+   *
+   * @param string $commentId
+   *   The comment id.
+   * @param string $documentId
+   *   The document id.
+   * @param array $parameters
+   *   Optional request parameters.
+   *
+   * @return array
+   *   Array of comments.
+   */
+  public function getSingleComment(string $commentId, string $documentId, array $parameters = []): array {
+    $path = 'comments/' . $commentId . '?document_id=' . $documentId;
+    foreach ($parameters as $key => $parameter) {
+      $path .= '&' . $key . '=' . $parameter;
+    }
+    $response = $this->sendRequest('GET', $path);
+    return $response ?? [];
   }
 
   /**

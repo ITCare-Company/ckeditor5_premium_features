@@ -88,9 +88,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
     // Collect plugins information.
     $messageFactoryDefinitions = $this->messageFactoryPluginManager->getDefinitions();
     $senderDefinitions = $this->senderPluginManager->getDefinitions();
-    if ($this->collaborationModuleIntegrator->isRtcEnabled() && isset($senderDefinitions['ck5_notifications_email_bulk'])) {
-      unset($senderDefinitions['ck5_notifications_email_bulk']);
-    }
+
     $form['message_factory_plugin'] = [
       '#type' => 'select',
       '#title' => 'Message content factory',
