@@ -10,3 +10,9 @@ import-word.adapter:
   dependencies:
     - core/ckeditor5
     - ckeditor5_premium_features_import_word/import-word
+    - ckeditor5_premium_features_import_word/import-word.media-uploader
+
+import-word.media-uploader:
+  version: 20231109
+  js:
+    js/libraries/media-uploader.js: { minified: false }

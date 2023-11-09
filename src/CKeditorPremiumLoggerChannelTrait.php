@@ -34,10 +34,10 @@ trait CKeditorPremiumLoggerChannelTrait {
    *
    * @param string $message
    *   Shor message describing source of an exception.
-   * @param \Drupal\ckeditor5_premium_features\Exception $e
+   * @param \Throwable $e
    *   Exception to be logged.
    */
-  protected function logException(string $message, Exception $e): void {
+  protected function logException(string $message, \Throwable $e): void {
     $this->error($message . "<br /> @error <br /> <br /><pre>@trace</pre>", [
       '@error' => $e->getMessage(),
       '@trace' => $e->getTraceAsString(),

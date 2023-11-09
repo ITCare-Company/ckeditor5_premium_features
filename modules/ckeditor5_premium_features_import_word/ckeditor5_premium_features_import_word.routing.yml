@@ -5,3 +5,16 @@ ckeditor5_premium_features_import_word.form.settings:
     _form: 'Drupal\ckeditor5_premium_features_import_word\Form\SettingsForm'
   requirements:
     _permission: 'administer site configuration'
+
+ckeditor5_premium_features_import_word:
+  path: '/ckeditor5-premium-features/import-word/upload-media/{editor}'
+  defaults:
+    _controller: '\Drupal\ckeditor5_premium_features_import_word\Controller\CKEditor5ImportWordMediaUploaderController::upload'
+  methods: [POST]
+  requirements:
+#    todo: proper permission for the endpoint
+    _permission: 'access content'
+  options:
+    parameters:
+      editor:
+        type: entity:editor
