@@ -215,7 +215,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $export_form['base64_converter']['convert_images_to_base64'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable the Base64 image converter'),
-      '#default_value' => $this->configuration['convert_images_to_base64'] ?? FALSE,
+      '#default_value' => $this->configuration['base64_converter']['convert_images_to_base64'] ?? FALSE,
       '#description' => $this->t('It will process the whole document and change all image URLs into their Base64-encoded representations.
                                   <br/> <b>Attention! This setting may cause server overload.</b> '),
     ];
@@ -227,7 +227,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
         'private' => $this->t('Only private images'),
         'all' => $this->t('All images (private and public)'),
       ],
-      '#default_value' => 'private',
+      '#default_value' => $this->configuration['base64_converter']['images_to_base64_files_type'] ?? 'private',
       '#description' => $this->t('Choose whether only private images or all images should be converted into base64-encoded ones in the document.'),
     ];
 
