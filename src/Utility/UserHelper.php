@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Utility;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
@@ -39,7 +40,8 @@ class UserHelper {
    */
   public function __construct(
     protected FileUrlGeneratorInterface $fileUrlGenerator,
-    protected EntityTypeManagerInterface $entityTypeManager
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected ConfigFactoryInterface $configFactory
   ) {
     $this->userStorage = $this->entityTypeManager->getStorage('user');
   }
@@ -76,6 +78,35 @@ class UserHelper {
     }
 
     return $data;
+  }
+
+  /**
+   * Returns user uuid.
+   *
+   * @param \Drupal\Core\Session\AccountProxyInterface $account
+   *   The current user.
+   *
+   * @return string|null
+   *   User uuid or null.
+   */
+  public function getUserUuid(AccountProxyInterface $account):string|null {
+    $user = $this->userStorage->load($account->id());
+    return $user->uuid();
+  }
+
+  /**
+   * Generates user id based on account id and site name.
+   *
+   * @param \Drupal\Core\Session\AccountProxyInterface $account
+   *   The current user.
+   *
+   * @return string
+   *   The combined id.
+   */
+  public function generateSiteUserId(AccountProxyInterface $account):string {
+    $config = $this->configFactory->get('system.site');
+    $siteName = $config->get('name');
+    return md5($account->id() . $siteName);
   }
 
 }

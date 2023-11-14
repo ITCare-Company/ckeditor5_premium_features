@@ -22,6 +22,7 @@ services:
     arguments:
       - '@file_url_generator'
       - '@entity_type.manager'
+      - '@config.factory'
 
   ckeditor5_premium_features.file_name_generator:
     class: \Drupal\ckeditor5_premium_features\Generator\FileNameGenerator
