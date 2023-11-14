@@ -261,26 +261,28 @@ class TextFormat implements Ckeditor5TextFormatInterface {
           'value',
         ]
         ) ?? '';
-        $changed = $element_data['changed'] ?? 0;
+        $changed = $element_data['changed'] ?? FALSE;
 
-        $commentsData = $this->getFormElementSourceData($form_state, $element_data['parents'], 'comments', $element_key);
-        $this->notificationIntegrator->transformCommentsData($commentsData);
+        if ($changed) {
+          $commentsData = $this->getFormElementSourceData($form_state, $element_data['parents'], 'comments', $element_key);
+          $this->notificationIntegrator->transformCommentsData($commentsData);
 
         $documentHelper = new NotificationDocumentHelper($element_key, $source_original_data, $source_new_data);
 
-        $suggestionData = $this->apiAdapter->getDocumentSuggestions(
+          $suggestionData = $this->apiAdapter->getDocumentSuggestions(
             $entity_channel, [
               'include_deleted' => 'true',
               'sort_by' => 'updated_at',
               'order' => 'desc',
             ]
-        );
+          );
 
-        $chainedSuggestions = $this->notificationIntegrator->chainSuggestion($suggestionData);
+          $chainedSuggestions = $this->notificationIntegrator->chainSuggestion($suggestionData);
 
-        $this->notificationIntegrator->handleDocumentUpdateEvent($entity, $documentHelper);
-        $this->notificationIntegrator->handleSuggestionsEvent($entity, $documentHelper, $changed, $chainedSuggestions, $commentsData);
-        $this->notificationIntegrator->handleCommentsEvent($entity, $documentHelper, $changed, $commentsData, $chainedSuggestions);
+          $this->notificationIntegrator->handleDocumentUpdateEvent($entity, $documentHelper);
+          $this->notificationIntegrator->handleSuggestionsEvent($entity, $documentHelper, $changed, $chainedSuggestions, $commentsData);
+          $this->notificationIntegrator->handleCommentsEvent($entity, $documentHelper, $changed, $commentsData, $chainedSuggestions);
+        }
       }
 
       $this->handleEntityChannel($entity, $entity_channel, $element_key, $order_switch[$element_key] ?? NULL);
