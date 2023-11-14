@@ -37,7 +37,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
   use CKEditor5PluginConfigurableTrait;
 
   const CUSTOM_CSS_DIRECTORY_PATH = 'public://styles/ckeditor5/export/';
-
+  const CONVERT_IMAGES_TO_BASE_64_CONFIG_NAME = 'convertImagesToBase64';
   /**
    * The settings form object.
    *
@@ -150,6 +150,13 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     if ($customCssFile) {
       $static_plugin_config[$plugin]['stylesheets'][] = $customCssFile;
     }
+
+    $settings = $editor->getSettings();
+    $isBase64ConverterEnabled = $settings['plugins'][$this->pluginId]['base64_converter']['convert_images_to_base64'] ?? FALSE;
+    $base64ConverterFilesType = $settings['plugins'][$this->pluginId]['base64_converter']['images_to_base64_files_type'] ?? NULL;
+    $static_plugin_config[$plugin][self::CONVERT_IMAGES_TO_BASE_64_CONFIG_NAME]['enabled'] = $isBase64ConverterEnabled;
+    $static_plugin_config[$plugin][self::CONVERT_IMAGES_TO_BASE_64_CONFIG_NAME]['filesType'] = $base64ConverterFilesType;
+
     return $static_plugin_config;
   }
 
@@ -197,6 +204,32 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     if (!$override_global) {
       FormElement::disableFormFields($export_form);
     }
+    $export_form['converter_options']['#open'] = FALSE;
+
+    $export_form['base64_converter'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Base64 image converter settings'),
+      '#open' => FALSE,
+    ];
+
+    $export_form['base64_converter']['convert_images_to_base64'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable the Base64 image converter'),
+      '#default_value' => $this->configuration['base64_converter']['convert_images_to_base64'] ?? FALSE,
+      '#description' => $this->t('It will process the whole document and change all image URLs into their Base64-encoded representations.
+                                  <br/> <b>Attention! This setting may cause server overload.</b> '),
+    ];
+
+    $export_form['base64_converter']['images_to_base64_files_type'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Image file type'),
+      '#options' => [
+        'private' => $this->t('Only private images'),
+        'all' => $this->t('All images (private and public)'),
+      ],
+      '#default_value' => $this->configuration['base64_converter']['images_to_base64_files_type'] ?? 'private',
+      '#description' => $this->t('Choose whether only private images or all images should be converted into base64-encoded ones in the document.'),
+    ];
 
     return $export_form;
   }
