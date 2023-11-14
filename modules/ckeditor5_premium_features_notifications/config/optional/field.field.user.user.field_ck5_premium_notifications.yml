@@ -9,8 +9,8 @@ id: user.user.field_ck5_premium_notifications
 field_name: field_ck5_premium_notifications
 entity_type: user
 bundle: user
-label: 'CKeditor5 Premium Features - notification enabled'
-description: ''
+label: "CKEditor 5 Premium Features - Receive notifications about changes in the content I'm co-authoring."
+description: "Check this field if you would like to receive notifications whenever someone makes changes and/or adds comments to the articles/posts you co-authored."
 required: false
 translatable: false
 default_value:
