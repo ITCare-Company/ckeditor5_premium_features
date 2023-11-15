@@ -70,8 +70,11 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   margin: 1.35em 0 0 0;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
-  padding: 10px;
+  padding: 0 10px;
   overflow-y: auto;
+}
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar {
+  padding-bottom: 10px;
 }
 
 /*Toggle*/
