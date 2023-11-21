@@ -1,0 +1,5 @@
+/*!
+ * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+!function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e():"function"==typeof define&&define.amd?define([],e):"object"==typeof exports?exports.CKEditor5=e():(t.CKEditor5=t.CKEditor5||{},t.CKEditor5.aiAssistantAdapter=e())}(self,(()=>(()=>{"use strict";var t={d:(e,o)=>{for(var i in o)t.o(o,i)&&!t.o(e,i)&&Object.defineProperty(e,i,{enumerable:!0,get:o[i]})},o:(t,e)=>Object.prototype.hasOwnProperty.call(t,e)},e={};t.d(e,{default:()=>o});const o={AIAssistantAdapter:class{constructor(t){this.editor=t,this.editor.config._config.aiAssistant.proxyAuthKey&&this.useAuthKeyAsEndpoint()}useAuthKeyAsEndpoint(){const t=this.editor.config._config.aiAssistant.authKey;this.editor.config._config.aiAssistant.authKey=async()=>await new Promise((async e=>{const o=await fetch(t);if(o.ok){e(o.text())}e()}))}static get pluginName(){return"AIAssistantAdapter"}}};return e=e.default})()));

@@ -1,0 +1,13 @@
+admin.ai_assistant:
+  version: 20231121
+  css:
+    theme:
+      css/ai-assistant.admin.css: { }
+
+ai-assistant.adapter:
+  version: 20231121
+  js:
+    js/build/aiAssistantAdapter.js: { minified: true }
+  dependencies:
+    - core/ckeditor5
+    - ckeditor5_premium_features_ai_assistant/ai
