@@ -58,7 +58,7 @@ ckeditor5_ai_command.edit_form:
   path: '/admin/config/ckeditor5-premium-features/ai-assistant/ckeditor5-ai-command-group/{ckeditor5_ai_command_group}/ckeditor5-ai-command/{uuid}'
   defaults:
     _form: '\Drupal\ckeditor5_premium_features_ai_assistant\Form\Ckeditor5AiCommandEditForm'
-    _title: 'Delete a CKEditor 5 AI Command'
+    _title: 'Edit a CKEditor 5 AI Command'
   requirements:
     _permission: 'administer ckeditor5_ai_command'
 
