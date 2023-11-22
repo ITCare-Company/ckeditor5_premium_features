@@ -42,7 +42,7 @@ class SettingsForm extends ConfigFormBase {
 
     $form['api_url'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Api Url'),
+      '#title' => $this->t('API Url'),
       '#description' => $this->t('Provide the URL to the OpenAI proxy endpoint in your application..'),
       '#default_value' => $config->get('api_url'),
     ];
@@ -57,7 +57,7 @@ class SettingsForm extends ConfigFormBase {
 
     $form['proxy_auth_key'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Use the <b>Auth key</b> field as an endpoint to receive authorization key for your proxy'),
+      '#title' => $this->t('Use the <b>Auth Key</b> field as an endpoint to receive authorization key for your proxy'),
       '#required' => FALSE,
       '#default_value' => $config->get('proxy_auth_key'),
     ];
