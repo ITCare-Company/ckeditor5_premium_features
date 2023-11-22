@@ -50,8 +50,6 @@ class SidebarAdapter {
     toggle.classList += 'ck-sidebar-auto-toggle ' + this.sidebarMode;
     toggle.id = 'ck-sidebar-auto-toggle';
 
-    this.editorContainer.classList += ' ck-sidebar-enabled';
-
     toggleWrapper.prepend(toggle);
     this.sidebarColumn.prepend(toggleWrapper);
   }
@@ -69,6 +67,13 @@ class SidebarAdapter {
     this.handleSidebarMode();
 
     this.checkIfInsideTab();
+
+    this.editor.on('ready', () => {
+      if (this.editor.ui.view.element) {
+        this.editor.ui.view.element.classList += ' ck-sidebar-enabled';
+      }
+    });
+
   }
 
   destroy() {
