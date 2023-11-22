@@ -73,7 +73,7 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   padding: 0 10px;
   overflow-y: auto;
 }
-.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar {
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar .ck-sidebar-item {
   padding-bottom: 10px;
 }
 
