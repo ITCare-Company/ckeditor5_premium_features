@@ -41,7 +41,7 @@ class RevisionHistoryAdapter {
     revisionHistoryConfig.viewerContainer = revisionHistoryContainer;
     revisionHistoryConfig.viewerEditorElement = revisionHistoryContainer.querySelector('.revision-viewer-editor');
     revisionHistoryConfig.viewerSidebarContainer = revisionHistoryContainer.querySelector('.revision-viewer-sidebar');
-    revisionHistoryConfig.editorContainer = revisionHistoryContainer.parentNode.querySelector('.ck-editor-premium-wrapper');
+    revisionHistoryConfig.editorContainer = revisionHistoryContainer.parentNode.querySelector('.ck-editor-premium-wrapper').parentNode;
 
     // Initialize plugin.
     const revisionHistoryPlugin = this.editor.plugins.get('RevisionHistory');
@@ -75,6 +75,8 @@ class RevisionHistoryAdapter {
     this.editor.model.document.on( 'change:data', () => {
       this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin, revisionHistoryElement, false)
     });
+
+    this.copyEditorVisibilityToFilterSelector(revisionHistoryConfig);
   }
 
   async updateStorage(plugin, tracker, storageElement, addRevisionOnSubmit) {
@@ -85,6 +87,22 @@ class RevisionHistoryAdapter {
     storageElement.value = JSON.stringify(plugin.getRevisions({
       toJSON: true
     }));
+  }
+
+  copyEditorVisibilityToFilterSelector(revisionHistoryConfig) {
+    const filterElement = revisionHistoryConfig.editorContainer.parentElement.querySelector(".js-filter-wrapper")
+    var observer = new IntersectionObserver(function(entries) {
+      if(entries[0]['intersectionRatio'] == 0) {
+        filterElement.style.display = "none";
+      }
+      else {
+        filterElement.style.display = "block";
+      }
+    }, { root: document.documentElement });
+
+    if (filterElement) {
+      observer.observe(revisionHistoryConfig.editorContainer);
+    }
   }
 }
 

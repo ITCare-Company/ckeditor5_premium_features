@@ -13,7 +13,7 @@
   border-right: 0;
   overflow: hidden;
   width: 100%;
-  max-width: 300px;
+  max-width: 250px;
   max-height: calc(100vh - var(--drupal-displace-offset-top,0px) - var(--drupal-displace-offset-bottom,0px) - 22px);
 }
 

@@ -38,6 +38,9 @@
 .ck-fullscreen-overlay .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-container {
   height: 100%!important;
 }
+.ck-fullscreen-overlay .ck-fullscreen.ck-editor-premium-wrapper .document-outline-container{
+  max-width: 350px;
+}
 .ck-fullscreen-overlay .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-container .ck-editor-instance .ck-editor,
 .ck-fullscreen-overlay .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-container .ck-editor-instance .ck-editor .ck-editor__main,
 .ck-fullscreen-overlay .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-container .ck-editor-instance .ck-editor .ck-editor__main .ck-content {
