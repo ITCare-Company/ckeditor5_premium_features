@@ -21,7 +21,7 @@ ckeditor5_premium_features_ai_assistant.settings:
       label: 'Auth key'
     proxy_auth_key:
       type: boolean
-      label: 'Use auth key as auth endpoint'
+      label: 'Use the Auth key as auth endpoint'
     disable_default_styles:
       type: boolean
       label: 'Disable default styles'

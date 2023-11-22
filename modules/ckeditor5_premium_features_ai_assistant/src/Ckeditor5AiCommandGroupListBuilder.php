@@ -15,7 +15,7 @@ class Ckeditor5AiCommandGroupListBuilder extends ConfigEntityListBuilder {
    */
   public function buildHeader() {
     $header['label'] = $this->t('Label');
-    $header['id'] = $this->t('Machine name');
+    $header['id'] = $this->t('ID');
     return $header + parent::buildHeader();
   }
 

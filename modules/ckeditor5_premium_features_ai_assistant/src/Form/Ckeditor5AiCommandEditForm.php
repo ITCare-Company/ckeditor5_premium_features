@@ -32,7 +32,7 @@ class Ckeditor5AiCommandEditForm extends Ckeditor5AiCommandAddForm {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $values = $form_state->cleanValues()->getValues();
-    $values['command_id'] = strip_tags(str_replace(' ', '', $values['command_id']));
+    $values['command_id'] = strip_tags(str_replace(' ', '_', $values['command_id']));
     $values['uuid'] = $this->commandUuid;
     $this->commandGroup->updateCommand($values);
     $form_state->setRedirectUrl($this->commandGroup->toUrl('edit-form'));

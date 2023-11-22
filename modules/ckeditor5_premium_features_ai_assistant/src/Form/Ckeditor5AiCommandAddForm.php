@@ -19,6 +19,13 @@ class Ckeditor5AiCommandAddForm extends FormBase {
   protected ?Ckeditor5AiCommandGroup $commandGroup;
 
   /**
+   * {@inheritDoc}
+   */
+  public function getFormId() {
+    return 'ckeditor5_ai_command_add_form';
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, Ckeditor5AiCommandGroup $ckeditor5_ai_command_group = NULL, string $uuid = NULL): array {
@@ -32,16 +39,19 @@ class Ckeditor5AiCommandAddForm extends FormBase {
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $command['label'] ?? '',
-      '#description' => $this->t('Label for the ckeditor 5 ai command.'),
+      '#description' => $this->t('Label for the CKEditor 5 AI command.'),
       '#required' => TRUE,
     ];
 
     $form['command_id'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Command id'),
+      '#type' => 'machine_name',
+      '#label' => 'Command id',
       '#default_value' => $command['command_id'] ?? '',
-      '#required' => TRUE,
-      '#description' => $this->t('Id for the ckeditor 5 ai command.'),
+      '#machine_name' => [
+        'source' => ['label'],
+        'exists' => [$this, 'exists'],
+      ],
+      '#maxlength' => 32,
     ];
 
     $form['prompt'] = [
@@ -49,7 +59,7 @@ class Ckeditor5AiCommandAddForm extends FormBase {
       '#title' => $this->t('Prompt'),
       '#required' => TRUE,
       '#default_value' => $command['prompt'] ?? '',
-      '#description' => $this->t('Description of the ckeditor 5 ai command.'),
+      '#description' => $this->t('Description of the CKEditor 5 AI command.'),
     ];
 
     $form['weight'] = [
@@ -85,16 +95,22 @@ class Ckeditor5AiCommandAddForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $values = $form_state->cleanValues()->getValues();
     $values['weight'] = 0;
-    $values['command_id'] = strip_tags(str_replace(' ', '', $values['command_id']));
+    $values['command_id'] = strip_tags(str_replace(' ', '_', $values['command_id']));
     $this->commandGroup->addCommand($values);
     $form_state->setRedirectUrl($this->commandGroup->toUrl('edit-form'));
   }
 
   /**
-   * {@inheritDoc}
+   * Determines if the command already exists.
+   *
+   * @param string $id
+   *   The commad ID.
+   *
+   * @return bool
+   *   TRUE if the command exists, FALSE otherwise.
    */
-  public function getFormId() {
-    return 'ckeditor5_ai_command_add_form';
+  public function exists(string $id): bool {
+    return $this->commandGroup->commandExists($id);
   }
 
 }

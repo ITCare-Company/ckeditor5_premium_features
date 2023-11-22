@@ -10,13 +10,13 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *
  * @ConfigEntityType(
  *   id = "ckeditor5_ai_command_group",
- *   label = @Translation("CKEditor 5 AI Command group"),
- *   label_collection = @Translation("CKEditor 5 AI Commands groups"),
- *   label_singular = @Translation("ckeditor 5 ai commands group"),
- *   label_plural = @Translation("ckeditor 5 ai commands groups"),
+ *   label = @Translation("CKEditor 5 AI Command Group"),
+ *   label_collection = @Translation("CKEditor 5 AI Commands Group"),
+ *   label_singular = @Translation("CKEditor 5 AI Command Group"),
+ *   label_plural = @Translation("CKEditor 5 AI Commands Group"),
  *   label_count = @PluralTranslation(
- *     singular = "@count ckeditor 5 ai commands group",
- *     plural = "@count ckeditor 5 ai commands groups",
+ *     singular = "@count CKEditor 5 AI Command Group",
+ *     plural = "@count CKEditor 5 AI Commands Group",
  *   ),
  *   handlers = {
  *     "list_builder" = "Drupal\ckeditor5_premium_features_ai_assistant\Ckeditor5AiCommandGroupListBuilder",
@@ -50,14 +50,14 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
 class Ckeditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCommandGroupInterface {
 
   /**
-   * The ckeditor 5 AI Commands group ID.
+   * The CKEditor 5 AI Commands group ID.
    *
    * @var string
    */
   protected string $id;
 
   /**
-   * The ckeditor 5 AI Commands group label.
+   * The CKEditor 5 AI Commands group label.
    *
    * @var string
    */
@@ -81,7 +81,8 @@ class Ckeditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
    * Add command to the commands list.
    *
    * @param array $command
-   *   Array with command values.
+   *   Array with command values. ai_command
+   *   [ command_id, label, weight, prompt ].
    *
    * @return Ckeditor5AiCommandGroup
    *
@@ -128,6 +129,7 @@ class Ckeditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
    *
    * @param array $command
    *   Array with command values.
+   *   [ uuid, command_id, label, weight, prompt ].
    *
    * @return Ckeditor5AiCommandGroup
    *
@@ -173,6 +175,23 @@ class Ckeditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
       'label' => $this->label(),
       'commands' => $this->commands,
     ];
+  }
+
+  /**
+   * Checks if command with provided id exists.
+   *
+   * @param string $id
+   *   Command id.
+   *
+   * @return bool
+   */
+  public function commandExists(string $id): bool {
+    foreach ($this->commands as $command) {
+      if (isset($command['command_id']) && $command['command_id'] === $id) {
+        return TRUE;
+      }
+    }
+    return FALSE;
   }
 
 }

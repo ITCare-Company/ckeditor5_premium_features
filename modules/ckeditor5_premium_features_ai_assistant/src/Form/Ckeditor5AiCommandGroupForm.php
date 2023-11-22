@@ -26,7 +26,7 @@ class Ckeditor5AiCommandGroupForm extends EntityForm {
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $this->entity->label(),
-      '#description' => $this->t('Label for the ckeditor 5 ai commands group.'),
+      '#description' => $this->t('Label for the CKEditor 5 AI commands group.'),
       '#required' => TRUE,
     ];
 
@@ -162,8 +162,8 @@ class Ckeditor5AiCommandGroupForm extends EntityForm {
     $result = parent::save($form, $form_state);
     $message_args = ['%label' => $this->entity->label()];
     $message = $result == SAVED_NEW
-      ? $this->t('Created new ckeditor 5 ai commands group %label.', $message_args)
-      : $this->t('Updated ckeditor 5 ai commands group %label.', $message_args);
+      ? $this->t('Created new CKEditor 5 AI Commands Group %label.', $message_args)
+      : $this->t('Updated CKEditor 5 AI Commands Group %label.', $message_args);
     $this->messenger()->addStatus($message);
     return $result;
   }

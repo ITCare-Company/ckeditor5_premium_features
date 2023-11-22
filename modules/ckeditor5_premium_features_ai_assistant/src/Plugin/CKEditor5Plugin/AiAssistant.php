@@ -111,8 +111,8 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
       '#title' => $this->t('Remove provided commands'),
       '#default_value' => implode("\n", $this->configuration['remove_commands']),
       '#description' => $this->t(
-        'A list of command ids to be removed from "AI commands" plugin. Enter one or more ids on each line </br>
-           You can find list of default plugins <a href=":documentation_url">HERE</a>.',
+        'A list of command IDs to be removed from the "AI commands" plugin. Enter one or more ids in each line </br>
+           You can find the list of default plugins <a href=":documentation_url">here</a>.',
         [':documentation_url' => 'https://ckeditor.com/docs/ckeditor5/latest/api/module_ai_aiassistant-AIAssistantConfig.html#member-commands']),
       '#ajax' => FALSE,
     ];

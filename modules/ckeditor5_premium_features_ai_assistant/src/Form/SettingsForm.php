@@ -49,7 +49,7 @@ class SettingsForm extends ConfigFormBase {
 
     $form['auth_key'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Auth key'),
+      '#title' => $this->t('Auth Key'),
       '#required' => FALSE,
       '#description' => $this->t('Use your API key ONLY in a development environment or for testing purposes!.'),
       '#default_value' => $config->get('auth_key'),
@@ -57,14 +57,14 @@ class SettingsForm extends ConfigFormBase {
 
     $form['proxy_auth_key'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Use <b>Auth key</b> field as an endpoint to receive authorization key for your proxy'),
+      '#title' => $this->t('Use the <b>Auth key</b> field as an endpoint to receive authorization key for your proxy'),
       '#required' => FALSE,
       '#default_value' => $config->get('proxy_auth_key'),
     ];
 
     $form['disable_default_styles'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t("Disable the default feature's theme"),
+      '#title' => $this->t("Disable the feature's default theme"),
       '#required' => FALSE,
       '#description' => $this->t('If you do not want default styling, you can disable it.'),
       '#default_value' => $config->get('disable_default_styles'),
