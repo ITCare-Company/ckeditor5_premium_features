@@ -89,7 +89,7 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
         'data-editor-word-media-upload' => 'status',
       ],
       '#default_value' => $this->configuration['upload_media']['enabled'] ?? FALSE,
-      '#description' => $this->t('Enable uploading images from Word doc as a Drupal Media'),
+      '#description' => $this->t('Enable uploading images from Word doc as a Drupal Media. <br /> Please be aware that enabling this feature will make imports longer.'),
     ];
 
     $defaultMediaBundle = $this->configuration['upload_media']['media_bundle'] ?? '';
@@ -99,7 +99,7 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       '#options' => $mediaBundles,
       '#title' => $this->t('Choose media bundle and field'),
       '#default_value' => $defaultMediaBundle . ':' . $defaultFieldName,
-      '#description' => $this->t('Image will be added to the selected media field.'),
+      '#description' => $this->t('Image will be added to the selected media field. <br /> Roles able to use import plugin have to have permission to create selected media bundle granted. If forbidden a regular &lt;img&gt; tags will be created.'),
       '#states' => [
         'visible' => [
           ':input[data-editor-word-media-upload="status"]' => ['checked' => TRUE],

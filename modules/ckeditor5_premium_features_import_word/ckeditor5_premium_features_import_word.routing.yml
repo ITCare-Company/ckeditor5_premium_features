@@ -12,8 +12,7 @@ ckeditor5_premium_features_import_word:
     _controller: '\Drupal\ckeditor5_premium_features_import_word\Controller\CKEditor5ImportWordMediaUploaderController::upload'
   methods: [POST]
   requirements:
-#    todo: proper permission for the endpoint
-    _permission: 'access content'
+    _custom_access: '\Drupal\ckeditor5_premium_features_import_word\Controller\CKEditor5ImportWordMediaUploaderController::access'
   options:
     parameters:
       editor:
