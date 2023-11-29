@@ -36,6 +36,12 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    *
    * @param \Drupal\ckeditor5_premium_features_import_word\Config\ImportWordConfigHandlerInterface $configHandler
    *   The settings configuration handler.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entityTypeBundleInfo
+   *   The entity bundle info provider.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
+   *   The entity field manager.
+   * @param bool $isMediaEnabled
+   *   The state of Media module.
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    */
@@ -43,6 +49,7 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     protected ImportWordConfigHandlerInterface $configHandler,
     protected EntityTypeBundleInfoInterface $entityTypeBundleInfo,
     protected EntityFieldManagerInterface $entityFieldManager,
+    protected bool $isMediaEnabled,
     ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
@@ -56,6 +63,7 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       $container->get('ckeditor5_premium_features_import_word.config_handler.settings'),
       $container->get('entity_type.bundle.info'),
       $container->get('entity_field.manager'),
+      $container->get('module_handler')->moduleExists('media'),
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -91,6 +99,9 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       '#default_value' => $this->configuration['upload_media']['enabled'] ?? FALSE,
       '#description' => $this->t('Enable uploading images from Word doc as a Drupal Media. <br /> Please be aware that enabling this feature will make imports longer.'),
     ];
+    if (!$this->isMediaEnabled) {
+      $form['upload_media']['enabled']['#attributes']['disabled'] = 'disabled';
+    }
 
     $defaultMediaBundle = $this->configuration['upload_media']['media_bundle'] ?? '';
     $defaultFieldName = $this->configuration['upload_media']['media_field_name'] ?? '';
@@ -142,6 +153,15 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    * {@inheritDoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+    $formValues = $form_state->getValues();
+    $uploadMediaEnabled = $formValues['upload_media']['enabled'];
+    $completeFormValues = $form_state->getCompleteFormState()->getValues();
+    $mediaEmbedFilterEnabled = $completeFormValues['filters']['media_embed']['status'];
+
+    if ($uploadMediaEnabled && !$mediaEmbedFilterEnabled) {
+      $form_state->setError($form["upload_media"]["enabled"], "Embed Media filter has to be enabled in order to use uploading images as a Drupal Media on Import from Word feature.");
+    }
+
   }
 
   /**
