@@ -24,6 +24,7 @@ class SidebarAdapter {
 
     this.editor.config._config.sidebar = {
       container: sidebar_column,
+      preventScrollOutOfView: true,
     }
   }
 
