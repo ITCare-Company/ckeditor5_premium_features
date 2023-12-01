@@ -1,12 +1,11 @@
 ckeditor5_premium_features_ai_assistant__ai_assistant:
   ckeditor5:
     plugins:
-      - aiAssistantAdapter.AIAssistantAdapter
       - ai.AIAssistant
   drupal:
     label: AI Assistant
     elements: false
-    library: ckeditor5_premium_features_ai_assistant/ai-assistant.adapter
+    library: ckeditor5_premium_features_ai_assistant/ai
     class: Drupal\ckeditor5_premium_features_ai_assistant\Plugin\CKEditor5Plugin\AiAssistant
     admin_library: ckeditor5_premium_features_ai_assistant/admin.ai_assistant
     toolbar_items:

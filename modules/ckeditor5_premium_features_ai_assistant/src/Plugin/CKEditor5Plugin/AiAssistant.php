@@ -15,6 +15,7 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Url;
 use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -36,8 +37,8 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
    *   The parent plugin arguments.
    */
   public function __construct(
-    protected ConfigFactoryInterface $configFactory,
-                                  ...$parent_arguments
+                              protected ConfigFactoryInterface $configFactory,
+                              ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
   }
@@ -61,17 +62,15 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
     $static_plugin_config = parent::getDynamicPluginConfig($static_plugin_config, $editor);
     $config = $this->configFactory->get('ckeditor5_premium_features_ai_assistant.settings');
     $removeCommands = $this->configuration['remove_commands'] ?? [];
-    if ($apiUrl = $config->get('api_url')) {
+
+    if ($config->get('use_custom_endpoint') && $apiUrl = $config->get('api_url')) {
       $static_plugin_config['aiAssistant']['apiUrl'] = $apiUrl;
+      $static_plugin_config['aiAssistant']['authKey'] = $config->get('auth_key') ?? '';
     }
-    if ($authKey = $config->get('auth_key')) {
-      $static_plugin_config['aiAssistant']['authKey'] = $authKey;
+    else {
+      $static_plugin_config['aiAssistant']['apiUrl'] = Url::fromRoute('ckeditor5_premium_features_ai_assistant.ai_assistant_proxy_provider')
+        ->toString();
     }
-
-    if ($config->get('proxy_auth_key')) {
-      $static_plugin_config['aiAssistant']['proxyAuthKey'] = TRUE;
-    }
-
     if ($config->get('disable_default_styles')) {
       $static_plugin_config['aiAssistant']['uiCssClass'] = FALSE;
     }
@@ -94,7 +93,7 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function defaultConfiguration() {
     return [
@@ -103,7 +102,7 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form['remove_commands'] = [
@@ -120,7 +119,7 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
     $form_value = $form_state->getValue('remove_commands');
@@ -130,7 +129,7 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->configuration['remove_commands'] = $form_state->getValue('remove_commands');

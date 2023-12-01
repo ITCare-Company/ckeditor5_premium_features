@@ -9,19 +9,45 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_ai_assistant\Form;
 
+use Drupal\ckeditor5_premium_features_ai_assistant\Utility\AiAssistantHelper;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides the configuration form of the "AI Assistant" feature.
  */
 class SettingsForm extends ConfigFormBase {
 
+  const AI_ASSISTANT_SETTINGS_ID = 'ckeditor5_premium_features_ai_assistant.settings';
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(ConfigFactoryInterface $config_factory,
+                              TypedConfigManagerInterface $typedConfigManager,
+                              protected AiAssistantHelper $aiAssistantHelper) {
+    parent::__construct($config_factory, $typedConfigManager);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('config.typed'),
+      $container->get('ckeditor5_premium_features_ai_assistant.ai_assistant_helper')
+    );
+  }
+
   /**
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return 'ckeditor5_premium_features_ai_assistant.settings';
+    return self::AI_ASSISTANT_SETTINGS_ID;
   }
 
   /**
@@ -34,33 +60,41 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state):array {
     $form = parent::buildForm($form, $form_state);
     $config = $this->config($this->getFormId());
+    $providers = $this->aiAssistantHelper->getAllProviders();
+    $provider = $config->get('ai_providers') ?? AiAssistantHelper::DEFAULT_PROVIDER;
+    if ($form_state->isRebuilding()) {
+      $provider = $form_state->getValue('ai_providers');
+    }
 
-    $form['api_url'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('API Url'),
-      '#description' => $this->t('Provide the URL to the OpenAI proxy endpoint in your application..'),
-      '#default_value' => $config->get('api_url'),
+    $form['ai_providers'] = [
+      '#type' => 'select',
+      '#options' => $providers,
+      '#title' => $this->t('AI providers'),
+      '#required' => TRUE,
+      '#description' => $this->t('Providers.'),
+      '#default_value' => $provider,
+      '#ajax' => [
+        'callback' => '::changeProviderFields',
+        'wrapper' => 'provider-settings',
+        'method' => 'replace',
+      ],
+    ];
+    $form['provider_settings'] = [
+      '#type' => 'container',
+      '#attributes' => ['id' => 'provider-settings'],
     ];
 
-    $form['auth_key'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Auth Key'),
-      '#required' => FALSE,
-      '#description' => $this->t('Use your API key ONLY in a development environment or for testing purposes!.'),
-      '#default_value' => $config->get('auth_key'),
-    ];
-
-    $form['proxy_auth_key'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Use the <b>Auth Key</b> field as an endpoint to receive authorization key for your proxy'),
-      '#required' => FALSE,
-      '#default_value' => $config->get('proxy_auth_key'),
-    ];
+    $providerFields = $this->aiAssistantHelper->getProviderFormFields('danasdas');
+    $providerFields = $this->aiAssistantHelper->getProviderFormFields($provider);
+    foreach ($providerFields as $key => $field) {
+      $field['#default_value'] = $config->get($key);
+      $form['provider_settings'][$key] = $field;
+    }
 
     $form['disable_default_styles'] = [
       '#type' => 'checkbox',
@@ -81,6 +115,41 @@ class SettingsForm extends ConfigFormBase {
       '#submit' => ['::manageCommands'],
     ];
 
+    $form['advanced'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Advanced settings'),
+      '#open' => (bool) $config->get('use_custom_endpoint'),
+      '#description' =>
+      $this->t('If you want to use your custom proxy, provide URL and Auth key for the endpoint.'),
+    ];
+    $form['advanced']['use_custom_endpoint'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t("Use custom proxy endpoint"),
+      '#required' => FALSE,
+      '#default_value' => $config->get('use_custom_endpoint'),
+    ];
+    $form['advanced']['api_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('API Url'),
+      '#description' => $this->t('The URL to the custom proxy endpoint.'),
+      '#default_value' => $config->get('api_url'),
+      '#states' => [
+        'disabled' => [
+          ':input[name="use_custom_endpoint"]' => ['checked' => FALSE],
+        ],
+      ],
+    ];
+    $form['advanced']['auth_key'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Auth Key'),
+      '#description' => $this->t('The auth key for your endpoint. <b>This key will be visible in editor config</b>.'),
+      '#default_value' => $config->get('auth_key'),
+      '#states' => [
+        'disabled' => [
+          ':input[name="use_custom_endpoint"]' => ['checked' => FALSE],
+        ],
+      ],
+    ];
     return $form;
   }
 
@@ -88,20 +157,36 @@ class SettingsForm extends ConfigFormBase {
    * Redirect to AI Command group collection.
    *
    * @param array $form
+   *   The form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
    */
   public function manageCommands(array $form, FormStateInterface $form_state):void {
     $form_state->setRedirect('entity.ckeditor5_ai_command_group.collection');
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config($this->getFormId())
       ->setData($form_state->cleanValues()->getValues())
       ->save();
     parent::submitForm($form, $form_state);
+  }
+
+  /**
+   * Callback for changing provider.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   *
+   * @return array
+   */
+  public function changeProviderFields(array &$form, FormStateInterface $form_state): array {
+    return $form['provider_settings'];
   }
 
 }
