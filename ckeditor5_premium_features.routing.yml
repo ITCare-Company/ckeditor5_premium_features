@@ -33,3 +33,12 @@ ckeditor5_premium_features.media_tags:
   requirements:
     _permission: 'view media'
     _format: json
+
+ckeditor5_premium_features.base64_image_converter:
+  path: '/ck5/api/base64-image-converter'
+  defaults:
+    _controller: 'Drupal\ckeditor5_premium_features\Controller\Base64ImageConverterController::convertImages'
+  methods:  [POST]
+  requirements:
+    _permission: 'access content'
+    _format: json

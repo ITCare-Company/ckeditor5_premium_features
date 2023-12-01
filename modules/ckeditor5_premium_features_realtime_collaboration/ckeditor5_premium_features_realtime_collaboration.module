@@ -13,6 +13,7 @@
 declare(strict_types = 1);
 
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
+use Drupal\ckeditor5_premium_features_productivity_pack\Element\TextFormat as TextFormatProductivityPack;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -48,8 +49,37 @@ function ckeditor5_premium_features_realtime_collaboration_library_info_build():
  */
 function ckeditor5_premium_features_realtime_collaboration_element_info_alter(array &$info): void {
   if (isset($info['text_format'])) {
-    $info['text_format']['#process'][] = [TextFormat::class, 'process'];
+    $moduleHandler = \Drupal::service('module_handler');
+    $isOrderChanged = FALSE;
+    if ($moduleHandler->moduleExists('ckeditor5_premium_features_productivity_pack')) {
+      $isOrderChanged = ckeditor5_premium_features_realtime_collaboration_validate_text_format_order($info);
+    }
+    if (!$isOrderChanged) {
+      $info['text_format']['#process'][] = [TextFormat::class, 'process'];
+    }
   }
+}
+
+/**
+ * Extra check to make sure that the productivity pack is loaded after rtc module.
+ *
+ * @param array $info
+ *   Info array.
+ *
+ * @return bool
+ *   TRUE if order has been changed.
+ */
+function ckeditor5_premium_features_realtime_collaboration_validate_text_format_order(array &$info):bool {
+  if (isset($info['text_format']['#process'])) {
+    foreach ($info['text_format']['#process'] as $key => $process) {
+      if (current($process) === TextFormatProductivityPack::class) {
+        $info['text_format']['#process'][$key] = [TextFormat::class, 'process'];
+        $info['text_format']['#process'][] = $process;
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
 }
 
 /**

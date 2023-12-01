@@ -205,7 +205,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
         '#title' => $this->t('Message body'),
         '#description' => $this->t('Body of the message sent to the users that collaborated on the updated node.'),
         '#default_value' => $messageConfig['value'] ?? $this->getPredefinedBodyMessage($messageType),
-        '#format' => $messageConfig['test_format'] ?? $this->getTextFormatId('full_html'),
+        '#format' => $messageConfig['format'] ?? $this->getTextFormatId('full_html'),
       ] + $visibility;
 
       if ($additional = $this->getNotificationAdditionalInstruction($messageType)) {
