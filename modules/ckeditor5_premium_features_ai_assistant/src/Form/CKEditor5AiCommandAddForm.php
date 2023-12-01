@@ -1,25 +1,32 @@
 <?php
 
+/*
+ * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
+declare(strict_types = 1);
+
 namespace Drupal\ckeditor5_premium_features_ai_assistant\Form;
 
-use Drupal\ckeditor5_premium_features_ai_assistant\Entity\Ckeditor5AiCommandGroup;
+use Drupal\ckeditor5_premium_features_ai_assistant\Entity\CKEditor5AiCommandGroup;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
  * CKEditor 5 AI Command add form.
  */
-class Ckeditor5AiCommandAddForm extends FormBase {
+class CKEditor5AiCommandAddForm extends FormBase {
 
   /**
    * Command group entity.
    *
-   * @var \Drupal\ckeditor5_premium_features_ai_assistant\Entity\Ckeditor5AiCommandGroup|null
+   * @var \Drupal\ckeditor5_premium_features_ai_assistant\Entity\CKEditor5AiCommandGroup|null
    */
-  protected ?Ckeditor5AiCommandGroup $commandGroup;
+  protected ?CKEditor5AiCommandGroup $commandGroup;
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function getFormId() {
     return 'ckeditor5_ai_command_add_form';
@@ -28,7 +35,7 @@ class Ckeditor5AiCommandAddForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, Ckeditor5AiCommandGroup $ckeditor5_ai_command_group = NULL, string $uuid = NULL): array {
+  public function buildForm(array $form, FormStateInterface $form_state, CKEditor5AiCommandGroup $ckeditor5_ai_command_group = NULL, string $uuid = NULL): array {
     $this->commandGroup = $ckeditor5_ai_command_group;
     $command = [];
     if ($uuid) {
@@ -90,7 +97,7 @@ class Ckeditor5AiCommandAddForm extends FormBase {
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $values = $form_state->cleanValues()->getValues();

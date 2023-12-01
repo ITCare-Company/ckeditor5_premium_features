@@ -1,0 +1,19 @@
+<?php
+
+/*
+ * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
+declare(strict_types = 1);
+
+namespace Drupal\ckeditor5_premium_features_ai_assistant;
+
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
+
+/**
+ * Provides an interface defining a CKEditor 5 AI commands group entity type.
+ */
+interface CKEditor5AiCommandGroupInterface extends ConfigEntityInterface {
+
+}

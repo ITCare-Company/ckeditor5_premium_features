@@ -1,8 +1,15 @@
 <?php
 
+/*
+ * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
+declare(strict_types = 1);
+
 namespace Drupal\ckeditor5_premium_features_ai_assistant\Form;
 
-use Drupal\ckeditor5_premium_features_ai_assistant\Entity\Ckeditor5AiCommandGroup;
+use Drupal\ckeditor5_premium_features_ai_assistant\Entity\CKEditor5AiCommandGroup;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -10,7 +17,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * CKEditor 5 AI Command delete form.
  */
-class Ckeditor5AiCommandDeleteForm extends ConfirmFormBase {
+class CKEditor5AiCommandDeleteForm extends ConfirmFormBase {
 
   /**
    * Command group entity.
@@ -65,7 +72,7 @@ class Ckeditor5AiCommandDeleteForm extends ConfirmFormBase {
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function getFormId() {
     return 'ckeditor5_ai_command_delete_form';

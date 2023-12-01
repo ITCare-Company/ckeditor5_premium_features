@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
+declare(strict_types = 1);
+
 namespace Drupal\ckeditor5_premium_features_ai_assistant\Form;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
@@ -8,7 +15,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * CKEditor 5 AI Command edit form.
  */
-class Ckeditor5AiCommandEditForm extends Ckeditor5AiCommandAddForm {
+class CKEditor5AiCommandEditForm extends Ckeditor5AiCommandAddForm {
 
   /**
    * Command uuid.
@@ -28,7 +35,7 @@ class Ckeditor5AiCommandEditForm extends Ckeditor5AiCommandAddForm {
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $values = $form_state->cleanValues()->getValues();
@@ -39,7 +46,7 @@ class Ckeditor5AiCommandEditForm extends Ckeditor5AiCommandAddForm {
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function getFormId() {
     return 'ckeditor5_ai_command_edit_form';

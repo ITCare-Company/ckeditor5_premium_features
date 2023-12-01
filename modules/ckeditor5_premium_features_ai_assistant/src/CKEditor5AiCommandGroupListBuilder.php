@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
+declare(strict_types = 1);
+
 namespace Drupal\ckeditor5_premium_features_ai_assistant;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
@@ -8,7 +15,7 @@ use Drupal\Core\Entity\EntityInterface;
 /**
  * Provides a listing of ckeditor 5 ai commands groups.
  */
-class Ckeditor5AiCommandGroupListBuilder extends ConfigEntityListBuilder {
+class CKEditor5AiCommandGroupListBuilder extends ConfigEntityListBuilder {
 
   /**
    * {@inheritdoc}
@@ -23,7 +30,7 @@ class Ckeditor5AiCommandGroupListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /** @var \Drupal\ckeditor5_premium_features_ai_assistant\Ckeditor5AiCommandGroupInterface $entity */
+    /** @var \Drupal\ckeditor5_premium_features_ai_assistant\CKEditor5AiCommandGroupInterface $entity */
     $row['label'] = $entity->label();
     $row['id'] = $entity->id();
 

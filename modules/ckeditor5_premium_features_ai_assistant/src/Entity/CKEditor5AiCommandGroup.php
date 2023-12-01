@@ -1,8 +1,15 @@
 <?php
 
+/*
+ * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
+declare(strict_types = 1);
+
 namespace Drupal\ckeditor5_premium_features_ai_assistant\Entity;
 
-use Drupal\ckeditor5_premium_features_ai_assistant\Ckeditor5AiCommandGroupInterface;
+use Drupal\ckeditor5_premium_features_ai_assistant\CKEditor5AiCommandGroupInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 
 /**
@@ -19,10 +26,10 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     plural = "@count CKEditor 5 AI Commands Group",
  *   ),
  *   handlers = {
- *     "list_builder" = "Drupal\ckeditor5_premium_features_ai_assistant\Ckeditor5AiCommandGroupListBuilder",
+ *     "list_builder" = "Drupal\ckeditor5_premium_features_ai_assistant\CKEditor5AiCommandGroupListBuilder",
  *     "form" = {
- *       "add" = "Drupal\ckeditor5_premium_features_ai_assistant\Form\Ckeditor5AiCommandGroupForm",
- *       "edit" = "Drupal\ckeditor5_premium_features_ai_assistant\Form\Ckeditor5AiCommandGroupForm",
+ *       "add" = "Drupal\ckeditor5_premium_features_ai_assistant\Form\CKEditor5AiCommandGroupForm",
+ *       "edit" = "Drupal\ckeditor5_premium_features_ai_assistant\Form\CKEditor5AiCommandGroupForm",
  *       "delete" = "Drupal\Core\Entity\EntityDeleteForm"
  *     }
  *   },
@@ -47,7 +54,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   }
  * )
  */
-class Ckeditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCommandGroupInterface {
+class CKEditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCommandGroupInterface {
 
   /**
    * The CKEditor 5 AI Commands group ID.
@@ -84,7 +91,7 @@ class Ckeditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
    *   Array with command values. ai_command
    *   [ command_id, label, weight, prompt ].
    *
-   * @return Ckeditor5AiCommandGroup
+   * @return CKEditor5AiCommandGroup
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
@@ -114,7 +121,7 @@ class Ckeditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
    * @param string $uuid
    *   Command uuid.
    *
-   * @return Ckeditor5AiCommandGroup
+   * @return CKEditor5AiCommandGroup
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
@@ -131,7 +138,7 @@ class Ckeditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
    *   Array with command values.
    *   [ uuid, command_id, label, weight, prompt ].
    *
-   * @return Ckeditor5AiCommandGroup
+   * @return CKEditor5AiCommandGroup
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
@@ -152,7 +159,7 @@ class Ckeditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
    * @param array $weights
    *   Array with weights associated with commands.
    *
-   * @return Ckeditor5AiCommandGroup
+   * @return CKEditor5AiCommandGroup
    */
   public function updateWeights(array $weights): static {
     foreach ($this->commands as $key => $command) {

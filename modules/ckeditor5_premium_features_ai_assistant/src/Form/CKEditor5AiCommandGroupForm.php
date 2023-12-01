@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
+declare(strict_types = 1);
+
 namespace Drupal\ckeditor5_premium_features_ai_assistant\Form;
 
 use Drupal\Core\Entity\EntityForm;
@@ -11,7 +18,7 @@ use Drupal\Core\Url;
  *
  * @property \Drupal\ckeditor5_premium_features_ai_assistant\Ckeditor5AiCommandGroupInterface $entity
  */
-class Ckeditor5AiCommandGroupForm extends EntityForm {
+class CKEditor5AiCommandGroupForm extends EntityForm {
 
   /**
    * {@inheritdoc}
@@ -169,7 +176,7 @@ class Ckeditor5AiCommandGroupForm extends EntityForm {
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     if (!$this->entity->isNew()) {
