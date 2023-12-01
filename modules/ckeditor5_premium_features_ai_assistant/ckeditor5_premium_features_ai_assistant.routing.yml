@@ -44,7 +44,7 @@ ckeditor5_ai_command.add_form:
     _form: '\Drupal\ckeditor5_premium_features_ai_assistant\Form\CKEditor5AiCommandAddForm'
     _title: 'Add a CKEditor 5 AI Command'
   requirements:
-    _permission: 'administer ckeditor5_ai_command'
+    _permission: 'administer ckeditor5_ai_command_group'
 
 ckeditor5_ai_command.delete_form:
   path: '/admin/config/ckeditor5-premium-features/ai-assistant/ckeditor5-ai-command-group/{ckeditor5_ai_command_group}/ckeditor5-ai-command/{uuid}/delete'
@@ -52,7 +52,7 @@ ckeditor5_ai_command.delete_form:
     _form: '\Drupal\ckeditor5_premium_features_ai_assistant\Form\CKEditor5AiCommandDeleteForm'
     _title: 'Delete a CKEditor 5 AI Command'
   requirements:
-    _permission: 'administer ckeditor5_ai_command'
+    _permission: 'administer ckeditor5_ai_command_group'
 
 ckeditor5_ai_command.edit_form:
   path: '/admin/config/ckeditor5-premium-features/ai-assistant/ckeditor5-ai-command-group/{ckeditor5_ai_command_group}/ckeditor5-ai-command/{uuid}'
@@ -60,7 +60,7 @@ ckeditor5_ai_command.edit_form:
     _form: '\Drupal\ckeditor5_premium_features_ai_assistant\Form\CKEditor5AiCommandEditForm'
     _title: 'Edit a CKEditor 5 AI Command'
   requirements:
-    _permission: 'administer ckeditor5_ai_command'
+    _permission: 'administer ckeditor5_ai_command_group'
 
 ckeditor5_premium_features_ai_assistant.ai_assistant_proxy_provider:
   path: '/ckeditor5-premium-features-ai-assistant/completion'

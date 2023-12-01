@@ -23,7 +23,7 @@ final class CKEditor5AiProviderPluginManager extends DefaultPluginManager {
    * Constructs the object.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    parent::__construct('Plugin/CKEditor5AiProvider', $namespaces, $module_handler, CKEditor5AiProviderInterface::class, Ckeditor5AiProvider::class);
+    parent::__construct('Plugin/CKEditor5AiProvider', $namespaces, $module_handler, CKEditor5AiProviderInterface::class, CKEditor5AiProvider::class);
     $this->alterInfo('ckeditor5_ai_provider_info');
     $this->setCacheBackend($cache_backend, 'ckeditor5_ai_provider_plugins');
   }
