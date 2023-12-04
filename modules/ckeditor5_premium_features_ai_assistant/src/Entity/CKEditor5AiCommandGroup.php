@@ -85,15 +85,7 @@ class CKEditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
   protected ?array $textFormats;
 
   /**
-   * Add command to the commands list.
-   *
-   * @param array $command
-   *   Array with command values. ai_command
-   *   [ command_id, label, weight, prompt ].
-   *
-   * @return CKEditor5AiCommandGroup
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
+   * {@inheritdoc}
    */
   public function addCommand(array $command): static {
     $command['uuid'] = $this->uuidGenerator()->generate();
@@ -103,12 +95,7 @@ class CKEditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
   }
 
   /**
-   * Get command from commands list.
-   *
-   * @param string $uuid
-   *   Command uuid.
-   *
-   * @return array
+   * {@inheritdoc}
    */
   public function getCommandByUuid(string $uuid): array {
     $command = array_filter($this->commands, fn($command) => $command['uuid'] === $uuid);
@@ -116,14 +103,7 @@ class CKEditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
   }
 
   /**
-   * Remove command from commands list.
-   *
-   * @param string $uuid
-   *   Command uuid.
-   *
-   * @return CKEditor5AiCommandGroup
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
+   * {@inheritdoc}
    */
   public function removeCommand(string $uuid):static {
     $commands = array_filter($this->commands, fn($command) => $command['uuid'] !== $uuid);
@@ -132,15 +112,7 @@ class CKEditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
   }
 
   /**
-   * Update command values.
-   *
-   * @param array $command
-   *   Array with command values.
-   *   [ uuid, command_id, label, weight, prompt ].
-   *
-   * @return CKEditor5AiCommandGroup
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
+   * {@inheritdoc}
    */
   public function updateCommand(array $command): static {
     foreach ($this->commands as $key => $value) {
@@ -154,12 +126,7 @@ class CKEditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
   }
 
   /**
-   * Update weights of commands.
-   *
-   * @param array $weights
-   *   Array with weights associated with commands.
-   *
-   * @return CKEditor5AiCommandGroup
+   * {@inheritdoc}
    */
   public function updateWeights(array $weights): static {
     foreach ($this->commands as $key => $command) {
@@ -174,7 +141,7 @@ class CKEditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
   }
 
   /**
-   * Returns an array of definitions.
+   * {@inheritdoc}
    */
   public function getDefinition(): array {
     return [
@@ -185,17 +152,14 @@ class CKEditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCom
   }
 
   /**
-   * Checks if command with provided id exists.
-   *
-   * @param string $id
-   *   Command id.
-   *
-   * @return bool
+   * {@inheritdoc}
    */
   public function commandExists(string $id): bool {
-    foreach ($this->commands as $command) {
-      if (isset($command['command_id']) && $command['command_id'] === $id) {
-        return TRUE;
+    if (!empty($this->commands)) {
+      foreach ($this->commands as $command) {
+        if (isset($command['command_id']) && $command['command_id'] === $id) {
+          return TRUE;
+        }
       }
     }
     return FALSE;

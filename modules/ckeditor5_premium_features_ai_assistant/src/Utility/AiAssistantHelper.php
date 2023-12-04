@@ -58,7 +58,7 @@ class AiAssistantHelper {
    *   CKEditor5AiProviderInterface object or null.
    */
   public function getProvider(): ?CKEditor5AiProviderInterface {
-    $enabledProvider = $this->aiAssistantSettings->get('ai_providers') ?? self::DEFAULT_PROVIDER;
+    $enabledProvider = $this->aiAssistantSettings->get('ai_provider') ?? self::DEFAULT_PROVIDER;
 
     try {
       /**

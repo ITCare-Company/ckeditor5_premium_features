@@ -23,8 +23,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *
  * @CKEditor5AiProvider(
  *   id = "openai_service",
- *   label = @Translation("Open AI service"),
- *   description = @Translation("Foo description."),
+ *   label = @Translation("OpenAI Service"),
+ *   description = @Translation("OpenAI Service Provider."),
  *   form_fields = {
  *     "auth_key" = {
  *        "#type" = "textfield",
