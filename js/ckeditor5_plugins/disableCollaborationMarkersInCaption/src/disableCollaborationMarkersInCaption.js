@@ -13,12 +13,14 @@ class DisableCollaborationMarkersInCaption {
     const editor = this.editor;
     const commentCommand = editor.commands.get( 'addCommentThread' );
     const trackChangesCommand = editor.commands.get( 'trackChanges' );
-
     editor.set( 'disabledCommands', false );
 
-    if ( editor.plugins.has( 'DrupalImage' ) && editor.plugins.has('TrackChangesEditing') ) {
-      const tcEditing = editor.plugins.get( 'TrackChangesEditing' );
+    if ((!editor.plugins.has('CommentsRepository') && !editor.plugins.has('TrackChangesEditing')) || !editor.plugins.has('DrupalImage')) {
+      return;
+    }
 
+    if (!this.editor.commands.get('toggleImageCaption')) {
+      const tcEditing = editor.plugins.get( 'TrackChangesEditing' );
       try {
         tcEditing.enableCommand( 'toggleImageCaption', ( executeCommand, options ) => {
           executeCommand( options );
@@ -26,14 +28,12 @@ class DisableCollaborationMarkersInCaption {
       } catch (error) {
         return;
       }
-    } else {
-      return;
     }
 
     let tcOriginalValue;
 
     editor.model.document.on( 'change', () => {
-      if ( !editor.disabledCommands ) {
+      if ( !editor.disabledCommands && trackChangesCommand) {
         tcOriginalValue = trackChangesCommand.value;
       }
     }, { priority: 'highest' } );
@@ -43,19 +43,24 @@ class DisableCollaborationMarkersInCaption {
       const ancestor = range.getCommonAncestor();
 
       if ( ancestor.name == 'caption' ) {
-        commentCommand.forceDisabled( 'drupal-premium-features' );
-        trackChangesCommand.forceDisabled( 'drupal-premium-features' );
-        trackChangesCommand.value = false;
-
+        if (commentCommand) {
+          commentCommand.forceDisabled( 'drupal-premium-features' );
+        }
+        if (trackChangesCommand) {
+          trackChangesCommand.value = false;
+          trackChangesCommand.forceDisabled( 'drupal-premium-features' );
+        }
         editor.set( 'disabledCommands', true );
       } else {
         if ( editor.disabledCommands ) {
-          commentCommand.clearForceDisabled( 'drupal-premium-features' );
-          trackChangesCommand.clearForceDisabled( 'drupal-premium-features' );
-
+          if (commentCommand) {
+            commentCommand.clearForceDisabled( 'drupal-premium-features' );
+          }
+          if (trackChangesCommand) {
+            trackChangesCommand.clearForceDisabled('drupal-premium-features');
+          }
           editor.set( 'disabledCommands', false );
-
-          if ( tcOriginalValue ) {
+          if ( tcOriginalValue && trackChangesCommand) {
             trackChangesCommand.value = true;
           }
         }
