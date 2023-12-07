@@ -44,7 +44,7 @@ final class AiAssistantProviderProxyController extends ControllerBase {
   public function __invoke(Request $request): Response {
     $aiProvider = $this->aiAssistantHelper->getProvider();
     if (!$aiProvider) {
-      return new Response('No AI service available.', 500);
+      return new Response('No AI service available.', 501);
     }
     return $aiProvider->processRequest($request);
   }

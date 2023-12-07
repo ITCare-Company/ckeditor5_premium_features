@@ -16,6 +16,7 @@ use Drupal\Core\Config\ImmutableConfig;
 use OpenAI\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -65,7 +66,10 @@ final class OpenAi extends CKEditor5AiProviderPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function processRequest(Request $request): StreamedResponse {
+  public function processRequest(Request $request): Response {
+    if (!$this->getAuthKey()) {
+      return new Response('Missing AI service configuration.', 503);
+    }
     $content = $request->getContent();
     $requestData = json_decode($content, TRUE);
 
