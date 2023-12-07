@@ -43,6 +43,10 @@
   min-height: 120px;
   padding-bottom: 120px;
 }
+.ck-editor-container .ck-editor-sidebar-wrapper .ck-sidebar-wrapper .ck-sidebar {
+    height: 40px;
+    margin-top: -40px;
+}
 
 /*sidebar */
 .ck-editor-container .ck-editor-sidebar-wrapper.slider-off .ck-sidebar-wrapper {

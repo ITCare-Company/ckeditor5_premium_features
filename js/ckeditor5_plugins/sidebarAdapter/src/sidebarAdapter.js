@@ -24,7 +24,6 @@ class SidebarAdapter {
 
     this.editor.config._config.sidebar = {
       container: sidebar_column,
-      preventScrollOutOfView: true,
     }
   }
 
@@ -69,6 +68,8 @@ class SidebarAdapter {
 
     this.checkIfInsideTab();
 
+    this.setSidebarObservers();
+
     this.editor.on('ready', () => {
       if (this.editor.ui.view.element) {
         this.editor.ui.view.element.classList += ' ck-sidebar-enabled';
@@ -78,11 +79,83 @@ class SidebarAdapter {
   }
 
   destroy() {
+    this.intersectionObserver.disconnect();
+    this.attrMutationObserver.disconnect();
+    this.mutationObserver.disconnect();
+
     this.sidebarVisibilityModify(true);
     let toggle = this.getSidebarToggle()
     if (toggle) {
       toggle.remove();
     }
+  }
+
+  /**
+   * Sets the Mutation and Intersection Observers which have the goal to adjust 'top' parameter to avoid intersection
+   * of sidebar items with sidebar toggle and other items.
+   */
+  setSidebarObservers() {
+    const root = this.sidebar.querySelector('.ck-sidebar')
+    const mutationConfig = {
+      childList: true
+    };
+    const intersectionConfig = {
+      root: root,
+      rootMargin: "0px",
+      threshold: 0,
+    };
+
+    const attrMutationConfig = {
+      attributes: true,
+      attributeFilter: ['style']
+    };
+    this.attrMutationObserver = new MutationObserver((records, observer) => {
+      records.forEach(record => {
+        updateItemsTopPosition(record.target.closest('.ck-editor-sidebar-wrapper'));
+      });
+    });
+    
+    this.mutationObserver = new MutationObserver((records, observer) => {
+      records.forEach(record => {
+        record.addedNodes.forEach(addedNode => {
+          this.intersectionObserver.observe(addedNode);
+          this.attrMutationObserver.observe(addedNode, attrMutationConfig);
+        });
+        record.removedNodes.forEach(removedNode => {
+          this.intersectionObserver.unobserve(removedNode);
+        });
+      });
+    });
+    this.mutationObserver.observe(root, mutationConfig);
+    this.intersectionObserver = new IntersectionObserver(this.updateSidebarItemTop, intersectionConfig);
+  }
+
+  /**
+   * Intersection Observer callback function. Sets the 'top' parameter value for sidebar item
+   *
+   * @param entries
+   * @param observer
+   */
+  updateSidebarItemTop (entries, observer) {
+    let sidebar = null;
+    entries.forEach(entry => {
+      sidebar = entry.target.closest('.ck-editor-sidebar-wrapper');
+      // Handle the sidebar item which is intersecting with toggle.
+      if (entry.isIntersecting) {
+        const targetWrapper = entry.target;
+        const wrapperHeight = parseFloat(targetWrapper.style.height);
+        const threshold = wrapperHeight + 26;
+        const currentTop = parseFloat(targetWrapper.style.top);
+        if (currentTop < 0 && currentTop > -threshold) {
+          targetWrapper.style.top = '-' + wrapperHeight + "px";
+        }
+        else if ((currentTop >= 0 && currentTop < 40) || !currentTop) {
+          targetWrapper.style.top = '40px';
+        }
+      }
+
+    });
+    updateItemsTopPosition(sidebar);
   }
 
   /**
@@ -253,6 +326,41 @@ class SidebarAdapter {
     });
   }
 
+}
+
+/**
+ * Updates 'top' parameter value for intersecting sidebar items after first item was updated to avoid intersection with toggle.
+ *
+ * @param sidebar
+ *    The sidebar container element.
+ */
+function updateItemsTopPosition (sidebar) {
+  let sidebarItems = sidebar.querySelectorAll('.ck-sidebar > .ck-sidebar-item');
+  let prevItem = null;
+  const margin = sidebar.classList.contains('narrowSidebar') ? 5.0 : 25.0;
+
+  for (const key in sidebarItems) {
+    const top = parseFloat(sidebarItems[key].style.top);
+
+    // Skip first and elements with negative top.
+    if (!prevItem || (prevItem && top < 0)) {
+      prevItem = sidebarItems[key];
+      continue;
+    }
+
+    const prevTop = parseFloat(prevItem.style.top);
+    const prevHeight = parseFloat(prevItem.offsetHeight);
+    const expectedTop = prevTop > 0 ? prevTop + prevHeight + margin : 40;
+
+    if (top < expectedTop) {
+      sidebarItems[key].style.top = expectedTop + "px";
+    }
+    else if (top !== 40) {
+      return;
+    }
+
+    prevItem = sidebarItems[key];
+  }
 }
 
 export default SidebarAdapter;
