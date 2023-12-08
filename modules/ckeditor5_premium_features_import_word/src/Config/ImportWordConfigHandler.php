@@ -12,6 +12,9 @@ namespace Drupal\ckeditor5_premium_features_import_word\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 
+/**
+ * Helper for Import from Word configuration.
+ */
 class ImportWordConfigHandler implements ImportWordConfigHandlerInterface {
 
   /**
@@ -36,6 +39,27 @@ class ImportWordConfigHandler implements ImportWordConfigHandlerInterface {
    */
   public function isWordStylesEnabled(): bool {
     return (bool) $this->config->get('word_styles');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isStylesDisabled(): bool {
+    return (bool) $this->config->get('disable_styles');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isCssResetsEnabled(): bool {
+    return (bool) $this->config->get('css_resets');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCommentsStyles(): string {
+    return $this->config->get('comments_styles') ?? 'basic';
   }
 
 }
