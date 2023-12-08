@@ -147,11 +147,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
         'comments' => $thread_comments,
       ];
 
-      $resolvedData = $this->isThreadResolved($thread_comments);
-      if (!empty($resolvedData)) {
-        $threadData['resolvedAt'] = $resolvedData['resolved_at'] ?? NULL;
-        $threadData['resolvedBy'] = $resolvedData['resolved_by'] ?? NULL;
-      }
+      $this->handleCommentsArchiveAttributes($threadData, $thread_comments);
 
       $serialized[] = $threadData;
     }
@@ -205,6 +201,14 @@ class CommentsStorage extends SqlContentEntityStorage implements
           $element_data['resolved_at'] = $thread_data['resolvedAt'];
         }
 
+        if (isset($thread_data['archivedAt'])) {
+          $element_data['archive_at'] = $thread_data['archivedAt'];
+        }
+
+        if (isset($thread_data['unlinkedAt'])) {
+          $element_data['unlinked_at'] = $thread_data['unlinkedAt'];
+        }
+
         $entity_list[] = $element_data;
 
         // This way, in a result, we'll have a list of Comment entities that
@@ -244,6 +248,8 @@ class CommentsStorage extends SqlContentEntityStorage implements
       'is_reply' => $data->get('is_reply'),
       'resolved_at' => $data->get('resolved_at') ?? NULL,
       'resolved_by' => $data->get('resolved_by') ?? NULL,
+      'archived_at' => $data->get('archived_at') ?? NULL,
+      'unlinked_at' => $data->get('unlinked_at') ?? NULL,
     ] + $data->get('attributes') ?? [];
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\Comment $comment */
@@ -280,6 +286,8 @@ class CommentsStorage extends SqlContentEntityStorage implements
       'is_reply' => $data->get('is_reply'),
       'resolved_at' => $data->get('resolved_at') ?? NULL,
       'resolved_by' => $data->get('resolved_by') ?? NULL,
+      'archived_at' => $data->get('archived_at') ?? NULL,
+      'unlinked_at' => $data->get('unlinked_at') ?? NULL,
     ] + $data->get('attributes') ?? [];
 
     $entity
@@ -394,26 +402,26 @@ class CommentsStorage extends SqlContentEntityStorage implements
   }
 
   /**
-   * Check if the thread is resolved.
+   * Check if the thread is resolved, unlinked or archived.
    *
-   * If comments in thread have resolved attributes thread is resolved.
-   *
+   * @param array $threadData
+   *   The array of thread data.
    * @param array $threadComments
    *   Comments in thread.
-   *
-   * @return array
-   *   The array with resolved parameters or empty array.
    */
-  private function isThreadResolved(array $threadComments): array {
+  private function handleCommentsArchiveAttributes(array &$threadData, array $threadComments): void {
     foreach ($threadComments as $comment) {
       if (isset($comment['attributes']['resolved_at']) && isset($comment['attributes']['resolved_by'])) {
-        return [
-          'resolved_at' => $comment['attributes']['resolved_at'],
-          'resolved_by' => $comment['attributes']['resolved_by'],
-        ];
+        $threadData['resolvedAt'] = $comment['attributes']['resolved_at'];
+        $threadData['resolvedBy'] = $comment['attributes']['resolved_by'];
+      }
+      if (isset($comment['attributes']['unlinked_at'])) {
+        $threadData['unlinkedAt'] = $comment['attributes']['unlinked_at'];
+      }
+      if (isset($comment['attributes']['archived_at'])) {
+        $threadData['archivedAt'] = $comment['attributes']['archived_at'];
       }
     }
-    return [];
   }
 
 }
