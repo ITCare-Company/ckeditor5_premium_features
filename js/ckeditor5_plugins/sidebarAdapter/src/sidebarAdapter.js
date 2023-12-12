@@ -340,16 +340,19 @@ function updateItemsTopPosition (sidebar) {
   const margin = sidebar.classList.contains('narrowSidebar') ? 5.0 : 25.0;
 
   for (const key in sidebarItems) {
+    if (!sidebarItems[key].style) {
+      continue;
+    }
     const top = parseFloat(sidebarItems[key].style.top);
 
-    // Skip first and elements with negative top.
-    if (!prevItem || (prevItem && top < 0)) {
+    // Skip elements with negative top.
+    if (top < 0) {
       prevItem = sidebarItems[key];
       continue;
     }
 
-    const prevTop = parseFloat(prevItem.style.top);
-    const prevHeight = parseFloat(prevItem.offsetHeight);
+    const prevTop = prevItem ? parseFloat(prevItem.style.top) : 0;
+    const prevHeight = prevItem ? parseFloat(prevItem.offsetHeight) : 0;
     const expectedTop = prevTop > 0 ? prevTop + prevHeight + margin : 40;
 
     if (top < expectedTop) {
