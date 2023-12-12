@@ -87,7 +87,7 @@ class ErrorNotifications extends Plugin {
 
     const matches = new Collection();
 
-    if ( this.activeNotification ) {
+    if ( this.activeNotification || !evt.error ) {
       return;
     }
 
@@ -106,6 +106,10 @@ class ErrorNotifications extends Plugin {
       notificationToShow = matches.find( notification => notification.reactsTo.message );
     } else {
       notificationToShow = matches.first;
+    }
+
+    if ( !notificationToShow ) {
+      return;
     }
 
     this.activeNotification = notificationToShow;
