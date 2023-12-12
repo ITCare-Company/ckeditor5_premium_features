@@ -19,8 +19,9 @@ class DisableCollaborationMarkersInCaption {
       return;
     }
 
+    const tcEditing = editor.plugins.get( 'TrackChangesEditing' );
+
     if (!this.editor.commands.get('toggleImageCaption')) {
-      const tcEditing = editor.plugins.get( 'TrackChangesEditing' );
       try {
         tcEditing.enableCommand( 'toggleImageCaption', ( executeCommand, options ) => {
           executeCommand( options );
@@ -29,6 +30,15 @@ class DisableCollaborationMarkersInCaption {
         return;
       }
     }
+
+    const toggleImageCaptionCommand = this.editor.commands.get('toggleImageCaption');
+    trackChangesCommand.on('change:value', (evt, data, value) => {
+      if (value) {
+        toggleImageCaptionCommand.forceDisabled('drupal-premium-features')
+      } else {
+        toggleImageCaptionCommand.clearForceDisabled('drupal-premium-features')
+      }
+    })
 
     let tcOriginalValue;
 
@@ -41,8 +51,7 @@ class DisableCollaborationMarkersInCaption {
     editor.model.document.on( 'change', () => {
       const range = editor.model.document.selection.getFirstRange();
       const ancestor = range.getCommonAncestor();
-
-      if ( ancestor.name == 'caption' ) {
+      if ( ancestor.name === 'caption' ) {
         if (commentCommand) {
           commentCommand.forceDisabled( 'drupal-premium-features' );
         }
