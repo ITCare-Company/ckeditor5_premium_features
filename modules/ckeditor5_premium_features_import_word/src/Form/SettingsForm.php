@@ -60,7 +60,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config($this->getFormId());
+    $config = $this->config('ckeditor5_premium_features_import_word.settings');
     $form['info'] = [
       '#markup' => $this->t('You can learn more about configuration options in the <a target="_blank" href="@guides-url">Styles</a> guide for Import from Word.', ['@guides-url' => 'https://ckeditor.com/docs/cs/latest/guides/import-from-word/styles.html#default-styles']),
     ];
