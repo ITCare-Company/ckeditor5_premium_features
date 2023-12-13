@@ -46,7 +46,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'ckeditor5_premium_features_import_word.settings';
+    return 'ckeditor5_premium_features_import_word_settings';
   }
 
   /**
