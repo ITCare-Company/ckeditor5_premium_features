@@ -41,25 +41,4 @@ class ImportWordConfigHandler implements ImportWordConfigHandlerInterface {
     return (bool) $this->config->get('word_styles');
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function isStylesDisabled(): bool {
-    return (bool) $this->config->get('disable_styles');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isCssResetsEnabled(): bool {
-    return (bool) $this->config->get('css_resets');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCommentsStyles(): string {
-    return $this->config->get('comments_styles') ?? 'basic';
-  }
-
 }

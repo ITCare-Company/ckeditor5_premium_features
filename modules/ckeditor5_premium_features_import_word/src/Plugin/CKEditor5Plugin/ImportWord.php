@@ -62,18 +62,9 @@ class ImportWord extends CKEditor5PluginDefault implements ContainerFactoryPlugi
     $static_plugin_config = parent::getDynamicPluginConfig($static_plugin_config, $editor);
 
     if ($this->libraryVersionChecker->isLibraryVersionHigherOrEqual('40.1.0')) {
-      if ($this->configHandler->isWordStylesEnabled()) {
-        $static_plugin_config['importWord']['formatting']['defaults'] = 'inline';
-      }
-      if ($this->configHandler->isStylesDisabled()) {
-        $static_plugin_config['importWord']['formatting']['styles'] = 'none';
-      }
-      if ($this->configHandler->isCssResetsEnabled()) {
-        $static_plugin_config['importWord']['formatting']['resets'] = 'inline';
-      }
-      if ($commentsStyles = $this->configHandler->getCommentsStyles()) {
-        $static_plugin_config['importWord']['formatting']['comments'] = $commentsStyles;
-      }
+      $isWordStylesEnabled = $this->configHandler->isWordStylesEnabled();
+      $static_plugin_config['importWord']['formatting']['defaults'] = $isWordStylesEnabled ? 'inline' : 'none';
+      $static_plugin_config['importWord']['formatting']['resets'] = $isWordStylesEnabled ? 'inline' : 'none';
     }
     else {
       $static_plugin_config['importWord']['defaultStyles'] = $this->configHandler->isWordStylesEnabled();

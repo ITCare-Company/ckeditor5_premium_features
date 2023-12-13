@@ -6,12 +6,3 @@ ckeditor5_premium_features_import_word.settings:
     word_styles:
       type: boolean
       label: "Word's styles"
-    css_resets:
-      type: boolean
-      label: "CSS resets"
-    disable_styles:
-      type: boolean
-      label: "Disable styles"
-    comments_styles:
-      type: string
-      label: "Comments styles"

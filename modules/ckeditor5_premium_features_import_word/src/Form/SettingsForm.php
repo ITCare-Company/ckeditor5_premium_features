@@ -70,32 +70,6 @@ class SettingsForm extends ConfigFormBase {
       '#description' => $this->t('If checked, Word’s default styles will be preserved in the imported content.'),
       '#default_value' => $config->get('word_styles'),
     ];
-    if ($this->libraryVersionChecker->isLibraryVersionHigherOrEqual('40.1.0')) {
-      $form['css_resets'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t("CSS resets"),
-        '#description' => $this->t('Setting this option will include all resetting styles in the HTML result, e.g. headings will have their font weight reset'),
-        '#default_value' => $config->get('css_resets'),
-      ];
-      $form['comments_styles'] = [
-        '#title' => $this->t("Comments styles"),
-        '#type' => 'select',
-        '#options' => [
-          'basic' => $this->t('Only basic styles are kept.'),
-          'none' => $this->t('Comment text is imported without any styling.'),
-          'full' => $this->t('All styles are preserved (not recommended).'),
-        ],
-        '#description' => $this->t('If the imported document contains comments, only their basic styles will be kept by default. You can change it here.'),
-        '#default_value' => $config->get('comments_styles') ?? 'basic',
-      ];
-
-      $form['disable_styles'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t("Disable styles"),
-        '#description' => $this->t('Enabling this configuration will result in a document that does not include any Word styles.'),
-        '#default_value' => $config->get('disable_styles'),
-      ];
-    }
     return parent::buildForm($form, $form_state);
   }
 
