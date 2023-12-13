@@ -100,7 +100,7 @@ class AiAssistantHelper {
   /**
    * Returns array of provider config fields.
    *
-   * @param $providerId
+   * @param string $providerId
    *   The Provider ID.
    *
    * @return array
