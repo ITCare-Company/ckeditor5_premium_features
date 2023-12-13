@@ -3,3 +3,9 @@ admin.ai_assistant:
   css:
     theme:
       css/ai-assistant.admin.css: { }
+
+ai-service-adapter:
+  js:
+    js/build/aiServiceAdapter.js: { minified: true }
+  dependencies:
+    - ckeditor5_premium_features_ai_assistant/ai

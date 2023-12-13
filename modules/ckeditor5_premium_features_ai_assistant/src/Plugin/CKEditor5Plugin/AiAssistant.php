@@ -12,6 +12,7 @@ namespace Drupal\ckeditor5_premium_features_ai_assistant\Plugin\CKEditor5Plugin;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableInterface;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
+use Drupal\ckeditor5_premium_features_ai_assistant\AITextAdapter;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -63,26 +64,32 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
     $config = $this->configFactory->get('ckeditor5_premium_features_ai_assistant.settings');
     $removeCommands = $this->configuration['remove_commands'] ?? [];
 
+    $textAdapter = $config->get('textAdapter') ?? AITextAdapter::OpenAI->value;
+    $static_plugin_config['ai']['textAdapter'] = $textAdapter;
+
     if ($config->get('use_custom_endpoint') && $apiUrl = $config->get('api_url')) {
-      $static_plugin_config['aiAssistant']['apiUrl'] = $apiUrl;
-      $static_plugin_config['aiAssistant']['authKey'] = $config->get('auth_key') ?? '';
+      $static_plugin_config['ai'][$textAdapter]['apiUrl'] = $apiUrl;
+      if ($authKey = $config->get('auth_key')) {
+        $static_plugin_config['ai'][$textAdapter]['requestHeaders']['Authorization'] = "Bearer: {$authKey}";
+      }
     }
     else {
-      $static_plugin_config['aiAssistant']['apiUrl'] = Url::fromRoute('ckeditor5_premium_features_ai_assistant.ai_assistant_proxy_provider')
+      $static_plugin_config['ai'][$textAdapter]['apiUrl'] = Url::fromRoute('ckeditor5_premium_features_ai_assistant.ai_assistant_proxy_provider')
         ->toString();
     }
+
     if ($config->get('disable_default_styles')) {
-      $static_plugin_config['aiAssistant']['uiCssClass'] = FALSE;
+      $static_plugin_config['ai']['useTheme'] = FALSE;
     }
 
     if (!empty($removeCommands)) {
-      $static_plugin_config['aiAssistant']['removeCommands'] = $removeCommands;
+      $static_plugin_config['ai']['aiAssistant']['removeCommands'] = $removeCommands;
     }
     $extraCommandsGroups = $this->getAvailableCommandsGroups($editor);
     if (!empty($extraCommandsGroups)) {
-      $static_plugin_config['aiAssistant']['extraCommandGroups'] = [];
+      $static_plugin_config['ai']['aiAssistant']['extraCommandGroups'] = [];
       foreach ($extraCommandsGroups as $group) {
-        $static_plugin_config['aiAssistant']['extraCommandGroups'][] = [
+        $static_plugin_config['ai']['aiAssistant']['extraCommandGroups'][] = [
           'groupId' => $group['id'],
           'groupLabel' => $group['label'],
           'commands' => $group['commands'],

@@ -9,6 +9,7 @@ declare(strict_types = 1);
 
 namespace Drupal\ckeditor5_premium_features_ai_assistant\Plugin\CKEditor5AiProvider;
 
+use Drupal\ckeditor5_premium_features_ai_assistant\AITextAdapter;
 use Drupal\ckeditor5_premium_features_ai_assistant\CKEditor5AiProviderPluginBase;
 use Drupal\ckeditor5_premium_features_ai_assistant\Form\SettingsForm;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -118,6 +119,13 @@ final class OpenAi extends CKEditor5AiProviderPluginBase {
    */
   private function getAuthKey(): string {
     return $this->config->get($this->getPluginId() . '_' . 'auth_key') ?? '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTextAdapter(): AITextAdapter {
+    return AITextAdapter::OpenAI;
   }
 
 }

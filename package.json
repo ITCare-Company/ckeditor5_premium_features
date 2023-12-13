@@ -9,6 +9,7 @@
     "build": "webpack"
   },
   "devDependencies": {
+    "@ckeditor/ckeditor5-ai": "^40.2.0",
     "@ckeditor/ckeditor5-autoformat": "^35.0.1",
     "@ckeditor/ckeditor5-autosave": "^35.0.1",
     "@ckeditor/ckeditor5-basic-styles": "^35.0.1",

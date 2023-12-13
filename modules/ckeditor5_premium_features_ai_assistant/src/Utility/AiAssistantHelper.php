@@ -106,12 +106,26 @@ class AiAssistantHelper {
    * @return array
    *   Array of fields.
    */
-  public function getProviderFormFields($providerId): array {
+  public function getProviderFormFields(string $providerId): array {
     $provider = $this->getProviderById($providerId);
     if (!$provider) {
       return [];
     }
     return $provider->getConfigFields();
+  }
+
+  /**
+   * Returns the AITextAdapter name.
+   *
+   * @param string $providerId
+   *   The Provider ID.
+   *
+   * @return string
+   *   AITextAdapter name.
+   */
+  public function getProviderTextAdapter(string $providerId): string {
+    $provider = $this->getProviderById($providerId);
+    return $provider->getTextAdapter()->value;
   }
 
 }

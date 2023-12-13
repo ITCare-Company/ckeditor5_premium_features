@@ -46,4 +46,12 @@ interface CKEditor5AiProviderInterface {
    */
   public function getConfigFields(): array;
 
+  /**
+   * Returns CKEditor5 AITextAdapter.
+   *
+   * @return AITextAdapter
+   *   AITextAdapter.
+   */
+  public function getTextAdapter(): AITextAdapter;
+
 }

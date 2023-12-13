@@ -47,7 +47,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return self::AI_ASSISTANT_SETTINGS_ID;
+    return 'ckeditor5_premium_features_ai_assistant_settings';
   }
 
   /**
@@ -55,7 +55,7 @@ class SettingsForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames(): array {
     return [
-      $this->getFormId(),
+      self::AI_ASSISTANT_SETTINGS_ID,
     ];
   }
 
@@ -64,7 +64,7 @@ class SettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state):array {
     $form = parent::buildForm($form, $form_state);
-    $config = $this->config($this->getFormId());
+    $config = $this->config(self::AI_ASSISTANT_SETTINGS_ID);
     $providers = $this->aiAssistantHelper->getAllProviders();
     $provider = $config->get('ai_provider') ?? AiAssistantHelper::DEFAULT_PROVIDER;
     if ($form_state->isRebuilding()) {
@@ -94,6 +94,12 @@ class SettingsForm extends ConfigFormBase {
       $form['provider_settings'][$key] = $field;
     }
 
+    $form['provider_settings']['textAdapter'] = [
+      '#type' => 'textfield',
+      '#default_value' => $this->aiAssistantHelper->getProviderTextAdapter($provider),
+      '#disabled' => TRUE,
+      '#attributes' => ['style' => 'display: none;'],
+    ];
     $form['disable_default_styles'] = [
       '#type' => 'checkbox',
       '#title' => $this->t("Disable the feature's default theme"),
@@ -167,7 +173,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->config($this->getFormId())
+    $this->config(self::AI_ASSISTANT_SETTINGS_ID)
       ->setData($form_state->cleanValues()->getValues())
       ->save();
     parent::submitForm($form, $form_state);
