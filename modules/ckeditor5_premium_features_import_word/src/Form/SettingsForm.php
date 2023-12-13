@@ -85,7 +85,7 @@ class SettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $cleanValues = $form_state->cleanValues()->getValues();
-    $this->config($this->getFormId())
+    $this->configFactory->getEditable('ckeditor5_premium_features_import_word.settings')
       ->setData($cleanValues)
       ->save();
     parent::submitForm($form, $form_state);
