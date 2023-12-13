@@ -79,6 +79,11 @@ class SidebarAdapter {
   }
 
   destroy() {
+    if (!this.annotationsUIs || typeof this.annotationsUIs === "undefined" ||
+        !this.sidebar || typeof this.sidebar === 'undefined') {
+      return;
+    }
+
     this.intersectionObserver.disconnect();
     this.attrMutationObserver.disconnect();
     this.mutationObserver.disconnect();
@@ -114,7 +119,7 @@ class SidebarAdapter {
         updateItemsTopPosition(record.target.closest('.ck-editor-sidebar-wrapper'));
       });
     });
-    
+
     this.mutationObserver = new MutationObserver((records, observer) => {
       records.forEach(record => {
         record.addedNodes.forEach(addedNode => {
