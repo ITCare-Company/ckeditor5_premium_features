@@ -243,8 +243,16 @@ class NotificationContextHelper extends ContextHelper {
     $fixedMarkup = preg_replace('#<suggestion-start[^<>]*deletion[^<>]*></suggestion-start>#si', '<del>', $fixedMarkup);
     $fixedMarkup = preg_replace('#<suggestion-end[^<>]*deletion[^<>]*></suggestion-end>#si', '</del>', $fixedMarkup);
 
-    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*formatInline[^<>]*></suggestion-start>#si', '<format>', $fixedMarkup, -1, $formattingSuggestionCount);
-    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatInline[^<>]*></suggestion-end>#si', '</format>', $fixedMarkup);
+    if ($this->libraryVersionChecker->isLibraryVersionHigherOrEqual('40.1.0')) {
+      $fixedMarkup = preg_replace('#<suggestion-start[^<>]*attribute:[^<>]*></suggestion-start>#si', '<format>', $fixedMarkup, -1, $formattingSuggestionCount);
+      $fixedMarkup = preg_replace('#<suggestion-end[^<>]*attribute:[^<>]*></suggestion-end>#si', '</format>', $fixedMarkup);
+    }
+    else {
+      $fixedMarkup = preg_replace('#<suggestion-start[^<>]*formatInline[^<>]*></suggestion-start>#si', '<format>', $fixedMarkup, -1, $formattingSuggestionCount);
+      $fixedMarkup = preg_replace('#<suggestion-end[^<>]*formatInline[^<>]*></suggestion-end>#si', '</format>', $fixedMarkup);
+    }
+    $fixedMarkup = preg_replace('#<suggestion-start[^<>]*attribute:[^<>]*></suggestion-start>#si', '<format>', $fixedMarkup, -1, $formattingSuggestionCount);
+    $fixedMarkup = preg_replace('#<suggestion-end[^<>]*attribute:[^<>]*></suggestion-end>#si', '</format>', $fixedMarkup);
     $formattingSuggestionDetected |= $formattingSuggestionCount > 0;
 
     $fixedMarkup = preg_replace('#<suggestion-start[^<>]*formatBlock[^<>]*></suggestion-start>#si', '<formatblock>', $fixedMarkup, -1, $formattingSuggestionCount);

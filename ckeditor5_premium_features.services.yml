@@ -69,6 +69,7 @@ services:
     class: Drupal\ckeditor5_premium_features\Utility\ContextHelper
     arguments:
       - '@ckeditor5_premium_features.html_helper'
+      - '@ckeditor5_premium_features.core_library_version_checker'
 
   ckeditor5_premium_features.diff:
     class: Drupal\ckeditor5_premium_features\Diff\Ckeditor5Diff

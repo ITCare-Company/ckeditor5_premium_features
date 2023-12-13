@@ -42,6 +42,7 @@ services:
       - '@current_user'
       - '@ckeditor5_premium_features_notifications.diff'
       - '@ckeditor5_premium_features_notifications.notification_settings'
+      - '@ckeditor5_premium_features.core_library_version_checker'
       - '@plugin.manager.filter'
     tags:
       - { name: 'event_subscriber' }

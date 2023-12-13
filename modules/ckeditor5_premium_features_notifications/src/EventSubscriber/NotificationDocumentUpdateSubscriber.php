@@ -11,14 +11,15 @@ namespace Drupal\ckeditor5_premium_features_notifications\EventSubscriber;
 
 use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
 use Drupal\ckeditor5_premium_features\Diff\Ckeditor5DiffInterface;
-use Drupal\ckeditor5_premium_features\Plugin\Filter\FilterCollaboration;
 use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
+use Drupal\ckeditor5_premium_features\Plugin\Filter\FilterCollaboration;
 use Drupal\ckeditor5_premium_features\Utility\Collaborators;
+use Drupal\ckeditor5_premium_features\Utility\Html;
+use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSender;
 use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings;
 use Drupal\Component\Plugin\Exception\PluginException;
-use Drupal\ckeditor5_premium_features\Utility\Html;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\filter\FilterPluginManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -61,6 +62,7 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
     protected AccountInterface $currentUser,
     protected Ckeditor5DiffInterface $ckeditor5Diff,
     protected NotificationSettings $notificationSettings,
+    protected LibraryVersionChecker $libraryVersionChecker,
     FilterPluginManager $filterPluginManager
   ) {
     $this->filterCollaboration = $filterPluginManager->createInstance('ckeditor5_premium_features_collaboration_filter');
@@ -138,6 +140,10 @@ class NotificationDocumentUpdateSubscriber implements EventSubscriberInterface {
   protected function filterDocument(string $document): string {
     $dom = Html::load($document);
     $xpath = new \DOMXPath($dom);
+
+    if ($this->libraryVersionChecker->isLibraryVersionHigherOrEqual('40.1.0')) {
+      $this->filterCollaboration->filterStyleSuggestion($xpath, $dom);
+    }
 
     $this->filterCollaboration->filterComments($xpath);
     if ($this->notificationSettings->isMessageEnabled(NotificationMessageFactoryInterface::CKEDITOR5_MESSAGE_SUGGESTION_ADDED)) {
