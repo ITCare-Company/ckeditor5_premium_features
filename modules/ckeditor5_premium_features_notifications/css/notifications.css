@@ -220,8 +220,8 @@ comment > img {
 
 format,
 format * {
-  border-top: 3px solid var(--ck-color-suggestion-marker-format-border);
-  border-bottom: 3px solid var(--ck-color-suggestion-marker-format-border);
+  border-top: 3px solid var(--ck-color-suggestion-marker-format-border-active);
+  border-bottom: 3px solid var(--ck-color-suggestion-marker-format-border-active);
 }
 
 formatblock {
@@ -288,6 +288,10 @@ th {
 
 .marker-insertion {
   background-color: hsl(128deg 89% 85% / 35%);
+}
+.marker-format {
+    border-top: 3px solid var(--ck-color-suggestion-marker-format-border);
+    border-bottom: 3px solid var(--ck-color-suggestion-marker-format-border);
 }
 .marker-deletion {
   text-decoration: line-through;

@@ -291,6 +291,7 @@ class NotificationContextHelper extends ContextHelper {
   private function replaceSuggestionMarkers(string &$fixedMarkup): void {
     $fixedMarkup = preg_replace('#<suggestion-marker-start-insertion></suggestion-marker-start-insertion>#si', '<span class="marker-insertion">', $fixedMarkup);
     $fixedMarkup = preg_replace('#<suggestion-marker-start-deletion></suggestion-marker-start-deletion>#si', '<span class="marker-deletion">', $fixedMarkup);
+    $fixedMarkup = preg_replace('#<suggestion-marker-start-format></suggestion-marker-start-format>#si', '<span class="marker-format">', $fixedMarkup);
     $fixedMarkup = preg_replace('#<suggestion-marker-end></suggestion-marker-end>#si', '</span>', $fixedMarkup);
   }
 

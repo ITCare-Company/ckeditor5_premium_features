@@ -101,10 +101,12 @@ class HtmlHelper {
   public function createSuggestionsMarkers(\DOMDocument $document, string $selector): void {
     $startQueriesInsertion[] = "//suggestion-start" . "[(contains(@name, 'insertion')) and not($selector)]";
     $startQueriesDeletion[] = "//suggestion-start" . "[(contains(@name, 'deletion')) and not($selector)]";
+    $startQueriesFormat[] = "//suggestion-start" . "[(contains(@name, 'attribute:')) and not($selector)]";
     $endQueries[] = "//suggestion-end [not($selector)]";
 
     $this->doReplaceElements($document, $startQueriesInsertion, 'suggestion-marker-start-insertion');
     $this->doReplaceElements($document, $startQueriesDeletion, 'suggestion-marker-start-deletion');
+    $this->doReplaceElements($document, $startQueriesFormat, 'suggestion-marker-start-format');
     $this->doReplaceElements($document, $endQueries, 'suggestion-marker-end');
   }
 

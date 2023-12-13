@@ -23,6 +23,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\user\UserInterface;
 
 /**
  * Provides logic for bulk notifications in rtc module.
@@ -405,7 +406,7 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
       $thread = [];
       foreach ($commentThread['comments'] as $comment) {
         $authorId = $comment['user']['id'] ?? 0;
-        $commentAuthor = $this->userStorage->load($authorId);
+        $commentAuthor = $this->loadAuthor($authorId);
         $comment['commentId'] = $comment['id'];
         $rtcComment = $this->createCommentEntity($comment, $commentAuthor, $comment['created_at']);
         $thread[$comment['id']] = $rtcComment;
@@ -424,7 +425,7 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
           continue;
         }
 
-        $author = $this->userStorage->load($suggestion['author_id']);
+        $author = $this->loadAuthor($suggestion['author_id']);
         $rtcSuggestion = $this->createSuggestionEntity($entity, $suggestion, $thread, $author);
 
         $rtcComment
@@ -498,7 +499,7 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
                                           FieldableEntityInterface $entity,
                                           NotificationDocumentHelper $documentHelper): CollaborationEventBase {
     $thread = [];
-    $author = $this->userStorage->load($suggestion['author_id']);
+    $author = $this->loadAuthor($suggestion['author_id']);
     if (!empty($suggestion['thread']['comments'])) {
       foreach ($suggestion['thread']['comments'] as $comment) {
         $comment['commentId'] = $comment['id'];
@@ -539,6 +540,25 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
       $event->setNewContent($documentHelper->getNewData());
     }
     return $event;
+  }
+
+  /**
+   * Loads user account with uuid.
+   *
+   * @param string $id
+   *  User's uuid.
+   *
+   * @return UserInterface
+   *  User account, or anonymous account if uuid is not found.
+   */
+  protected function loadAuthor(string $id): UserInterface {
+    $author = $this->userStorage->loadByProperties(['uuid' => $id]);
+    if ($author) {
+      return reset($author);
+    }
+
+    // Cannot load valid account. Return anonymous user.
+    return $this->userStorage->load(0);
   }
 
 }
