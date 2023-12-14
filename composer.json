@@ -26,6 +26,7 @@
         "ext-libxml": "*",
         "drupal/core": "^9.3 || ^10.0",
         "firebase/php-jwt": "^6.0",
-        "caxy/php-htmldiff": "~0.1.14"
+        "caxy/php-htmldiff": "~0.1.14",
+        "openai-php/client": "^0.8.0"
     }
 }
