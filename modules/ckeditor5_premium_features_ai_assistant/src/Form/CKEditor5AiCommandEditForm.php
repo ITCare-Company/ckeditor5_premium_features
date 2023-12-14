@@ -15,7 +15,7 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * CKEditor 5 AI Command edit form.
  */
-class CKEditor5AiCommandEditForm extends Ckeditor5AiCommandAddForm {
+class CKEditor5AiCommandEditForm extends CKEditor5AiCommandAddForm {
 
   /**
    * Command uuid.

@@ -16,7 +16,7 @@ use Drupal\Core\Url;
 /**
  * CKEditor 5 AI Commands group form.
  *
- * @property \Drupal\ckeditor5_premium_features_ai_assistant\Ckeditor5AiCommandGroupInterface $entity
+ * @property \Drupal\ckeditor5_premium_features_ai_assistant\CKEditor5AiCommandGroupInterface $entity
  */
 class CKEditor5AiCommandGroupForm extends EntityForm {
 
@@ -41,7 +41,7 @@ class CKEditor5AiCommandGroupForm extends EntityForm {
       '#type' => 'machine_name',
       '#default_value' => $this->entity->id(),
       '#machine_name' => [
-        'exists' => '\Drupal\ckeditor5_premium_features_ai_assistant\Entity\Ckeditor5AiCommandGroup::load',
+        'exists' => '\Drupal\ckeditor5_premium_features_ai_assistant\Entity\CKEditor5AiCommandGroup::load',
       ],
       '#disabled' => !$this->entity->isNew(),
     ];

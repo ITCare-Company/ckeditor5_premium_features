@@ -54,7 +54,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   }
  * )
  */
-class CKEditor5AiCommandGroup extends ConfigEntityBase implements Ckeditor5AiCommandGroupInterface {
+class CKEditor5AiCommandGroup extends ConfigEntityBase implements CKEditor5AiCommandGroupInterface {
 
   /**
    * The CKEditor 5 AI Commands group ID.

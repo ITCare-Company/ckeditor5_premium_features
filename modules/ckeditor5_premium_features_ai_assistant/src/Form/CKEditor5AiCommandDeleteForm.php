@@ -22,9 +22,9 @@ class CKEditor5AiCommandDeleteForm extends ConfirmFormBase {
   /**
    * Command group entity.
    *
-   * @var \Drupal\ckeditor5_premium_features_ai_assistant\Entity\Ckeditor5AiCommandGroup|null
+   * @var \Drupal\ckeditor5_premium_features_ai_assistant\Entity\CKEditor5AiCommandGroup|null
    */
-  protected ?Ckeditor5AiCommandGroup $commandGroup;
+  protected ?CKEditor5AiCommandGroup $commandGroup;
 
   /**
    * @var mixed|null
