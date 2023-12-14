@@ -73,6 +73,8 @@ class CommentsAdapter {
       'removeComment',
       'removeCommentThread',
       'updateComment',
+      'resolveCommentThread',
+      'reopenCommentThread'
     ];
 
     for (const event of events) {
@@ -90,7 +92,7 @@ class CommentsAdapter {
 
   updateStorage(plugin, storageElement) {
     storageElement.value = JSON.stringify(plugin.getCommentThreads({
-      skipNotAttached: true,
+      skipNotAttached: false,
       skipEmpty: true,
       toJSON: true
     }));
