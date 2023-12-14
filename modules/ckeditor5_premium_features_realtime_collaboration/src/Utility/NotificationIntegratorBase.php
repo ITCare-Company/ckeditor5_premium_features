@@ -176,4 +176,23 @@ abstract class NotificationIntegratorBase {
     return $rtcSuggestion;
   }
 
+  /**
+   * Loads user account with uuid.
+   *
+   * @param string $id
+   *   User's uuid.
+   *
+   * @return \Drupal\user\UserInterface
+   *   User account, or anonymous account if uuid is not found.
+   */
+  protected function loadAuthor(string $id): UserInterface {
+    $author = $this->userStorage->loadByProperties(['uuid' => $id]);
+    if ($author) {
+      return reset($author);
+    }
+
+    // Cannot load valid account. Return anonymous user.
+    return $this->userStorage->load(0);
+  }
+
 }

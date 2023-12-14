@@ -176,7 +176,7 @@ class NotificationIntegrator extends NotificationIntegratorBase {
     foreach ($newComments as $key => $commentThread) {
       $thread = [];
       foreach ($commentThread['comments'] as $comment) {
-        $author = $this->loadAuthor($comment['author_id']);
+        $author = $this->loadAuthor($comment['authorId']);
         $rtcComment = $this->createCommentEntity($comment, $author, $comment['createdAt']);
         $thread[$comment['commentId']] = $rtcComment;
       }
@@ -238,25 +238,6 @@ class NotificationIntegrator extends NotificationIntegratorBase {
       $event,
       $eventType
     );
-  }
-
-  /**
-   * Loads user account with uuid.
-   *
-   * @param string $uuid
-   *  User's uuid
-   *
-   * @return UserInterface
-   *  User account. Anonymous in case no account can be found.
-   */
-  protected function loadAuthor(string $uuid): UserInterface {
-    $author = $this->userStorage->loadByProperties(['uuid' => $uuid]);
-    if ($author) {
-      return reset($author);
-    }
-
-    // Cannot load valid account. Return anonymous user.
-    return $this->userStorage->load(0);
   }
 
 }

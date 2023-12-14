@@ -23,7 +23,6 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\user\UserInterface;
 
 /**
  * Provides logic for bulk notifications in rtc module.
@@ -540,25 +539,6 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
       $event->setNewContent($documentHelper->getNewData());
     }
     return $event;
-  }
-
-  /**
-   * Loads user account with uuid.
-   *
-   * @param string $id
-   *  User's uuid.
-   *
-   * @return UserInterface
-   *  User account, or anonymous account if uuid is not found.
-   */
-  protected function loadAuthor(string $id): UserInterface {
-    $author = $this->userStorage->loadByProperties(['uuid' => $id]);
-    if ($author) {
-      return reset($author);
-    }
-
-    // Cannot load valid account. Return anonymous user.
-    return $this->userStorage->load(0);
   }
 
 }
