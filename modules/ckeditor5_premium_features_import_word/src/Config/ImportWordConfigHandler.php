@@ -12,6 +12,9 @@ namespace Drupal\ckeditor5_premium_features_import_word\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 
+/**
+ * Helper for Import from Word configuration.
+ */
 class ImportWordConfigHandler implements ImportWordConfigHandlerInterface {
 
   /**
