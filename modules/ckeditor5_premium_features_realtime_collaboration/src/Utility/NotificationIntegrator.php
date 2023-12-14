@@ -12,6 +12,7 @@ namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Utility;
 use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcNotificationEntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\user\UserInterface;
 
 /**
  * Provides logic for notifications in rtc module.
@@ -84,7 +85,7 @@ class NotificationIntegrator extends NotificationIntegratorBase {
                                           FieldableEntityInterface $entity,
                                           NotificationDocumentHelper $documentHelper): void {
     $thread = [];
-    $author = $this->userStorage->load($suggestion['author_id']);
+    $author = $this->loadAuthor($suggestion['author_id']);
     if (!empty($suggestion['thread']['comments'])) {
       foreach ($suggestion['thread']['comments'] as $comment) {
         $rtcComment = $this->createCommentEntity($comment, $author, $comment['createdAt']);
@@ -175,7 +176,7 @@ class NotificationIntegrator extends NotificationIntegratorBase {
     foreach ($newComments as $key => $commentThread) {
       $thread = [];
       foreach ($commentThread['comments'] as $comment) {
-        $author = $this->userStorage->load($comment['authorId']);
+        $author = $this->loadAuthor($comment['authorId']);
         $rtcComment = $this->createCommentEntity($comment, $author, $comment['createdAt']);
         $thread[$comment['commentId']] = $rtcComment;
       }
@@ -190,7 +191,7 @@ class NotificationIntegrator extends NotificationIntegratorBase {
           continue;
         }
 
-        $author = $this->userStorage->load($suggestion['author_id']);
+        $author = $this->loadAuthor($suggestion['author_id']);
         $rtcSuggestion = $this->createSuggestionEntity($entity, $suggestion, $thread, $author);
         $rtcComment
           ->setRelatedSuggestion($rtcSuggestion)

@@ -96,6 +96,25 @@ class FilterCollaboration extends FilterBase implements ContainerFactoryPluginIn
   }
 
   /**
+   * Filter out the suggestion styling tags from the document.
+   *
+   * @param \DOMXPath $xpath
+   *   The DOM XPath.
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   */
+  public function filterStyleSuggestion(\DOMXPath $xpath, \DOMDocument $dom): void {
+    $query = '//suggestion-start[contains(@name, "attribute:")]/following-sibling::node()[following-sibling::suggestion-end[contains(@name, "attribute:")]]';
+    $suggestions = $xpath->query($query);
+    foreach ($suggestions as $suggestion) {
+      if ($suggestion instanceof \DOMElement) {
+        $textNode = $dom->createTextNode($suggestion->textContent);
+        $suggestion->parentNode->replaceChild($textNode, $suggestion);
+      }
+    }
+  }
+
+  /**
    * Filter out the comment tags and attributes.
    *
    * @param \DOMXPath $xpath

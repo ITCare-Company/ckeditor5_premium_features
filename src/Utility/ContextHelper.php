@@ -21,7 +21,8 @@ class ContextHelper implements ContextHelperInterface {
    *   Collaboration HTML helper.
    */
   public function __construct(
-    protected HtmlHelper $htmlHelper
+    protected HtmlHelper $htmlHelper,
+    protected LibraryVersionChecker $libraryVersionChecker
   ) {
   }
 

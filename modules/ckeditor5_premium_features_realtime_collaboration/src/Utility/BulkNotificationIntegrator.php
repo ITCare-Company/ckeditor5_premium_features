@@ -405,7 +405,7 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
       $thread = [];
       foreach ($commentThread['comments'] as $comment) {
         $authorId = $comment['user']['id'] ?? 0;
-        $commentAuthor = $this->userStorage->load($authorId);
+        $commentAuthor = $this->loadAuthor($authorId);
         $comment['commentId'] = $comment['id'];
         $rtcComment = $this->createCommentEntity($comment, $commentAuthor, $comment['created_at']);
         $thread[$comment['id']] = $rtcComment;
@@ -424,7 +424,7 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
           continue;
         }
 
-        $author = $this->userStorage->load($suggestion['author_id']);
+        $author = $this->loadAuthor($suggestion['author_id']);
         $rtcSuggestion = $this->createSuggestionEntity($entity, $suggestion, $thread, $author);
 
         $rtcComment
@@ -498,7 +498,7 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
                                           FieldableEntityInterface $entity,
                                           NotificationDocumentHelper $documentHelper): CollaborationEventBase {
     $thread = [];
-    $author = $this->userStorage->load($suggestion['author_id']);
+    $author = $this->loadAuthor($suggestion['author_id']);
     if (!empty($suggestion['thread']['comments'])) {
       foreach ($suggestion['thread']['comments'] as $comment) {
         $comment['commentId'] = $comment['id'];
