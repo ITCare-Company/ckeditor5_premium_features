@@ -24,7 +24,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return self::COLLABORATION_SETTINGS_ID;
+    return 'ckeditor5_premium_features_collaboration_settings';
   }
 
   /**
@@ -32,6 +32,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
    */
   public static function getSettingsRouteName(): string {
     return 'ckeditor5_premium_features_collaboration.form.settings';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfigId(): string {
+    return self::COLLABORATION_SETTINGS_ID;
   }
 
   /**
