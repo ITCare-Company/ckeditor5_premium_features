@@ -42,6 +42,13 @@ class CollaborationSettings implements CommonCollaborationSettingsInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function isScrollingAnnotationsOutOfViewForbidden(): bool {
+    return (bool) ($this->collaborationSettings->get('prevent_scroll_out_of_view') ?? FALSE);
+  }
+
+  /**
    * Returns mentions revision history on submit config.
    */
   public function isPresenceListEnabled(): bool {

@@ -24,6 +24,7 @@ class SidebarAdapter {
 
     this.editor.config._config.sidebar = {
       container: sidebar_column,
+      preventScrollOutOfView: drupalSettings.ckeditor5Premium.preventScrollOutOfView,
     }
   }
 
@@ -68,7 +69,12 @@ class SidebarAdapter {
 
     this.checkIfInsideTab();
 
-    this.setSidebarObservers();
+    if (!this.editor.config._config.sidebar.preventScrollOutOfView) {
+      this.setSidebarObservers();
+    }
+    else {
+      this.sidebarColumn.classList.add('prevent-scroll-out-of-view');
+    }
 
     this.editor.on('ready', () => {
       if (this.editor.ui.view.element) {
@@ -145,6 +151,7 @@ class SidebarAdapter {
     let sidebar = null;
     entries.forEach(entry => {
       sidebar = entry.target.closest('.ck-editor-sidebar-wrapper');
+      const offset = sidebar.classList.contains('narrowSidebar') ? 48 : 40;
       // Handle the sidebar item which is intersecting with toggle.
       if (entry.isIntersecting) {
         const targetWrapper = entry.target;
@@ -154,8 +161,8 @@ class SidebarAdapter {
         if (currentTop < 0 && currentTop > -threshold) {
           targetWrapper.style.top = '-' + wrapperHeight + "px";
         }
-        else if ((currentTop >= 0 && currentTop < 40) || !currentTop) {
-          targetWrapper.style.top = '40px';
+        else if ((currentTop >= 0 && currentTop < offset) || !currentTop) {
+          targetWrapper.style.top = offset + "px";
         }
       }
 
@@ -343,6 +350,7 @@ function updateItemsTopPosition (sidebar) {
   let sidebarItems = sidebar.querySelectorAll('.ck-sidebar > .ck-sidebar-item');
   let prevItem = null;
   const margin = sidebar.classList.contains('narrowSidebar') ? 5.0 : 25.0;
+  const offset = sidebar.classList.contains('narrowSidebar') ? 48 : 40;
 
   for (const key in sidebarItems) {
     if (!sidebarItems[key].style) {
@@ -358,12 +366,12 @@ function updateItemsTopPosition (sidebar) {
 
     const prevTop = prevItem ? parseFloat(prevItem.style.top) : 0;
     const prevHeight = prevItem ? parseFloat(prevItem.offsetHeight) : 0;
-    const expectedTop = prevTop > 0 ? prevTop + prevHeight + margin : 40;
+    const expectedTop = prevTop > 0 ? prevTop + prevHeight + margin : offset;
 
     if (top < expectedTop) {
       sidebarItems[key].style.top = expectedTop + "px";
     }
-    else if (top !== 40) {
+    else if (top !== offset) {
       return;
     }
 

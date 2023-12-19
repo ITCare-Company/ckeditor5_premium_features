@@ -55,6 +55,7 @@ class AnnotationSidebar {
     $sidebar_html = \Drupal::service('renderer')->render($sidebar);
     $element['value']['#sidebar'] = $sidebar_html;
     $element['#attached']['drupalSettings']['ckeditor5SidebarMode'] = $sidebar_mode;
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['preventScrollOutOfView'] = $collaboration_settings->isScrollingAnnotationsOutOfViewForbidden();;
 
     return $element;
   }

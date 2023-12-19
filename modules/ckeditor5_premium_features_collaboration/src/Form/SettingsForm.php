@@ -50,6 +50,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#default_value' => $config->get('sidebar') ?? 'auto',
     ];
 
+    $form['prevent_scroll_out_of_view'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Prevent scrolling sidebar items out of view.'),
+      '#default_value' => $config->get('prevent_scroll_out_of_view') ?? FALSE,
+      '#description' => t('If selected, the top annotation in the sidebar will never be scrolled above the top edge of the sidebar (which would make it hidden).'),
+    ];
+
     $form['revision_history'] = [
       '#type' => 'fieldset',
       '#title' => t('Revision History'),

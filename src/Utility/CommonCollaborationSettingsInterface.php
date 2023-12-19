@@ -17,4 +17,9 @@ interface CommonCollaborationSettingsInterface {
    */
   public function getAnnotationSidebarType(): string;
 
+  /**
+   * Check if sidebar items should be prevented from scrolling out of view.
+   */
+  public function isScrollingAnnotationsOutOfViewForbidden(): bool;
+
 }
