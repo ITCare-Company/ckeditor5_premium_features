@@ -47,6 +47,9 @@
     height: 40px;
     margin-top: -40px;
 }
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar {
+    min-height: 10px!important;
+}
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper.prevent-scroll-out-of-view .ck-sidebar {
     margin-top: 8px;
 }
