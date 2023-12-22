@@ -119,27 +119,27 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $toolbars = $this->pluginHelper->getFormToolbars($form_state);
-
     if (!$this->settingsConfigHandler->getApiKey()) {
+      $labels = [];
       if (in_array('comment', $toolbars)) {
-        $form_state->setErrorByName('comments',
-          $this->t('API Key required for using comments.  Check <a href="@config_page">Premium features configuration.</a>',
-            ['@config_page' => '/admin/config/ckeditor5-premium-features/settings']));
+        $labels[] = 'Comments';
       }
       if (in_array('trackChanges', $toolbars)) {
-        $form_state->setErrorByName('track_changes',
-          $this->t('API Key required for using track changes.  Check <a href="@config_page">Premium features configuration.</a>',
-            ['@config_page' => '/admin/config/ckeditor5-premium-features/settings']));
+        $labels[] = 'Track Changes';
       }
       if (in_array('revisionHistory', $toolbars)) {
-        $form_state->setErrorByName('revision_history',
-          $this->t('API Key required for using revision history. Check <a href="@config_page">Premium features configuration.</a>',
-            ['@config_page' => '/admin/config/ckeditor5-premium-features/settings']));
+        $labels[] = 'Revision History';
       }
       if (in_array('commentsArchive', $toolbars)) {
-        $form_state->setErrorByName('comments_archive',
-          $this->t('API Key required for using comments archive. Check <a href="@config_page">Premium features configuration.</a>',
-            ['@config_page' => '/admin/config/ckeditor5-premium-features/settings']));
+        $labels[] = 'Comments Archive';
+      }
+      if (!empty($labels)) {
+        $form_state->setErrorByName('realtime',
+          $this->t('API Key required for using %plugins. Check <a href="@config_page">Premium features configuration.</a>',
+            [
+              '@config_page' => '/admin/config/ckeditor5-premium-features/settings',
+              '%plugins' => implode(', ', $labels),
+            ]));
       }
     }
 
