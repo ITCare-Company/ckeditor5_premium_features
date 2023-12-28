@@ -14,6 +14,8 @@ use Drupal\ckeditor5_premium_features_ai_assistant\CKEditor5AiProviderPluginBase
 use Drupal\ckeditor5_premium_features_ai_assistant\Form\SettingsForm;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use OpenAI\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,19 +26,36 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * Plugin implementation of the ckeditor5_ai_provider.
  *
  * @CKEditor5AiProvider(
- *   id = "openai_service",
- *   label = @Translation("OpenAI Service"),
- *   description = @Translation("OpenAI Service Provider."),
+ *   id = "azureai_service",
+ *   label = @Translation("AzureAI Service"),
+ *   description = @Translation("AzureAI Service Provider."),
  *   form_fields = {
- *     "auth_key" = {
+ *     "resource_name" = {
  *        "#type" = "textfield",
- *        "#title" = "Auth key",
+ *        "#title" = "Resource name",
+ *        "#required" = TRUE
+ *      },
+ *     "deployment_name" = {
+ *        "#type" = "textfield",
+ *        "#title" = "Deployment name",
+ *        "#required" = TRUE
+ *      },
+ *     "api_key" = {
+ *        "#type" = "textfield",
+ *        "#title" = "API key",
+ *        "#required" = TRUE
+ *      },
+ *     "api_version" = {
+ *        "#type" = "textfield",
+ *        "#title" = "API version",
  *        "#required" = TRUE
  *      }
  *   }
  * )
  */
-final class OpenAi extends CKEditor5AiProviderPluginBase {
+final class AzureAi extends CKEditor5AiProviderPluginBase {
+
+  use StringTranslationTrait;
 
   /**
    * Config object.
@@ -69,13 +88,14 @@ final class OpenAi extends CKEditor5AiProviderPluginBase {
    * {@inheritdoc}
    */
   public function processRequest(Request $request): Response {
-    if (!$this->getAuthKey()) {
+    if (!$this->getApiKey() || !$this->getDeploymentName() || !$this->getApiVersion() || !$this->getResourceName()) {
       return new Response('Missing AI service configuration.', 503);
     }
     $content = $request->getContent();
     $requestData = json_decode($content, TRUE);
 
     $client = $this->getClient();
+
     $stream = $client->chat()->createStreamed($requestData);
     return new StreamedResponse(function () use ($stream) {
       foreach ($stream as $data) {
@@ -109,17 +129,11 @@ final class OpenAi extends CKEditor5AiProviderPluginBase {
    *   Client object.
    */
   private function getClient(): Client {
-    return \OpenAI::client($this->getAuthKey());
-  }
-
-  /**
-   * Returns auth key for the client.
-   *
-   * @return string
-   *   The auth key.
-   */
-  private function getAuthKey(): string {
-    return $this->config->get($this->getPluginId() . '_' . 'auth_key') ?? '';
+    return \OpenAI::factory()
+      ->withBaseUri($this->getApiEndpoint())
+      ->withHttpHeader('api-key', $this->getApiKey())
+      ->withQueryParam('api-version', $this->getApiVersion())
+      ->make();
   }
 
   /**
@@ -132,8 +146,59 @@ final class OpenAi extends CKEditor5AiProviderPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function getDescription(): string {
-    return (string) $this->pluginDefinition['description'];
+  public function getDescription(): string|TranslatableMarkup {
+    return $this->t('Check the <a href=@doc_url target="_blank">integration documentation</a> for detail information.',
+    ['@doc_url' => 'https://ckeditor.com/docs/ckeditor5/latest/features/ai-assistant/ai-assistant-integration.html#set-up-the-service']);
+  }
+
+  /**
+   * Returns API key for the client.
+   *
+   * @return string
+   *   The API key.
+   */
+  private function getApiKey(): string {
+    return $this->config->get($this->getPluginId() . '_' . 'api_key') ?? '';
+  }
+
+  /**
+   * Returns API version.
+   *
+   * @return string
+   *   The API version.
+   */
+  private function getApiVersion(): string {
+    return $this->config->get($this->getPluginId() . '_' . 'api_version') ?? '';
+  }
+
+  /**
+   * Returns API resource name.
+   *
+   * @return string
+   *   The API resource name.
+   */
+  private function getResourceName(): string {
+    return $this->config->get($this->getPluginId() . '_' . 'resource_name') ?? '';
+  }
+
+  /**
+   * Returns API resource name.
+   *
+   * @return string
+   *   The deployment name.
+   */
+  private function getDeploymentName(): string {
+    return $this->config->get($this->getPluginId() . '_' . 'deployment_name') ?? '';
+  }
+
+  /**
+   * Returns api endpoint.
+   *
+   * @return string
+   *   The API endpoint.
+   */
+  private function getApiEndpoint(): string {
+    return "https://{$this->getResourceName()}.openai.azure.com/openai/deployments/{$this->getDeploymentName()}";
   }
 
 }

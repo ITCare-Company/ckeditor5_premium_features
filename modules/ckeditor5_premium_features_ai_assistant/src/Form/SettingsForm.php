@@ -67,25 +67,27 @@ class SettingsForm extends ConfigFormBase {
     $config = $this->config(self::AI_ASSISTANT_SETTINGS_ID);
     $providers = $this->aiAssistantHelper->getAllProviders();
     $provider = $config->get('ai_provider') ?? AiAssistantHelper::DEFAULT_PROVIDER;
+
     if ($form_state->isRebuilding()) {
       $provider = $form_state->getValue('ai_provider');
     }
-
-    $form['ai_provider'] = [
+    $form['provider_settings'] = [
+      '#type' => 'container',
+      '#attributes' => ['id' => 'provider-settings'],
+    ];
+    $providerDescription = $this->aiAssistantHelper->getProviderDescription($provider);
+    $form['provider_settings']['ai_provider'] = [
       '#type' => 'select',
       '#options' => $providers,
       '#title' => $this->t('AI provider'),
       '#required' => TRUE,
       '#default_value' => $provider,
+      '#description' => $providerDescription,
       '#ajax' => [
         'callback' => '::changeProviderFields',
         'wrapper' => 'provider-settings',
         'method' => 'replace',
       ],
-    ];
-    $form['provider_settings'] = [
-      '#type' => 'container',
-      '#attributes' => ['id' => 'provider-settings'],
     ];
 
     $providerFields = $this->aiAssistantHelper->getProviderFormFields($provider);

@@ -16,6 +16,7 @@ use Drupal\ckeditor5_premium_features_ai_assistant\Form\SettingsForm;
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Helper for CKEditor5 AI Assistant service providers.
@@ -126,6 +127,20 @@ class AiAssistantHelper {
   public function getProviderTextAdapter(string $providerId): string {
     $provider = $this->getProviderById($providerId);
     return $provider->getTextAdapter()->value;
+  }
+
+  /**
+   * Returns the provider description.
+   *
+   * @param string $providerId
+   *   The Provider ID.
+   *
+   * @return string|TranslatableMarkup
+   *   Provider description.
+   */
+  public function getProviderDescription(string $providerId): string|TranslatableMarkup {
+    $provider = $this->getProviderById($providerId);
+    return $provider->getDescription();
   }
 
 }

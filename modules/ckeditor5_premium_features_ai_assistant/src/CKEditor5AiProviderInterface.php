@@ -9,6 +9,7 @@ declare(strict_types = 1);
 
 namespace Drupal\ckeditor5_premium_features_ai_assistant;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -53,5 +54,13 @@ interface CKEditor5AiProviderInterface {
    *   AITextAdapter.
    */
   public function getTextAdapter(): AITextAdapter;
+
+  /**
+   * Returns service description.
+   *
+   * @return string|TranslatableMarkup
+   *   The Description.
+   */
+  public function getDescription(): string|TranslatableMarkup;
 
 }
