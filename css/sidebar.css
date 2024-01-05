@@ -3,6 +3,10 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
+.ck-editor-container .ck-sidebar-enabled > .ck-editor__main > .ck-content {
+  padding-right: 30px;
+}
+
 .ck-editor-container .ck-editor-sidebar-wrapper {
   display: flex;
 }
@@ -19,7 +23,7 @@
   min-width: 250px;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar {
-  width: 41px;
+  width: 56px;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.slider-off {
   display: none;
@@ -47,9 +51,15 @@
     height: 40px;
     margin-top: -40px;
 }
-.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar {
+.ck-editor-container .ck-editor-sidebar-wrapper .ck-sidebar-wrapper .ck-sidebar {
     min-height: 10px!important;
+    transition: none;
 }
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar:focus-within *:focus {
+    outline: none;
+    box-shadow: none;
+}
+
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper.prevent-scroll-out-of-view .ck-sidebar {
     margin-top: 8px;
 }
@@ -64,6 +74,7 @@
   border: 1px solid var(--ck-color-toolbar-border);
   border-left: 0;
   overflow: hidden;
+  overflow-y: auto;
   width: 100%;
 }
 
@@ -76,29 +87,35 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
   padding: 0 10px;
-  overflow-y: auto;
+}
+.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper .ck-sidebar .ck-sidebar-item {
+  justify-content: start;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar .ck-sidebar-item {
   padding-bottom: 10px;
 }
 
+
+
 /*Toggle*/
-.ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
-  width: calc(100% + 20px);
-  height: 40px;
-  position: relative;
+.ck-editor-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  top: 1px;
+  margin-left: -31px;
   background: white;
   z-index: 10;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.inline .ck-sidebar-auto-toggle-wrapper {
   display: none;
 }
-.ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
+.ck-editor-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
   display: block;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
 }
-.ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle:hover {
+.ck-editor-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle:hover {
   background: var(--ck-color-button-default-hover-background);
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
@@ -108,7 +125,7 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   margin-left: -10px;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle {
-  width: 40px;
+  width: 30px;
   margin: 0;
 }
 .ck-sidebar-wrapper a.ck-sidebar-auto-toggle:hover {
@@ -117,10 +134,10 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 }
 
 /*Toggle Icon*/
-.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after,
-.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
-  margin-left: 10px;
-  padding-top: 10px;
+.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar a.ck-sidebar-auto-toggle::after,
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar a.ck-sidebar-auto-toggle::after {
+  margin-left: 5px;
+  padding-top: 5px;
   color: var(--ck-color-toolbar-border);
   display: block;
   width: 20px;
@@ -128,10 +145,10 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
 }
-.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
+.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar a.ck-sidebar-auto-toggle::after {
   content: url(../icons/sidebar.svg);
 }
-.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper a.ck-sidebar-auto-toggle::after {
+.ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar a.ck-sidebar-auto-toggle::after {
   content: url(../icons/arrow.svg);
 }
 
