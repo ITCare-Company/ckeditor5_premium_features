@@ -134,11 +134,12 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
         $labels[] = 'Comments Archive';
       }
       if (!empty($labels)) {
+        $pluginsLabels[] = implode(' and ', array_splice($labels, -2));
         $form_state->setErrorByName('realtime',
           $this->t('API Key required for using %plugins. Check <a href="@config_page">Premium features configuration.</a>',
             [
               '@config_page' => '/admin/config/ckeditor5-premium-features/settings',
-              '%plugins' => implode(', ', $labels),
+              '%plugins' => implode(', ', $pluginsLabels),
             ]));
       }
     }

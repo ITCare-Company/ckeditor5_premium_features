@@ -96,10 +96,11 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
       }
     }
     if (!empty($filterLabels)) {
+      $textFormatsLabels[] = implode(' and ', array_splice($filterLabels, -2));
       $this->messenger->addWarning(
-        $this->t('Invalid configuration for CKEditor5 premium features. Missing API Key for Text formats: %text_formats"  </br> Check <a href="@config_url">Premium features configuration.</a>',
+        $this->t('Invalid configuration for CKEditor5 premium features. Missing API Key for Text formats: %text_formats </br> Check <a href="@config_url">Premium features configuration.</a>',
           [
-            '%text_formats' => implode(', ', $filterLabels),
+            '%text_formats' => implode(', ', $textFormatsLabels),
             '@config_url' => '/admin/config/ckeditor5-premium-features/settings',
           ]
         )
