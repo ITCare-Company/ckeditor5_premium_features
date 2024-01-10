@@ -156,7 +156,7 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     $formValues = $form_state->getValues();
     $uploadMediaEnabled = $formValues['upload_media']['enabled'];
     $completeFormValues = $form_state->getCompleteFormState()->getValues();
-    $mediaEmbedFilterEnabled = $completeFormValues['filters']['media_embed']['status'];
+    $mediaEmbedFilterEnabled = $completeFormValues['filters']['media_embed']['status'] ?? FALSE;
 
     if ($uploadMediaEnabled && !$mediaEmbedFilterEnabled) {
       $form_state->setError($form["upload_media"]["enabled"], "Embed Media filter has to be enabled in order to use uploading images as a Drupal Media on Import from Word feature.");
@@ -194,6 +194,8 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
     if (empty($imageFieldTypes)) {
       return [];
     }
+    // Exclude default thumbnail images.
+    unset($imageFieldTypes['thumbnail']);
     $bundles = [];
     foreach ($mediaBundleDef as $key => $value) {
       foreach ($imageFieldTypes as $fieldName => $field) {
