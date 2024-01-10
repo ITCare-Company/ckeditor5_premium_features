@@ -180,10 +180,10 @@ class RtcCommentNotificationEntity extends RtcNotificationEntityBase {
   /**
    * Returns related suggestion.
    *
-   * @return RtcSuggestionNotificationEntity
+   * @return RtcSuggestionNotificationEntity|null
    *   The suggestion object or null if not exists.
    */
-  public function getRelatedSuggestion():RtcSuggestionNotificationEntity {
+  public function getRelatedSuggestion():?RtcSuggestionNotificationEntity {
     return $this->relatedSuggestion;
   }
 

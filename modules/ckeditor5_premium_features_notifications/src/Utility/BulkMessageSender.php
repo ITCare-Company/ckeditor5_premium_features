@@ -10,14 +10,14 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
 use Drupal\ckeditor5_premium_features_notifications\Entity\Message;
-use Drupal\ckeditor5_premium_features_notifications\Entity\MessageStorage;
 use Drupal\ckeditor5_premium_features_notifications\Entity\MessageInterface;
+use Drupal\ckeditor5_premium_features_notifications\Entity\MessageStorage;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderMailBulk;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Mail\MailManagerInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\user\Entity\User;
-use Drupal\Core\Render\RendererInterface;
 
 /**
  * Class responsible for preparing and sending bulk messages.
@@ -34,16 +34,18 @@ class BulkMessageSender {
   protected MessageStorage $messageStorage;
 
   /**
-   * Constructor.
+   * The Constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
    * @param \Drupal\Core\Mail\MailManagerInterface $mailManager
-   *   Mail manager.
+   *   The mail manager.
    * @param \Drupal\Core\Render\RendererInterface $renderer
-   *   Renderer service.
-   * @param \Drupal\ckeditor5_premium_features_notifications\Utility\NotificationSettings $notificationSettings
-   *   Notification settings service.
+   *   The renderer service.
+   * @param NotificationSettings $notificationSettings
+   *   The notification settings service.
+   * @param BulkMessageBodyHandlerManager $bulkMessageBodyHandlerManager
+   *   The message body handler manager.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -51,7 +53,9 @@ class BulkMessageSender {
   public function __construct(protected EntityTypeManagerInterface $entityTypeManager,
                               protected MailManagerInterface $mailManager,
                               protected RendererInterface $renderer,
-                              protected NotificationSettings $notificationSettings) {
+                              protected NotificationSettings $notificationSettings,
+                              protected BulkMessageBodyHandlerManager $bulkMessageBodyHandlerManager
+  ) {
     $this->messageStorage = $this->entityTypeManager->getStorage(MessageInterface::ENTITY_TYPE_ID);
   }
 
@@ -70,26 +74,7 @@ class BulkMessageSender {
   public function prepareContent(Message $message): string {
     /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface $messageFactory */
     $messageFactory = $this->notificationSettings->getMessageFactoryPlugin();
-
-    // Message entity id.
-    $messageItems = $message->getItems();
-    $body = [];
-
-    foreach ($messageItems as $messageItem) {
-      /** @var \Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageInterface $messageContent */
-      $messageContent = $messageFactory->getMessage($messageItem->getType(), $messageItem->getEvent());
-      $messageBodyArray = $messageContent->getMessageBody();
-
-      $body[$messageItem->id()] = [
-        '#theme' => 'notification_context',
-        '#messageContent' => [
-          '#markup' => implode('', $messageBodyArray),
-          '#allowed_tags' => NotificationContextHelper::getNotificationAllowedTags(),
-        ],
-      ];
-
-    }
-
+    $body = $this->bulkMessageBodyHandlerManager->getHandler()->prepareBody($message, $messageFactory);
     $messageOuterWrapper = [
       '#theme' => 'notification_message_bulk',
       '#title' => $this->t('Document "@title" recent activities', [
@@ -125,7 +110,8 @@ class BulkMessageSender {
 
       $message->set('sent', 1);
       $message->save();
-
+    }
+    foreach ($messages as $message) {
       $this->messageStorage->cleanMessageItems($message);
     }
   }

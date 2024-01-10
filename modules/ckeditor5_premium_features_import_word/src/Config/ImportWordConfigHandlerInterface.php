@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_import_word\Config;
 
+/**
+ * Interface for ImportWordConfigHandler.
+ */
 interface ImportWordConfigHandlerInterface {
 
   /**

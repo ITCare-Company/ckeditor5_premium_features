@@ -22,6 +22,7 @@ services:
     arguments:
       - '@file_url_generator'
       - '@entity_type.manager'
+      - '@config.factory'
 
   ckeditor5_premium_features.file_name_generator:
     class: \Drupal\ckeditor5_premium_features\Generator\FileNameGenerator
@@ -51,6 +52,7 @@ services:
     arguments:
       - '@ckeditor5_premium_features.config_handler.settings'
       - '@http_client'
+      - '@current_user'
 
   ckeditor5_premium_features.mention_integrator:
     class: \Drupal\ckeditor5_premium_features\Utility\MentionsIntegrator
@@ -67,6 +69,7 @@ services:
     class: Drupal\ckeditor5_premium_features\Utility\ContextHelper
     arguments:
       - '@ckeditor5_premium_features.html_helper'
+      - '@ckeditor5_premium_features.core_library_version_checker'
 
   ckeditor5_premium_features.diff:
     class: Drupal\ckeditor5_premium_features\Diff\Ckeditor5Diff

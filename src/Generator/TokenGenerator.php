@@ -50,7 +50,7 @@ class TokenGenerator implements TokenGeneratorInterface {
     $payload = [
       'aud' => $this->settingsConfigHandler->getEnvironmentId(),
       'iat' => time(),
-      'sub' => $this->account->id(),
+      'sub' => $this->userHelper->getUserUuid($this->account) ?? $this->userHelper->generateSiteUserId($this->account),
       'auth' => [
         'collaboration' => [
           '*' => [

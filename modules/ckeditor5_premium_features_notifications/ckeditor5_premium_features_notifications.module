@@ -7,7 +7,7 @@
 
 /**
  * @file
- * Conatains CKEditor 5 Premium Features Notifications module functions.
+ * Contains CKEditor 5 Premium Features Notifications module functions.
  */
 
 declare(strict_types=1);

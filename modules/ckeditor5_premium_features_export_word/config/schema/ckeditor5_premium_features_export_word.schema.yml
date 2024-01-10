@@ -98,6 +98,16 @@ ckeditor5.plugin.ckeditor5_premium_features_export_word__export_word:
               type:
                 type: string
                 label: 'Type'
+    base64_converter:
+      type: mapping
+      label: 'Converter options'
+      mapping:
+        convert_images_to_base64:
+          type: integer
+          label: 'Base64 converter enabled'
+        images_to_base64_files_type:
+          type: string
+          label: 'Base64 converter files type'
 
 ckeditor5_premium_features_export_word.settings:
   type: config_object

@@ -11,6 +11,12 @@ namespace Drupal\ckeditor5_premium_features\Utility;
 
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Config\ConfigException;
+use Drupal\Core\Logger\LoggerChannelTrait;
+use Drupal\Core\Messenger\MessengerTrait;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Utility\Error;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,6 +26,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ApiAdapter {
 
+  use LoggerChannelTrait;
+  use MessengerTrait;
+  use StringTranslationTrait;
+
   /**
    * Creates the Track Changes plugin instance.
    *
@@ -28,16 +38,9 @@ class ApiAdapter {
    * @param \GuzzleHttp\ClientInterface $http_client
    *   The HTTP client.
    */
-  public function __construct(protected SettingsConfigHandlerInterface $settingsConfigHandler, protected ClientInterface $http_client) {
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container): static {
-    return new static(
-      $container->get('ckeditor5_premium_features.config_handler.settings')
-    );
+  public function __construct(protected SettingsConfigHandlerInterface $settingsConfigHandler,
+                              protected ClientInterface $http_client,
+                              protected AccountProxyInterface $account) {
   }
 
   /**
@@ -65,11 +68,13 @@ class ApiAdapter {
    *
    * @param string $documentId
    *   The document id.
+   * @param array $parameters
+   *   Optional parameters.
    *
    * @return array
    *   Array of suggestions.
    */
-  public function getDocumentSuggestions(string $documentId, $parameters = []): array {
+  public function getDocumentSuggestions(string $documentId, array $parameters = []): array {
     $path = 'suggestions?document_id=' . $documentId;
     foreach ($parameters as $key => $parameter) {
       $path .= '&' . $key . '=' . $parameter;
@@ -79,21 +84,67 @@ class ApiAdapter {
   }
 
   /**
+   * Gets document suggestions.
+   *
+   * @param string $suggestionId
+   *   The suggestion id.
+   * @param string $documentId
+   *   The document id.
+   * @param array $parameters
+   *   Optional request parameters.
+   *
+   * @return array
+   *   Array of suggestions.
+   */
+  public function getSingleSuggestion(string $suggestionId, string $documentId, array $parameters = []): array {
+    $path = 'suggestions/' . $suggestionId . '?document_id=' . $documentId;
+    foreach ($parameters as $key => $parameter) {
+      $path .= '&' . $key . '=' . $parameter;
+    }
+    $response = $this->sendRequest('GET', $path);
+    return $response ?? [];
+  }
+
+  /**
    * Gets document comments.
    *
    * @param string $documentId
    *   The document id.
+   * @param array $parameters
+   *   Optional request parameters.
    *
    * @return array
    *   Array of comments.
    */
-  public function getDocumentComments(string $documentId, $parameters = []): array {
+  public function getDocumentComments(string $documentId, array $parameters = []): array {
     $path = 'comments?document_id=' . $documentId;
     foreach ($parameters as $key => $parameter) {
       $path .= '&' . $key . '=' . $parameter;
     }
     $response = $this->sendRequest('GET', $path);
     return $response['data'] ?? [];
+  }
+
+  /**
+   * Get single comment.
+   *
+   * @param string $commentId
+   *   The comment id.
+   * @param string $documentId
+   *   The document id.
+   * @param array $parameters
+   *   Optional request parameters.
+   *
+   * @return array
+   *   Array of comments.
+   */
+  public function getSingleComment(string $commentId, string $documentId, array $parameters = []): array {
+    $path = 'comments/' . $commentId . '?document_id=' . $documentId;
+    foreach ($parameters as $key => $parameter) {
+      $path .= '&' . $key . '=' . $parameter;
+    }
+    $response = $this->sendRequest('GET', $path);
+    return $response ?? [];
   }
 
   /**
@@ -169,6 +220,10 @@ class ApiAdapter {
       $data .= JSON::encode($body);
     }
     $key = $this->settingsConfigHandler->getApiKey();
+
+    if (!$key) {
+      throw new ConfigException('Missing API Key');
+    }
     return hash_hmac('sha256', $data, $key);
   }
 
@@ -186,8 +241,23 @@ class ApiAdapter {
   private function sendRequest(string $method, string $path): array {
     $url = $this->getBaseUrl() . $path;
     $timestamp = hrtime(TRUE);
-
-    $signature = $this->generateSignature($method, $url, $timestamp, []);
+    try {
+      $signature = $this->generateSignature($method, $url, $timestamp, []);
+    }
+    catch (ConfigException $e) {
+      if ($this->account->hasPermission('use ckeditor5 access token')) {
+        Error::logException($this->getLogger('ckeditor5_premium_features'), $e, $e->getMessage());
+        $this->messenger()->addWarning(
+          $this->t('Invalid configuration for CKEditor5 premium features. %error_message </br> Check <a href="@config_url">Premium features configuration.</a>',
+            [
+              '%error_message' => $e->getMessage(),
+              '@config_url' => '/admin/config/ckeditor5-premium-features/settings',
+            ]
+          )
+        );
+      }
+      return [];
+    }
 
     $options = [
       'headers' => [
@@ -201,7 +271,7 @@ class ApiAdapter {
     }
     catch (GuzzleException $e) {
       // Log the error.
-      watchdog_exception('ckeditor5_premium_features', $e);
+      Error::logException($this->getLogger('ckeditor5_premium_features'), $e, $e->getMessage());
       return [];
     }
 

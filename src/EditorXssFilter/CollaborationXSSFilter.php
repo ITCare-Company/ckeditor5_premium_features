@@ -32,7 +32,7 @@ class CollaborationXSSFilter extends Standard {
    *   HTML string.
    */
   public static function collaborationFilterText(string $original): string {
-    return self::preprocessElementValue($original, "self::replaceSecurity");
+    return self::preprocessElementValue($original, [CollaborationXSSFilter::class, 'replaceSecurity']);
   }
 
   /**
@@ -42,7 +42,7 @@ class CollaborationXSSFilter extends Standard {
    *   HTML string.
    */
   public static function collaborationFilterTextRevert(string $original): string {
-    return self::preprocessElementValue($original, "self::revertSecurityReplace");
+    return self::preprocessElementValue($original, [CollaborationXSSFilter::class, 'revertSecurityReplace']);
   }
 
   /**
@@ -50,10 +50,10 @@ class CollaborationXSSFilter extends Standard {
    *
    * @param string $original
    *   HTML content.
-   * @param string $callback
-   *   Callback to be used to process collaboration tag..
+   * @param callable $callback
+   *   Callback to be used to process collaboration tag.
    */
-  protected static function preprocessElementValue(string $original, string $callback): string {
+  protected static function preprocessElementValue(string $original, callable $callback): string {
     $tagList = [
       'suggestion-start',
       'suggestion-end',

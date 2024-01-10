@@ -4,8 +4,7 @@ ckeditor5_premium_features.form.settings:
     _title: 'CKEditor 5 Premium Features'
     _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
   requirements:
-    # TODO: It may be more granullar - TBD if there is a need for dedicated permission.
-    _permission: 'administer site configuration'
+    _user_is_logged_in: 'TRUE'
 
 ckeditor5_premium_features.form.settings_general:
   path: '/admin/config/ckeditor5-premium-features/settings'
@@ -32,4 +31,13 @@ ckeditor5_premium_features.media_tags:
   methods:  [POST]
   requirements:
     _permission: 'view media'
+    _format: json
+
+ckeditor5_premium_features.base64_image_converter:
+  path: '/ck5/api/base64-image-converter'
+  defaults:
+    _controller: 'Drupal\ckeditor5_premium_features\Controller\Base64ImageConverterController::convertImages'
+  methods:  [POST]
+  requirements:
+    _permission: 'access content'
     _format: json

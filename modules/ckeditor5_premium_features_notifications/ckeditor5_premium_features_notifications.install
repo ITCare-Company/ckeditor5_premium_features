@@ -7,7 +7,7 @@
 
 /**
  * @file
- * Conatains CKEditor 5 Premium Features Notifications module installer.
+ * Contains CKEditor 5 Premium Features Notifications module installer.
  */
 
 declare(strict_types=1);
@@ -123,4 +123,18 @@ function ckeditor5_premium_features_notifications_update_10000() {
   $messageEntity = $entityDefinition->getEntityType(MessageInterface::ENTITY_TYPE_ID);
 
   $entityDefinition->updateEntityType($messageEntity);
+}
+
+/**
+ * Changes field_ck5_premium_notifications label and description.
+ */
+function ckeditor5_premium_features_notifications_update_10001() {
+  $configFactory = \Drupal::service('config.factory');
+  $fieldConfig = $configFactory->getEditable('field.field.user.user.field_ck5_premium_notifications');
+
+  $rawData = $fieldConfig->getRawData();
+  $rawData['label'] = "CKEditor 5 Premium Features - Receive notifications about changes in the content I'm co-authoring.";
+  $rawData['description'] = "Check this field if you would like to receive notifications whenever someone makes changes and/or adds comments to the articles/posts you co-authored.";
+
+  $fieldConfig->setData($rawData)->save();
 }

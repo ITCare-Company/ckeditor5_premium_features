@@ -93,7 +93,7 @@ class ProductivityPackBase extends CKEditor5PluginDefault implements CKEditor5Pl
     $form[PasteFromOfficeEnhanced::CONFIG_FIELD_ENABLED] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable Paste from Office Enhanced'),
-      '#default_value' => $this->configuration[SlashCommand::CONFIG_FIELD_ENABLED] ?? FALSE,
+      '#default_value' => $this->configuration[PasteFromOfficeEnhanced::CONFIG_FIELD_ENABLED] ?? FALSE,
       '#description' => $this->t('Enable Paste from Office Enhanced in the editor'),
     ];
     if (!$this->libraryVersionChecker->isLibraryVersionHigherOrEqual('39.0.0')) {

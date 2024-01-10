@@ -9,54 +9,15 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Utility;
 
-use Drupal\ckeditor5_premium_features\CKeditorDateFormatterTrait;
 use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
-use Drupal\ckeditor5_premium_features\Utility\ApiAdapter;
-use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcCommentNotificationEntity;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcNotificationEntityInterface;
-use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcSuggestionNotificationEntity;
-use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
-use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\user\UserInterface;
 
 /**
  * Provides logic for notifications in rtc module.
  */
-class NotificationIntegrator {
-
-  use CKeditorDateFormatterTrait;
-
-  /**
-   * User storage.
-   *
-   * @var \Drupal\Core\Entity\EntityStorageInterface
-   */
-  private EntityStorageInterface $userStorage;
-
-  /**
-   * NotificationIntegrator constructor.
-   *
-   * @param \Drupal\ckeditor5_premium_features\Utility\ApiAdapter $apiAdapter
-   *   Api adapter.
-   * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
-   *   Current user.
-   * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $eventDispatcher
-   *   Event dispatcher.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
-   *   Entity type manager.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   */
-  public function __construct(protected ApiAdapter $apiAdapter,
-                              protected AccountProxyInterface $currentUser,
-                              protected ContainerAwareEventDispatcher $eventDispatcher,
-                              EntityTypeManagerInterface $entityTypeManager) {
-    $this->userStorage = $entityTypeManager->getStorage('user');
-  }
+class NotificationIntegrator extends NotificationIntegratorBase {
 
   /**
    * Dispatches document update event.
@@ -72,7 +33,7 @@ class NotificationIntegrator {
   }
 
   /**
-   * Prepare and send suggestions evens.
+   * Prepare and send suggestions events.
    *
    * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
    *   Related entity.
@@ -94,10 +55,13 @@ class NotificationIntegrator {
       return;
     }
     $newSuggestions = array_filter($suggestions, function ($suggestion) use ($changeDate) {
-      if (empty($suggestion['updated_at'])) {
+      if (empty($suggestion['created_at'])) {
         return FALSE;
       }
-      return strtotime($suggestion['updated_at']) > $changeDate;
+      if (strtotime($suggestion['updated_at']) > $changeDate && $suggestion['state'] != 'open') {
+        return TRUE;
+      }
+      return strtotime($suggestion['created_at']) > $changeDate;
     });
     foreach ($newSuggestions as $key => $suggestion) {
       $newSuggestions[$key]['thread'] = $commentsThreads[$key] ?? [];
@@ -117,32 +81,18 @@ class NotificationIntegrator {
    * @param NotificationDocumentHelper $documentHelper
    *   Notification document helper.
    */
-  public function dispatchSuggestionEvent(array $suggestion,
+  protected function dispatchSuggestionEvent(array $suggestion,
                                           FieldableEntityInterface $entity,
                                           NotificationDocumentHelper $documentHelper): void {
-    $rtcSuggestion = new RtcSuggestionNotificationEntity();
     $thread = [];
-    $author = $this->userStorage->load($suggestion['author_id']);
+    $author = $this->loadAuthor($suggestion['author_id']);
     if (!empty($suggestion['thread']['comments'])) {
       foreach ($suggestion['thread']['comments'] as $comment) {
-        $rtcComment = new RtcCommentNotificationEntity();
-        $rtcComment
-          ->setId($comment['commentId'])
-          ->setContent($comment['content'])
-          ->setCreatedDate($this->format(strtotime($comment['createdAt'])))
-          ->setAuthor($author);
+        $rtcComment = $this->createCommentEntity($comment, $author, $comment['createdAt']);
         $thread[$comment['commentId']] = $rtcComment;
       }
     }
-    $rtcSuggestion
-      ->setId($suggestion['id'])
-      ->setAuthor($author)
-      ->setEntityTypeTargetId($entity->getEntityTypeId())
-      ->setReferencedEntity($entity)
-      ->setChain($suggestion['chain'] ?? [])
-      ->setThread($thread)
-      ->setThreadId($suggestion['id']);
-
+    $rtcSuggestion = $this->createSuggestionEntity($entity, $suggestion, $thread, $author);
     switch ($suggestion['state']) {
       case 'accepted':
         $eventType = CollaborationEventBase::SUGGESTION_ACCEPT;
@@ -204,49 +154,49 @@ class NotificationIntegrator {
         }
       }
     }
+    $this->dispatchCommentsEvent($newComments, $entity, $documentHelper, $suggestions);
+  }
 
+  /**
+   * Prepare and dispatch comments event.
+   *
+   * @param array $newComments
+   *   Array of new comments.
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
+   *   Related entity.
+   * @param NotificationDocumentHelper $documentHelper
+   *   Notification document helper.
+   * @param array $suggestions
+   *   Array of suggestions.
+   */
+  protected function dispatchCommentsEvent(array $newComments,
+                                           FieldableEntityInterface $entity,
+                                           NotificationDocumentHelper $documentHelper,
+                                           array $suggestions) {
     foreach ($newComments as $key => $commentThread) {
       $thread = [];
       foreach ($commentThread['comments'] as $comment) {
-        $author = $this->userStorage->load($comment['authorId']);
-        $rtcComment = new RtcCommentNotificationEntity();
-        $rtcComment
-          ->setId($comment['commentId'])
-          ->setContent($comment['content'])
-          ->setCreatedDate($this->format(strtotime($comment['createdAt'])))
-          ->setAuthor($author);
+        $author = $this->loadAuthor($comment['authorId']);
+        $rtcComment = $this->createCommentEntity($comment, $author, $comment['createdAt']);
         $thread[$comment['commentId']] = $rtcComment;
       }
       $newComment = end($commentThread['new']);
       $rtcComment = $thread[$newComment['commentId']];
       $commentThread['isSuggestionComment'] = empty($commentThread['context']);
 
-      $rtcComment
-        ->setIsReply($commentThread['isReply'] ?? FALSE)
-        ->setThread($thread)
-        ->setThreadId($key)
-        ->setReferencedEntity($entity)
-        ->setEntityTypeTargetId($entity->getEntityTypeId());
-
+      $this->addThreadToCommentEntity($rtcComment, $thread, $key, $entity, $commentThread['isReply'] ?? FALSE);
       if ($commentThread['isSuggestionComment']) {
         $suggestion = $suggestions[$key] ?? NULL;
-        if ($suggestion) {
-          $rtcSuggestion = new RtcSuggestionNotificationEntity();
-          $author = $this->userStorage->load($suggestion['author_id']);
-          $rtcSuggestion
-            ->setId($suggestion['id'])
-            ->setAuthor($author)
-            ->setEntityTypeTargetId($entity->getEntityTypeId())
-            ->setReferencedEntity($entity)
-            ->setChain($suggestion['chain'] ?? [])
-            ->setThread($thread)
-            ->setThreadId($suggestion['id']);
-
-          $rtcComment
-            ->setRelatedSuggestion($rtcSuggestion)
-            ->setIsSuggestionComment($commentThread['isSuggestionComment'])
-            ->setIsReply(TRUE);
+        if (empty($suggestion)) {
+          continue;
         }
+
+        $author = $this->loadAuthor($suggestion['author_id']);
+        $rtcSuggestion = $this->createSuggestionEntity($entity, $suggestion, $thread, $author);
+        $rtcComment
+          ->setRelatedSuggestion($rtcSuggestion)
+          ->setIsSuggestionComment($commentThread['isSuggestionComment'])
+          ->setIsReply(TRUE);
       }
       $this->dispatchEvent($rtcComment, CollaborationEventBase::COMMENT_ADDED, $documentHelper);
 
@@ -268,7 +218,7 @@ class NotificationIntegrator {
    * @param NotificationDocumentHelper $documentHelper
    *   Notification document helper.
    */
-  private function dispatchEvent(RtcNotificationEntityInterface|FieldableEntityInterface $entity,
+  protected function dispatchEvent(RtcNotificationEntityInterface|FieldableEntityInterface $entity,
                                  string $eventType,
                                  NotificationDocumentHelper $documentHelper): void {
     $event = new CollaborationEventBase(
@@ -288,51 +238,6 @@ class NotificationIntegrator {
       $event,
       $eventType
     );
-  }
-
-  /**
-   * Create chained suggestions array.
-   *
-   * @param array $suggestions
-   *   Suggestions to be chained.
-   *
-   * @return array
-   *   Array of chained suggestions.
-   */
-  public function chainSuggestion(array $suggestions): array {
-    $chainedSuggestions = [];
-    foreach ($suggestions as $suggestion) {
-      $head = $suggestion['attributes']['head'] ?? NULL;
-      if ($head && $head !== $suggestion['id']) {
-        NestedArray::setValue(
-          $chainedSuggestions,
-          [$head, 'chain', $suggestion['id']],
-          $suggestion);
-      }
-      else {
-        $chainedSuggestions[$suggestion['id']] = NestedArray::mergeDeep($suggestion, $chainedSuggestions[$suggestion['id']] ?? []);
-        NestedArray::setValue($chainedSuggestions, [
-          $suggestion['id'],
-          'chain',
-          $suggestion['id'],
-        ],
-          $suggestion);
-      }
-    }
-    return $chainedSuggestions;
-  }
-
-  /**
-   * Set key value as thread id.
-   *
-   * @param array $commentsData
-   *   Array of comments.
-   */
-  public function transformCommentsData(array &$commentsData): void {
-    foreach ($commentsData as $key => $comment) {
-      $commentsData[$comment['threadId']] = $comment;
-      unset($commentsData[$key]);
-    }
   }
 
 }

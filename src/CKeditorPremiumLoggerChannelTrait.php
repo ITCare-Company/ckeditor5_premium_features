@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features;
 
 use Drupal\Core\Logger\LoggerChannelTrait;
+use Exception;
 
 /**
  * Trait providing error logging helper methods.
@@ -34,10 +35,10 @@ trait CKeditorPremiumLoggerChannelTrait {
    *
    * @param string $message
    *   Shor message describing source of an exception.
-   * @param \Throwable $e
+   * @param Exception $e
    *   Exception to be logged.
    */
-  protected function logException(string $message, \Throwable $e): void {
+  protected function logException(string $message, Exception $e): void {
     $this->error($message . "<br /> @error <br /> <br /><pre>@trace</pre>", [
       '@error' => $e->getMessage(),
       '@trace' => $e->getTraceAsString(),

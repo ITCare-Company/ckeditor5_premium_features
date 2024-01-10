@@ -12,6 +12,7 @@ namespace Drupal\ckeditor5_premium_features_import_word\Plugin\CKEditor5Plugin;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableInterface;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
+use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\ckeditor5_premium_features_import_word\Config\ImportWordConfigHandlerInterface;
 use Drupal\ckeditor5_premium_features_import_word\Utility\ImportWordMediaUploader;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
@@ -36,6 +37,8 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    *
    * @param \Drupal\ckeditor5_premium_features_import_word\Config\ImportWordConfigHandlerInterface $configHandler
    *   The settings configuration handler.
+   * @param \Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker $libraryVersionChecker
+   *   CKEditor 5 library checker.
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entityTypeBundleInfo
    *   The entity bundle info provider.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
@@ -47,6 +50,7 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    */
   public function __construct(
     protected ImportWordConfigHandlerInterface $configHandler,
+    protected LibraryVersionChecker $libraryVersionChecker,
     protected EntityTypeBundleInfoInterface $entityTypeBundleInfo,
     protected EntityFieldManagerInterface $entityFieldManager,
     protected bool $isMediaEnabled,
@@ -61,6 +65,7 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
     return new static(
       $container->get('ckeditor5_premium_features_import_word.config_handler.settings'),
+      $container->get('ckeditor5_premium_features.core_library_version_checker'),
       $container->get('entity_type.bundle.info'),
       $container->get('entity_field.manager'),
       $container->get('module_handler')->moduleExists('media'),
@@ -139,12 +144,20 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
     $static_plugin_config = parent::getDynamicPluginConfig($static_plugin_config, $editor);
+
+    if ($this->libraryVersionChecker->isLibraryVersionHigherOrEqual('40.1.0')) {
+      $isWordStylesEnabled = $this->configHandler->isWordStylesEnabled();
+      $static_plugin_config['importWord']['formatting']['defaults'] = $isWordStylesEnabled ? 'inline' : 'none';
+      $static_plugin_config['importWord']['formatting']['resets'] = $isWordStylesEnabled ? 'inline' : 'none';
+    }
+    else {
+      $static_plugin_config['importWord']['defaultStyles'] = $this->configHandler->isWordStylesEnabled();
+    }
     $settings = $editor->getSettings();
     $uploadMedia = $settings['plugins'][$this->pluginId]['upload_media'] ?? [];
     if (!empty($uploadMedia)) {
       $static_plugin_config['importWord']['uploadMedia']['enabled'] = $uploadMedia['enabled'];
     }
-    $static_plugin_config['importWord']['defaultStyles'] = $this->configHandler->isWordStylesEnabled();
 
     return $static_plugin_config;
   }

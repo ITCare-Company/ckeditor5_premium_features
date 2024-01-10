@@ -88,9 +88,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
     // Collect plugins information.
     $messageFactoryDefinitions = $this->messageFactoryPluginManager->getDefinitions();
     $senderDefinitions = $this->senderPluginManager->getDefinitions();
-    if ($this->collaborationModuleIntegrator->isRtcEnabled() && isset($senderDefinitions['ck5_notifications_email_bulk'])) {
-      unset($senderDefinitions['ck5_notifications_email_bulk']);
-    }
+
     $form['message_factory_plugin'] = [
       '#type' => 'select',
       '#title' => 'Message content factory',
@@ -207,7 +205,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
         '#title' => $this->t('Message body'),
         '#description' => $this->t('Body of the message sent to the users that collaborated on the updated node.'),
         '#default_value' => $messageConfig['value'] ?? $this->getPredefinedBodyMessage($messageType),
-        '#format' => $messageConfig['test_format'] ?? $this->getTextFormatId('full_html'),
+        '#format' => $messageConfig['format'] ?? $this->getTextFormatId('full_html'),
       ] + $visibility;
 
       if ($additional = $this->getNotificationAdditionalInstruction($messageType)) {
