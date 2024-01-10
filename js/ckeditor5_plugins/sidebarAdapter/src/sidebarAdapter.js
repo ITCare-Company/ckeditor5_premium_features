@@ -45,14 +45,14 @@ class SidebarAdapter {
     }
 
     this.annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
-    let toggleWrapper = document.createElement('div');
-    toggleWrapper.classList.add('ck-sidebar-auto-toggle-wrapper');
+    this.toggleWrapper = document.createElement('div');
+    this.toggleWrapper.classList.add('ck-sidebar-auto-toggle-wrapper');
     let toggle = document.createElement('a');
     toggle.classList += 'ck-sidebar-auto-toggle ' + this.sidebarMode;
     toggle.id = 'ck-sidebar-auto-toggle';
 
-    toggleWrapper.prepend(toggle);
-    this.sidebar.prepend(toggleWrapper);
+    this.toggleWrapper.prepend(toggle);
+    this.sidebar.prepend(this.toggleWrapper);
   }
 
   afterInit() {
@@ -74,6 +74,8 @@ class SidebarAdapter {
     }
 
     this.editor.on('ready', () => {
+      this.setScrollBarObservers();
+
       if (this.editor.ui.view.element) {
         this.editor.ui.view.element.classList += ' ck-sidebar-enabled';
       }
@@ -87,15 +89,26 @@ class SidebarAdapter {
       return;
     }
 
-    this.intersectionObserver.disconnect();
-    this.attrMutationObserver.disconnect();
-    this.mutationObserver.disconnect();
+    this.viewElementScrollbarObserver.disconnect();
 
     this.sidebarVisibilityModify(true);
     let toggle = this.getSidebarToggle()
     if (toggle) {
       toggle.remove();
     }
+  }
+
+  /**
+   * Set margin on toggle wrapper, so the toggle doesn't cover sidebar if it is visible.
+   */
+  setScrollBarObservers() {
+    this.viewElementScrollbarObserver = new ResizeObserver(entries => {
+      const baseMargin = -29;
+      const scrollbarWidth = entries[0].target.offsetWidth - entries[0].target.clientWidth;
+      const totalMargin = baseMargin - scrollbarWidth;
+      this.toggleWrapper.style.marginLeft = totalMargin + "px";
+    });
+    this.viewElementScrollbarObserver.observe(this.editor.ui.view.editable.element);
   }
 
   /**

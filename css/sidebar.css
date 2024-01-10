@@ -88,9 +88,6 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
   padding: 0 10px;
 }
-.ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper .ck-sidebar .ck-sidebar-item {
-  justify-content: start;
-}
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper .ck-sidebar .ck-sidebar-item {
   padding-bottom: 10px;
 }
@@ -102,11 +99,11 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   width: 30px;
   height: 30px;
   position: absolute;
-  top: 1px;
-  margin-left: -31px;
+  top: 2px;
   background: white;
   z-index: 10;
 }
+
 .ck-editor-container .ck-editor-sidebar-wrapper.inline .ck-sidebar-auto-toggle-wrapper {
   display: none;
 }
