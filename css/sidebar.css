@@ -99,8 +99,8 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   width: 30px;
   height: 30px;
   position: absolute;
-  top: 2px;
-  background: white;
+  top: 1px;
+  background: transparent;
   z-index: 10;
 }
 
@@ -113,7 +113,7 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   height: 30px;
 }
 .ck-editor-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle:hover {
-  background: var(--ck-color-button-default-hover-background);
+  background-color: rgba(0, 0, 0, 0.06);
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar .ck-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper {
   width: 100%;
