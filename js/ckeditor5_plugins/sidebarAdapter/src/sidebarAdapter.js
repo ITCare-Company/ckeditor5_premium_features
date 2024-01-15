@@ -44,15 +44,7 @@ class SidebarAdapter {
       return;
     }
 
-    this.annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
-    this.toggleWrapper = document.createElement('div');
-    this.toggleWrapper.classList.add('ck-sidebar-auto-toggle-wrapper');
-    let toggle = document.createElement('a');
-    toggle.classList += 'ck-sidebar-auto-toggle ' + this.sidebarMode;
-    toggle.id = 'ck-sidebar-auto-toggle';
-
-    this.toggleWrapper.prepend(toggle);
-    this.sidebar.prepend(this.toggleWrapper);
+    this.addToggleButton();
   }
 
   afterInit() {
@@ -92,10 +84,26 @@ class SidebarAdapter {
     this.viewElementScrollbarObserver.disconnect();
 
     this.sidebarVisibilityModify(true);
-    let toggle = this.getSidebarToggle()
+    let toggle = this.getSidebarToggleWrapper()
     if (toggle) {
       toggle.remove();
     }
+  }
+
+  /**
+   * Set the sidebar toggle button.
+   */
+  addToggleButton() {
+    this.annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
+    this.toggleWrapper = document.createElement('div');
+    this.toggleWrapper.classList.add('ck-sidebar-auto-toggle-wrapper');
+    let toggle = document.createElement('a');
+    toggle.classList += 'ck-sidebar-auto-toggle ' + this.sidebarMode;
+    toggle.id = 'ck-sidebar-auto-toggle';
+    toggle.title = 'Switch to narrow sidebar mode';
+
+    this.toggleWrapper.prepend(toggle);
+    this.sidebar.prepend(this.toggleWrapper);
   }
 
   /**
@@ -134,7 +142,7 @@ class SidebarAdapter {
    * Checks sidebar mode setting and attaches event listeners if required.
    */
   handleSidebarMode() {
-    let toggle = this.getSidebarToggle();
+    let toggle = this.getSidebarToggleWrapper();
 
     if (this.sidebarMode !== 'auto') {
       this.setCkEditorSidebarMode(this.sidebarMode);
@@ -177,6 +185,18 @@ class SidebarAdapter {
     if (!this.sidebar || typeof this.sidebar === 'undefined') {
       return null;
     }
+    return this.sidebar.querySelector(".ck-sidebar-auto-toggle");
+  }
+
+  /**
+   * Returns a toggle button wrapper for handled sidebar or null if not found.
+   *
+   * @returns {null|Element}
+   */
+  getSidebarToggleWrapper() {
+    if (!this.sidebar || typeof this.sidebar === 'undefined') {
+      return null;
+    }
     return this.sidebar.querySelector(".ck-sidebar-auto-toggle-wrapper");
   }
 
@@ -190,6 +210,16 @@ class SidebarAdapter {
     if (!this.sidebar || typeof this.sidebar === 'undefined') {
       return;
     }
+    let toggle = this.getSidebarToggle();
+
+    if (newMode === "wideSidebar") {
+      toggle.title = 'Switch to narrow sidebar mode';
+    } else if (newMode === "narrowSidebar") {
+      toggle.title = 'Switch to wide sidebar mode';
+    } else {
+      toggle.title = '';
+    }
+
     if (this.sidebar.classList.contains('manual-toggled') && newMode === 'wideSidebar') {
       if (this.annotationsUIs.isActive('inline') || this.annotationsUIs.isActive('wideSidebar')) {
         newMode = 'narrowSidebar';

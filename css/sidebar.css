@@ -111,6 +111,12 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   display: block;
   width: 30px;
   height: 30px;
+  transition: box-shadow .2s ease-in-out,border .2s ease-in-out
+}
+.ck-editor-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle:active {
+  border: var(--ck-focus-ring);
+  box-shadow: var(--ck-focus-outer-shadow),0 0;
+  outline: none;
 }
 .ck-editor-sidebar-wrapper .ck-sidebar-auto-toggle-wrapper a.ck-sidebar-auto-toggle:hover {
   background-color: rgba(0, 0, 0, 0.06);
