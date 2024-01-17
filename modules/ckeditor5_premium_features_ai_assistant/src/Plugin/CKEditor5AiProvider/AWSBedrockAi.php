@@ -164,6 +164,39 @@ final class AWSBedrockAi extends CKEditor5AiProviderPluginBase {
       '#title' => 'AWS Region',
       '#options' => self::AWS_REGIONS,
       '#required' => TRUE,
+      '#states' => [
+        'disabled' => [
+          ":input[name=\"{$this->getPluginId()}_add_custom_region_code\"]" => ['checked' => TRUE],
+        ],
+        'visible' => [
+          ":input[name=\"{$this->getPluginId()}_add_custom_region_code\"]" => ['checked' => FALSE],
+        ],
+        'required' => [
+          ":input[name=\"{$this->getPluginId()}_add_custom_region_code\"]" => ['checked' => FALSE],
+        ],
+      ],
+    ];
+    $fields["add_custom_region_code"] = [
+      '#type' => 'checkbox',
+      '#title' => 'Use different region',
+      '#description' => 'If your region is missing from the list, add the region code below.',
+    ];
+
+    $fields["custom_region_code"] = [
+      '#type' => 'textfield',
+      '#title' => 'AWS Region Code',
+      '#required' => FALSE,
+      '#states' => [
+        'disabled' => [
+          ":input[name=\"{$this->getPluginId()}_add_custom_region_code\"]" => ['checked' => FALSE],
+        ],
+        'visible' => [
+          ":input[name=\"{$this->getPluginId()}_add_custom_region_code\"]" => ['checked' => TRUE],
+        ],
+        'required' => [
+          ":input[name=\"{$this->getPluginId()}_add_custom_region_code\"]" => ['checked' => TRUE],
+        ],
+      ],
     ];
 
     $fields["model"] = [
@@ -232,6 +265,10 @@ final class AWSBedrockAi extends CKEditor5AiProviderPluginBase {
    *   The auth key.
    */
   private function getRegion(): string {
+    $isCustom = $this->config->get("{$this->getPluginId()}_add_custom_region_code");
+    if ($isCustom) {
+      return $this->config->get("{$this->getPluginId()}_custom_region_code") ?? '';
+    }
     return $this->config->get("{$this->getPluginId()}_region") ?? '';
   }
 
