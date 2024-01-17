@@ -112,7 +112,12 @@ class AiAssistantHelper {
     if (!$provider) {
       return [];
     }
-    return $provider->getConfigFields();
+    $configFields = $provider->getConfigFields();
+    $fields = [];
+    foreach ($configFields as $key => $value) {
+      $fields["{$providerId}_{$key}"] = $value;
+    }
+    return $fields;
   }
 
   /**

@@ -195,4 +195,15 @@ class SettingsForm extends ConfigFormBase {
     return $form['provider_settings'];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    $providerId = $form_state->getValue('ai_provider');
+    $provider = $this->aiAssistantHelper->getProviderById($providerId);
+    $provider->validateFields($form_state);
+
+    parent::validateForm($form, $form_state);
+  }
+
 }

@@ -95,11 +95,7 @@ final class OpenAi extends CKEditor5AiProviderPluginBase {
    */
   public function getConfigFields(): array {
     $definition = $this->getPluginDefinition();
-    $fields = [];
-    foreach ($definition['form_fields'] as $key => $value) {
-      $fields[$this->getPluginId() . '_' . $key] = $value;
-    }
-    return $fields;
+    return $definition['form_fields'];
   }
 
   /**

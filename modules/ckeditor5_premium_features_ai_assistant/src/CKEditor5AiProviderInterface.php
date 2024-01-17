@@ -9,6 +9,7 @@ declare(strict_types = 1);
 
 namespace Drupal\ckeditor5_premium_features_ai_assistant;
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -62,5 +63,15 @@ interface CKEditor5AiProviderInterface {
    *   The Description.
    */
   public function getDescription(): string|TranslatableMarkup;
+
+  /**
+   * Validate form with plugin fields.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return void
+   */
+  public function validateFields(FormStateInterface &$form_state): void;
 
 }

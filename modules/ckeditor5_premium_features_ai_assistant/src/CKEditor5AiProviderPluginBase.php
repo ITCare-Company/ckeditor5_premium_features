@@ -10,6 +10,7 @@ declare(strict_types = 1);
 namespace Drupal\ckeditor5_premium_features_ai_assistant;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 
 /**
@@ -22,6 +23,12 @@ abstract class CKEditor5AiProviderPluginBase extends PluginBase implements CKEdi
    */
   public function label(): string {
     return (string) $this->pluginDefinition['label'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateFields(FormStateInterface &$form_state): void {
   }
 
 }

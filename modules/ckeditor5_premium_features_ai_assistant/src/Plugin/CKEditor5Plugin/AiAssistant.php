@@ -78,6 +78,15 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
         ->toString();
     }
 
+    if ($textAdapter === AITextAdapter::AWS->value) {
+      $providerName = $config->get('ai_provider');
+      $model = $config->get("{$providerName}_model");
+      $static_plugin_config['ai'][$textAdapter]['requestParameters'] = [
+        'model' => $model,
+        'stream' => FALSE,
+      ];
+    }
+
     if ($config->get('disable_default_styles')) {
       $static_plugin_config['ai']['useTheme'] = FALSE;
     }
