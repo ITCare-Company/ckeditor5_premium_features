@@ -355,7 +355,7 @@ final class AWSBedrockAi extends CKEditor5AiProviderPluginBase {
    */
   public function validateFields(FormStateInterface &$form_state): void {
     $modelField = "{$this->getPluginId()}_model";
-    $model = $form_state->getValue($modelField);
+    $model = $form_state->getValue($modelField) ?? '';
     $isModelValid = match(1) {
       preg_match($this->claudeRegex, $model) => TRUE,
       preg_match($this->ai21Regex, $model) => TRUE,
