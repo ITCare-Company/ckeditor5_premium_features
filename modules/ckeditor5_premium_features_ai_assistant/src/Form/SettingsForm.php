@@ -92,7 +92,9 @@ class SettingsForm extends ConfigFormBase {
 
     $providerFields = $this->aiAssistantHelper->getProviderFormFields($provider);
     foreach ($providerFields as $key => $field) {
-      $field['#default_value'] = $config->get($key);
+      if (!isset($field['#default_value'])) {
+        $field['#default_value'] = $config->get($key);
+      }
       $form['provider_settings'][$key] = $field;
     }
 

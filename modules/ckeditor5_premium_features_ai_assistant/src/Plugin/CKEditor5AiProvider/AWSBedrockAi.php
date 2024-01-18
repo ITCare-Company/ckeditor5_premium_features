@@ -163,7 +163,7 @@ final class AWSBedrockAi extends CKEditor5AiProviderPluginBase {
       '#type' => 'select',
       '#title' => 'AWS Region',
       '#options' => self::AWS_REGIONS,
-      '#required' => TRUE,
+      '#default_value' => $this->config->get("{$this->getPluginId()}_region") ?? current(self::AWS_REGIONS),
       '#states' => [
         'disabled' => [
           ":input[name=\"{$this->getPluginId()}_add_custom_region_code\"]" => ['checked' => TRUE],
