@@ -179,7 +179,7 @@ final class AWSBedrockAi extends CKEditor5AiProviderPluginBase {
     $fields["add_custom_region_code"] = [
       '#type' => 'checkbox',
       '#title' => 'Use different region',
-      '#description' => 'If your region is missing from the list, add the region code below.',
+      '#description' => 'If your region is missing from the list, click the checkbox and add the region code below.',
     ];
 
     $fields["custom_region_code"] = [
@@ -203,12 +203,12 @@ final class AWSBedrockAi extends CKEditor5AiProviderPluginBase {
       '#type' => 'textfield',
       '#title' => 'Model',
       '#required' => TRUE,
-      '#description' => $this->t('Provide one of Bedrocks available models: </br>
+      '#description' => $this->t("Provide one of Bedrock's available models with its version: </br>
                           - anthropic.claude </br>
                           - ai21.j2 </br>
                           - cohere.command </br>
                           - meta.llama2</br>
-                          For example: <b>anthropic.claude-v2</b>'),
+                          For example: <b>anthropic.claude-v2</b>"),
     ];
 
     $fields["model_config"] = [
