@@ -1,0 +1,10 @@
+name: CKEditor 5 Premium Features WProofReader
+type: module
+description: "Provides WProofReader features."
+package: CKEditor 5 Premium
+core_version_requirement: ^9.4 || ^10 || ^11
+configure: ckeditor5_premium_features_wproofreader.form.settings
+dependencies:
+  - drupal:editor
+  - drupal:ckeditor5
+

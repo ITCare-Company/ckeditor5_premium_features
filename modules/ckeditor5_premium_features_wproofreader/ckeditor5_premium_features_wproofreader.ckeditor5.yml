@@ -1,0 +1,13 @@
+ckeditor5_premium_features_wproofreader__wproofreader:
+  ckeditor5:
+    plugins:
+      - wproofreader.WProofreader
+  drupal:
+    label: WProofReader
+    elements: false
+    library: ckeditor5_premium_features_wproofreader/wproofreader
+    class: Drupal\ckeditor5_premium_features_wproofreader\Plugin\CKEditor5Plugin\WProofReader
+    admin_library: ckeditor5_premium_features_wproofreader/admin.wproofreader
+    toolbar_items:
+      wproofreader:
+        label: WProofReader
