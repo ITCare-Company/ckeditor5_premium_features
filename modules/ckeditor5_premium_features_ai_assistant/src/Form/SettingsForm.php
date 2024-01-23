@@ -128,7 +128,7 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Advanced settings'),
       '#open' => (bool) $config->get('use_custom_endpoint'),
       '#description' =>
-      $this->t('If you want to use your custom proxy, provide URL and Auth key for the endpoint.'),
+      $this->t('If you want to use your custom proxy, provide the URL and Auth key for the endpoint.'),
     ];
     $form['advanced']['use_custom_endpoint'] = [
       '#type' => 'checkbox',

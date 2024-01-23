@@ -34,7 +34,7 @@ class TrackChanges extends Collaboration {
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
-    $note = $this->t('In order to setup the annotation sidebar use the <a href="@url">global collaboration configuration instead</a>.', [
+    $note = $this->t('In order to set up the annotation sidebar use the <a href="@url">global collaboration configuration instead</a>.', [
       '@url' => Url::fromRoute('ckeditor5_premium_features_collaboration.form.settings')->toString(),
     ]);
     $form['note'] = [
