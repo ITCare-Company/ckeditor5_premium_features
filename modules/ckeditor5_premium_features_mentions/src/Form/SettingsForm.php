@@ -23,7 +23,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return self::MENTION_SETTINGS_ID;
+    return 'ckeditor5_premium_features_mentions_settings';
   }
 
   /**
@@ -31,6 +31,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
    */
   public static function getSettingsRouteName(): string {
     return 'ckeditor5_premium_features_mentions.form.settings';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfigId(): string {
+    return self::MENTION_SETTINGS_ID;
   }
 
   /**

@@ -37,4 +37,9 @@ interface SharedBuildConfigFormInterface {
    */
   public static function getSettingsRouteName(): string;
 
+  /**
+   * Returns config id.
+   */
+  public function getConfigId(): string;
+
 }

@@ -23,6 +23,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class SettingsForm extends ConfigFormBase {
 
+  const PREMIUM_FEATURES_CONFIG_NAME = 'ckeditor5_premium_features.settings';
+
   /**
    * Required length of the Environment ID.
    */
@@ -66,7 +68,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return 'ckeditor5_premium_features.settings';
+    return 'ckeditor5_premium_features_settings';
   }
 
   /**
@@ -74,7 +76,7 @@ class SettingsForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames(): array {
     return [
-      $this->getFormId(),
+      self::PREMIUM_FEATURES_CONFIG_NAME,
     ];
   }
 
@@ -330,7 +332,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $config = $this->config($this->getFormId());
+    $config = $this->config(self::PREMIUM_FEATURES_CONFIG_NAME);
     $clean_values = $this->processCleanValues($form_state);
 
     // Let's make sure the path ends with the trailing slash.
@@ -368,7 +370,7 @@ class SettingsForm extends ConfigFormBase {
    *   The form elements to be processed.
    */
   private function setDefaultValues(array &$elements): void {
-    $config = $this->config(($this->getFormId()));
+    $config = $this->config(self::PREMIUM_FEATURES_CONFIG_NAME);
     foreach ($elements as $key => $element) {
       $elements[$key]['#default_value'] = $config->get($key) ?? ($element['#default_value'] ?? NULL);
     }

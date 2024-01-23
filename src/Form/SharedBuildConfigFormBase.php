@@ -31,9 +31,14 @@ abstract class SharedBuildConfigFormBase extends ConfigFormBase implements Share
   /**
    * {@inheritdoc}
    */
+  abstract public function getConfigId(): string;
+
+  /**
+   * {@inheritdoc}
+   */
   protected function getEditableConfigNames(): array {
     return [
-      $this->getFormId(),
+      $this->getConfigId(),
     ];
   }
 
@@ -49,7 +54,7 @@ abstract class SharedBuildConfigFormBase extends ConfigFormBase implements Share
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $form = parent::buildForm($form, $form_state);
-    $config = $this->config($this->getFormId());
+    $config = $this->config($this->getConfigId());
 
     return static::form($form, $form_state, $config);
   }
@@ -59,7 +64,7 @@ abstract class SharedBuildConfigFormBase extends ConfigFormBase implements Share
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $this
-      ->config($this->getFormId())
+      ->config($this->getConfigId())
       ->setData($form_state->cleanValues()->getValues())
       ->save();
 
