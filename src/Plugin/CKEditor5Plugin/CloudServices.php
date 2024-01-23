@@ -57,17 +57,20 @@ class CloudServices extends CKEditor5PluginDefault implements ContainerFactoryPl
    * {@inheritdoc}
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
+    $config = $this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings');
     $filterFormatId = $editor->getFilterFormat()->id();
     $static_plugin_config['cloudServices']['tokenUrl'] = $this->settingsConfigHandler->getTokenUrl($filterFormatId);
     $static_plugin_config['cloudServices']['webSocketUrl'] = $this->settingsConfigHandler->getWebSocketUrl();
 
-    $config = $this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings');
-    $bundles = $config->get('editor_bundles') ?? [];
-    $bundleVersion = $bundles[$editor->id()] ?? '';
-    if ($bundleVersion) {
-      $static_plugin_config['cloudServices']['bundleVersion'] = $bundleVersion;
+    if ($config->get('realtime_permissions')) {
+      $bundles = $config->get('editor_bundles') ?? [];
+      $bundleVersion = $bundles[$filterFormatId] ?? '';
+    }
+    else {
+      $bundleVersion = $filterFormatId;
     }
 
+    $static_plugin_config['cloudServices']['bundleVersion'] = $bundleVersion;
     $static_plugin_config['comments']['editorConfig']['extraPlugins'] = [];
 
     return $static_plugin_config;

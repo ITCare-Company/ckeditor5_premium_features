@@ -221,8 +221,15 @@ class ApiAdapter {
   public function validateBundleVersion(string $documentId, string $textFormat): void {
     $sessionVersion = $this->getBundleVersion($documentId);
     $config = $this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings');
-    $bundles = $config->get('editor_bundles') ?? [];
-    $bundleVersion = $bundles[$textFormat] ?? '';
+
+    if ($config->get('realtime_permissions')) {
+      $bundles = $config->get('editor_bundles') ?? [];
+      $bundleVersion = $bundles[$textFormat] ?? '';
+    }
+    else {
+      $bundleVersion = $textFormat;
+    }
+
     if (is_null($sessionVersion) || $sessionVersion === $bundleVersion) {
       return;
     }

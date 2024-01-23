@@ -89,4 +89,18 @@ class Channel extends ContentEntityBase implements ChannelInterface {
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getTargetEntityUuid(): ?string {
+    return (string) $this->get('entity_id')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTargetEntityType(): ?string {
+    return (string) $this->get('entity_type')->value;
+  }
+
 }

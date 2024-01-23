@@ -9,6 +9,7 @@ services:
       - '@ckeditor5_premium_features_realtime_collaboration.notification_integrator'
       - '@module_handler'
       - '@config.factory'
+      - '@request_stack'
 
 
   ckeditor5_premium_features_realtime_collaboration.collaboration_settings:

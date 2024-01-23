@@ -28,4 +28,14 @@ interface ChannelInterface {
    */
   public function setKeyId(string $value): static;
 
+  /**
+   * Getter for target entity UUID.
+   */
+  public function getTargetEntityUuid(): ?string;
+
+  /**
+   * Getter for target entity type.
+   */
+  public function getTargetEntityType(): ?string;
+
 }

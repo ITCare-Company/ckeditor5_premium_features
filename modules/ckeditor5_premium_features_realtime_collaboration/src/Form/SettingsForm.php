@@ -102,6 +102,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#default_value' => $config->get('realtime_permissions') ?? FALSE,
     ];
 
+    $form['allow_text_format_change'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Allow text format select'),
+      '#description' => t('Change of text format will cause editing session reset and all other users in session will be disconnected. Changing text format is not supported at all when permissions system is enabled. Text format change is always available on node add form.'),
+      '#default_value' => $config->get('allow_text_format_select') ?? FALSE,
+    ];
+
     return $form;
   }
 
@@ -137,5 +144,5 @@ class SettingsForm extends SharedBuildConfigFormBase {
       }
     }
   }
-  
+
 }

@@ -16,12 +16,15 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use GuzzleHttp\Client;
 
 /**
  * Helper class for uploading editor bundle to the cloud server.
  */
 class BundleUploadHelper {
+
+  use StringTranslationTrait;
 
   const COLLABORATION_TOOLBAR_ITEMS = [
     'trackChanges',
@@ -157,14 +160,14 @@ class BundleUploadHelper {
     $logger = $this->loggerFactory->get('ckeditor5_premium_features_realtime_collaboration');
 
     if ($is409Error) {
-      $this->messenger->addWarning("CKEditor 5 bundle didn't upload successfully to the cloud. This will cause validation errors on form submit that uses realtime collaboration. Please check recent log messages for details and contact support if you need help solving the issue.");
+      $this->messenger->addWarning($this->t("CKEditor 5 bundle %bundle didn't upload successfully to the cloud. This will cause validation errors on form submit that uses realtime collaboration. Please check recent log messages for details and contact support if you need help solving the issue.", ['%bundle' => $formatBundle]));
       $logger->warning('Bundle upload failed. Active plugins: %plugins', ['%plugins' => print_r($plugins, TRUE)]);
       $logger->warning('Bundle upload failed. Server response: %response', ['%response' => $response['message']]);
     }
     elseif ($response) {
       $bundles = $realtimeConfig->get('editor_bundles') ?? [];
       $bundles[$format] = $formatBundle;
-      $this->messenger->addStatus('Uploaded CKEditor5 bundle ' . $formatBundle . ' to the cloud server.');
+      $this->messenger->addStatus($this->t('Uploaded CKEditor5 bundle %bundle to the cloud server.', ['%bundle' => $formatBundle]));
       $realtimeConfig->set('editor_bundles', $bundles);
       $realtimeConfig->save();
     }

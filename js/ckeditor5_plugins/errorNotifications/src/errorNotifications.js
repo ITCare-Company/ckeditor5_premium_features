@@ -19,6 +19,12 @@ const definitions = [
     description: 'Your premium features trial limit for this node has been exceeded. Create a new node or contact sales@cksource.com if you want to upgrade to the full version. ',
     type: 'error',
     reactsTo: { message: 'trial-license-key-reached-limit' }
+  },
+  {
+    header: 'Access denied',
+    description: 'You don\'t have enough permissions for this action.',
+    type: 'unhandledrejection',
+    reactsTo: { message: 'You don\'t have enough permissions to access this resource' }
   }
 ]
 
@@ -67,7 +73,6 @@ class ErrorNotifications extends Plugin {
 
         this.editor.editing.view.focus();
       } );
-
       this.availableNotifications.add( notification )
     }
   }
@@ -84,10 +89,11 @@ class ErrorNotifications extends Plugin {
 
   _handleError( evt ) {
     let notificationToShow = null;
-
     const matches = new Collection();
 
-    if ( this.activeNotification || !evt.error ) {
+    if ( this.activeNotification ||
+      ( evt.type === "error" && !evt.error) ||
+      ( evt.type === "unhandledrejection" && !evt.reason)) {
       return;
     }
 
@@ -95,7 +101,10 @@ class ErrorNotifications extends Plugin {
       const reactsTo = notification.reactsTo;
 
       for ( const key in reactsTo ) {
-        if ( evt.error[ key ] && evt.error[ key ].includes( reactsTo[ key ] ) ) {
+        if ( evt.type === "error" && evt.error[ key ] && evt.error[ key ].includes( reactsTo[ key ] ) ) {
+          matches.add( notification );
+        }
+        if ( evt.type === "unhandledrejection" && evt.reason[ key ] && evt.reason[ key ].includes( reactsTo[ key ] ) ) {
           matches.add( notification );
         }
       }

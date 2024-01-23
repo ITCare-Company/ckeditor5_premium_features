@@ -30,6 +30,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Defines the Text Format utility class for handling the collaboration data.
@@ -56,6 +57,14 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   The api adapter.
    * @param \Drupal\ckeditor5_premium_features\Storage\EditorStorageHandlerInterface $editorStorageHandler
    *   The editor storage handler.
+   * @param \Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\NotificationIntegrator $notificationIntegrator
+   *   The notifications integrator.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
+   *   The module handler.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The config factory.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request stack.
    *
    * @throws InvalidPluginDefinitionException
    * @throws PluginNotFoundException
@@ -67,7 +76,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     protected EditorStorageHandlerInterface $editorStorageHandler,
     protected NotificationIntegrator $notificationIntegrator,
     protected ModuleHandlerInterface $moduleHandler,
-    protected ConfigFactoryInterface $configFactory
+    protected ConfigFactoryInterface $configFactory,
+    protected RequestStack $requestStack
   ) {
     $this->channelStorage = $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID);
   }
@@ -152,7 +162,11 @@ class TextFormat implements Ckeditor5TextFormatInterface {
           }
         }
 
-        $this->apiAdapter->validateBundleVersion($channel_id, $element['#format']);
+        // Do not validate bundle on form submit to prevent error when text format has been modified during node edition.
+        $request_method = $this->requestStack->getCurrentRequest()->getMethod();
+        if ($request_method == 'GET') {
+          $this->apiAdapter->validateBundleVersion($channel_id, $element['#format']);
+        }
 
         $element['entity_channel'] = [
           '#type' => 'hidden',
@@ -176,6 +190,13 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     $track_changes_states = $this->editorStorageHandler->getTrackChangesStates($element, TRUE);
     $element['#attached']['drupalSettings']['ckeditor5Premium']['tracking_changes']['default_state'] = $track_changes_states;
+
+    $realtimeConfig = $this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings');
+    $realtimePermissionsEnabled = $realtimeConfig->get('realtime_permissions');
+    $textFormatChangeAllowed = !$realtimeConfig->get('allow_text_format_change');
+    if (!$form_object->getEntity()->isNew() && ($realtimePermissionsEnabled || !$textFormatChangeAllowed)) {
+      $element['format']['format']['#attributes']['disabled'] = 'disabled';
+    }
 
     $element['#element_validate'] = [[$this, 'validateElement']];
     return $element;

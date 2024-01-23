@@ -34,6 +34,26 @@ class RealtimeAdapter {
       console.info('The Source editing plugin is not compatible with real-time collaboration, so it has been disabled. If you need it, please contact us to discuss your use case - https://ckeditor.com/contact/');
       editor.plugins.get('SourceEditing').forceDisabled('drupal-rtc');
     }
+
+    let editorParent = this.storage.getEditorParentContainer(this.editor.sourceElement.id);
+    if (editorParent) {
+      this.textFormatSelect = editorParent.querySelector(".js-filter-list");
+      this.textFormatSelect.addEventListener('change', this.changeEditor.bind(this));
+    }
+
+  }
+
+  /**
+   * Calls an endpoint that resets the collaborative session for a channel of the field that has text format changed.
+   *
+   * @param event
+   */
+  changeEditor(event) {
+    const channelId = this.editor.config._config.collaboration.channelId
+    const Http = new XMLHttpRequest();
+    const url='/ckeditor5-premium-features-realtime-collaboration/flush-session/' + channelId;
+    Http.open("GET", url);
+    Http.send();
   }
 
   setPresenceListContainer() {
@@ -116,6 +136,10 @@ class RealtimeAdapter {
         this.editor.execute('trackChanges');
       }
     });
+  }
+
+  destroy() {
+    this.textFormatSelect.removeEventListener('change', this.changeEditor.bind(this));
   }
 
   /**
