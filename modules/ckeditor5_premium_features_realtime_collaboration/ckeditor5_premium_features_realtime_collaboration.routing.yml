@@ -11,5 +11,6 @@ ckeditor5_premium_features_realtime_collaboration.flush_session:
   defaults:
     _title: 'Flush Collaborative Session'
     _controller: '\Drupal\ckeditor5_premium_features_realtime_collaboration\Controller\FlushCollaborativeSessionController::flush'
+  methods: [DELETE]
   requirements:
     _custom_access: '\Drupal\ckeditor5_premium_features_realtime_collaboration\Controller\FlushCollaborativeSessionController::access'

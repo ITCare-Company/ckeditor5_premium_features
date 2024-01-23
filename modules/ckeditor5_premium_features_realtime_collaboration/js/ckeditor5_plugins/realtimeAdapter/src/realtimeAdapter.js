@@ -52,7 +52,7 @@ class RealtimeAdapter {
     const channelId = this.editor.config._config.collaboration.channelId
     const Http = new XMLHttpRequest();
     const url='/ckeditor5-premium-features-realtime-collaboration/flush-session/' + channelId;
-    Http.open("GET", url);
+    Http.open("DELETE", url);
     Http.send();
   }
 
