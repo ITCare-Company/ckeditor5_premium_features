@@ -78,7 +78,7 @@ class CollaborationStorage {
 
     while (editorElement && typeof editorElement !== "undefined"
       && typeof editorElement.classList !== "undefined" &&
-      !editorElement.classList.contains('ck-editor-sidebar-wrapper')) {
+      !editorElement.classList.contains('ck-editor-container')) {
 
       editorElement = editorElement.parentElement;
     }

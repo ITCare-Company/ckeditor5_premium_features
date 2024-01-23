@@ -230,6 +230,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       $this->collaborationAccessHandler->getUserPermissionsForTextFormats($this->currentUser);
 
     $element['#element_validate'] = [[$this, 'validateElement']];
+    $element['value']['#theme'] = 'ckeditor5_textarea';
     return $element;
   }
 

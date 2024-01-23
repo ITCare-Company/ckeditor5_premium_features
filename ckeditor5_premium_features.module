@@ -153,3 +153,25 @@ function ckeditor5_premium_features_filter_format_disable(FilterFormatInterface 
   $permissionHelper = \Drupal::service('ckeditor5_premium_features.permission_helper');
   $permissionHelper->deleteCollaborationPermissions($format);
 }
+
+/**
+ * Implements hook_theme().
+ */
+function ckeditor5_premium_features_theme($existing, $type, $theme, $path): array {
+  return [
+    'ckeditor5_textarea' => [
+      'render element' => 'element',
+      'template' => 'ckeditor5-textarea'
+    ],
+  ];
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function ckeditor5_premium_features_preprocess_ckeditor5_textarea(&$variables): void {
+  template_preprocess_textarea($variables);
+  $element = $variables['element'];
+  $variables['sidebar'] = !empty($element['#sidebar']) ? $element['#sidebar'] : NULL;
+  $variables['document_outline'] = !empty($element['#document_outline']) ? $element['#document_outline'] : NULL;
+}

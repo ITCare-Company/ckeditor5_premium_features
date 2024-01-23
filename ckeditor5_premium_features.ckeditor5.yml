@@ -12,6 +12,7 @@ ckeditor5_premium_features__collaboration_integration_base:
       - disableGhsTableIntegration.DisableGhsTableIntegration
       - disableCollaborationMarkersInCaption.DisableCollaborationMarkersInCaption
       - sidebarAdapter.SidebarAdapter
+      - toolbarAdapter.ToolbarAdapter
       - removeIncorrectCollaborationMarkers.RemoveIncorrectCollaborationMarkers
 
   drupal:

@@ -33,18 +33,21 @@ export default class FullScreen extends Plugin {
 			} );
 
 			view.on( 'execute', () => {
-				const sideBarWrapper = editor.sourceElement.closest( '.ck-editor-sidebar-wrapper' );
+				const editorWrapper = editor.sourceElement.closest( '.ck-editor-premium-wrapper' );
 				const sourceElementSibling = editor.sourceElement.nextElementSibling;
-				const targetElement = sideBarWrapper ? sideBarWrapper : sourceElementSibling;
-				const revHistoryElement = targetElement.parentNode.querySelector( '.revision-history-container-data' );
+				const targetElement = editorWrapper ? editorWrapper : sourceElementSibling;
+				const revHistoryElement = targetElement.parentNode.parentNode.querySelector( '.revision-history-container-data' );
         const stickyPanel = targetElement.querySelector('.ck-sticky-panel__content');
         const stickyPanelPlaceholder = targetElement.querySelector('.ck-sticky-panel__placeholder');
-				if ( document.body.classList.contains( overlayClass ) ) {
+        const toolbarHeight = targetElement.querySelector('.ck-toolbar-wrapper').offsetHeight;
+        const container = targetElement.querySelector('.ck-editor-container');
+        if ( document.body.classList.contains( overlayClass ) ) {
 					targetElement.classList.remove( editorFullScreenClass );
 					if ( revHistoryElement ) {
 						revHistoryElement.classList.remove( editorFullScreenClass );
 					}
 					document.body.classList.remove( overlayClass );
+          container.style.height = null;
 					view.set( 'label', 'Maximize' );
 					view.set( 'isOn', false );
           editor.ui.view.stickyPanel.set('isActive', true);
@@ -60,7 +63,8 @@ export default class FullScreen extends Plugin {
 					if ( revHistoryElement ) {
 						revHistoryElement.classList.add( editorFullScreenClass );
 					}
-          document.body.classList.add( overlayClass );
+					document.body.classList.add( overlayClass );
+          container.style.height = window.innerHeight - toolbarHeight + "px";
 					view.set( 'label', 'Minimize' );
 					view.set( 'isOn', true );
           editor.ui.view.stickyPanel.set('isActive', false);

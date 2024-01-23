@@ -33,26 +33,29 @@ class AnnotationSidebar {
   public static function process(array &$element, CommonCollaborationSettingsInterface $collaboration_settings): array {
     $sidebar_mode = $collaboration_settings->getAnnotationSidebarType();
 
-    $sidebar['ck_sidebar_type'] = [
-      '#type' => 'hidden',
-      '#value' => $sidebar_mode,
-    ];
-    $sidebar['ck_sidebar'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'div',
-      '#attributes' => [
-        'class' => ['ck-sidebar-wrapper', $sidebar_mode],
-        'id' => [
-          $element['#id'] . '-value-ck-sidebar',
+    $class_wrapper = $element['#id'] . '-value-ck-sidebar-wrapper';
+
+    $sidebar = [
+      'ck_sidebar_wrapper' => [
+        '#type' => 'container',
+        '#attributes' => ['class' => ['ck-editor-sidebar-wrapper', $class_wrapper]],
+        'ck_sidebar' => [
+          '#type' => 'html_tag',
+          '#tag' => 'div',
+          '#attributes' => [
+            'class' => ['ck-sidebar-wrapper', $sidebar_mode],
+            'id' => [
+              $element['#id'] . '-value-ck-sidebar',
+            ],
+          ],
         ],
       ],
     ];
 
-    $class_wrapper = $element['#id'] . '-value-ck-sidebar-wrapper';
     $sidebar_html = \Drupal::service('renderer')->render($sidebar);
-    $element['value']['#prefix'] = "<div class='ck-editor-sidebar-wrapper $class_wrapper'>";
-    $element['value']['#suffix'] = $sidebar_html . '</div>';
+    $element['value']['#sidebar'] = $sidebar_html;
     $element['#attached']['drupalSettings']['ckeditor5SidebarMode'] = $sidebar_mode;
+    $element['#attached']['drupalSettings']['ckeditor5Premium']['preventScrollOutOfView'] = $collaboration_settings->isScrollingAnnotationsOutOfViewForbidden();;
 
     return $element;
   }
