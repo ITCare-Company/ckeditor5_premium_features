@@ -29,6 +29,11 @@ final class WebSpellCheckerApiProxyController extends ControllerBase {
 
   /**
    * Constructs the object.
+   *
+   * @param \GuzzleHttp\ClientInterface $httpClient
+   *   The http client.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
    */
   public function __construct(private readonly ClientInterface $httpClient, ConfigFactoryInterface $config_factory) {
     $this->configFactory = $config_factory;
@@ -46,6 +51,14 @@ final class WebSpellCheckerApiProxyController extends ControllerBase {
 
   /**
    * Builds the response.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   Request from wproofreader plugin.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   Response from webspellchecker api.
+   *
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function __invoke(Request $request): Response {
     $config = $this->configFactory->get(SettingsForm::WPROOFREADER_SETTINGS_ID);
