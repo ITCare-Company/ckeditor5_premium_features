@@ -1,7 +1,7 @@
 ckeditor5_premium_features_wproofreader.form.settings:
   path: '/admin/config/ckeditor5-premium-features/wproofreader'
   defaults:
-    _title: 'WProofReader'
+    _title: 'WProofreader'
     _form: 'Drupal\ckeditor5_premium_features_wproofreader\Form\SettingsForm'
   requirements:
     _permission: 'administer site configuration'
@@ -16,3 +16,15 @@ ckeditor5_premium_features_wproofreader.webspellchecker_proxy:
     no_cache: TRUE
   requirements:
     _permission: 'ckeditor5 webspellchecker proxy access'
+
+ckeditor5_premium_features_wproofreader.webspellchecker_service_id_checker:
+  path: '/ckeditor5-premium-features-wproofreader/validate-service-id'
+  defaults:
+    _title: 'WebSpellChecker Proxy'
+    _controller: '\Drupal\ckeditor5_premium_features_wproofreader\Controller\ValidateServiceIdController'
+  methods: [GET]
+  options:
+    no_cache: TRUE
+  requirements:
+    _permission: 'ckeditor5 webspellchecker proxy access'
+

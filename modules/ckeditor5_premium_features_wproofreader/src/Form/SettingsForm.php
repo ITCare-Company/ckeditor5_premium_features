@@ -13,7 +13,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Provides the configuration form of the "WProofReader" feature.
+ * Provides the configuration form of the "WProofreader" feature.
  */
 class SettingsForm extends ConfigFormBase {
 
@@ -83,6 +83,7 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Use default WebSpellChecker API Endpoint.'),
       '#description' => $this->t('<b>Note: Your Service ID will be visible in the editor configuration.</b>'),
+      '#default_value' => $config->get('default_api') ?? '',
     ];
 
     $form['advanced']['server_based_version'] = [

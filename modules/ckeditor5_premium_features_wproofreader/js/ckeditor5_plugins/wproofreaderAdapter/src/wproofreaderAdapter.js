@@ -1,0 +1,75 @@
+/*
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
+class WProofreaderAdapter {
+  constructor( editor ) {
+    this.editor = editor;
+  }
+
+  afterInit() {
+    const isDefaultSettings = this.editor.config._config.wproofreader.cke5.defaultApiConfiguration;
+    if (!isDefaultSettings) {
+      this._validatePermission();
+      this._validateKey();
+    }
+  }
+
+  _validateKey() {
+    Drupal.CKEditor5PremiumFeatures.wproofreaderServiceIdValidator.validate().then((isServiceIdValid) => {
+      if (!isServiceIdValid) {
+        this._disablePlugin();
+        this._dispatchErrorEvent('wproofreader-service-id-error')
+      }
+    });
+  }
+
+  _validatePermission() {
+    const isUserHasPermission = this.editor.config._config.wproofreader.cke5.validPermission;
+    if (!isUserHasPermission) {
+      this._disablePlugin();
+      this._dispatchErrorEvent('wproofreader-permission-error')
+    }
+  }
+
+  _disablePlugin() {
+    this.editor.plugins.get('WProofreader').forceDisabled('load-error')
+    this.editor.commands.get('WProofreaderToggle').forceDisabled('load-error')
+    this.editor.commands.get('WProofreaderSettings').forceDisabled('load-error')
+    this.editor.commands.get('WProofreaderDialog').forceDisabled('load-error')
+  }
+
+  _dispatchErrorEvent(errorMessage) {
+    var error = new ErrorEvent('error', {
+      error : new Error(errorMessage),
+    });
+    dispatchEvent(error)
+  }
+}
+
+export {
+  WProofreaderAdapter
+};
+
+
+(function ($, Drupal) {
+  Drupal.CKEditor5PremiumFeatures.wproofreaderServiceIdValidator = {
+
+    /**
+     * Validate if service id is valid.
+     *
+     * @returns {Promise<string>}
+     */
+    validate() {
+      return new Promise( resolve => {
+        $.get('/ckeditor5-premium-features-wproofreader/validate-service-id')
+          .done(function(result) {
+            resolve(result.valid);
+          }).catch(()=> {
+            resolve(false);
+        });
+      });
+    },
+  }
+})(jQuery, Drupal);

@@ -20,11 +20,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Endpoint for handling requests to the webspellchecker api.
+ * Endpoint for validating WProofreader service id.
  */
-final class WebSpellCheckerApiProxyController extends ControllerBase {
-
-  const WEBSPELLCHECKER_ENDPOINT = 'https://svc.webspellchecker.net/spellcheck31/api';
+final class ValidateServiceIdController extends ControllerBase {
 
   /**
    * Constructs the object.
@@ -49,37 +47,33 @@ final class WebSpellCheckerApiProxyController extends ControllerBase {
   }
 
   /**
-   * Builds the response.
+   * Sends request to WebSpellCheckerApi to validate service id.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
-   *   Request from wproofreader plugin.
+   *   The request.
    *
    * @return \Symfony\Component\HttpFoundation\Response
-   *   Response from webspellchecker api.
+   *   Json response with information if the service id is valid.
    *
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function __invoke(Request $request): Response {
     $config = $this->configFactory->get(SettingsForm::WPROOFREADER_SETTINGS_ID);
     $customerId = ['customerid' => $config->get('service_id')];
-    $requestBody = http_build_query($customerId) . '&' . $request->getContent();
-    $headers = $request->headers;
-    $origin = $headers->get('origin');
+    $requestBody = http_build_query($customerId) . '&format=json&app_type=proofreader_ck5&cmd=get_info';
     $options = [
       'body' => $requestBody,
       'headers' => [
         'Content-Type' => 'text/plain',
-        'Origin' => $origin,
+        'Origin' => $request->getSchemeAndHttpHost(),
       ],
     ];
     try {
-      $response = $this->httpClient->request('POST', self::WEBSPELLCHECKER_ENDPOINT, $options);
-      $body = $response->getBody()->getContents() ?? '';
-      return new JsonResponse(json_decode($body), $response->getStatusCode());
+      $response = $this->httpClient->request('POST', WebSpellCheckerApiProxyController::WEBSPELLCHECKER_ENDPOINT, $options);
+      return new JsonResponse(['valid' => $response->getStatusCode() === Response::HTTP_OK], $response->getStatusCode());
     }
     catch (RequestException $exception) {
-      $body = $exception->getResponse()->getBody()->getContents() ?? '';
-      return new JsonResponse(json_decode($body), $exception->getCode());
+      return new JsonResponse(['valid' => FALSE], $exception->getCode());
     }
   }
 

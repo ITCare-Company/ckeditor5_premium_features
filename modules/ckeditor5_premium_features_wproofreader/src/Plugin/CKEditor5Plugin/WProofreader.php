@@ -15,17 +15,18 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * WProofReader ckeditor5 plugin class.
+ * WProofreader ckeditor5 plugin class.
  */
-class WProofReader extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface {
+class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface {
 
   /**
-   * WProofReader config.
+   * WProofreader config.
    *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
@@ -40,7 +41,13 @@ class WProofReader extends CKEditor5PluginDefault implements ContainerFactoryPlu
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $configFactory, RequestStack $request, protected UrlGeneratorInterface $urlGenerator) {
+  public function __construct(array $configuration,
+                              $plugin_id,
+                              $plugin_definition,
+                              ConfigFactoryInterface $configFactory,
+                              RequestStack $request,
+                              protected UrlGeneratorInterface $urlGenerator,
+                              protected AccountProxyInterface $currentUser) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->wProofReaderConfig = $configFactory->get(SettingsForm::WPROOFREADER_SETTINGS_ID);
     $this->host = $request->getCurrentRequest()->getHost();
@@ -57,6 +64,7 @@ class WProofReader extends CKEditor5PluginDefault implements ContainerFactoryPlu
       $container->get('config.factory'),
       $container->get('request_stack'),
       $container->get('url_generator'),
+      $container->get('current_user'),
     );
   }
 
@@ -68,11 +76,16 @@ class WProofReader extends CKEditor5PluginDefault implements ContainerFactoryPlu
     $static_plugin_config['wproofreader']['lang'] = $this->wProofReaderConfig->get('lang_code') ?? 'auto';
     $static_plugin_config['wproofreader']['srcUrl'] = $this->wProofReaderConfig->get('src_url') ?? '';
 
+    $userPermission = $this->currentUser->hasPermission('ckeditor5 webspellchecker proxy access');
+
+    $static_plugin_config['wproofreader']['cke5']['validPermission'] = $userPermission;
+
     $isDefaultApiConfiguration = $this->wProofReaderConfig->get('default_api') ?? FALSE;
     $isServerBasedVersion = $this->wProofReaderConfig->get('server_based_version') ?? FALSE;
 
     if ($isDefaultApiConfiguration) {
       $static_plugin_config['wproofreader']['serviceId'] = $this->wProofReaderConfig->get('service_id') ?? '';
+      $static_plugin_config['wproofreader']['cke5']['defaultApiConfiguration'] = TRUE;
       return $static_plugin_config;
     }
     if ($isServerBasedVersion) {

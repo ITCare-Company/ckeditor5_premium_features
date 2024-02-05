@@ -1,7 +1,7 @@
 ckeditor5_premium_features_wproofreader.form.settings:
-  title: WProofReader
+  title: WProofreader
   route_name: ckeditor5_premium_features_wproofreader.form.settings
   base_route: ckeditor5_premium_features.form.settings
-  description: 'WProofReader Configuration Form'
+  description: 'WProofreader Configuration Form'
   weight: 34
 

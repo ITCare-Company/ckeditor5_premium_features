@@ -12,3 +12,10 @@ wproofreader:
     gpl-compatible: true
   js:
     js/build/wproofreader.js: { minified: true }
+
+wproofreader.adapter:
+  version: 20240122
+  js:
+    js/build/wproofreaderAdapter.js: { minified: true }
+  dependencies:
+    - ckeditor5_premium_features_wproofreader/wproofreader

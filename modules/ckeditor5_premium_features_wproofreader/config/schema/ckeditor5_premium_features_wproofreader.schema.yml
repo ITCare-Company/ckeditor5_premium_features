@@ -1,6 +1,6 @@
 ckeditor5_premium_features_wproofreader.settings:
   type: config_entity
-  label: CKEditor5 WProofReader
+  label: CKEditor5 WProofreader
   mapping:
     src_url:
       type: string

@@ -19,6 +19,18 @@ const definitions = [
     description: 'Your premium features trial limit for this node has been exceeded. Create a new node or contact sales@cksource.com if you want to upgrade to the full version. ',
     type: 'error',
     reactsTo: { message: 'trial-license-key-reached-limit' }
+  },
+  {
+    header: 'WProofreader Authorization Error',
+    description: 'Some problems occurred during WProofreader initialization, check WProofreader plugin configuration.',
+    type: 'error',
+    reactsTo: { message: 'wproofreader-service-id-error' }
+  },
+  {
+    header: 'WProofreader Error',
+    description: 'You don\'t have permission to access WProofreader proxy.',
+    type: 'error',
+    reactsTo: { message: 'wproofreader-permission-error' }
   }
 ]
 
