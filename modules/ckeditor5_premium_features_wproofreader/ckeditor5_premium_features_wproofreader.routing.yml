@@ -4,7 +4,7 @@ ckeditor5_premium_features_wproofreader.form.settings:
     _title: 'WProofreader'
     _form: 'Drupal\ckeditor5_premium_features_wproofreader\Form\SettingsForm'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'administer ckeditor5 wproofreader configuration'
 
 ckeditor5_premium_features_wproofreader.webspellchecker_proxy:
   path: '/ckeditor5-premium-features-wproofreader/api'
