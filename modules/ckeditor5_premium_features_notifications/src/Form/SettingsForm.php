@@ -128,6 +128,19 @@ class SettingsForm extends SharedBuildConfigFormBase {
       ],
     ];
 
+    // @TODO Some label change would be in order as we have instant sender which have option for more instant sending :)
+    $form['instant_comment_notifications'] = [
+      '#type' => 'checkbox',
+      '#title' => 'Instant comment notifications',
+      '#description' => $this->t('When selected notifications for new comments will be sent just after comment is submitted, without waiting for entity save.'),
+      '#default_value' => $config->get('instant_comment_notifications') ?? 0,
+      '#states' => [
+        'visible' => [
+          ':input[name="sender_plugin"]' => ['value' => 'ck5_notifications_email_instant'],
+        ],
+      ],
+    ];
+
     $form = $this->addNotificationMessagesTabs($form, $form_state);
 
     $form['additional_info'] = [

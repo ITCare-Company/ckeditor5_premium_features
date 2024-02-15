@@ -12,7 +12,6 @@ namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Utility;
 use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcNotificationEntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\user\UserInterface;
 
 /**
  * Provides logic for notifications in rtc module.
@@ -206,6 +205,89 @@ class NotificationIntegrator extends NotificationIntegratorBase {
         $this->dispatchEvent($rtcComment, CollaborationEventBase::COMMENT_ADDED, $documentHelper);
       }
     }
+  }
+
+  /**
+   * Gather the data required for instant comment notification and pass to event dispatcher.
+   *
+   * @param array $data
+   *   Comment related data retrieved from CKEditor plugin.
+   */
+  public function handleInstantCommentNotification(array $data): void {
+    $comment = $data['comment'];
+    $thread = [
+      'id' => $data['thread_id'],
+      'comments' => $data['thread']['comments']
+    ];
+    $channel = $this->entityTypeManager->getStorage('ckeditor5_channel')->load($data['channel_id']);
+    $entity = $this->entityTypeManager->getStorage($channel->get('entity_type')->value)->loadByProperties(['uuid' => $channel->get('entity_id')->value]);
+    $entity = reset($entity);
+
+    $source_original_data = '';
+    $documentHelper = new NotificationDocumentHelper($data['element_key'], $source_original_data, $data['editor_content']);
+
+    $suggestionData = $this->apiAdapter->getDocumentSuggestions(
+      $data['channel_id'], [
+        'include_deleted' => 'true',
+        'sort_by' => 'updated_at',
+        'order' => 'desc',
+      ]
+    );
+    $chainedSuggestions = $this->chainSuggestion($suggestionData);
+    $suggestion = empty($data['thread']['context']) ? $chainedSuggestions[$data['thread_id']] : NULL;
+
+    $this->dispatchInstantCommentEvent($entity, $documentHelper, $comment, $thread, $suggestion);
+  }
+
+  /**
+   * Prepare and dispatch instant comment event.
+   *
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
+   *   Related entity.
+   * @param NotificationDocumentHelper $documentHelper
+   *   Notification document helper.
+   * @param array $comment
+   *   Added comment data.
+   * @param array $thread
+   *   Array of previous comments in thread.
+   * @param array|NULL $suggestion
+   *   Suggestion data. NULL in case comment is not related to a suggestion.
+   */
+  private function dispatchInstantCommentEvent(FieldableEntityInterface $entity,
+    NotificationDocumentHelper $documentHelper,
+    array $comment,
+    array $thread,
+    ?array $suggestion): void {
+
+    $author = $this->loadAuthor($comment['authorId']);
+
+    $threadEntities = [];
+    foreach ($thread['comments'] as $threadComment) {
+      $commentAuthor = $this->loadAuthor($threadComment['authorId']);
+      $rtcThreadComment = $this->createCommentEntity($threadComment, $commentAuthor, $threadComment['createdAt']);
+      $threadEntities[$threadComment['commentId']] = $rtcThreadComment;
+    }
+    $isReply = count($threadEntities) > 1;
+
+    /** @var \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcCommentNotificationEntity $rtcComment */
+    $rtcComment = $this->createCommentEntity($comment, $author, $comment['createdAt']);
+
+    $rtcComment->setThreadId($thread['id']);
+    $rtcComment->setAuthor($author);
+    $rtcComment->setThread($threadEntities);
+    $rtcComment->setReferencedEntity($entity);
+    $rtcComment->setIsReply($isReply);
+    $rtcComment->setEntityTypeTargetId($entity->getEntityTypeId());
+
+    if ($suggestion) {
+      $suggestionAuthor = $this->loadAuthor($suggestion['author_id']);
+      $rtcSuggestion = $this->createSuggestionEntity($entity, $suggestion, $threadEntities, $suggestionAuthor);
+      $rtcComment
+        ->setRelatedSuggestion($rtcSuggestion)
+        ->setIsSuggestionComment(TRUE)
+        ->setIsReply(TRUE);
+    }
+    $this->dispatchEvent($rtcComment, CollaborationEventBase::COMMENT_ADDED, $documentHelper);
   }
 
   /**

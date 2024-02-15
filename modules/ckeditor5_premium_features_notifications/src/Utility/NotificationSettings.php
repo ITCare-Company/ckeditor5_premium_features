@@ -106,4 +106,11 @@ class NotificationSettings {
     return $this->notificationSettings->get('sender_bulk_interval') ?? 0;
   }
 
+  /**
+   * Check if instant comments notifications are set.
+   */
+  public function areInstantCommentNotificationsSelected(): bool {
+    return (bool) $this->notificationSettings->get('instant_comment_notifications') ?? FALSE;
+  }
+
 }

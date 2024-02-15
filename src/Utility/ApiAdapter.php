@@ -19,7 +19,6 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Utility\Error;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides the CKEditor API connection.
