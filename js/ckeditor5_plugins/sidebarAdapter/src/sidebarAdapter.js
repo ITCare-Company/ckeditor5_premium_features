@@ -285,6 +285,14 @@ class SidebarAdapter {
    */
   setObserverToElement(element) {
     this.setObserver(element).then(() => {
+      if (this.sidebarMode !== 'auto') {
+        this.setCkEditorSidebarMode(this.sidebarMode);
+        if (toggle) {
+          toggle.style.display = 'none';
+        }
+        return;
+      }
+
       this.updateCkeditorMode();
     });
   }
