@@ -4,6 +4,7 @@ services:
     arguments:
       - '@config.factory'
       - '@library.discovery'
+      - '@module_handler'
 
   ckeditor5_premium_features.config_handler.export_settings:
     class: Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandler

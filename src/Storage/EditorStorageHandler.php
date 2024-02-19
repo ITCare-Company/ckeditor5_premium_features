@@ -89,7 +89,9 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
       if ($editor) {
         $toolbar_items = array_merge($toolbar_items, $editor->getSettings()['toolbar']['items'] ?? []);
         if (array_intersect($editor->getSettings()['toolbar']['items'] ?? [], CollaborationBase::getToolbars())) {
-          if ($this->account->hasPermission('use ckeditor5 access token') && !$this->settingsConfigHandler->getApiKey()) {
+          if ($this->account->hasPermission('use ckeditor5 access token')
+            && $this->settingsConfigHandler->isApiKeyRequired()
+            && !$this->settingsConfigHandler->getApiKey()) {
             $filterLabels[] = $editor->getFilterFormat()->label();
           }
         }
