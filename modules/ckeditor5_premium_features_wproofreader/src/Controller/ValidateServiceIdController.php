@@ -73,7 +73,11 @@ final class ValidateServiceIdController extends ControllerBase {
       return new JsonResponse(['valid' => $response->getStatusCode() === Response::HTTP_OK], $response->getStatusCode());
     }
     catch (RequestException $exception) {
-      return new JsonResponse(['valid' => FALSE], $exception->getCode());
+      $response = ['valid' => FALSE];
+      if (str_contains($exception->getMessage(), 'Word usage quota')) {
+        $response['usage_limit_error'] = TRUE;
+      }
+      return new JsonResponse($response, $exception->getCode());
     }
   }
 

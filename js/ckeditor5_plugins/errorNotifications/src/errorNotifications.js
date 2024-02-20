@@ -27,6 +27,12 @@ const definitions = [
     reactsTo: { message: 'wproofreader-service-id-error' }
   },
   {
+    header: 'WProofreader Limit Error',
+    description: 'Word usage for your website reached its limit.',
+    type: 'error',
+    reactsTo: { message: 'wproofreader-usage-limit-error' }
+  },
+  {
     header: 'WProofreader Error',
     description: 'You don\'t have permission to access WProofreader proxy.',
     type: 'error',

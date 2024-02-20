@@ -17,10 +17,14 @@ class WProofreaderAdapter {
   }
 
   _validateKey() {
-    Drupal.CKEditor5PremiumFeatures.wproofreaderServiceIdValidator.validate().then((isServiceIdValid) => {
-      if (!isServiceIdValid) {
+    Drupal.CKEditor5PremiumFeatures.wproofreaderServiceIdValidator.validate().then((response) => {
+      if (!response.valid) {
         this._disablePlugin();
-        this._dispatchErrorEvent('wproofreader-service-id-error')
+        let errorMessage = 'wproofreader-service-id-error';
+        if (response.usage_limit_error) {
+          errorMessage = 'wproofreader-usage-limit-error';
+        }
+        this._dispatchErrorEvent(errorMessage)
       }
     });
   }
@@ -65,9 +69,15 @@ export {
       return new Promise( resolve => {
         $.get('/ckeditor5-premium-features-wproofreader/validate-service-id')
           .done(function(result) {
-            resolve(result.valid);
-          }).catch(()=> {
-            resolve(false);
+            resolve({
+              valid: result.valid,
+            });
+          }).catch((error)=> {
+            let response = error.responseJSON;
+            resolve({
+              valid: response.valid,
+              usage_limit_error: response.usage_limit_error ?? null
+            });
         });
       });
     },
