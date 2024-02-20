@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -33,7 +33,7 @@ function ckeditor5_premium_features_collaboration_requirements($phase): array {
     // phpcs:ignore
     if (\Drupal::moduleHandler()->moduleExists('ckeditor5_premium_features_realtime_collaboration') || defined('COLLABORATION_INSTALLING')) {
       $requirements[] = [
-        'description' => t('You cannot install CKEditor 5 Realtime Collaboration and CKEditor 5 Non-realtime Collaboration modules at the same time.'),
+        'description' => t('You cannot install CKEditor 5 Real-time Collaboration and CKEditor 5 Non-realtime Collaboration modules at the same time.'),
         'severity' => REQUIREMENT_ERROR,
       ];
     } else {

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -186,7 +186,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     $track_changes_states = $this->editorStorageHandler->getTrackChangesStates($element, TRUE);
     $element['#attached']['drupalSettings']['ckeditor5Premium']['tracking_changes']['default_state'] = $track_changes_states;
-
+    $element['value']['#theme'] = 'ckeditor5_textarea';
     return $element;
   }
 

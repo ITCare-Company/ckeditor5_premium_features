@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -76,6 +76,15 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
     else {
       $static_plugin_config['ai'][$textAdapter]['apiUrl'] = Url::fromRoute('ckeditor5_premium_features_ai_assistant.ai_assistant_proxy_provider')
         ->toString();
+    }
+
+    if ($textAdapter === AITextAdapter::AWS->value) {
+      $providerName = $config->get('ai_provider');
+      $model = $config->get("{$providerName}_model");
+      $static_plugin_config['ai'][$textAdapter]['requestParameters'] = [
+        'model' => $model,
+        'stream' => FALSE,
+      ];
     }
 
     if ($config->get('disable_default_styles')) {

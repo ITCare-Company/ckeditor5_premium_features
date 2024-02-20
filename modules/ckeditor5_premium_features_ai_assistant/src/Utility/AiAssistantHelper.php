@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -112,7 +112,12 @@ class AiAssistantHelper {
     if (!$provider) {
       return [];
     }
-    return $provider->getConfigFields();
+    $configFields = $provider->getConfigFields();
+    $fields = [];
+    foreach ($configFields as $key => $value) {
+      $fields["{$providerId}_{$key}"] = $value;
+    }
+    return $fields;
   }
 
   /**

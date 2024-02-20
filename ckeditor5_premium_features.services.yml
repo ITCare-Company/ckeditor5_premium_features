@@ -64,6 +64,9 @@ services:
     class: Drupal\ckeditor5_premium_features\Storage\EditorStorageHandler
     arguments:
       - '@entity_type.manager'
+      - '@ckeditor5_premium_features.config_handler.settings'
+      - '@current_user'
+      - '@messenger'
 
   ckeditor5_premium_features.context_helper:
     class: Drupal\ckeditor5_premium_features\Utility\ContextHelper

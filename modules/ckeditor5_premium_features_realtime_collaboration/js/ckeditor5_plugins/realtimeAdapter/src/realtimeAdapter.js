@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -43,10 +43,8 @@ class RealtimeAdapter {
     }
 
     if (!presenceListConfig.container) {
-      let editorParent = this.storage.getEditorParentContainer(this.editor.sourceElement.id)
-      if (editorParent !== null) {
-        presenceListConfig.container = editorParent.querySelector('.ck-presence-list-container')
-      }
+      const presenceListContainerId = this.editor.sourceElement.id + '-presence-list-container';
+      presenceListConfig.container = document.getElementById(presenceListContainerId);
     }
     if (!presenceListConfig.collapseAt) {
       presenceListConfig.collapseAt = drupalSettings.presenceListCollapseAt;

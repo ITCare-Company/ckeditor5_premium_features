@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -247,14 +247,6 @@ class ApiAdapter {
     catch (ConfigException $e) {
       if ($this->account->hasPermission('use ckeditor5 access token')) {
         Error::logException($this->getLogger('ckeditor5_premium_features'), $e, $e->getMessage());
-        $this->messenger()->addWarning(
-          $this->t('Invalid configuration for CKEditor5 premium features. %error_message </br> Check <a href="@config_url">Premium features configuration.</a>',
-            [
-              '%error_message' => $e->getMessage(),
-              '@config_url' => '/admin/config/ckeditor5-premium-features/settings',
-            ]
-          )
-        );
       }
       return [];
     }

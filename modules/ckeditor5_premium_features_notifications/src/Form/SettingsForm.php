@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -66,7 +66,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return self::NOTIFICATION_CONFIG;
+    return 'ckeditor5_premium_features_notifications_settings';
   }
 
   /**
@@ -79,11 +79,18 @@ class SettingsForm extends SharedBuildConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  public function getConfigId(): string {
+    return self::NOTIFICATION_CONFIG;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildForm(array $form, FormStateInterface $form_state): array {
 
     $form = parent::buildForm($form, $form_state);
 
-    $config = $this->config($this->getFormId());
+    $config = $this->config(self::NOTIFICATION_CONFIG);
 
     // Collect plugins information.
     $messageFactoryDefinitions = $this->messageFactoryPluginManager->getDefinitions();
@@ -160,7 +167,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
    * Adds from elements for configuring message templates.
    */
   protected function addNotificationMessagesTabs($form) {
-    $config = $this->config($this->getFormId());
+    $config = $this->config(self::NOTIFICATION_CONFIG);
     $form['verticaltabs'] = [
       '#type' => 'vertical_tabs',
       '#title' => $this->t('Message types configuration'),

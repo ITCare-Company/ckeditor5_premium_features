@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -42,6 +42,13 @@ class CollaborationSettings implements CommonCollaborationSettingsInterface, Rev
    */
   public function getAnnotationSidebarType(): string {
     return $this->collaborationSettings->get('sidebar') ?? 'auto';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isScrollingAnnotationsOutOfViewForbidden(): bool {
+    return (bool) ($this->collaborationSettings->get('prevent_scroll_out_of_view') ?? FALSE);
   }
 
   /**

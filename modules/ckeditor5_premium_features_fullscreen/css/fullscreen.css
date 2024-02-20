@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -10,13 +10,23 @@
 }
 .ck-fullscreen.ck.ck-editor.ck-rounded-corners,
 .ck-fullscreen.revision-history-container-data,
-.ck-fullscreen.ck-editor-sidebar-wrapper {
+.ck-fullscreen.ck-editor-premium-wrapper {
   position: fixed !important;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: var(--ck-z-modal);
+}
+.ck-fullscreen.revision-history-container-data {
+  z-index: calc(var(--ck-z-modal) + 1);
+}
+.ck-fullscreen.revision-history-container-data .ck-editor__main {
+  height: calc(100% - 40px);
+}
+.ck-fullscreen.revision-history-container-data .ck-editor__main .ck-content{
+  height: 100%;
+  max-height: 100%;
 }
 .ck-fullscreen-overlay #toolbar-administration,
 .ck-fullscreen-overlay .form-item__label {
@@ -25,11 +35,17 @@
 .ck-fullscreen-overlay .ck-sidebar-wrapper {
   margin-top:0!important;
 }
-.ck-fullscreen-overlay .ck-fullscreen.ck-editor-sidebar-wrapper .form-textarea-wrapper,
-.ck-fullscreen-overlay .ck-fullscreen.ck-editor-sidebar-wrapper .ck.ck-editor.ck-rounded-corners,
-.ck-fullscreen .ck-editor__editable.ck-rounded-corners.ck-editor__editable_inline,
-.ck-fullscreen .ck.ck-editor__main {
+.ck-fullscreen-overlay .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-container {
+  height: 100%!important;
+}
+.ck-fullscreen-overlay .ck-fullscreen.ck-editor-premium-wrapper .document-outline-container{
+  max-width: 350px;
+}
+.ck-fullscreen-overlay .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-container .ck-editor-instance .ck-editor,
+.ck-fullscreen-overlay .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-container .ck-editor-instance .ck-editor .ck-editor__main,
+.ck-fullscreen-overlay .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-container .ck-editor-instance .ck-editor .ck-editor__main .ck-content {
   height: 100%;
+  max-height: 100%;
 }
 .ck-fullscreen .ck.ck-editor__main .ck-source-editing-area {
   height: 100%;
@@ -60,10 +76,11 @@
 
 .ck-fullscreen-overlay .revision-viewer-sidebar {
   max-width: 300px;
+  min-width: 300px;
 }
 
 .ck-fullscreen-overlay .revision-history-container-data > .editor-container > .ck-editor {
-  width: 100%;
+  width: calc(100% - 301px);
 }
 
 /* Sidebar */

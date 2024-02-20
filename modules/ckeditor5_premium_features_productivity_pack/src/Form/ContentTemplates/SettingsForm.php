@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -18,11 +18,13 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class SettingsForm extends SharedBuildConfigFormBase {
 
+  const CONTENT_TEMPLATES_CONFIG_NAME = 'ckeditor5_premium_features_productivity_pack_content_templates.settings';
+
   /**
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return 'ckeditor5_premium_features_productivity_pack_content_templates.settings';
+    return 'ckeditor5_premium_features_productivity_pack_content_templates_settings';
   }
 
   /**
@@ -30,6 +32,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
    */
   public static function getSettingsRouteName(): string {
     return 'ckeditor5_premium_features_productivity_pack_content_templates.form.settings';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfigId(): string {
+    return self::CONTENT_TEMPLATES_CONFIG_NAME;
   }
 
   /**
