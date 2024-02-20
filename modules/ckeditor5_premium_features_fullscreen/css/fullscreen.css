@@ -8,7 +8,10 @@
   --ck-z-default: 2000;
   --ck-z-modal: calc(var(--ck-z-default) + 999);
 }
-.ck-fullscreen.ck.ck-editor.ck-rounded-corners,
+.ck-fullscreen-overlay .ui-dialog,
+.ck-fullscreen-overlay .ck.ck-balloon-panel {
+  z-index: calc(var(--ck-z-modal) + 2);
+}
 .ck-fullscreen.revision-history-container-data,
 .ck-fullscreen.ck-editor-premium-wrapper {
   position: fixed !important;
@@ -16,7 +19,9 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: var(--ck-z-modal);
+  z-index: calc(var(--ck-z-modal) + 1);
+  display: flex;
+  flex-direction: column;
 }
 .ck-fullscreen.revision-history-container-data {
   z-index: calc(var(--ck-z-modal) + 1);
@@ -34,9 +39,6 @@
 }
 .ck-fullscreen-overlay .ck-sidebar-wrapper {
   margin-top:0!important;
-}
-.ck-fullscreen-overlay .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-container {
-  height: 100%!important;
 }
 .ck-fullscreen-overlay .ck-fullscreen.ck-editor-premium-wrapper .document-outline-container{
   max-width: 350px;
@@ -75,8 +77,8 @@
 }
 
 .ck-fullscreen-overlay .revision-viewer-sidebar {
-  max-width: 300px;
-  min-width: 300px;
+  max-width: 340px;
+  min-width: 340px;
 }
 
 .ck-fullscreen-overlay .revision-history-container-data > .editor-container > .ck-editor {

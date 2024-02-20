@@ -28,6 +28,7 @@
 .revision-viewer-sidebar {
   border-left: 1px solid var(--ck-color-toolbar-border);
   width: 40%;
+  max-width: 340px;
 }
 
 .revision-history-container-data {
