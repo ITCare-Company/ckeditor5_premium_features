@@ -46,9 +46,10 @@ class CommentsAdapter {
     }
 
     const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
+    const isRealtimeCommentsEnabled = this.editor.plugins.has('RealTimeCollaborativeComments');
     const commentsRepositoryElement = document.querySelector(this.storage.getSourceDataSelector('comments'));
 
-    if (!commentsRepositoryElement || commentsRepositoryElement.value == '') {
+    if (!commentsRepositoryElement || commentsRepositoryElement.value == '' || isRealtimeCommentsEnabled) {
       return;
     }
 
