@@ -22,19 +22,19 @@ const definitions = [
   },
   {
     header: 'WProofreader Authorization Error',
-    description: 'Some problems occurred during WProofreader initialization, check WProofreader plugin configuration.',
+    description: 'Some problems occurred during WProofreader initialization. Check the WProofreader plugin configuration.',
     type: 'error',
     reactsTo: { message: 'wproofreader-service-id-error' }
   },
   {
     header: 'WProofreader Limit Error',
-    description: 'Word usage for your website reached its limit.',
+    description: 'Word usage for your website has reached its limit.',
     type: 'error',
     reactsTo: { message: 'wproofreader-usage-limit-error' }
   },
   {
     header: 'WProofreader Error',
-    description: 'You don\'t have permission to access WProofreader proxy.',
+    description: 'You have no permission to access the WProofreader proxy.',
     type: 'error',
     reactsTo: { message: 'wproofreader-permission-error' }
   }
