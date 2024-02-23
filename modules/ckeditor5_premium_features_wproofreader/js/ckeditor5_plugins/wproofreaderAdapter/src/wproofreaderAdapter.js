@@ -9,11 +9,8 @@ class WProofreaderAdapter {
   }
 
   afterInit() {
-    const isDefaultSettings = this.editor.config._config.wproofreader.cke5.defaultApiConfiguration;
-    if (!isDefaultSettings) {
-      this._validatePermission();
-      this._validateKey();
-    }
+    this._validatePermission();
+    this._validateKey();
   }
 
   _validateKey() {

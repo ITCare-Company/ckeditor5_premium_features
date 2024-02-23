@@ -11,12 +11,9 @@ ckeditor5_premium_features_wproofreader.settings:
     service_id:
       type: string
       label: Service ID
-    default_api:
-      type: boolean
-      label: Use default api endpoint
-    server_based_version:
-      type: boolean
-      label: Use server-based version of wsc
+    service_type:
+      type: string
+      label: Service Type
     service_protocol:
       type: string
       label: Service Protocol

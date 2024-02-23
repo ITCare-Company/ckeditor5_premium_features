@@ -80,15 +80,8 @@ class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPlu
 
     $static_plugin_config['wproofreader']['cke5']['validPermission'] = $userPermission;
 
-    $isDefaultApiConfiguration = $this->wProofReaderConfig->get('default_api') ?? FALSE;
-    $isServerBasedVersion = $this->wProofReaderConfig->get('server_based_version') ?? FALSE;
-
-    if ($isDefaultApiConfiguration) {
-      $static_plugin_config['wproofreader']['serviceId'] = $this->wProofReaderConfig->get('service_id') ?? '';
-      $static_plugin_config['wproofreader']['cke5']['defaultApiConfiguration'] = TRUE;
-      return $static_plugin_config;
-    }
-    if ($isServerBasedVersion) {
+    $serviceType = $this->wProofReaderConfig->get('service_type') ?? SettingsForm::WSC_DEFAULT_SERVICE_TYPE;
+    if ($serviceType === SettingsForm::WSC_ON_PREMISE_SERVICE_TYPE) {
       $static_plugin_config['wproofreader']['serviceProtocol'] = $this->wProofReaderConfig->get('service_protocol') ?? '';
       $static_plugin_config['wproofreader']['serviceHost'] = $this->wProofReaderConfig->get('service_host') ?? '';
       $static_plugin_config['wproofreader']['servicePort'] = $this->wProofReaderConfig->get('service_port') ?? '';
