@@ -29,6 +29,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\RevisionsLimitHandler;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -48,6 +49,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
   use Ckeditor5TextFormatTrait;
   use StringTranslationTrait;
+  use DependencySerializationTrait;
 
   /**
    * The suggestion storage.
@@ -244,7 +246,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @param array $form
    *   The form.
    */
-  public function validateElement(array $element, FormStateInterface $form_state, array $form) {
+  public function validateElement(array $element, FormStateInterface $form_state, array $form): void {
     if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element, FALSE)) {
       return;
     }
