@@ -80,8 +80,6 @@ class SettingsForm extends ConfigFormBase {
     $langOptions = [];
 
     if ($form_state->isRebuilding()) {
-
-      $form_state->clearErrors();
       $serviceId = $form_state->getValue('service_id');
       if ($serviceId) {
         $availableLanguages = $this->webSpellCheckerHandler->getAvailableLanguages($serviceId);
@@ -92,7 +90,9 @@ class SettingsForm extends ConfigFormBase {
     }
     else {
       $serviceId = $config->get('service_id');
-      $langOptions = $this->getLangOptions($serviceId);
+      if ($serviceId) {
+        $langOptions = $this->getLangOptions($serviceId);
+      }
     }
 
     $form['service_id_error_container'] = [
@@ -114,7 +114,8 @@ class SettingsForm extends ConfigFormBase {
         ],
         'callback' => '::changeLangCodeFields',
         'wrapper' => 'language-container',
-        'method' => 'replace',
+        'method' => 'replaceWith',
+        'disable-refocus' => TRUE,
       ],
     ];
 
@@ -232,8 +233,7 @@ class SettingsForm extends ConfigFormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $serviceId = $form_state->getValue('service_id');
     if (!$this->webSpellCheckerHandler->isServiceIdValid($serviceId)) {
-      $form_state->setErrorByName('service_id', 'Invalid Service Id');
-      $form_state->setErrorByName('lang_code', 'Invalid Service Id');
+      $form_state->setErrorByName('service_id', 'Invalid WebSpellChecker Service ID');
     }
     parent::validateForm($form, $form_state);
   }
