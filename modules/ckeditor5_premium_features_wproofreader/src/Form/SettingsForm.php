@@ -14,6 +14,8 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CssCommand;
 use Drupal\Core\Ajax\InsertCommand;
 use Drupal\Core\Ajax\MessageCommand;
+use Drupal\Core\Ajax\RemoveCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -33,7 +35,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return 'ckeditor5_premium_features_ai_assistant_settings';
+    return 'ckeditor5_premium_features_wproofreader_settings';
   }
 
   /**
@@ -80,6 +82,7 @@ class SettingsForm extends ConfigFormBase {
     $langOptions = [];
 
     if ($form_state->isRebuilding()) {
+      $form_state->clearErrors();
       $serviceId = $form_state->getValue('service_id');
       if ($serviceId) {
         $availableLanguages = $this->webSpellCheckerHandler->getAvailableLanguages($serviceId);
@@ -101,6 +104,7 @@ class SettingsForm extends ConfigFormBase {
         'id' => 'service-id-error-container',
       ],
     ];
+
     $form['service_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Service ID'),
@@ -112,7 +116,7 @@ class SettingsForm extends ConfigFormBase {
           'type' => 'throbber',
           'message' => $this->t('Validating Service ID...'),
         ],
-        'callback' => '::changeLangCodeFields',
+        'callback' => '::handleServiceIdField',
         'wrapper' => 'language-container',
         'method' => 'replaceWith',
         'disable-refocus' => TRUE,
@@ -214,6 +218,13 @@ class SettingsForm extends ConfigFormBase {
       '#states' => $onPremisesStates,
     ];
 
+    $form['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Save configuration'),
+      '#button_type' => 'primary',
+      '#disabled' => empty($langOptions),
+    ];
+
     return $form;
   }
 
@@ -231,8 +242,12 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $serviceId = $form_state->getValue('service_id');
-    if (!$this->webSpellCheckerHandler->isServiceIdValid($serviceId)) {
+    $serviceId = $form_state->getUserInput()['service_id'] ?? NULL;
+    $form_state->clearErrors();
+    if (!$serviceId) {
+      $form_state->setErrorByName('service_id', 'Invalid WebSpellChecker Service ID');
+    }
+    if ($serviceId && !$this->webSpellCheckerHandler->isServiceIdValid($serviceId)) {
       $form_state->setErrorByName('service_id', 'Invalid WebSpellChecker Service ID');
     }
     parent::validateForm($form, $form_state);
@@ -249,17 +264,29 @@ class SettingsForm extends ConfigFormBase {
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   The response.
    */
-  public function changeLangCodeFields(array &$form, FormStateInterface $form_state): AjaxResponse {
+  public function handleServiceIdField(array &$form, FormStateInterface $form_state): AjaxResponse {
     $serviceId = $form_state->getValue('service_id');
     $response = new AjaxResponse();
+    $submit = $form['actions']['submit'];
+
     if (!$this->webSpellCheckerHandler->isServiceIdValid($serviceId)) {
+      if (!isset($submit)) {
+        $submit['disabled'] = TRUE;
+      }
+      $response->addCommand(new RemoveCommand('.messages--error'));
       $response->addCommand(new CssCommand('#service-id-error-container', ['display' => 'initial']));
-      $response->addCommand(new MessageCommand($this->t('Invalid WebSpellChecker Service ID'), '#service-id-error-container', ['type' => 'error'], TRUE));
+      $response->addCommand(new MessageCommand($this->t('Invalid WebSpellChecker Service ID'), '.messages-list__wrapper', ['type' => 'error'], TRUE));
       $response->addCommand(new CssCommand('#language-container', ['display' => 'none']));
+      $response->addCommand(new ReplaceCommand('input[type="submit"]', $submit));
       return $response;
     }
+    if (isset($submit)) {
+      unset($submit['disabled']);
+    }
     $response->addCommand(new CssCommand('#service-id-error-container', ['display' => 'none']));
+    $response->addCommand(new ReplaceCommand('input[type="submit"]', $submit));
     $response->addCommand(new InsertCommand('#language-container', $form['language_container']));
+    $response->addCommand(new RemoveCommand('.messages--error'));
     return $response;
   }
 
