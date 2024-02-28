@@ -68,6 +68,7 @@ class RealtimeAdapter {
       form.addEventListener("submit", () => {
         const isCommentsEnabled = this.editor.plugins.has('CommentsRepository');
         const isTrackChangesEnabled = this.editor.plugins.has('TrackChanges');
+        const isInstantRtcCommentsEnabled = this.editor.plugins.has('RealtimeCommentNotifications');
         if (!isCommentsEnabled || !isTrackChangesEnabled) {
           return
         }
@@ -94,7 +95,7 @@ class RealtimeAdapter {
           trackChangesElement.value = JSON.stringify(Array.from(trackedSuggestion.values()));
         }
 
-        if (isCommentsEnabled) {
+        if (isCommentsEnabled && !isInstantRtcCommentsEnabled) {
           const commentsCssClass = types['comments'] + '-data';
           const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
           const commentsElement = document.querySelector(commentsCssClass + dataAttribute);
