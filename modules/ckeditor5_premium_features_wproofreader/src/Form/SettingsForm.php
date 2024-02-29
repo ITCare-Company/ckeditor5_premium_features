@@ -245,10 +245,10 @@ class SettingsForm extends ConfigFormBase {
     $serviceId = $form_state->getUserInput()['service_id'] ?? NULL;
     $form_state->clearErrors();
     if (!$serviceId) {
-      $form_state->setErrorByName('service_id', 'Invalid WebSpellChecker Service ID');
+      $form_state->setErrorByName('service_id', $this->t('Invalid Service ID'));
     }
     if ($serviceId && !$this->webSpellCheckerHandler->isServiceIdValid($serviceId)) {
-      $form_state->setErrorByName('service_id', 'Invalid WebSpellChecker Service ID');
+      $form_state->setErrorByName('service_id', $this->t('Invalid Service ID'));
     }
     parent::validateForm($form, $form_state);
   }
@@ -275,7 +275,7 @@ class SettingsForm extends ConfigFormBase {
       }
       $response->addCommand(new RemoveCommand('.messages--error'));
       $response->addCommand(new CssCommand('#service-id-error-container', ['display' => 'initial']));
-      $response->addCommand(new MessageCommand($this->t('Invalid WebSpellChecker Service ID'), '.messages-list__wrapper', ['type' => 'error'], TRUE));
+      $response->addCommand(new MessageCommand($this->t('Invalid Service ID'), '.messages-list__wrapper', ['type' => 'error'], TRUE));
       $response->addCommand(new CssCommand('#language-container', ['display' => 'none']));
       $response->addCommand(new ReplaceCommand('input[type="submit"]', $submit));
       return $response;
