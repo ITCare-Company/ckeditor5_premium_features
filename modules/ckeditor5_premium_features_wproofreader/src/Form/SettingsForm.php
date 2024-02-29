@@ -142,10 +142,10 @@ class SettingsForm extends ConfigFormBase {
 
     $form['advanced']['service_type'] = [
       '#type' => 'radios',
-      '#title' => $this->t('WProofreader deployment option.'),
+      '#title' => $this->t('WProofreader deployment options'),
       '#options' => [
         self::WSC_DEFAULT_SERVICE_TYPE => $this->t('Use default endpoint (Cloud service) </br>
-            <div class="form-item__description">Uses WebSpellChecker\'s cloud service by default. No additional configuration needed. Access and use are governed by Terms of Service.</div>'),
+            <div class="form-item__description">Uses WebSpellChecker\'s cloud service by default. No additional configuration needed. Access and use are governed by <a href="@terms_url" target="_blank">Terms of Service.</a></div>', ['@terms_url' => 'https://webspellchecker.com/legal/terms-of-service/']),
         self::WSC_ON_PREMISE_SERVICE_TYPE => $this->t('Use self-hosted version endpoint </br>
             <div class="form-item__description">For deployment in your own environment. Requires custom endpoint setup. Ensures local text processing, keeping data internal.</div>'),
       ],
