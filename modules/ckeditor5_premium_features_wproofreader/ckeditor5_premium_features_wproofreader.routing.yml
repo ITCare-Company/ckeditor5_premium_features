@@ -1,7 +1,7 @@
 ckeditor5_premium_features_wproofreader.form.settings:
   path: '/admin/config/ckeditor5-premium-features/wproofreader'
   defaults:
-    _title: 'WProofreader'
+    _title: 'WProofreader spelling and grammar checker'
     _form: 'Drupal\ckeditor5_premium_features_wproofreader\Form\SettingsForm'
   requirements:
     _permission: 'administer ckeditor5 wproofreader configuration'

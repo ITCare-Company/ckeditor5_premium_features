@@ -74,7 +74,6 @@ class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPlu
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
     $static_plugin_config = parent::getDynamicPluginConfig($static_plugin_config, $editor);
     $static_plugin_config['wproofreader']['lang'] = $this->wProofReaderConfig->get('lang_code') ?? 'auto';
-    $static_plugin_config['wproofreader']['srcUrl'] = $this->wProofReaderConfig->get('src_url') ?? '';
 
     $userPermission = $this->currentUser->hasPermission('ckeditor5 webspellchecker proxy access');
 
@@ -86,9 +85,10 @@ class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPlu
       $static_plugin_config['wproofreader']['serviceHost'] = $this->wProofReaderConfig->get('service_host') ?? '';
       $static_plugin_config['wproofreader']['servicePort'] = $this->wProofReaderConfig->get('service_port') ?? '';
       $static_plugin_config['wproofreader']['servicePath'] = $this->wProofReaderConfig->get('service_path') ?? '';
+      $static_plugin_config['wproofreader']['srcUrl'] = $this->wProofReaderConfig->get('src_url') ?? '';
       return $static_plugin_config;
     }
-
+    $static_plugin_config['wproofreader']['srcUrl'] = SettingsForm::DEFAULT_WSCBUNDLE_URL;
     $static_plugin_config['wproofreader']['serviceHost'] = $this->host;
     $static_plugin_config['wproofreader']['servicePath'] = $this->urlGenerator->generateFromRoute('ckeditor5_premium_features_wproofreader.webspellchecker_proxy');
 

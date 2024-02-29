@@ -73,12 +73,6 @@ class SettingsForm extends ConfigFormBase {
     $form = parent::buildForm($form, $form_state);
     $config = $this->config(self::WPROOFREADER_SETTINGS_ID);
 
-    $form['src_url'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('WebSpellChecker bundle URL'),
-      '#default_value' => $config->get('src_url') ?? self::DEFAULT_WSCBUNDLE_URL,
-      '#required' => TRUE,
-    ];
     $langOptions = [];
 
     if ($form_state->isRebuilding()) {
@@ -108,7 +102,7 @@ class SettingsForm extends ConfigFormBase {
     $form['service_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Service ID'),
-      '#description' => $this->t('A special service ID value (activation key) that is used for the service activation'),
+      '#description' => $this->t('Activation key received upon subscription, required for WProofreader service use.'),
       '#default_value' => $serviceId ?? '',
       '#required' => TRUE,
       '#ajax' => [
@@ -123,8 +117,6 @@ class SettingsForm extends ConfigFormBase {
       ],
     ];
 
-    $documentationUrl = 'https://webspellchecker.com/docs/api/wscbundle/Options.html';
-
     $form['language_container'] = [
       '#type' => 'container',
       '#attributes' => [
@@ -135,9 +127,8 @@ class SettingsForm extends ConfigFormBase {
     if (!empty($langOptions)) {
       $form['language_container']['lang_code'] = [
         '#type' => 'select',
-        '#title' => $this->t('Language code'),
+        '#title' => $this->t('Language'),
         '#options' => $langOptions,
-        '#description' => $this->t('See the <a href="@doc_url" target="_blank">documentation</a> for the list of available languages. If value is not provided it will be set to the "auto".', ['@doc_url' => $documentationUrl]),
         '#default_value' => $config->get('lang_code') ?? 'auto',
         '#attributes' => ['id' => 'lang-code'],
       ];
@@ -146,22 +137,24 @@ class SettingsForm extends ConfigFormBase {
     $form['advanced'] = [
       '#type' => 'details',
       '#title' => $this->t('Advanced settings'),
-      '#description' => $this->t('See the <a href="@doc_url" target="_blank">documentation</a> for more details about configuration fields.', ['@doc_url' => $documentationUrl]),
       '#open' => FALSE,
     ];
 
     $form['advanced']['service_type'] = [
       '#type' => 'radios',
-      '#title' => $this->t('WebSpellChecker service type.'),
+      '#title' => $this->t('WProofreader deployment option.'),
       '#options' => [
-        self::WSC_DEFAULT_SERVICE_TYPE => $this->t('Use default endpoint settings'),
-        self::WSC_ON_PREMISE_SERVICE_TYPE => $this->t('Use server-based version of WProofreader'),
+        self::WSC_DEFAULT_SERVICE_TYPE => $this->t('Use default endpoint (Cloud service) </br>
+            <div class="form-item__description">Uses WebSpellChecker\'s cloud service by default. No additional configuration needed. Access and use are governed by Terms of Service.</div>'),
+        self::WSC_ON_PREMISE_SERVICE_TYPE => $this->t('Use self-hosted version endpoint </br>
+            <div class="form-item__description">For deployment in your own environment. Requires custom endpoint setup. Ensures local text processing, keeping data internal.</div>'),
       ],
       '#default_value' => $config->get('service_type') ?? self::WSC_DEFAULT_SERVICE_TYPE,
     ];
 
     $form['advanced']['on_premise_container'] = [
       '#type' => 'container',
+      '#markup' => $this->t('Please specify the custom endpoint values for the self-hosted version.'),
       '#states' => [
         'enabled' => [
           ':input[name="service_type"]' => ['value' => self::WSC_ON_PREMISE_SERVICE_TYPE],
@@ -179,8 +172,7 @@ class SettingsForm extends ConfigFormBase {
 
     $form['advanced']['on_premise_container']['service_protocol'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Service Protocol'),
-      '#description' => $this->t('A protocol which is used to access the service.'),
+      '#title' => $this->t('Protocol'),
       '#default_value' => $config->get('service_protocol') ?? '',
       '#attributes' => [
         'placeholder' => 'https',
@@ -189,8 +181,7 @@ class SettingsForm extends ConfigFormBase {
     ];
     $form['advanced']['on_premise_container']['service_host'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Service Host'),
-      '#description' => $this->t('A host name of the service.'),
+      '#title' => $this->t('Hostname'),
       '#default_value' => $config->get('service_host') ?? '',
       '#attributes' => [
         'placeholder' => 'localhost',
@@ -199,21 +190,30 @@ class SettingsForm extends ConfigFormBase {
     ];
     $form['advanced']['on_premise_container']['service_port'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Service Port'),
-      '#description' => $this->t('A default port of the service.'),
+      '#title' => $this->t('Port'),
       '#default_value' => $config->get('service_port') ?? '',
       '#attributes' => [
         'placeholder' => '443',
       ],
       '#states' => $onPremisesStates,
     ];
+
     $form['advanced']['on_premise_container']['service_path'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Service Path'),
-      '#description' => $this->t('A path to the service.'),
+      '#title' => $this->t('Service path'),
       '#default_value' => $config->get('service_path') ?? '',
       '#attributes' => [
         'placeholder' => 'virtual_directory/api',
+      ],
+      '#states' => $onPremisesStates,
+    ];
+
+    $form['advanced']['on_premise_container']['src_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('WProofreader script URL'),
+      '#default_value' => $config->get('src_url') ?? '',
+      '#attributes' => [
+        'placeholder' => 'https://host_name/virtual_directory/wscbundle/wscbundle.js'
       ],
       '#states' => $onPremisesStates,
     ];
