@@ -344,7 +344,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $storage = $form_state->getStorage();
 
     if (!empty($storage[static::STORAGE_KEY_COLLABORATION])) {
-      self::addCallback('onCompleteFormSubmit', [['#submit']], $form);
+      self::addCallback('onCompleteFormSubmit', [['actions', 'submit', '#submit']], $form);
     }
   }
 
