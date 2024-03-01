@@ -59,7 +59,6 @@ class SidebarAdapter {
 
     this.handleSidebarMode();
 
-
     if (this.editor.config._config.sidebar.preventScrollOutOfView) {
       this.sidebarColumn.classList.add('prevent-scroll-out-of-view');
     }
@@ -147,6 +146,23 @@ class SidebarAdapter {
   handleSidebarMode() {
     let toggle = this.getSidebarToggleWrapper();
 
+    // Set the resize observer
+    this.resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        clearTimeout(this.resizeThreshold);
+        this.resizeThreshold = setTimeout(() => {
+          if (this.sidebarMode !== 'auto') {
+            this.setCkEditorSidebarMode(this.sidebarMode);
+          }
+          else {
+            this.updateCkeditorMode();
+          }
+        }, 100);
+      }
+    });
+
+    this.resizeObserver.observe(this.editorContainer);
+
     if (this.sidebarMode !== 'auto') {
       this.setCkEditorSidebarMode(this.sidebarMode);
       if (toggle) {
@@ -160,18 +176,6 @@ class SidebarAdapter {
     if (!toggle) {
       return;
     }
-
-    // Set the resize observer
-    this.resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        clearTimeout(this.resizeThreshold);
-        this.resizeThreshold = setTimeout(() => {
-          this.updateCkeditorMode();
-        }, 100);
-      }
-    });
-
-    this.resizeObserver.observe(this.editorContainer);
 
     toggle.addEventListener('click', () => {
       if (this.sidebar.classList.contains('narrowSidebar')) {
