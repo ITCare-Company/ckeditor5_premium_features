@@ -5,7 +5,7 @@
 
 .ck-fullscreen-overlay {
   overflow: hidden;
-  --ck-z-default: 2000;
+  --ck-z-default: 10000;
   --ck-z-modal: calc(var(--ck-z-default) + 999);
 }
 .ck-fullscreen.ck.ck-editor.ck-rounded-corners,
@@ -17,9 +17,6 @@
   left: 0;
   right: 0;
   z-index: var(--ck-z-modal);
-}
-.ck-fullscreen.revision-history-container-data {
-  z-index: calc(var(--ck-z-modal) + 1);
 }
 .ck-fullscreen.revision-history-container-data .ck-editor__main {
   height: calc(100% - 40px);
@@ -87,4 +84,8 @@
 .ck-fullscreen-overlay .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
   max-width: 400px;
   padding: 0 24px;
+}
+
+.ck-fullscreen-overlay [class*="-tabs__menu"] {
+  z-index: -1;
 }

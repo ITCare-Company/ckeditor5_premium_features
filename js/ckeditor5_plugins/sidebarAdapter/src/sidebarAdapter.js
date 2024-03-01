@@ -59,7 +59,6 @@ class SidebarAdapter {
 
     this.handleSidebarMode();
 
-    this.checkIfInsideTab();
 
     if (this.editor.config._config.sidebar.preventScrollOutOfView) {
       this.sidebarColumn.classList.add('prevent-scroll-out-of-view');
@@ -79,6 +78,10 @@ class SidebarAdapter {
     if (!this.annotationsUIs || typeof this.annotationsUIs === "undefined" ||
         !this.sidebar || typeof this.sidebar === 'undefined') {
       return;
+    }
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
     }
 
     this.viewElementScrollbarObserver.disconnect();
@@ -157,12 +160,18 @@ class SidebarAdapter {
     if (!toggle) {
       return;
     }
-    window.addEventListener('resize', () => {
-      clearTimeout(this.resizeThreshold);
-      this.resizeThreshold = setTimeout(() => {
-        this.updateCkeditorMode();
-      }, 100);
+
+    // Set the resize observer
+    this.resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        clearTimeout(this.resizeThreshold);
+        this.resizeThreshold = setTimeout(() => {
+          this.updateCkeditorMode();
+        }, 100);
+      }
     });
+
+    this.resizeObserver.observe(this.editorContainer);
 
     toggle.addEventListener('click', () => {
       if (this.sidebar.classList.contains('narrowSidebar')) {
@@ -238,83 +247,9 @@ class SidebarAdapter {
    */
   updateCkeditorMode() {
     // TODO: move to config?
-    let w = document.documentElement.clientWidth;
-    let newMode = w >= 1200 ? 'wideSidebar' : (w >= 500 ? 'narrowSidebar' : 'inline');
-    // Check editor container width
-    if (this.editorContainer.clientWidth < 720) {
-      newMode = this.editorContainer.clientWidth >= 500 ? 'narrowSidebar' : 'inline'
-    }
+    let w = this.editorContainer.clientWidth;
+    let newMode = w >= 720 ? 'wideSidebar' : (w >= 500 ? 'narrowSidebar' : 'inline');
     this.setCkEditorSidebarMode(newMode);
-  }
-
-  /**
-   * Check if editor is inside the tab
-   */
-  checkIfInsideTab() {
-    const tab = this.sidebar.closest('.field-group-tab');
-    if (tab && typeof tab !== 'undefined') {
-      this.checkParentTabs(tab)
-    }
-  }
-
-  /**
-   * Check if there are nested tabs
-   * @param element
-   */
-  checkParentTabs(element) {
-    const parent = element.parentElement.closest('.field-group-tab');
-
-    if (parent && typeof parent !== 'undefined' && element !== parent) {
-      // We have to check the display style and 'horizontal-tab-hidden' class to verify if the tab is
-      // inside group of tabs.
-      if (!parent.open || parent.style.display === "none" || parent.classList.contains('horizontal-tab-hidden')) {
-        this.setObserverToElement(parent)
-      } else {
-        this.checkParentTabs(parent)
-      }
-    }
-    // If the element is closed or contains horizontal-tab-hidden class then set observer.
-    if (!element.open || element.classList.contains('horizontal-tab-hidden')) {
-      this.setObserverToElement(element)
-    }
-  }
-
-  /**
-   * Set observer to tab and update editor when the tab is opened.
-   * @param element
-   */
-  setObserverToElement(element) {
-    this.setObserver(element).then(() => {
-      if (this.sidebarMode !== 'auto') {
-        this.setCkEditorSidebarMode(this.sidebarMode);
-        if (toggle) {
-          toggle.style.display = 'none';
-        }
-        return;
-      }
-
-      this.updateCkeditorMode();
-    });
-  }
-
-  /**
-   * Set observer
-   * @param element
-   * @returns {Promise<unknown>}
-   */
-  setObserver(element) {
-    return new Promise(resolve => {
-      const observer = new MutationObserver(mutations => {
-        if (element.open && element.style.display !== 'none' && !element.classList.contains('horizontal-tab-hidden')) {
-          resolve();
-          observer.disconnect();
-        }
-      });
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true
-      });
-    });
   }
 
 }
