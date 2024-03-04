@@ -13,32 +13,40 @@ class DisableCollaborationMarkersInCaption {
     const editor = this.editor;
     const commentCommand = editor.commands.get( 'addCommentThread' );
     const trackChangesCommand = editor.commands.get( 'trackChanges' );
+
     editor.set( 'disabledCommands', false );
 
-    if ((!editor.plugins.has('CommentsRepository') && !editor.plugins.has('TrackChangesEditing')) || !editor.plugins.has('DrupalImage')) {
+    const hasCommentsRepository = editor.plugins.has('CommentsRepository');
+    const hasTrackChangesEditing = editor.plugins.has('TrackChangesEditing');
+    const hasDrupalImage = editor.plugins.has('DrupalImage');
+
+    if ((!hasCommentsRepository && !hasTrackChangesEditing) || !hasDrupalImage) {
       return;
     }
 
-    const tcEditing = editor.plugins.get( 'TrackChangesEditing' );
-
-    if (!this.editor.commands.get('toggleImageCaption')) {
-      try {
-        tcEditing.enableCommand( 'toggleImageCaption', ( executeCommand, options ) => {
-          executeCommand( options );
-        }, { priority: 'high' } );
-      } catch (error) {
-        return;
+    if (hasTrackChangesEditing) {
+      const tcEditing = editor.plugins.get( 'TrackChangesEditing' );
+      if (!this.editor.commands.get('toggleImageCaption')) {
+        try {
+          tcEditing.enableCommand( 'toggleImageCaption', ( executeCommand, options ) => {
+            executeCommand( options );
+          }, { priority: 'high' } );
+        } catch (error) {
+          return;
+        }
       }
     }
 
-    const toggleImageCaptionCommand = this.editor.commands.get('toggleImageCaption');
-    trackChangesCommand.on('change:value', (evt, data, value) => {
-      if (value) {
-        toggleImageCaptionCommand.forceDisabled('drupal-premium-features')
-      } else {
-        toggleImageCaptionCommand.clearForceDisabled('drupal-premium-features')
-      }
-    })
+    if (trackChangesCommand) {
+      const toggleImageCaptionCommand = this.editor.commands.get('toggleImageCaption');
+      trackChangesCommand.on('change:value', (evt, data, value) => {
+        if (value) {
+          toggleImageCaptionCommand.forceDisabled('drupal-premium-features')
+        } else {
+          toggleImageCaptionCommand.clearForceDisabled('drupal-premium-features')
+        }
+      })
+    }
 
     let tcOriginalValue;
 
