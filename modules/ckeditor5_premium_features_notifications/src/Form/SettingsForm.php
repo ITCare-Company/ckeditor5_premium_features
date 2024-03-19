@@ -139,6 +139,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
           ':input[name="sender_plugin"]' => ['value' => 'ck5_notifications_email_instant'],
         ],
       ],
+      '#access' => $this->collaborationModuleIntegrator->isRtcEnabled(),
     ];
 
     $form = $this->addNotificationMessagesTabs($form, $form_state);
@@ -173,7 +174,28 @@ class SettingsForm extends SharedBuildConfigFormBase {
       ],
     ];
 
+    $form['#submit'][] = '::checkInstantSendingValue';
+
     return $form;
+  }
+
+  /**
+   * Ensures instant RTC sending checkbox is FALSE when RTC is disabled or
+   * bulk sending plugin is selected.
+   *
+   * @param array $form
+   *   An associative array containing the structure of the form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   */
+  public function checkInstantSendingValue(array &$form, FormStateInterface $form_state): void {
+    $values = $form_state->getValues();
+    if (!$this->collaborationModuleIntegrator->isRtcEnabled()
+      || $values['sender_plugin'] !== 'ck5_notifications_email_instant') {
+      $values['instant_comment_notifications'] = 0;
+
+      $form_state->setValues($values);
+    }
   }
 
   /**

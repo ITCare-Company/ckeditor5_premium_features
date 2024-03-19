@@ -13,11 +13,12 @@ use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\Notificatio
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Handles the instant realtime notification after comment is submitted.
@@ -32,8 +33,14 @@ class RealtimeCommentsNotificationController extends ControllerBase {
    *
    * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
    *   Request stack.
+   * @param \Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\NotificationIntegrator $notificationIntegrator
+   *   Notification integrator service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityManager
+   *   Entity type manager.
    */
-  public function __construct(protected RequestStack $requestStack, protected NotificationIntegrator $notificationIntegrator) {
+  public function __construct(protected RequestStack $requestStack,
+                              protected NotificationIntegrator $notificationIntegrator,
+                              protected EntityTypeManagerInterface $entityManager) {
   }
 
   /**
@@ -42,8 +49,28 @@ class RealtimeCommentsNotificationController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('request_stack'),
-      $container->get('ckeditor5_premium_features_realtime_collaboration.notification_integrator')
+      $container->get('ckeditor5_premium_features_realtime_collaboration.notification_integrator'),
+      $container->get('entity_type.manager')
     );
+  }
+
+  /**
+   * Check if given channel entity already exists in database.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request object.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   Response.
+   */
+  public function checkChannel(Request $request): Response {
+    $channel = $this->requestStack->getCurrentRequest()?->attributes->get('channel');
+    $entity = $this->entityManager->getStorage('ckeditor5_channel')?->load($channel);
+
+    if ($entity) {
+      return new Response("true", 200);
+    }
+    return new Response("false", 200);
   }
 
   /**
@@ -53,20 +80,20 @@ class RealtimeCommentsNotificationController extends ControllerBase {
    *   The current request object.
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
-   *   A JSON object including the media uuid or error message.
+   *   Response.
    */
-  public function send(Request $request): JsonResponse {
+  public function send(Request $request): Response {
     $postData = $request->getContent();
 
     if (!$postData) {
-      return new JsonResponse(null, 400);
+      return new Response(null, 400);
     }
 
     $data = Json::decode($postData);
 
     $this->notificationIntegrator->handleInstantCommentNotification($data);
 
-    return new JsonResponse("success", 200);
+    return new Response("success", 200);
   }
 
   /**

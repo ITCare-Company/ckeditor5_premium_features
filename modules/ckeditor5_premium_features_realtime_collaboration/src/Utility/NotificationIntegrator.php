@@ -12,11 +12,13 @@ namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Utility;
 use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcNotificationEntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Messenger\MessengerTrait;
 
 /**
  * Provides logic for notifications in rtc module.
  */
 class NotificationIntegrator extends NotificationIntegratorBase {
+  use MessengerTrait;
 
   /**
    * Dispatches document update event.
@@ -234,7 +236,14 @@ class NotificationIntegrator extends NotificationIntegratorBase {
       ]
     );
     $chainedSuggestions = $this->chainSuggestion($suggestionData);
-    $suggestion = empty($data['thread']['context']) ? $chainedSuggestions[$data['thread_id']] : NULL;
+    $suggestion = NULL;
+    if (!$data['thread']['context']) {
+      $suggestion = $chainedSuggestions[$data['thread_id']] ?? NULL;
+      if ($suggestion) {
+        $this->messenger()->addWarning("One or more reply to a suggestion notification(s) couldn't be sent because suggestion data wasn't retrieved from cloud server.");
+        return;
+      }
+    }
 
     $this->dispatchInstantCommentEvent($entity, $documentHelper, $comment, $thread, $suggestion);
   }
