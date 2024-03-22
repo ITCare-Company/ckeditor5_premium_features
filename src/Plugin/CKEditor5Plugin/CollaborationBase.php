@@ -52,7 +52,9 @@ class CollaborationBase extends CKEditor5PluginDefault implements ContainerFacto
    * {@inheritdoc}
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
-    $static_plugin_config['licenseKey'] = $this->settingsConfigHandler->getLicenseKey();
+    if ($licenseKey = $this->settingsConfigHandler->getLicenseKey()) {
+      $static_plugin_config['licenseKey'] = $licenseKey;
+    }
 
     return $static_plugin_config;
   }
