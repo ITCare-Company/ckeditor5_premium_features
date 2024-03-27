@@ -239,7 +239,7 @@ class NotificationIntegrator extends NotificationIntegratorBase {
     $suggestion = NULL;
     if (!$data['thread']['context']) {
       $suggestion = $chainedSuggestions[$data['thread_id']] ?? NULL;
-      if ($suggestion) {
+      if (!$suggestion) {
         $this->messenger()->addWarning("One or more reply to a suggestion notification(s) couldn't be sent because suggestion data wasn't retrieved from cloud server.");
         return;
       }
