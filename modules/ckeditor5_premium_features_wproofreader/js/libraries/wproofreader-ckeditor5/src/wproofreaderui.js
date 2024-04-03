@@ -1,7 +1,7 @@
 import { Plugin } from 'ckeditor5/src/core';
 import { addListToDropdown, createDropdown } from 'ckeditor5/src/ui';
 import { Collection } from 'ckeditor5/src/utils';
-import { Model } from 'ckeditor5/src/ui'
+import { ViewModel } from 'ckeditor5/src/ui'
 import wproofreaderIcon from '../theme/icons/wproofreader.svg';
 import '../theme/wproofreader.css';
 
@@ -107,7 +107,7 @@ export default class WProofreaderUI extends Plugin {
 		actions.forEach((action) => {
 			const definition = {
 				type: 'button',
-				model: new Model({
+				model: new ViewModel({
 					commandParam: this._commands[action.name],
 					label: action.localization.default,
 					localization: action.localization,
