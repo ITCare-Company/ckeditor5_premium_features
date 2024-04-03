@@ -137,6 +137,9 @@ class SettingsForm extends SharedBuildConfigFormBase {
 
     $editors = $this->entityTypeManager->getStorage('editor')->loadMultiple();
     foreach ($editors as $editor) {
+      if (!$editor->status()) {
+        continue;
+      }
       $toolbarItems = $editor->getSettings()['toolbar']['items'] ?? [];
 
       if (array_intersect($toolbarItems, $this->bundleUploadHelper::COLLABORATION_TOOLBAR_ITEMS)) {

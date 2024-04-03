@@ -100,8 +100,8 @@ class BundleUploadHelper {
     $content = [];
 
     foreach ($files as $file) {
-      // Skip jQuery UI files since they cause errors on cloud server.
-      if (str_contains($file, 'jquery.ui') || str_contains($file, 'ckeditor5.dialog.fix.js') || str_contains($file, 'jquery-ui')) {
+      // Skip some scripts which causes errors on cloud server.
+      if (str_contains($file, 'jquery.ui') || str_contains($file, 'ckeditor5.dialog.fix.js') || str_contains($file, 'jquery-ui') || str_contains($file, 'dialog.js')) {
         continue;
       }
 
@@ -135,7 +135,9 @@ class BundleUploadHelper {
       'RealtimeAdapter',
       'CommentsAdapter',
       'RemoveIncorrectCollaborationMarkers',
-      'RealtimeRevisionHistoryAdapter'
+      'RealtimeRevisionHistoryAdapter',
+      'RealtimeCommentNotifications',
+      'WordCountAdapter'
     ];
 
     $excludeCustomPlugins = $this->moduleHandler->invokeAll('ckeditor5_premium_features_exclude_bundle_plugins');
@@ -147,11 +149,9 @@ class BundleUploadHelper {
 
     $code .= "\nwindow.CKEditorCS.CKEditorPlugins=[" . implode(',', $plugins) . "]";
 
+    $bundleConfig = $conf['config'];
     $bundleConfig['cloudServices']['bundleVersion'] = $formatBundle;
     $bundleConfig['removePlugins'] = $excludePlugins;
-    $bundleConfig['toolbar'] = $conf["toolbar"];
-    $bundleConfig['htmlSupport']['allow'] = ["/.*/"];
-    $bundleConfig['licenseKey'] = $config->get('license_key');
 
     $response = $this->apiAdapter->postEditor($bundleConfig, $code);
 

@@ -38,7 +38,9 @@ class RealtimeAdapter {
     let editorParent = this.storage.getEditorParentContainer(this.editor.sourceElement.id);
     if (editorParent) {
       this.textFormatSelect = editorParent.querySelector(".js-filter-list");
-      this.textFormatSelect.addEventListener('change', this.changeEditor.bind(this));
+      if (this.textFormatSelect) {
+        this.textFormatSelect.addEventListener('change', this.changeEditor.bind(this));
+      }
     }
 
   }
@@ -139,7 +141,9 @@ class RealtimeAdapter {
   }
 
   destroy() {
-    this.textFormatSelect.removeEventListener('change', this.changeEditor.bind(this));
+    if (this.textFormatSelect || this.textFormatSelect !== undefined) {
+      this.textFormatSelect.removeEventListener('change', this.changeEditor.bind(this));
+    }
   }
 
   /**
