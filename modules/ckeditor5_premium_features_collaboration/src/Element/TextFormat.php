@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -29,6 +29,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\CollaborationSettings;
 use Drupal\ckeditor5_premium_features_collaboration\Utility\RevisionsLimitHandler;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -48,6 +49,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
   use Ckeditor5TextFormatTrait;
   use StringTranslationTrait;
+  use DependencySerializationTrait;
 
   /**
    * The suggestion storage.
@@ -230,6 +232,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       $this->collaborationAccessHandler->getUserPermissionsForTextFormats($this->currentUser);
 
     $element['#element_validate'] = [[$this, 'validateElement']];
+    $element['value']['#theme'] = 'ckeditor5_textarea';
     return $element;
   }
 
@@ -243,7 +246,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @param array $form
    *   The form.
    */
-  public function validateElement(array $element, FormStateInterface $form_state, array $form) {
+  public function validateElement(array $element, FormStateInterface $form_state, array $form): void {
     if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element, FALSE)) {
       return;
     }
@@ -341,7 +344,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $storage = $form_state->getStorage();
 
     if (!empty($storage[static::STORAGE_KEY_COLLABORATION])) {
-      self::addCallback('onCompleteFormSubmit', [['#submit']], $form);
+      self::addCallback('onCompleteFormSubmit', [['actions', 'submit', '#submit']], $form);
     }
   }
 

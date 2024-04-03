@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -9,11 +9,15 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Storage;
 
+use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin\CollaborationBase;
 use Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\DocumentOutline;
 use Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\ProductivityPackBase;
 use Drupal\Core\Config\Entity\ConfigEntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\editor\EditorInterface;
 
 /**
@@ -23,6 +27,8 @@ use Drupal\editor\EditorInterface;
  * and collaboration features.
  */
 class EditorStorageHandler implements EditorStorageHandlerInterface {
+
+  use StringTranslationTrait;
 
   public const SUPPORTED_EDITOR_ID = 'ckeditor5';
 
@@ -43,7 +49,10 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function __construct(
-    EntityTypeManagerInterface $entity_type_manager
+    EntityTypeManagerInterface $entity_type_manager,
+    protected SettingsConfigHandlerInterface $settingsConfigHandler,
+    protected AccountProxyInterface $account,
+    protected MessengerInterface $messenger
   ) {
     $this->editorStorage = $entity_type_manager->getStorage('editor');
   }
@@ -75,10 +84,29 @@ class EditorStorageHandler implements EditorStorageHandlerInterface {
     $editors = $allEditors ? $this->getAllEditorsFromElement($element) : [$this->getEditorFromElement($element)];
 
     $toolbar_items = [];
+    $filterLabels = [];
     foreach ($editors as $editor) {
       if ($editor) {
         $toolbar_items = array_merge($toolbar_items, $editor->getSettings()['toolbar']['items'] ?? []);
+        if (array_intersect($editor->getSettings()['toolbar']['items'] ?? [], CollaborationBase::getToolbars())) {
+          if ($this->account->hasPermission('use ckeditor5 access token')
+            && $this->settingsConfigHandler->isApiKeyRequired()
+            && !$this->settingsConfigHandler->getApiKey()) {
+            $filterLabels[] = $editor->getFilterFormat()->label();
+          }
+        }
       }
+    }
+    if (!empty($filterLabels)) {
+      $textFormatsLabels[] = implode(' and ', array_splice($filterLabels, -2));
+      $this->messenger->addWarning(
+        $this->t('Invalid configuration for CKEditor5 premium features. Missing API Key for Text formats: %text_formats </br> Check <a href="@config_url">Premium features configuration.</a>',
+          [
+            '%text_formats' => implode(', ', $textFormatsLabels),
+            '@config_url' => '/admin/config/ckeditor5-premium-features/settings',
+          ]
+        )
+      );
     }
 
     return (bool) array_intersect($toolbar_items, CollaborationBase::getToolbars());

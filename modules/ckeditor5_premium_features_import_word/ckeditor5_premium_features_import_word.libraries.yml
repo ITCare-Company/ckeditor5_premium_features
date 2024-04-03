@@ -4,7 +4,7 @@ admin.import_word:
       css/import-word.admin.css: { }
 
 import-word.adapter:
-  version: 20230629
+  version: 20231128
   js:
     js/build/importWordAdapter.js: { minified: true }
   dependencies:

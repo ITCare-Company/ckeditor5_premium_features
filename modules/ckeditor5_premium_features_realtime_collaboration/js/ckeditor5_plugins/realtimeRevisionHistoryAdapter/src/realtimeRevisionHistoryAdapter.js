@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -28,7 +28,7 @@ class RealtimeRevisionHistoryAdapter {
     revisionHistoryConfig.viewerContainer = document.querySelector(`.revision-history-container-data[data-ckeditor5-premium-element-id="${this.elementId}"]`);
     revisionHistoryConfig.viewerEditorElement = revisionHistoryConfig.viewerContainer.querySelector('.revision-viewer-editor');
     revisionHistoryConfig.viewerSidebarContainer = revisionHistoryConfig.viewerContainer.querySelector('.revision-viewer-sidebar');
-    revisionHistoryConfig.editorContainer = revisionHistoryConfig.viewerContainer.parentElement.querySelector('.ck-editor-sidebar-wrapper');
+    revisionHistoryConfig.editorContainer = revisionHistoryConfig.viewerContainer.parentElement.querySelector('.ck-editor-premium-wrapper').parentElement;
 
     // Initialize plugin.
     const revisionHistoryPlugin = this.editor.plugins.get('RevisionHistory');
@@ -41,12 +41,31 @@ class RealtimeRevisionHistoryAdapter {
     });
 
     this.storage.processRevisionDisable();
+
+    this.copyEditorVisibilityToFilterSelector(revisionHistoryConfig);
   }
 
   async updateStorage(plugin, tracker) {
     await tracker.update();
     await tracker.saveRevision({name: 'Entity save'});
   }
+
+  copyEditorVisibilityToFilterSelector(revisionHistoryConfig) {
+    const filterElement = revisionHistoryConfig.editorContainer.parentElement.querySelector(".js-filter-wrapper")
+    var observer = new IntersectionObserver(function(entries) {
+      if(entries[0]['intersectionRatio'] == 0) {
+        filterElement.style.display = "none";
+      }
+      else {
+        filterElement.style.display = "block";
+      }
+    }, { root: document.documentElement });
+
+    if (filterElement) {
+      observer.observe(revisionHistoryConfig.editorContainer);
+    }
+  }
+
 }
 
 export default RealtimeRevisionHistoryAdapter;

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -19,11 +19,13 @@ use Drupal\Core\Form\FormStateInterface;
  */
 class SettingsForm extends BaseExportSettingsForm {
 
+  const EXPORT_PDF_CONFIG_NAME = 'ckeditor5_premium_features_export_pdf.settings';
+
   /**
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return 'ckeditor5_premium_features_export_pdf.settings';
+    return 'ckeditor5_premium_features_export_pdf_settings';
   }
 
   /**
@@ -43,6 +45,13 @@ class SettingsForm extends BaseExportSettingsForm {
   /**
    * {@inheritdoc}
    */
+  public function getConfigId(): string {
+    return self::EXPORT_PDF_CONFIG_NAME;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function form(array $form, FormStateInterface $form_state, Config $config): array {
     $form['converter_url'] = [
       '#type' => 'textfield',
@@ -55,7 +64,7 @@ class SettingsForm extends BaseExportSettingsForm {
       '#type' => 'textfield',
       '#title' => t('Environment ID'),
       '#required' => FALSE,
-      '#description' =>  t('Leave this field empty unless, for Export to PDF, you are using a different environment than the one from the main module configuration.'),
+      '#description' => t('Leave this field empty unless, for Export to PDF, you are using a different environment than the one from the main module configuration.'),
       '#default_value' => $config->get('env'),
     ];
 

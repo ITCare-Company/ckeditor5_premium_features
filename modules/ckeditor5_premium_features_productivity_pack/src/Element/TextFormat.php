@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -54,13 +54,9 @@ class TextFormat implements Ckeditor5TextFormatBaseInterface {
     ];
 
     $container_html = \Drupal::service('renderer')->render($document_outline_container);
-    $element['value']['#prefix'] .= $container_html;
+    $element['value']['#document_outline'] = $container_html;
 
-    // Add a wrapper class to the field tag.
-    $parents = array_slice($element["#array_parents"], 0, -2);
-    $parent = NestedArray::getValue($complete_form, $parents);
-    $parent["#attributes"]["class"][] = 'ck-document-outline-wrapper';
-    NestedArray::setValue($complete_form, $parents, $parent);
+    $element['value']['#theme'] = 'ckeditor5_textarea';
     return $element;
   }
 

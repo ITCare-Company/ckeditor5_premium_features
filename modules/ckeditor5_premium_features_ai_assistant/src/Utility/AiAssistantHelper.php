@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -16,6 +16,7 @@ use Drupal\ckeditor5_premium_features_ai_assistant\Form\SettingsForm;
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Helper for CKEditor5 AI Assistant service providers.
@@ -111,7 +112,12 @@ class AiAssistantHelper {
     if (!$provider) {
       return [];
     }
-    return $provider->getConfigFields();
+    $configFields = $provider->getConfigFields();
+    $fields = [];
+    foreach ($configFields as $key => $value) {
+      $fields["{$providerId}_{$key}"] = $value;
+    }
+    return $fields;
   }
 
   /**
@@ -126,6 +132,20 @@ class AiAssistantHelper {
   public function getProviderTextAdapter(string $providerId): string {
     $provider = $this->getProviderById($providerId);
     return $provider->getTextAdapter()->value;
+  }
+
+  /**
+   * Returns the provider description.
+   *
+   * @param string $providerId
+   *   The Provider ID.
+   *
+   * @return string|TranslatableMarkup
+   *   Provider description.
+   */
+  public function getProviderDescription(string $providerId): string|TranslatableMarkup {
+    $provider = $this->getProviderById($providerId);
+    return $provider->getDescription();
   }
 
 }

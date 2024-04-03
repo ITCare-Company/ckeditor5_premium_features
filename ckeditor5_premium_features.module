@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -152,4 +152,26 @@ function ckeditor5_premium_features_filter_format_disable(FilterFormatInterface 
   /** @var \Drupal\ckeditor5_premium_features\Utility\PermissionHelper $permissionHelper */
   $permissionHelper = \Drupal::service('ckeditor5_premium_features.permission_helper');
   $permissionHelper->deleteCollaborationPermissions($format);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function ckeditor5_premium_features_theme($existing, $type, $theme, $path): array {
+  return [
+    'ckeditor5_textarea' => [
+      'render element' => 'element',
+      'template' => 'ckeditor5-textarea'
+    ],
+  ];
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function ckeditor5_premium_features_preprocess_ckeditor5_textarea(&$variables): void {
+  template_preprocess_textarea($variables);
+  $element = $variables['element'];
+  $variables['sidebar'] = !empty($element['#sidebar']) ? $element['#sidebar'] : NULL;
+  $variables['document_outline'] = !empty($element['#document_outline']) ? $element['#document_outline'] : NULL;
 }

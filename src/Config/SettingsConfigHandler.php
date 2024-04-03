@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -12,6 +12,7 @@ namespace Drupal\ckeditor5_premium_features\Config;
 use Drupal\Core\Asset\LibraryDiscoveryInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Url;
 
 /**
@@ -34,6 +35,13 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   protected $libraryDiscovery;
 
   /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
    * Constructs the handler.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
@@ -41,9 +49,12 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    * @param \Drupal\Core\Asset\LibraryDiscoveryInterface $library_discovery
    *   Library discovery service.
    */
-  public function __construct(protected ConfigFactoryInterface $configFactory, protected LibraryDiscoveryInterface $library_discovery) {
+  public function __construct(protected ConfigFactoryInterface $configFactory,
+                              protected LibraryDiscoveryInterface $library_discovery,
+                              protected ModuleHandlerInterface $module_handler) {
     $this->config = $this->configFactory->get('ckeditor5_premium_features.settings');
     $this->libraryDiscovery = $library_discovery;
+    $this->moduleHandler = $this->module_handler;
   }
 
   /**
@@ -140,6 +151,13 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    */
   public function getApiKey(): ?string {
     return $this->config->get('api_key');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isApiKeyRequired(): bool {
+    return $this->moduleHandler->moduleExists('ckeditor5_premium_features_realtime_collaboration');
   }
 
   /**

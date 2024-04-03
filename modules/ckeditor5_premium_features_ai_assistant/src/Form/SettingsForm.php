@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -67,30 +67,34 @@ class SettingsForm extends ConfigFormBase {
     $config = $this->config(self::AI_ASSISTANT_SETTINGS_ID);
     $providers = $this->aiAssistantHelper->getAllProviders();
     $provider = $config->get('ai_provider') ?? AiAssistantHelper::DEFAULT_PROVIDER;
+
     if ($form_state->isRebuilding()) {
       $provider = $form_state->getValue('ai_provider');
     }
-
-    $form['ai_provider'] = [
+    $form['provider_settings'] = [
+      '#type' => 'container',
+      '#attributes' => ['id' => 'provider-settings'],
+    ];
+    $providerDescription = $this->aiAssistantHelper->getProviderDescription($provider);
+    $form['provider_settings']['ai_provider'] = [
       '#type' => 'select',
       '#options' => $providers,
       '#title' => $this->t('AI provider'),
       '#required' => TRUE,
       '#default_value' => $provider,
+      '#description' => $providerDescription,
       '#ajax' => [
         'callback' => '::changeProviderFields',
         'wrapper' => 'provider-settings',
         'method' => 'replace',
       ],
     ];
-    $form['provider_settings'] = [
-      '#type' => 'container',
-      '#attributes' => ['id' => 'provider-settings'],
-    ];
 
     $providerFields = $this->aiAssistantHelper->getProviderFormFields($provider);
     foreach ($providerFields as $key => $field) {
-      $field['#default_value'] = $config->get($key);
+      if (!isset($field['#default_value'])) {
+        $field['#default_value'] = $config->get($key);
+      }
       $form['provider_settings'][$key] = $field;
     }
 
@@ -124,7 +128,7 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Advanced settings'),
       '#open' => (bool) $config->get('use_custom_endpoint'),
       '#description' =>
-      $this->t('If you want to use your custom proxy, provide URL and Auth key for the endpoint.'),
+      $this->t('If you want to use your custom proxy, provide the URL and Auth key for the endpoint.'),
     ];
     $form['advanced']['use_custom_endpoint'] = [
       '#type' => 'checkbox',
@@ -191,6 +195,18 @@ class SettingsForm extends ConfigFormBase {
    */
   public function changeProviderFields(array &$form, FormStateInterface $form_state): array {
     return $form['provider_settings'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    if ($form_state->isSubmitted()) {
+      $providerId = $form_state->getValue('ai_provider');
+      $provider = $this->aiAssistantHelper->getProviderById($providerId);
+      $provider->validateFields($form_state);
+    }
+    parent::validateForm($form, $form_state);
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -20,9 +20,11 @@ class SidebarAdapter {
     }
     this.sidebarColumn = sidebar_column;
     this.sidebar = sidebar_column.parentElement;
+    this.editorContainer = this.sidebar.parentElement;
 
     this.editor.config._config.sidebar = {
       container: sidebar_column,
+      preventScrollOutOfView: drupalSettings.ckeditor5Premium.preventScrollOutOfView,
     }
   }
 
@@ -42,15 +44,7 @@ class SidebarAdapter {
       return;
     }
 
-    this.annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
-    let toggleWrapper = document.createElement('div');
-    toggleWrapper.classList.add('ck-sidebar-auto-toggle-wrapper');
-    let toggle = document.createElement('a');
-    toggle.classList += 'ck-sidebar-auto-toggle ' + this.sidebarMode;
-    toggle.id = 'ck-sidebar-auto-toggle';
-
-    toggleWrapper.prepend(toggle);
-    this.sidebarColumn.prepend(toggleWrapper);
+    this.addToggleButton();
   }
 
   afterInit() {
@@ -65,15 +59,66 @@ class SidebarAdapter {
 
     this.handleSidebarMode();
 
-    this.checkIfInsideTab();
+    if (this.editor.config._config.sidebar.preventScrollOutOfView) {
+      this.sidebarColumn.classList.add('prevent-scroll-out-of-view');
+    }
+
+    this.editor.on('ready', () => {
+      this.setScrollBarObservers();
+
+      if (this.editor.ui.view.element) {
+        this.editor.ui.view.element.classList += ' ck-sidebar-enabled';
+      }
+    });
+
   }
 
   destroy() {
+    if (!this.annotationsUIs || typeof this.annotationsUIs === "undefined" ||
+        !this.sidebar || typeof this.sidebar === 'undefined') {
+      return;
+    }
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+
+    this.viewElementScrollbarObserver.disconnect();
+
     this.sidebarVisibilityModify(true);
-    let toggle = this.getSidebarToggle()
+    let toggle = this.getSidebarToggleWrapper()
     if (toggle) {
       toggle.remove();
     }
+  }
+
+  /**
+   * Set the sidebar toggle button.
+   */
+  addToggleButton() {
+    this.annotationsUIs = this.editor.plugins.get('AnnotationsUIs');
+    this.toggleWrapper = document.createElement('div');
+    this.toggleWrapper.classList.add('ck-sidebar-auto-toggle-wrapper');
+    let toggle = document.createElement('a');
+    toggle.classList += 'ck-sidebar-auto-toggle ' + this.sidebarMode;
+    toggle.id = 'ck-sidebar-auto-toggle';
+    toggle.title = 'Switch to narrow sidebar mode';
+
+    this.toggleWrapper.prepend(toggle);
+    this.sidebar.prepend(this.toggleWrapper);
+  }
+
+  /**
+   * Set margin on toggle wrapper, so the toggle doesn't cover sidebar if it is visible.
+   */
+  setScrollBarObservers() {
+    this.viewElementScrollbarObserver = new ResizeObserver(entries => {
+      const baseMargin = -29;
+      const scrollbarWidth = entries[0].target.offsetWidth - entries[0].target.clientWidth;
+      const totalMargin = baseMargin - scrollbarWidth;
+      this.toggleWrapper.style.marginLeft = totalMargin + "px";
+    });
+    this.viewElementScrollbarObserver.observe(this.editor.ui.view.editable.element);
   }
 
   /**
@@ -99,7 +144,24 @@ class SidebarAdapter {
    * Checks sidebar mode setting and attaches event listeners if required.
    */
   handleSidebarMode() {
-    let toggle = this.getSidebarToggle();
+    let toggle = this.getSidebarToggleWrapper();
+
+    // Set the resize observer
+    this.resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        clearTimeout(this.resizeThreshold);
+        this.resizeThreshold = setTimeout(() => {
+          if (this.sidebarMode !== 'auto') {
+            this.setCkEditorSidebarMode(this.sidebarMode);
+          }
+          else {
+            this.updateCkeditorMode();
+          }
+        }, 100);
+      }
+    });
+
+    this.resizeObserver.observe(this.editorContainer);
 
     if (this.sidebarMode !== 'auto') {
       this.setCkEditorSidebarMode(this.sidebarMode);
@@ -111,17 +173,9 @@ class SidebarAdapter {
 
     this.updateCkeditorMode();
 
-    this.checkEditorLabel();
-
     if (!toggle) {
       return;
     }
-    window.addEventListener('resize', () => {
-      clearTimeout(this.resizeThreshold);
-      this.resizeThreshold = setTimeout(() => {
-        this.updateCkeditorMode();
-      }, 100);
-    });
 
     toggle.addEventListener('click', () => {
       if (this.sidebar.classList.contains('narrowSidebar')) {
@@ -144,6 +198,18 @@ class SidebarAdapter {
     if (!this.sidebar || typeof this.sidebar === 'undefined') {
       return null;
     }
+    return this.sidebar.querySelector(".ck-sidebar-auto-toggle");
+  }
+
+  /**
+   * Returns a toggle button wrapper for handled sidebar or null if not found.
+   *
+   * @returns {null|Element}
+   */
+  getSidebarToggleWrapper() {
+    if (!this.sidebar || typeof this.sidebar === 'undefined') {
+      return null;
+    }
     return this.sidebar.querySelector(".ck-sidebar-auto-toggle-wrapper");
   }
 
@@ -157,6 +223,16 @@ class SidebarAdapter {
     if (!this.sidebar || typeof this.sidebar === 'undefined') {
       return;
     }
+    let toggle = this.getSidebarToggle();
+
+    if (newMode === "wideSidebar") {
+      toggle.title = 'Switch to narrow sidebar mode';
+    } else if (newMode === "narrowSidebar") {
+      toggle.title = 'Switch to wide sidebar mode';
+    } else {
+      toggle.title = '';
+    }
+
     if (this.sidebar.classList.contains('manual-toggled') && newMode === 'wideSidebar') {
       if (this.annotationsUIs.isActive('inline') || this.annotationsUIs.isActive('wideSidebar')) {
         newMode = 'narrowSidebar';
@@ -175,89 +251,11 @@ class SidebarAdapter {
    */
   updateCkeditorMode() {
     // TODO: move to config?
-    let w = document.documentElement.clientWidth;
-    let newMode = w >= 1200 ? 'wideSidebar' : (w >= 500 ? 'narrowSidebar' : 'inline');
-    // Check editor container width
-    if (this.sidebar.clientWidth < 720) {
-      newMode = this.sidebar.clientWidth >= 500 ? 'narrowSidebar' : 'inline'
-    }
+    let w = this.editorContainer.clientWidth;
+    let newMode = w >= 720 ? 'wideSidebar' : (w >= 500 ? 'narrowSidebar' : 'inline');
     this.setCkEditorSidebarMode(newMode);
   }
 
-  /**
-   * Check if there is a label right above the editor.
-   */
-  checkEditorLabel() {
-    let label = this.sidebar.querySelector('label');
-    if (label && typeof label !== 'undefined' && !label.classList.contains('visually-hidden')) {
-      this.sidebarColumn.style.marginTop = label.clientHeight + "px";
-    }
-  }
-
-  /**
-   * Check if editor is inside the tab
-   */
-  checkIfInsideTab() {
-    const tab = this.sidebar.closest('.field-group-tab');
-    if (tab && typeof tab !== 'undefined') {
-      this.checkParentTabs(tab)
-    }
-  }
-
-  /**
-   * Check if there are nested tabs
-   * @param element
-   */
-  checkParentTabs(element) {
-    const parent = element.parentElement.closest('.field-group-tab');
-
-    if (parent && typeof parent !== 'undefined' && element !== parent) {
-      // We have to check the display style and 'horizontal-tab-hidden' class to verify if the tab is
-      // inside group of tabs.
-      if (!parent.open || parent.style.display === "none" || parent.classList.contains('horizontal-tab-hidden')) {
-        this.setObserverToElement(parent)
-      } else {
-        this.checkParentTabs(parent)
-      }
-    }
-    // If the element is closed or contains horizontal-tab-hidden class then set observer.
-    if (!element.open || element.classList.contains('horizontal-tab-hidden')) {
-      this.setObserverToElement(element)
-    }
-  }
-
-  /**
-   * Set observer to tab and update editor when the tab is opened.
-   * @param element
-   */
-  setObserverToElement(element) {
-    this.setObserver(element).then(() => {
-      this.updateCkeditorMode();
-      this.checkEditorLabel();
-    });
-  }
-
-  /**
-   * Set observer
-   * @param element
-   * @returns {Promise<unknown>}
-   */
-  setObserver(element) {
-    return new Promise(resolve => {
-      const observer = new MutationObserver(mutations => {
-        if (element.open && element.style.display !== 'none' && !element.classList.contains('horizontal-tab-hidden')) {
-          resolve();
-          observer.disconnect();
-        }
-      });
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true
-      });
-    });
-  }
-
 }
-
 
 export default SidebarAdapter;

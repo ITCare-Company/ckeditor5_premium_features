@@ -1,30 +1,30 @@
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
+
+.ck-editor-container .ck-document-outline-container {
+  width: 25%;
+}
 
 .document-outline-container {
   background: var(--ck-color-toolbar-background);
   border: 1px solid var(--ck-color-toolbar-border);
   border-right: 0;
   overflow: hidden;
-  margin: 27px 0 0 0;
   width: 100%;
-  max-width: 300px;
+  max-width: 250px;
+  max-height: calc(100vh - var(--drupal-displace-offset-top,0px) - var(--drupal-displace-offset-bottom,0px) - 22px);
 }
 
 .document-outline-container .ck-document-outline {
-  max-height: calc(100vh - var(--drupal-displace-offset-top,0px) - var(--drupal-displace-offset-bottom,0px) + 101px);
   overflow-y: auto;
 }
 
-.document-outline-container .ck-document-outline-toggle-wrapper {
-  height: 39px;
-  border-bottom: 1px solid var(--ck-color-toolbar-border);
-}
-
 .document-outline-container .ck-document-outline-toggle {
-  margin-left: calc(100% - 37px);
+  margin-left: calc(100% - 40px);
+  height: 40px;
+  width: 40px;
 }
 
 .document-outline-container .ck-document-outline-toggle .ck-icon {
@@ -38,21 +38,11 @@ tr.draggable .document-outline-container {
 }
 
 .document-outline-container.collapsed {
-  width: 37px;
-  min-width: 37px;
+  width: 40px;
+  min-width: 40px;
   overflow: visible;
 }
 
-body:not(.ck-fullscreen-overlay) .document-outline-container.collapsed .ck-document-outline {
-  visibility: hidden;
-}
-
-.ck-fullscreen-overlay .document-outline-container,
-.ck-fullscreen-overlay .document-outline-container.collapsed {
-  width: 100%;
-  max-width: 500px;
-}
-
-.ck-fullscreen-overlay .document-outline-container .ck-document-outline-toggle {
+.document-outline-container.collapsed .ck-document-outline {
   display: none;
 }

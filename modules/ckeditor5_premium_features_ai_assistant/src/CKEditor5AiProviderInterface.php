@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -9,6 +9,8 @@ declare(strict_types = 1);
 
 namespace Drupal\ckeditor5_premium_features_ai_assistant;
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -53,5 +55,23 @@ interface CKEditor5AiProviderInterface {
    *   AITextAdapter.
    */
   public function getTextAdapter(): AITextAdapter;
+
+  /**
+   * Returns service description.
+   *
+   * @return string|TranslatableMarkup
+   *   The Description.
+   */
+  public function getDescription(): string|TranslatableMarkup;
+
+  /**
+   * Validate form with plugin fields.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return void
+   */
+  public function validateFields(FormStateInterface &$form_state): void;
 
 }

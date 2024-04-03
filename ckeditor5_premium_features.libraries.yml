@@ -1,6 +1,6 @@
 
 collaboration-integration-base:
-  version: 20231207
+  version: 20240220
   css:
     theme:
       css/sidebar.css: { }
@@ -15,6 +15,7 @@ collaboration-integration-base:
   dependencies:
     - core/ckeditor5
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
+    - ckeditor5_premium_features/toolbar-adapter
 
 media-export-features:
   version: 20231024
@@ -47,3 +48,9 @@ error-notifications:
       css/notifications.css: { }
   js:
       js/build/errorNotifications.js: { minified: true }
+
+toolbar-adapter:
+  version: 20231012
+  js:
+    js/build/toolbarAdapter.js: { minified: true }
+

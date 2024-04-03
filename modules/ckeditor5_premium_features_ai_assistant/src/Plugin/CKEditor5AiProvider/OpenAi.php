@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -30,7 +30,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *   form_fields = {
  *     "auth_key" = {
  *        "#type" = "textfield",
- *        "#title" = "Auth key"
+ *        "#title" = "Auth key",
+ *        "#required" = TRUE
  *      }
  *   }
  * )
@@ -94,11 +95,7 @@ final class OpenAi extends CKEditor5AiProviderPluginBase {
    */
   public function getConfigFields(): array {
     $definition = $this->getPluginDefinition();
-    $fields = [];
-    foreach ($definition['form_fields'] as $key => $value) {
-      $fields[$this->getPluginId() . '_' . $key] = $value;
-    }
-    return $fields;
+    return $definition['form_fields'];
   }
 
   /**
@@ -126,6 +123,13 @@ final class OpenAi extends CKEditor5AiProviderPluginBase {
    */
   public function getTextAdapter(): AITextAdapter {
     return AITextAdapter::OpenAI;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDescription(): string {
+    return (string) $this->pluginDefinition['description'];
   }
 
 }

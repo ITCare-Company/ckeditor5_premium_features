@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -57,7 +57,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
    * {@inheritdoc}
    */
   final public function getFormId(): string {
-    return static::COLLABORATION_SETTINGS_ID;
+    return 'ckeditor5_premium_features_realtime_collaboration_settings';
   }
 
   /**
@@ -65,6 +65,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
    */
   public static function getSettingsRouteName(): string {
     return 'ckeditor5_premium_features_realtime_collaboration.form.settings';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConfigId(): string {
+    return self::COLLABORATION_SETTINGS_ID;
   }
 
   /**
@@ -81,6 +88,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
         'wideSidebar' => t('Use wide sidebar'),
       ],
       '#default_value' => $config->get('sidebar') ?? 'auto',
+    ];
+
+    $form['prevent_scroll_out_of_view'] = [
+        '#type' => 'checkbox',
+        '#title' => t('Prevent scrolling sidebar items out of view.'),
+        '#default_value' => $config->get('prevent_scroll_out_of_view') ?? FALSE,
+        '#description' => t('If selected, the top annotation in the sidebar will never be scrolled above the top edge of the sidebar (which would make it hidden).'),
     ];
 
     $form['presence_list'] = [

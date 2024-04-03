@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -24,8 +24,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @Filter(
  *   id = "ckeditor5_premium_features_collaboration_filter",
- *   title = @Translation("Removes the collaboration (suggestions, comments) data from the markup so that the content displayed to your end users did not contain comments/suggestions for content editors."),
- *   description = @Translation("This filter should be executed as soon as possible. If you encounter missing whitespaces near words that contains suggestions please move it up in the filter processing order."),
+ *   title = @Translation("Removes the collaboration (suggestions, comments) data from the markup so that the content displayed to your end users does not contain comments/suggestions for content editors."),
+ *   description = @Translation("This filter should be executed as soon as possible. If you encounter missing whitespaces near words that contain suggestions please move it up in the filter processing order."),
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
  *   weight = -100
  * )
