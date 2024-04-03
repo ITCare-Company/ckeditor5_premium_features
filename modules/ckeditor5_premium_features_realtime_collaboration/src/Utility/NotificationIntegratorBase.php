@@ -13,13 +13,13 @@ use Drupal\ckeditor5_premium_features\CKeditorDateFormatterTrait;
 use Drupal\ckeditor5_premium_features\Utility\ApiAdapter;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcCommentNotificationEntity;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcSuggestionNotificationEntity;
-use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\user\UserInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Provides logic for notifications in rtc module.
@@ -42,7 +42,7 @@ abstract class NotificationIntegratorBase {
    *   Api adapter.
    * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
    *   Current user.
-   * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $eventDispatcher
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
    *   Event dispatcher.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager.
@@ -52,7 +52,7 @@ abstract class NotificationIntegratorBase {
    */
   public function __construct(protected ApiAdapter $apiAdapter,
                               protected AccountProxyInterface $currentUser,
-                              protected ContainerAwareEventDispatcher $eventDispatcher,
+                              protected EventDispatcherInterface $eventDispatcher,
                               protected EntityTypeManagerInterface $entityTypeManager) {
     $this->userStorage = $entityTypeManager->getStorage('user');
   }
