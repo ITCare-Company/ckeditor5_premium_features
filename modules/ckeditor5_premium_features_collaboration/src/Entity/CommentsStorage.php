@@ -35,7 +35,7 @@ class CommentsStorage extends SqlContentEntityStorage implements
   CollaborationEntityEventDispatcherInterface {
 
   use CollaborationEntityStorageTrait {
-    loadByEntity as public traitLoadByEntity;
+    CollaborationEntityStorageTrait::loadByEntity as public traitLoadByEntity;
   }
 
   use CKeditorPremiumLoggerChannelTrait;
