@@ -54,6 +54,11 @@ class CollaborationBase extends CKEditor5PluginDefault implements ContainerFacto
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
     $static_plugin_config['licenseKey'] = $this->settingsConfigHandler->getLicenseKey();
 
+    $settings = $editor->getSettings();
+    if (!isset($settings['plugins']['media_media'])) {
+      $static_plugin_config['removePlugins'] = ['DrupalMediaTrackChangesIntegration'];
+    }
+
     return $static_plugin_config;
   }
 

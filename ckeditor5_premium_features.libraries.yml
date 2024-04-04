@@ -1,6 +1,6 @@
 
 collaboration-integration-base:
-  version: 20240220
+  version: 20240404
   css:
     theme:
       css/sidebar.css: { }
@@ -12,6 +12,7 @@ collaboration-integration-base:
     js/build/disableCollaborationMarkersInCaption.js: { minified: true }
     js/build/removeIncorrectCollaborationMarkers.js: { minified: true }
     js/build/commentsAdapter.js: { minified: true }
+    js/build/drupalMediaTrackChangesIntegration.js: { minified: true }
   dependencies:
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
     - ckeditor5_premium_features/toolbar-adapter
