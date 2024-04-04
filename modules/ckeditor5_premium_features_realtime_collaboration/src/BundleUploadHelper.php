@@ -153,6 +153,7 @@ class BundleUploadHelper {
     $bundleConfig = $conf['config'];
     $bundleConfig['cloudServices']['bundleVersion'] = $formatBundle;
     $bundleConfig['removePlugins'] = $excludePlugins;
+    $bundleConfig["htmlSupport"]["allow"] = [["name" => "/.*/"]];
 
     $response = $this->apiAdapter->postEditor($bundleConfig, $code);
 
