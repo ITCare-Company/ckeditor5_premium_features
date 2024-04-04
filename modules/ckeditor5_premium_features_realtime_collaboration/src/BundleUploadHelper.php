@@ -137,7 +137,8 @@ class BundleUploadHelper {
       'RemoveIncorrectCollaborationMarkers',
       'RealtimeRevisionHistoryAdapter',
       'RealtimeCommentNotifications',
-      'WordCountAdapter'
+      'WordCountAdapter',
+      'ToolbarAdapter'
     ];
 
     $excludeCustomPlugins = $this->moduleHandler->invokeAll('ckeditor5_premium_features_exclude_bundle_plugins');
