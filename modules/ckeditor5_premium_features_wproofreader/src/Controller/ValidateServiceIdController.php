@@ -30,7 +30,7 @@ final class ValidateServiceIdController extends ControllerBase {
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    */
-  public function __construct(private readonly WebSpellCheckerHandler $webSpellCheckerHandler, ConfigFactoryInterface $config_factory) {
+  public function __construct(private WebSpellCheckerHandler $webSpellCheckerHandler, ConfigFactoryInterface $config_factory) {
     $this->configFactory = $config_factory;
   }
 
