@@ -107,14 +107,14 @@ class CaseChange extends CKEditor5PluginDefault implements ContainerFactoryPlugi
     if (!$isValidCKE5Version) {
       $form['info'] = [
         '#type' => 'container',
-        '#markup' => $this->t('The Case Change is available since CKEditor 5 v41.0.0. CKEditor 5 v41 was introduced in Drupal 10.3. Please update your Drupal core in order to use this feature.'),
+        '#markup' => $this->t('The CKEditor 5 Case Change is available since version 41.0.0. CKEditor 5 v41.x was introduced in Drupal 10.3. Please update your Drupal core to use this feature.'),
       ];
     }
     $form['title_case_exclude_words'] = [
-      '#title' => $this->t('Title Case excluded words'),
+      '#title' => $this->t('The Title Case excluded words.'),
       '#type' => 'textarea',
-      '#description' => $this->t('Words which should not be capitalized.<br /><br />
-          <b>Example:</b> <code>a, an, and, as, at, but, by, for</code>'),
+      '#description' => $this->t('Words that should not be capitalized.<br /><br />
+          <b>Example:</b> a, an, and, as, at, but, by, for.'),
       '#default_value' => $this->configuration['title_case_exclude_words'],
       '#access' => $isValidCKE5Version,
     ];
@@ -130,7 +130,7 @@ class CaseChange extends CKEditor5PluginDefault implements ContainerFactoryPlugi
     $toolbars = $this->pluginHelper->getFormToolbars($form_state);
 
     if (in_array('caseChange', $toolbars) && !$this->libraryVersionChecker->isLibraryVersionHigherOrEqual('41.0.0')) {
-      $form_state->setErrorByName('editor', $this->t('The Case Change is available since CKEditor 5 v41.0.0. CKEditor 5 v41 was introduced in Drupal 10.3. Please update your Drupal core in order to use this feature.'));
+      $form_state->setErrorByName('editor', $this->t('The CKEditor 5 Case Change is available since version 41.0.0. CKEditor 5 v41.x was introduced in Drupal 10.3. Please update your Drupal core to use this feature.'));
     }
   }
 
