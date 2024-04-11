@@ -42,3 +42,9 @@ admin.content_templates:
   css:
     theme:
       css/content-templates.admin.css: { }
+
+admin.case_change:
+  version: 20240411
+  css:
+    theme:
+      css/case-change.admin.css: { }
