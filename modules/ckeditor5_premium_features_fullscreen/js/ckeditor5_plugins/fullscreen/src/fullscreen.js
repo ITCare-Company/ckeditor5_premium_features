@@ -21,6 +21,7 @@ export default class FullScreen extends Plugin {
 
 		editor.ui.componentFactory.add( 'FullScreen', locale => {
 			const overlayClass = 'ck-fullscreen-overlay';
+      let additionalClasses = [];
 			const editorFullScreenClass = 'ck-fullscreen';
 			const view = new ButtonView( locale );
       let defaultOffsetTop = null;
@@ -39,7 +40,13 @@ export default class FullScreen extends Plugin {
 				const revHistoryElement = targetElement.parentNode.parentNode.querySelector( '.revision-history-container-data' );
         const stickyPanel = targetElement.querySelector('.ck-sticky-panel__content');
         const stickyPanelPlaceholder = targetElement.querySelector('.ck-sticky-panel__placeholder');
-        const toolbarHeight = targetElement.querySelector('.ck-toolbar').offsetHeight;
+        const toolbarHeight = targetElement.querySelector('.ck-toolbar').offsetHeight + 1;
+        const wordCountId = editor.sourceElement.id + "-ck-word-count";
+        const wordCount = document.querySelector("#" + wordCountId + " .ck-word-count");
+        const wordCountHeight = wordCount === null ? 0 : wordCount.offsetHeight + 1;
+        if (wordCount) {
+          additionalClasses.push('ck-fullscreen-with-word-count');
+        }
         let container = targetElement.querySelector('.ck-editor-container');
         if (!container) {
           container = targetElement.querySelector('.ck-editor__editable').parentNode;
@@ -49,7 +56,10 @@ export default class FullScreen extends Plugin {
 					if ( revHistoryElement ) {
 						revHistoryElement.classList.remove( editorFullScreenClass );
 					}
-					document.body.classList.remove( overlayClass );
+          if ( wordCount ) {
+            wordCount.classList.remove( editorFullScreenClass );
+          }
+          document.body.classList.remove( overlayClass, ...additionalClasses );
           container.style.height = null;
 					view.set( 'label', 'Maximize' );
 					view.set( 'isOn', false );
@@ -66,8 +76,11 @@ export default class FullScreen extends Plugin {
 					if ( revHistoryElement ) {
 						revHistoryElement.classList.add( editorFullScreenClass );
 					}
-					document.body.classList.add( overlayClass );
-          container.style.height = window.innerHeight - toolbarHeight + "px";
+          if ( wordCount ) {
+            wordCount.classList.add( editorFullScreenClass );
+          }
+          document.body.classList.add( overlayClass, ...additionalClasses );
+          container.style.height = "calc(100vh - " + (toolbarHeight + wordCountHeight) + "px";
 					view.set( 'label', 'Minimize' );
 					view.set( 'isOn', true );
           editor.ui.view.stickyPanel.set('isActive', false);

@@ -10,10 +10,16 @@
 }
 .ck-fullscreen-overlay .ui-dialog,
 .ck-fullscreen-overlay .ck.ck-balloon-panel {
-  z-index: calc(var(--ck-z-modal) + 2);
+  z-index: calc(var(--ck-z-modal) + 2) !important;
 }
+
+.ck-fullscreen-overlay:not(.ck-fullscreen-with-word-count) .ck-powered-by-balloon .ck-powered-by {
+  margin-bottom: 13px;
+}
+
 .ck-fullscreen.revision-history-container-data,
 .ck-fullscreen.ck-editor-premium-wrapper,
+.ck-fullscreen.ck.ck-editor.ck-rounded-corners,
 #drupal-off-canvas-wrapper .ck-fullscreen.ck.ck-editor.ck-rounded-corners,
 #drupal-off-canvas-wrapper .ck-fullscreen.revision-history-container-data,
 #drupal-off-canvas-wrapper .ck-fullscreen.ck-editor-premium-wrapper {
@@ -25,6 +31,14 @@
   z-index: calc(var(--ck-z-modal) + 1);
   display: flex;
   flex-direction: column;
+}
+.ck-fullscreen.ck-word-count {
+  position: fixed !important;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: calc(var(--ck-z-modal) + 1);
+
 }
 .ck-fullscreen.revision-history-container-data {
   z-index: calc(var(--ck-z-modal) + 1);
