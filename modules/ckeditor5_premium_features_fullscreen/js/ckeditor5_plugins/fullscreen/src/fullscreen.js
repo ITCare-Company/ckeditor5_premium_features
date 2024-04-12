@@ -39,8 +39,11 @@ export default class FullScreen extends Plugin {
 				const revHistoryElement = targetElement.parentNode.parentNode.querySelector( '.revision-history-container-data' );
         const stickyPanel = targetElement.querySelector('.ck-sticky-panel__content');
         const stickyPanelPlaceholder = targetElement.querySelector('.ck-sticky-panel__placeholder');
-        const toolbarHeight = targetElement.querySelector('.ck-toolbar-wrapper').offsetHeight;
-        const container = targetElement.querySelector('.ck-editor-container');
+        const toolbarHeight = targetElement.querySelector('.ck-toolbar').offsetHeight;
+        let container = targetElement.querySelector('.ck-editor-container');
+        if (!container) {
+          container = targetElement.querySelector('.ck-editor__editable').parentNode;
+        }
         if ( document.body.classList.contains( overlayClass ) ) {
 					targetElement.classList.remove( editorFullScreenClass );
 					if ( revHistoryElement ) {

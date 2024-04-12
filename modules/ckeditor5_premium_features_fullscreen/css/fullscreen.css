@@ -13,7 +13,10 @@
   z-index: calc(var(--ck-z-modal) + 2);
 }
 .ck-fullscreen.revision-history-container-data,
-.ck-fullscreen.ck-editor-premium-wrapper {
+.ck-fullscreen.ck-editor-premium-wrapper,
+#drupal-off-canvas-wrapper .ck-fullscreen.ck.ck-editor.ck-rounded-corners,
+#drupal-off-canvas-wrapper .ck-fullscreen.revision-history-container-data,
+#drupal-off-canvas-wrapper .ck-fullscreen.ck-editor-premium-wrapper {
   position: fixed !important;
   top: 0;
   bottom: 0;
@@ -29,9 +32,18 @@
 .ck-fullscreen.revision-history-container-data .ck-editor__main {
   height: calc(100% - 40px);
 }
-.ck-fullscreen.revision-history-container-data .ck-editor__main .ck-content{
+.ck-fullscreen:not(.ck-editor-premium-wrapper) .ck-editor__main > .ck-content,
+#drupal-off-canvas-wrapper .ck-fullscreen:not(.ck-editor-premium-wrapper) .ck-editor__main > .ck-content,
+.ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance,
+.ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor,
+.ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor > .ck-editor__main,
+.ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor > .ck-editor__main > .ck-content,
+#drupal-off-canvas-wrapper .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance,
+#drupal-off-canvas-wrapper .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor,
+#drupal-off-canvas-wrapper .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor > .ck-editor__main,
+#drupal-off-canvas-wrapper .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor > .ck-editor__main > .ck-content{
   height: 100%;
-  max-height: 100%;
+  max-height: 100%!important;
 }
 .ck-fullscreen-overlay #toolbar-administration,
 .ck-fullscreen-overlay .form-item__label {
