@@ -151,7 +151,7 @@ function ckeditor5_premium_features_filter_format_disable(FilterFormatInterface 
   // Revoke all collaboration permissions after text format is disabled.
   /** @var \Drupal\ckeditor5_premium_features\Utility\PermissionHelper $permissionHelper */
   $permissionHelper = \Drupal::service('ckeditor5_premium_features.permission_helper');
-  $permissionHelper->deleteCollaborationPermissions($format);
+  $permissionHelper->revokeCollaborationPermissions([$format]);
 }
 
 /**

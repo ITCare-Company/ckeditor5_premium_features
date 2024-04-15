@@ -94,7 +94,7 @@ class ConfigSubscriber implements EventSubscriberInterface {
       if (!isset($formats[$formatId])) {
         return;
       }
-      $this->permissionHelper->deleteCollaborationPermissions($formats[$formatId]);
+      $this->permissionHelper->revokeCollaborationPermissions([$formats[$formatId]]);
     }
   }
 

@@ -38,10 +38,10 @@ class PermissionHelper {
   /**
    * Revokes collaboration permissions for given text format for all roles.
    *
-   * @param \Drupal\filter\Entity\FilterFormat $filterFormat
-   *   The filter format entity.
+   * @param array $filterFormats
+   *   Array of filter format entities.
    */
-  public function deleteCollaborationPermissions($filterFormat) {
+  public function revokeCollaborationPermissions(array $filterFormats): void {
     if ($this->moduleHandler->moduleExists('ckeditor5_premium_features_collaboration')) {
       $permissions = NonRealtimeCollaborationPermissions::getModulePermissions();
     }
@@ -53,10 +53,12 @@ class PermissionHelper {
     }
     $roles = $this->entityTypeManager->getStorage('user_role')->loadMultiple();
     foreach ($roles as $role) {
-      foreach ($permissions as $permission) {
-        $permissionName = CollaborationPermissions::getPermissionName($filterFormat, $permission);
-        if ($role->hasPermission($permissionName)) {
-          $role->revokePermission($permissionName);
+      foreach($filterFormats as $filterFormat) {
+        foreach ($permissions as $permission) {
+          $permissionName = CollaborationPermissions::getPermissionName($filterFormat, $permission);
+          if ($role->hasPermission($permissionName)) {
+            $role->revokePermission($permissionName);
+          }
         }
       }
       $role->save();

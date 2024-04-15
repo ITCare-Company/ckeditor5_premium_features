@@ -24,6 +24,7 @@ use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\Notificatio
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -193,10 +194,12 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $element['value']['#theme'] = 'ckeditor5_textarea';
 
     $realtimeConfig = $this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings');
-    $realtimePermissionsEnabled = $realtimeConfig->get('realtime_permissions');
-    $textFormatChangeAllowed = !$realtimeConfig->get('allow_text_format_change');
-    if (!$form_object->getEntity()->isNew() && ($realtimePermissionsEnabled || !$textFormatChangeAllowed)) {
-      $element['format']['format']['#attributes']['disabled'] = 'disabled';
+    if ($form_object instanceof EntityFormInterface) {
+      $realtimePermissionsEnabled = $realtimeConfig->get('realtime_permissions');
+      $textFormatChangeAllowed = !$realtimeConfig->get('allow_text_format_change');
+      if (!$form_object->getEntity()->isNew() && ($realtimePermissionsEnabled || !$textFormatChangeAllowed)) {
+        $element['format']['format']['#attributes']['disabled'] = 'disabled';
+      }
     }
 
     $element['#element_validate'] = [[$this, 'validateElement']];
@@ -222,6 +225,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     }
 
     $channelId = $form_state->getValue([...$element["#parents"], 'entity_channel']);
+
+    if (!$channelId) {
+      return;
+    }
 
     $response = $this->apiAdapter->exportDocument($channelId);
 

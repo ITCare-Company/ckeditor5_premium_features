@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Form;
 
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormBase;
+use Drupal\ckeditor5_premium_features\Utility\PermissionHelper;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\BundleUploadHelper;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -33,11 +34,14 @@ class SettingsForm extends SharedBuildConfigFormBase {
    *   The entity type manager.
    * @param BundleUploadHelper $bundleUploadHelper
    *   The bundle upload helper.
+   * @param PermissionHelper $permissionHelper
+   *   The premium features permissions helper.
    */
   public function __construct(
       ConfigFactoryInterface $config_factory,
       protected EntityTypeManagerInterface $entityTypeManager,
-      protected BundleUploadHelper $bundleUploadHelper
+      protected BundleUploadHelper $bundleUploadHelper,
+      protected PermissionHelper $permissionHelper
   ) {
     parent::__construct($config_factory);
   }
@@ -49,7 +53,8 @@ class SettingsForm extends SharedBuildConfigFormBase {
     return new static(
         $container->get('config.factory'),
         $container->get('entity_type.manager'),
-        $container->get('ckeditor5_premium_features_realtime_collaboration.bundle_upload_helper')
+        $container->get('ckeditor5_premium_features_realtime_collaboration.bundle_upload_helper'),
+        $container->get('ckeditor5_premium_features.permission_helper')
     );
   }
 
@@ -131,34 +136,46 @@ class SettingsForm extends SharedBuildConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     parent::submitForm($form, $form_state);
-    $this->uploadEditorBundles($form, $form_state);
+    $this->handlePermissionsChange($form, $form_state);
   }
 
   /**
-   * Upload editor bundles having collaboration plugins active when permissions are being enabled.
+   * If permission system is enabled - upload editor bundles having collaboration
+   * plugins active. If deactivated - remove all granted permissions related to
+   * realtime permissions.
    *
    * @param array $form
    *    An associative array containing the structure of the form.
    * @param FormStateInterface $form_state
    *    The current state of the form.
    */
-  public function uploadEditorBundles(array $form, FormStateInterface $form_state): void {
+  public function handlePermissionsChange(array $form, FormStateInterface $form_state): void {
     $original = $form["realtime_permissions"]["#default_value"];
     $current = $form_state->getValue('realtime_permissions');
-    if ($current == 0 || $original == $current) {
+    if ($original == $current) {
       return;
     }
 
     $editors = $this->entityTypeManager->getStorage('editor')->loadMultiple();
-    foreach ($editors as $editor) {
-      if (!$editor->status()) {
-        continue;
-      }
-      $toolbarItems = $editor->getSettings()['toolbar']['items'] ?? [];
 
-      if (array_intersect($toolbarItems, $this->bundleUploadHelper::COLLABORATION_TOOLBAR_ITEMS)) {
-        $this->bundleUploadHelper->uploadBundle($editor);
+    $formats = [];
+    foreach ($editors as $editor) {
+      if ($current) {
+        if (!$editor->status()) {
+          continue;
+        }
+        $toolbarItems = $editor->getSettings()['toolbar']['items'] ?? [];
+
+        if (array_intersect($toolbarItems, $this->bundleUploadHelper::COLLABORATION_TOOLBAR_ITEMS)) {
+          $this->bundleUploadHelper->uploadBundle($editor);
+        }
       }
+      else {
+        $formats[] = $editor->getFilterFormat();
+      }
+    }
+    if ($formats) {
+      $this->permissionHelper->revokeCollaborationPermissions($formats);
     }
   }
 
