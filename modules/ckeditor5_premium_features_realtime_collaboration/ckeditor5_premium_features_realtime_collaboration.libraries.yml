@@ -22,6 +22,10 @@ admin.comments-archive:
 
 real-time-collaboration:
   version: 20231012
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
+    gpl-compatible: true
   js:
     js/build/realtimeAdapter.js: { minified: true }
   dependencies:
@@ -30,6 +34,10 @@ real-time-collaboration:
 
 realtime-revision-history:
   version: 20231122
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
+    gpl-compatible: true
   css:
     theme:
       ../../css/revision-history.css: { }

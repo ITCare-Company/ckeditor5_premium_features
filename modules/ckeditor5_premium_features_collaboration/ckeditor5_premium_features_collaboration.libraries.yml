@@ -22,6 +22,10 @@ admin.track-changes:
 
 revision-history-integration:
   version: 20231122
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
+    gpl-compatible: true
   css:
       theme:
         ../../css/revision-history.css: { }
@@ -39,6 +43,10 @@ collaboration:
 
 collaboration-integration:
   version: 20231012
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
+    gpl-compatible: true
   js:
     js/build/userAdapter.js: { minified: true }
     js/build/trackChangesAdapter.js: { minified: true }
