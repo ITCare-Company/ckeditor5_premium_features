@@ -1,6 +1,6 @@
 
 collaboration-integration-base:
-  version: 20240326
+  version: 20240110
   css:
     theme:
       css/sidebar.css: { }

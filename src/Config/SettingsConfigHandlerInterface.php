@@ -85,6 +85,13 @@ interface SettingsConfigHandlerInterface {
   public function getApiKey(): ?string;
 
   /**
+   * Check if Api key is required i.e. Realtime collaboration module is installed.
+   *
+   * @return bool
+   */
+  public function isApiKeyRequired(): bool;
+
+  /**
    * Gets the default DLL location if it was not overridden in the config.
    *
    * @return string
