@@ -17,6 +17,10 @@
   margin-bottom: 13px;
 }
 
+.ck-fullscreen-overlay .field-group-tabs-wrapper > div > ul {
+  z-index: -1;
+}
+
 .ck-fullscreen.revision-history-container-data,
 .ck-fullscreen.ck-editor-premium-wrapper,
 .ck-fullscreen.ck.ck-editor.ck-rounded-corners,
@@ -112,8 +116,4 @@
 .ck-fullscreen-overlay .ck-editor-sidebar-wrapper.wideSidebar .ck-sidebar-wrapper {
   max-width: 400px;
   padding: 0 24px;
-}
-
-.ck-fullscreen-overlay [class*="-tabs__menu"] {
-  z-index: -1;
 }
