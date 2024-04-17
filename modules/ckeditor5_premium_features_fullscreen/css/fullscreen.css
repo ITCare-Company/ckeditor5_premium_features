@@ -8,6 +8,12 @@
   --ck-z-default: 2000;
   --ck-z-modal: calc(var(--ck-z-default) + 999);
 }
+.ck-fullscreen-overlay .ui-dialog-off-canvas {
+  height: 100vh!important;
+  width: 100vw!important;
+  top: 0!important;
+  left: 0!important;
+}
 .ck-fullscreen.ck.ck-editor.ck-rounded-corners,
 .ck-fullscreen.revision-history-container-data,
 .ck-fullscreen.ck-editor-premium-wrapper,
