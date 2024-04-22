@@ -17,7 +17,8 @@ export default class FullScreen extends Plugin {
 
 	init() {
 		const editor = this.editor;
-    let fullScrrenEnabled = false;
+    let fullScreenEnabled = false;
+    const sourceEditing = this.editor.plugins.has('SourceEditing') ? this.editor.plugins.get('SourceEditing') : null;
 
 		editor.ui.componentFactory.add( 'FullScreen', locale => {
 			const overlayClass = 'ck-fullscreen-overlay';
@@ -43,13 +44,21 @@ export default class FullScreen extends Plugin {
         const toolbarHeight = targetElement.querySelector('.ck-toolbar').offsetHeight + 1;
         const wordCountId = editor.sourceElement.id + "-ck-word-count";
         const wordCount = document.querySelector("#" + wordCountId + " .ck-word-count");
-        const wordCountHeight = wordCount === null ? 0 : wordCount.offsetHeight + 1;
+        let wordCountHeight = wordCount === null ? 0 : wordCount.offsetHeight + 1;
         if (wordCount) {
           additionalClasses.push('ck-fullscreen-with-word-count');
         }
         let container = targetElement.querySelector('.ck-editor-container');
         if (!container) {
           container = targetElement.querySelector('.ck-editor__editable').parentNode;
+        }
+        if (sourceEditing && wordCount) {
+          sourceEditing.on( 'change:isSourceEditingMode', () => {
+            if (fullScreenEnabled) {
+              wordCountHeight = wordCount === null ? 0 : wordCount.offsetHeight + 1;
+              container.style.height = "calc(100vh - " + (toolbarHeight + wordCountHeight) + "px";
+            }
+          });
         }
         if ( document.body.classList.contains( overlayClass ) ) {
 					targetElement.classList.remove( editorFullScreenClass );
@@ -68,7 +77,7 @@ export default class FullScreen extends Plugin {
           stickyPanel.removeAttribute('style');
           stickyPanelPlaceholder.style.display = 'none';
           editor.focus();
-          fullScrrenEnabled = false;
+          fullScreenEnabled = false;
           this.editor.ui.viewportOffset.top = defaultOffsetTop;
 				}
 				else {
@@ -85,7 +94,7 @@ export default class FullScreen extends Plugin {
 					view.set( 'isOn', true );
           editor.ui.view.stickyPanel.set('isActive', false);
           editor.focus();
-          fullScrrenEnabled = true;
+          fullScreenEnabled = true;
 
           // viewportOffset.top can block display of balloon in case it's top property value is lower.
           // That happens because CKEditor limits possibility to display balloon to be within body element,
@@ -101,7 +110,7 @@ export default class FullScreen extends Plugin {
     this.editor.ui.on('set', (eventInfo, name, value, oldValue) => {
       // Prevent changing viewportOffset.top value back to original value when viewport size is changed when fullscreen
       // mode is active.
-      if (fullScrrenEnabled) {
+      if (fullScreenEnabled) {
         value.top = 0;
       }
     });
