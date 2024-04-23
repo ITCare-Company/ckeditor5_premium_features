@@ -76,7 +76,7 @@ class RevisionHistoryAdapter {
       this.updateStorage(revisionHistoryPlugin, revisionTrackerPlugin, revisionHistoryElement, false)
     });
 
-    this.copyEditorVisibilityToFilterSelector(revisionHistoryConfig);
+    this.handleRevisionHistoryActiveClass(revisionHistoryConfig);
   }
 
   async updateStorage(plugin, tracker, storageElement, addRevisionOnSubmit) {
@@ -89,20 +89,17 @@ class RevisionHistoryAdapter {
     }));
   }
 
-  copyEditorVisibilityToFilterSelector(revisionHistoryConfig) {
-    const filterElement = revisionHistoryConfig.editorContainer.parentElement.querySelector(".js-filter-wrapper")
+  handleRevisionHistoryActiveClass(revisionHistoryConfig) {
     var observer = new IntersectionObserver(function(entries) {
       if(entries[0]['intersectionRatio'] == 0) {
-        filterElement.style.display = "none";
+        revisionHistoryConfig.editorContainer.parentElement.classList.add('revision-history-active');
       }
       else {
-        filterElement.style.display = "block";
+        revisionHistoryConfig.editorContainer.parentElement.classList.remove('revision-history-active');
       }
     }, { root: document.documentElement });
 
-    if (filterElement) {
-      observer.observe(revisionHistoryConfig.editorContainer);
-    }
+    observer.observe(revisionHistoryConfig.editorContainer);
   }
 }
 
