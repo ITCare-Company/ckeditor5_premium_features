@@ -22,7 +22,7 @@
 }
 
 .revision-history-container-data > .editor-container > .ck-editor {
-  min-width: calc(100% - 340px);
+  min-width: max(50%, calc(100% - 340px));
   max-width: calc(100% - 260px);
   width: 75%;
 }
@@ -30,7 +30,7 @@
 .revision-viewer-sidebar {
   border-left: 1px solid var(--ck-color-toolbar-border);
   width: 25%;
-  min-width: 260px;
+  min-width: min(50%, 260px);
   max-width: 340px;
 }
 
