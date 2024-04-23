@@ -1,5 +1,5 @@
 ckeditor5_fullscreen:
-  version: 20230626
+  version: 20240422
   js:
     js/build/fullscreen.js: { preprocess: false, minified: true }
   css:

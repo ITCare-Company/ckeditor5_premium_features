@@ -29,7 +29,7 @@ real-time-collaboration:
     - ckeditor5_premium_features/collaboration-integration-base
 
 realtime-revision-history:
-  version: 20231122
+  version: 20240326
   css:
     theme:
       ../../css/revision-history.css: { }

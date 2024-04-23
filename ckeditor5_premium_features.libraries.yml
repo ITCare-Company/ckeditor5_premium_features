@@ -1,6 +1,6 @@
 
 collaboration-integration-base:
-  version: 20240220
+  version: 20240110
   css:
     theme:
       css/sidebar.css: { }
@@ -34,7 +34,7 @@ export-integration:
     - ckeditor5_premium_features/media-export-features
 
 claro--override--node-form:
-  version: 20230626
+  version: 20240326
   css:
     layout:
       css/claro/node-form.css: { }

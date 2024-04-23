@@ -22,12 +22,16 @@
 }
 
 .revision-history-container-data > .editor-container > .ck-editor {
+  min-width: calc(100% - 340px);
+  max-width: calc(100% - 260px);
   width: 75%;
 }
 
 .revision-viewer-sidebar {
   border-left: 1px solid var(--ck-color-toolbar-border);
-  width: 40%;
+  width: 25%;
+  min-width: 260px;
+  max-width: 340px;
 }
 
 .revision-history-container-data {
@@ -44,8 +48,8 @@
 }
 
 /* revision sidebar header */
-.revision-history-container-data .ck.ck-revision-history-sidebar__header {
-  --header-height: calc(var(--ck-ui-component-min-height) + var(--ck-spacing-small) * 2 + 2px);
+.revision-history-container-data * {
+  --header-height: calc(var(--ck-ui-component-min-height) + var(--ck-spacing-small) * 2 + 2px)!important;
 }
 
 /* revision sidebar scrollable */
@@ -56,11 +60,12 @@
 .revision-history-container-data .ck.ck-revision-history-sidebar .ck-revision-history-sidebar__timeline {
   display: flex;
   flex-direction: column;
-  height: calc(100% - var(--header-height) - 2 * var(--ck-revision-history-sidebar-timeline-padding));
-  height: calc(100% - var(--ck-ui-component-min-height) - var(--ck-spacing-small) * 2 - 2px - 2 * var(--ck-revision-history-sidebar-timeline-padding));
+  height: calc(100% - var(--header-height));
   max-height: inherit;
   position: absolute;
   bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .revision-history-active .filter-wrapper {
