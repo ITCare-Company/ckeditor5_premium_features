@@ -67,7 +67,7 @@ trait Ckeditor5TextFormatTrait {
 
       // We need to attach the submit just in case the entity was created
       // before the rtc module was enabled.
-      self::addCallback('onCompleteFormSubmit', [['#submit']], $completeForm);
+      self::addCallback('onCompleteFormSubmit', [['actions', 'submit', '#submit']], $completeForm);
 
       self::addCallback('onValidateForm', [['#validate']], $completeForm);
     }

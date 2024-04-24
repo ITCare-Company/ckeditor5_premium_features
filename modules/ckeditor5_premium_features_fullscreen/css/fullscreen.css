@@ -5,9 +5,22 @@
 
 .ck-fullscreen-overlay {
   overflow: hidden;
-  --ck-z-default: 2000;
+  --ck-z-default: 10000;
   --ck-z-modal: calc(var(--ck-z-default) + 999);
 }
+.ck-fullscreen-overlay .ui-dialog,
+.ck-fullscreen-overlay .ck.ck-balloon-panel {
+  z-index: calc(var(--ck-z-modal) + 2) !important;
+}
+
+.ck-fullscreen-overlay:not(.ck-fullscreen-with-word-count) .ck-powered-by-balloon .ck-powered-by {
+  margin-bottom: 13px;
+}
+
+.ck-fullscreen-overlay .field-group-tabs-wrapper > div > ul {
+  z-index: -1;
+}
+
 .ck-fullscreen-overlay .ui-dialog-off-canvas {
   height: 100vh!important;
   width: 100vw!important;
@@ -25,10 +38,17 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: var(--ck-z-modal);
-}
-.ck-fullscreen.revision-history-container-data {
   z-index: calc(var(--ck-z-modal) + 1);
+  display: flex;
+  flex-direction: column;
+}
+.ck-fullscreen.ck-word-count {
+  position: fixed !important;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: calc(var(--ck-z-modal) + 1);
+
 }
 .ck-fullscreen.revision-history-container-data .ck-editor__main {
   height: calc(100% - 40px);
@@ -90,8 +110,8 @@
 }
 
 .ck-fullscreen-overlay .revision-viewer-sidebar {
-  max-width: 300px;
-  min-width: 300px;
+  max-width: 340px;
+  min-width: 340px;
 }
 
 .ck-fullscreen-overlay .revision-history-container-data > .editor-container > .ck-editor {
