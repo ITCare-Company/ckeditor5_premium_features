@@ -31,7 +31,7 @@ class WebSpellCheckerHandler implements WebSpellCheckerHandlerInterface {
    * @param \Drupal\Core\Routing\RequestContext $requestContext
    *   The request context.
    */
-  public function __construct(private readonly ClientInterface $httpClient, private readonly RequestContext $requestContext) {
+  public function __construct(private ClientInterface $httpClient, private RequestContext $requestContext) {
   }
 
   /**
