@@ -14,6 +14,7 @@ ckeditor5_premium_features__collaboration_integration_base:
       - sidebarAdapter.SidebarAdapter
       - toolbarAdapter.ToolbarAdapter
       - removeIncorrectCollaborationMarkers.RemoveIncorrectCollaborationMarkers
+      - drupalMediaTrackChangesIntegration.DrupalMediaTrackChangesIntegration
 
   drupal:
     label: The load & save integration of collaboration tools.

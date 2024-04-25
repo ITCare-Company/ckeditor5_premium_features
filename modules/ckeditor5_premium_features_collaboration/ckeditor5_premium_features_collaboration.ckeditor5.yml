@@ -1,6 +1,10 @@
 ckeditor5_premium_features_collaboration__track_changes:
   ckeditor5:
     plugins:
+      - basicStyles.Bold
+      - basicStyles.Italic
+      - autoformat.Autoformat
+      - list.DocumentList
       - comments.Comments
       - commentsAdapter.CommentsAdapter
       - sidebarAdapter.SidebarAdapter
@@ -21,6 +25,10 @@ ckeditor5_premium_features_collaboration__track_changes:
 ckeditor5_premium_features_collaboration__comments:
   ckeditor5:
     plugins:
+      - basicStyles.Bold
+      - basicStyles.Italic
+      - autoformat.Autoformat
+      - list.DocumentList
       - comments.Comments
       - commentsAdapter.CommentsAdapter
   drupal:
