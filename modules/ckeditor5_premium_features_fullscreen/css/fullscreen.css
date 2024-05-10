@@ -8,9 +8,11 @@
   --ck-z-default: 10000;
   --ck-z-modal: calc(var(--ck-z-default) + 999);
 }
-.ck-fullscreen-overlay .ui-dialog,
-.ck-fullscreen-overlay .ck.ck-balloon-panel {
+.ck-fullscreen-overlay .ui-dialog {
   z-index: calc(var(--ck-z-modal) + 2) !important;
+}
+.ck-fullscreen-overlay .ck.ck-balloon-panel {
+  z-index: calc(var(--ck-z-modal) + 10000) !important;
 }
 
 .ck-fullscreen-overlay:not(.ck-fullscreen-with-word-count) .ck-powered-by-balloon .ck-powered-by {
@@ -59,10 +61,11 @@
 .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor,
 .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor > .ck-editor__main,
 .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor > .ck-editor__main > .ck-content,
+.ck-fullscreen .ck-editor__main .ck-source-editing-area,
 #drupal-off-canvas-wrapper .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance,
 #drupal-off-canvas-wrapper .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor,
 #drupal-off-canvas-wrapper .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor > .ck-editor__main,
-#drupal-off-canvas-wrapper .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor > .ck-editor__main > .ck-content{
+#drupal-off-canvas-wrapper .ck-fullscreen.ck-editor-premium-wrapper .ck-editor-instance > .ck-editor > .ck-editor__main > .ck-content {
   height: 100%;
   max-height: 100%!important;
 }
