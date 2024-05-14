@@ -12,10 +12,11 @@ namespace Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableInterface;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
-use Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandlerInterface;
+use Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandler;
 use Drupal\ckeditor5_premium_features\Form\BaseExportSettingsForm;
 use Drupal\ckeditor5_premium_features\Form\SharedBuildConfigFormInterface;
 use Drupal\ckeditor5_premium_features\Generator\FileNameGeneratorInterface;
+use Drupal\ckeditor5_premium_features\Plugin\ExportPluginDefinitionInterface;
 use Drupal\ckeditor5_premium_features\Utility\CssStyleProvider;
 use Drupal\ckeditor5_premium_features\Utility\FormElement;
 use Drupal\Component\Utility\NestedArray;
@@ -33,7 +34,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  *   Plugin classes are internal.
  */
-class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfigurableInterface, ContainerFactoryPluginInterface {
+abstract class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfigurableInterface, ContainerFactoryPluginInterface, ExportPluginDefinitionInterface {
   use CKEditor5PluginConfigurableTrait;
 
   const CUSTOM_CSS_DIRECTORY_PATH = 'public://styles/ckeditor5/export/';
@@ -48,13 +49,6 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
   /**
    * Creates the plugin instance.
    *
-   * @param string $featurePlugin
-   *   The id of the feature plugin.
-   * @param string $settingsFormClass
-   *   The settings form class namespace.
-   *   The generator filename service.
-   * @param string $fileExtension
-   *   File extension used in exported file.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory.
    * @param \Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandlerInterface $settingsConfigHandler
@@ -71,32 +65,25 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
    * @throws \ReflectionException
    */
   public function __construct(
-    protected string $featurePlugin,
-    protected string $settingsFormClass,
-    protected string $fileExtension,
     protected ConfigFactoryInterface $configFactory,
-    protected ExportFeaturesConfigHandlerInterface $settingsConfigHandler,
+    protected ExportFeaturesConfigHandler $settingsConfigHandler,
     protected FileNameGeneratorInterface $fileNameGenerator,
     protected CssStyleProvider $cssStyleProvider,
     protected FileSystemInterface $fileSystem,
     ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
-    $this->settingsForm = (new \ReflectionClass($this->settingsFormClass))->newInstanceWithoutConstructor();
+    $this->settingsForm = (new \ReflectionClass($this->getSettingsForm()))->newInstanceWithoutConstructor();
+    $this->settingsConfigHandler->setConfig($this->getConfigId());
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
-    $config = $plugin_definition->toArray()['drupal']['premium_features'];
-
     return new static(
-      $config['plugin'],
-      $config['settings_form'],
-      $config['file_extension'],
       $container->get('config.factory'),
-      $container->get('ckeditor5_premium_features.config_handler.export_settings')->setConfig($config['configuration']),
+      $container->get('ckeditor5_premium_features.config_handler.export_settings'),
       $container->get('ckeditor5_premium_features.file_name_generator'),
       $container->get('ckeditor5_premium_features.css_style_provider'),
       $container->get('file_system'),
@@ -107,30 +94,10 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
   }
 
   /**
-   * Gets the feature plugin.
-   *
-   * @return string
-   *   The CKEditor plugin name.
-   */
-  public function getFeaturePlugin(): string {
-    return $this->featurePlugin;
-  }
-
-  /**
-   * Get file extension.
-   *
-   * @return string
-   *   Export file extension.
-   */
-  public function getFileExtension(): string {
-    return $this->fileExtension;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
-    $plugin = $this->getFeaturePlugin();
+    $plugin = $this->getFeaturedPluginId();
 
     if ($this->settingsConfigHandler->hasConverterUrl()) {
       $static_plugin_config[$plugin]['converterUrl'] = $this->settingsConfigHandler->getConverterUrl();
@@ -141,7 +108,7 @@ class ExportBase extends CKEditor5PluginDefault implements CKEditor5PluginConfig
 
     $static_plugin_config[$plugin]['converterOptions'] = $this->getCurrentConfiguration();
 
-    $file_extension = $this->getFileExtension();
+    $file_extension = $this->getExportFileExtension();
     $file_name = $this->fileNameGenerator->generateFromRequest();
     $this->fileNameGenerator->addExtensionFile($file_name, $file_extension);
     $static_plugin_config[$plugin]['fileName'] = $file_name;

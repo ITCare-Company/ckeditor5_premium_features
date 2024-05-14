@@ -9,8 +9,6 @@ ckeditor5_premium_features_productivity_pack_document_outline:
     library: ckeditor5_premium_features_productivity_pack/document_outline.adapter
     class: Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\DocumentOutline
     elements: false
-    productivity_pack:
-      plugin: documentOutline
 
 ckeditor5_premium_features_productivity_pack_table_of_contents:
   ckeditor5:
@@ -52,8 +50,6 @@ ckeditor5_premium_features_productivity_pack_content_templates:
     toolbar_items:
       insertTemplate:
         label: Insert template
-    productivity_pack:
-      plugin: template
 
 ckeditor5_premium_features_productivity_pack_slash_commands:
   ckeditor5:
@@ -64,8 +60,6 @@ ckeditor5_premium_features_productivity_pack_slash_commands:
     elements: false
     class: Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\SlashCommand
     library: ckeditor5_premium_features_productivity_pack/slash-command
-    productivity_pack:
-      plugin: slashCommand
 
 ckeditor5_premium_features_productivity_pack_paste_from_office_enhanced:
   ckeditor5:
@@ -76,8 +70,6 @@ ckeditor5_premium_features_productivity_pack_paste_from_office_enhanced:
     elements: false
     class: Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\PasteFromOfficeEnhanced
     library: ckeditor5_premium_features_productivity_pack/paste-from-office-enhanced
-    productivity_pack:
-      plugin: pasteFromOfficeEnhanced
 
 ckeditor5_premium_features_productivity_pack_base:
   ckeditor5:
