@@ -33,6 +33,13 @@ class SettingsForm extends ConfigFormBase {
   const WSC_ON_PREMISE_SERVICE_TYPE = 'on_premise';
 
   /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
    * {@inheritdoc}
    */
   public function getFormId(): string {
