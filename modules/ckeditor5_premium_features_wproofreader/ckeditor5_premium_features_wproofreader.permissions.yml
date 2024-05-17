@@ -4,15 +4,15 @@ ckeditor5 wproofreader user dictionary:
 
 ckeditor5 wproofreader user language:
   title: 'Access the CKEditor 5 WProofreader user language'
-  description: "Grants users the ability to change the language through plugin settings menu. This doesn't affect sitewide setting."
+  description: "Grants users the ability to change the language through plugin settings menu. This doesn't affect site wide setting."
 
 ckeditor5 wproofreader user general settings:
   title: 'Access the CKEditor 5 WProofreader user general settings'
-  description: "Grants users the ability to modify the general section is the plugin settings menu. This doesn't affect sitewide setting."
+  description: "Grants users the ability to modify the general section is the plugin settings menu. This doesn't affect site wide setting."
 
 ckeditor5 wproofreader user ignore settings:
   title: 'Access the CKEditor 5 WProofreader user ignore settings'
-  description: "Grants users the ability to modify the general section is the plugin settings menu. This doesn't affect sitewide setting."
+  description: "Grants users the ability to modify the general section is the plugin settings menu. This doesn't affect site wide setting."
 
 ckeditor5 wproofreader toggle proofreading:
   title: 'Allow to toggle proofreading'
