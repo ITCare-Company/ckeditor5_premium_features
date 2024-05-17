@@ -1,3 +1,23 @@
+ckeditor5 wproofreader user dictionary:
+  title: 'Access the CKEditor 5 WProofreader user dictionary'
+  description: 'Grants users the ability to define own dictionary through plugin settings menu.'
+
+ckeditor5 wproofreader user language:
+  title: 'Access the CKEditor 5 WProofreader user language'
+  description: "Grants users the ability to change the language through plugin settings menu. This doesn't affect sitewide setting."
+
+ckeditor5 wproofreader user general settings:
+  title: 'Access the CKEditor 5 WProofreader user general settings'
+  description: "Grants users the ability to modify the general section is the plugin settings menu. This doesn't affect sitewide setting."
+
+ckeditor5 wproofreader user ignore settings:
+  title: 'Access the CKEditor 5 WProofreader user ignore settings'
+  description: "Grants users the ability to modify the general section is the plugin settings menu. This doesn't affect sitewide setting."
+
+ckeditor5 wproofreader toggle proofreading:
+  title: 'Allow to toggle proofreading'
+  description: 'Grants users the ability to toggle proofreading.'
+
 ckeditor5 webspellchecker proxy access:
   title: 'Access to the CKEditor 5 WProofreader proxy API'
 

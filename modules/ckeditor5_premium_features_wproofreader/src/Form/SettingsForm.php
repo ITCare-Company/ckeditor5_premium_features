@@ -17,6 +17,7 @@ use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -50,8 +51,9 @@ class SettingsForm extends ConfigFormBase {
   /**
    * {@inheritDoc}
    */
-  public function __construct(protected WebSpellCheckerHandler $webSpellCheckerHandler, ConfigFactoryInterface $config_factory, $typedConfigManager = NULL) {
+  public function __construct(protected WebSpellCheckerHandler $webSpellCheckerHandler, ConfigFactoryInterface $config_factory, ModuleHandlerInterface $moduleHandler, $typedConfigManager = NULL) {
     parent::__construct($config_factory);
+    $this->moduleHandler = $moduleHandler;
     $this->typedConfigManager = $typedConfigManager;
   }
 
@@ -62,6 +64,7 @@ class SettingsForm extends ConfigFormBase {
     return new static(
       $container->get('ckeditor5_premium_features_wproofreader.wsc_handler'),
       $container->get('config.factory'),
+      $container->get('module_handler'),
       $container->get('config.typed'),
     );
   }
@@ -131,6 +134,70 @@ class SettingsForm extends ConfigFormBase {
         '#options' => $langOptions,
         '#default_value' => $config->get('lang_code') ?? 'auto',
         '#attributes' => ['id' => 'lang-code'],
+      ];
+    }
+    if (!$this->moduleHandler->moduleExists('ckeditor5_plugin_pack_free_wproofreader')) {
+      $form['default_settings'] = [
+        '#type' => 'details',
+        '#title' => $this->t('Default settings'),
+        '#open' => TRUE,
+      ];
+      $form['default_settings']['general_settings'] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t('General settings'),
+      ];
+      $form['default_settings']['general_settings']['spellingSuggestions'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Spelling suggestions'),
+        '#default_value' => $config->get('spellingSuggestions') ?? TRUE,
+      ];
+      $form['default_settings']['general_settings']['grammarSuggestions'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Grammar suggestions'),
+        '#default_value' => $config->get('grammarSuggestions') ?? TRUE,
+      ];
+      $form['default_settings']['general_settings']['styleGuideSuggestions'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Style guide suggestions'),
+        '#default_value' => $config->get('styleGuideSuggestions') ?? TRUE,
+      ];
+      $form['default_settings']['general_settings']['autocorrect'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Correct spelling automatically'),
+        '#default_value' => $config->get('autocorrect') ?? TRUE,
+      ];
+      $form['default_settings']['general_settings']['autocomplete'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Autocomplete suggestions'),
+        '#default_value' => $config->get('autocomplete') ?? FALSE,
+      ];
+      $form['default_settings']['ignore_options'] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t('Ignore settings'),
+      ];
+      $form['default_settings']['ignore_options']['ignoreAllCapsWords'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Ignore all-caps words'),
+        '#default_value' => $config->get('ignoreAllCapsWords') ?? FALSE,
+        '#description' => $this->t("All caps words like 'EXAMPLE'."),
+      ];
+      $form['default_settings']['ignore_options']['ignoreDomainNames'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Ignore domain names'),
+        '#default_value' => $config->get('ignoreDomainNames') ?? TRUE,
+        '#description' => $this->t("Domain names like 'http://example.com'."),
+      ];
+      $form['default_settings']['ignore_options']['ignoreWordsWithMixedCases'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Ignore words with mixed case'),
+        '#default_value' => $config->get('ignoreWordsWithMixedCases') ?? FALSE,
+        '#description' => $this->t("Words with mixed case like 'eXaMpLe'."),
+      ];
+      $form['default_settings']['ignore_options']['ignoreWordsWithNumbers'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Ignore words with numbers'),
+        '#default_value' => $config->get('ignoreWordsWithNumbers') ?? TRUE,
+        '#description' => $this->t("Words with numbers like 'example7'."),
       ];
     }
 
