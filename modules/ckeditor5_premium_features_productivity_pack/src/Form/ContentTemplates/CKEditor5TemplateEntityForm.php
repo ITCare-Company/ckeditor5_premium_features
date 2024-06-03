@@ -195,6 +195,11 @@ class CKEditor5TemplateEntityForm extends EntityForm {
    * {@inheritDoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    $trigger = $form_state->getTriggeringElement();
+    if (str_contains($trigger['#id'], 'cke5-template-preview-button') || str_contains($trigger['#id'], 'cke5-icon-preview-button')) {
+      $form_state->clearErrors();
+      return;
+    }
     parent::validateForm($form, $form_state);
     $iconField = $form_state->getValue('icon');
     if ($iconField && !preg_match('/^<svg\b[^>]*\s*(?=.*viewBox=\"\b[^>]*\")(?=.*xmlns=\"\b[^>]*\").*?>[\s\S]*?<\/svg>/', $iconField)) {
