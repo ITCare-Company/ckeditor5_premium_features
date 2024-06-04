@@ -25,16 +25,17 @@ class PasteFromOfficeEnhanced extends CKEditor5PluginDefault implements Containe
   const CONFIG_FIELD_ENABLED = 'paste_from_office_enhanced_enabled';
 
   /**
+   * The id of the plugin in productivity pack.
+   */
+  const PRODUCTIVITY_PACK_PLUGIN_ID = 'pasteFromOfficeEnhanced';
+
+  /**
    * Constructs a plugin instance.
    *
-   * @param string $featuredPluginId
-   *   The id of the feature plugin.
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    */
-  public function __construct(
-    protected string $featuredPluginId,
-                     ...$parent_arguments) {
+  public function __construct(...$parent_arguments) {
     parent::__construct(...$parent_arguments);
   }
 
@@ -42,10 +43,7 @@ class PasteFromOfficeEnhanced extends CKEditor5PluginDefault implements Containe
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    $config = $plugin_definition->toArray()['drupal']['productivity_pack'];
-
     return new static(
-      $config['plugin'],
       $configuration,
       $plugin_id,
       $plugin_definition);
@@ -71,7 +69,7 @@ class PasteFromOfficeEnhanced extends CKEditor5PluginDefault implements Containe
    *   The CKEditor plugin name.
    */
   public function getFeaturedPluginId(): string {
-    return $this->featuredPluginId;
+    return self::PRODUCTIVITY_PACK_PLUGIN_ID;
   }
 
 }

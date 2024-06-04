@@ -10,12 +10,12 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
 use Drupal\ckeditor5_premium_features\Event\CollaborationEventBase;
-use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Access\AccessException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Session\AccountProxyInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
@@ -33,14 +33,14 @@ class SuggestionStorage extends SqlContentEntityStorage implements
    *
    * @param \Drupal\Core\Session\AccountProxyInterface $user
    *   THe current user object.
-   * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    *   Event dispatcher service.
    * @param mixed ...$parent_arguments
    *   The parent parameters.
    */
   public function __construct(
     protected AccountProxyInterface $user,
-    protected ContainerAwareEventDispatcher $event_dispatcher,
+    protected EventDispatcherInterface $event_dispatcher,
                                             ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
