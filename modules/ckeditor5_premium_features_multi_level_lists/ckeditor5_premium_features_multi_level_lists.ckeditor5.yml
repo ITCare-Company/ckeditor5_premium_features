@@ -4,13 +4,12 @@ ckeditor5_premium_features_multi_level_lists__multi_level_list:
       - list.List
       - list.ListProperties
       - listMultiLevel.MultiLevelList
-    config:
-      list:
-        properties:
-          startIndex: true
   drupal:
     label: Multi-level list
-    elements: false
+    elements:
+      - <ol>
+      - <ol reversed start>
+      - <li>
     library: ckeditor5_premium_features_multi_level_lists/multi_level_list
     admin_library: ckeditor5_premium_features_multi_level_lists/admin.multi_level_list
     toolbar_items:
