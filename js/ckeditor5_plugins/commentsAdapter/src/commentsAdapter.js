@@ -4,10 +4,6 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
-import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
-import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
-import List from '@ckeditor/ckeditor5-list/src/list';
 import CollaborationStorage
   from "../../collaborationStorage/src/collaborationStorage";
 
@@ -16,13 +12,8 @@ class CommentsAdapter {
     this.editor = editor;
     this.storage = new CollaborationStorage(editor);
 
-    this.editor.plugins._availablePlugins.set('Autoformat', Autoformat);
-    this.editor.plugins._availablePlugins.set('Bold', Bold);
-    this.editor.plugins._availablePlugins.set('Italic', Italic);
-    this.editor.plugins._availablePlugins.set('List', List);
-
     const extraCommentsPlugins = Array.from(this.editor.plugins._availablePlugins.values()).filter(
-        plugin => [ 'Bold', 'Italic', 'List', 'Autoformat' ].includes( plugin.pluginName ),
+        plugin => [ 'Bold', 'Italic', 'DocumentList', 'Autoformat' ].includes( plugin.pluginName ),
     );
 
     this.editor.config._config.comments.editorConfig.extraPlugins.push(...extraCommentsPlugins);
@@ -33,7 +24,7 @@ class CommentsAdapter {
   }
 
   static get requires() {
-    return [ 'CommentsRepository' ];
+    return [ 'CommentsRepository', 'Bold', 'Italic', 'DocumentList', 'Autoformat' ];
   }
 
   init() {

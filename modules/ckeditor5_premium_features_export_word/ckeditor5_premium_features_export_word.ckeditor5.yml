@@ -18,8 +18,3 @@ ckeditor5_premium_features_export_word__export_word:
       plugins:
         - ckeditor5_premium_features__cloud_services
         - ckeditor5_premium_features__export_adapter
-    premium_features:
-      plugin: exportWord
-      file_extension: .docx
-      settings_form: Drupal\ckeditor5_premium_features_export_word\Form\SettingsForm
-      configuration: ckeditor5_premium_features_export_word.settings

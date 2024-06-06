@@ -13,6 +13,7 @@ use Drupal\ckeditor5\Controller\CKEditor5ImageController;
 use Drupal\Component\Utility\NestedArray;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * {@inheritDoc}
@@ -22,7 +23,7 @@ class CKEditor5ImportWordImageUploadController extends CKEditor5ImageController 
   /**
    * {@inheritDoc}
    */
-  public function upload(Request $request) {
+  public function upload(Request $request): Response {
     $editor = $request->get('editor');
     if ($editor) {
       $settings = $editor->getSettings();
