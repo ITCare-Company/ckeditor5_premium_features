@@ -65,6 +65,10 @@ class ErrorNotifications extends Plugin {
   }
 
   destroy() {
+    if (this.activeNotification) {
+      this.activeNotification.hide();
+      this.editor.ui.view.main.remove( this.activeNotification );
+    }
     this.activeNotification = null;
     this._detachListeners();
 
@@ -181,7 +185,7 @@ class NotificationView extends View {
           position: 'absolute',
           bottom: bind.to( 'positionBottom' ),
           right: bind.to( 'positionRight' ),
-          'z-index': 99999
+          'z-index': 999
         }
       },
       children: [

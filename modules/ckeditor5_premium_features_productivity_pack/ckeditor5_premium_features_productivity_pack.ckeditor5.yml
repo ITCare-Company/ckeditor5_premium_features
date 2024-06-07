@@ -71,6 +71,20 @@ ckeditor5_premium_features_productivity_pack_paste_from_office_enhanced:
     class: Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\PasteFromOfficeEnhanced
     library: ckeditor5_premium_features_productivity_pack/paste-from-office-enhanced
 
+ckeditor5_premium_features_productivity_pack_case_change:
+  ckeditor5:
+    plugins:
+      - caseChange.CaseChange
+  drupal:
+    label: Case Change
+    elements: false
+    library: ckeditor5_premium_features_productivity_pack/case-change
+    admin_library: ckeditor5_premium_features_productivity_pack/admin.case_change
+    class: Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin\CaseChange
+    toolbar_items:
+      caseChange:
+        label: Case change
+
 ckeditor5_premium_features_productivity_pack_base:
   ckeditor5:
     plugins: [ ]
