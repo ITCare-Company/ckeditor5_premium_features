@@ -36,6 +36,7 @@ collaboration:
     - ckeditor5_premium_features/collaboration-integration-base
     - ckeditor5_premium_features_collaboration/track-changes
     - ckeditor5_premium_features_collaboration/comments
+    - core/ckeditor5.list
 
 collaboration-integration:
   version: 20231012
