@@ -84,8 +84,6 @@ ckeditor5_premium_features_productivity_pack_case_change:
     toolbar_items:
       caseChange:
         label: Case change
-    productivity_pack:
-      plugin: caseChange
 
 ckeditor5_premium_features_productivity_pack_base:
   ckeditor5:

@@ -12,6 +12,7 @@ namespace Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Pl
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableInterface;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
+use Drupal\ckeditor5_premium_features\Plugin\PremiumFeaturesPluginDefinitionInterface;
 use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\ckeditor5_premium_features\Utility\PluginHelper;
 use Drupal\Core\Form\FormStateInterface;
@@ -25,9 +26,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  *   Plugin classes are internal.
  */
-class CaseChange extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface, CKEditor5PluginConfigurableInterface {
+class CaseChange extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface, CKEditor5PluginConfigurableInterface, PremiumFeaturesPluginDefinitionInterface {
 
   use CKEditor5PluginConfigurableTrait;
+
+  /**
+   * The id of the plugin in productivity pack.
+   */
+  const PRODUCTIVITY_PACK_PLUGIN_ID = 'caseChange';
 
   /**
    * Creates the plugin instance.
@@ -36,16 +42,12 @@ class CaseChange extends CKEditor5PluginDefault implements ContainerFactoryPlugi
    *   Helper for checking CKEditor 5 version.
    * @param \Drupal\ckeditor5_premium_features\Utility\PluginHelper $pluginHelper
    *   Helper for getting the editor toolbar plugins.
-   * @param string $featuredPluginId
-   *   The id of the feature plugin.
-   *   The config factory.
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    */
   public function __construct(
     protected LibraryVersionChecker $libraryVersionChecker,
     protected PluginHelper $pluginHelper,
-    protected string $featuredPluginId,
     ...$parent_arguments) {
     parent::__construct(...$parent_arguments);
   }
@@ -54,12 +56,9 @@ class CaseChange extends CKEditor5PluginDefault implements ContainerFactoryPlugi
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    $config = $plugin_definition->toArray()['drupal']['productivity_pack'];
-
     return new static(
       $container->get('ckeditor5_premium_features.core_library_version_checker'),
       $container->get('ckeditor5_premium_features.plugin_helper'),
-      $config['plugin'],
       $configuration,
       $plugin_id,
       $plugin_definition);
@@ -96,7 +95,7 @@ class CaseChange extends CKEditor5PluginDefault implements ContainerFactoryPlugi
    *   The CKEditor plugin name.
    */
   public function getFeaturedPluginId(): string {
-    return $this->featuredPluginId;
+    return self::PRODUCTIVITY_PACK_PLUGIN_ID;
   }
 
   /**
