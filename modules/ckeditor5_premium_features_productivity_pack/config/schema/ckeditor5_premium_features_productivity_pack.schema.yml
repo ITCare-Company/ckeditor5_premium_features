@@ -42,3 +42,12 @@ ckeditor5.plugin.ckeditor5_premium_features_productivity_pack_base:
     paste_from_office_enhanced_enabled:
       type: boolean
       label: 'Paste from Office Enhanced Enabled'
+
+
+ckeditor5.plugin.ckeditor5_premium_features_productivity_pack_case_change:
+  type: mapping
+  label: 'Case Change'
+  mapping:
+    title_case_exclude_words:
+      type: string
+      label: 'Title Case Excluded words'
