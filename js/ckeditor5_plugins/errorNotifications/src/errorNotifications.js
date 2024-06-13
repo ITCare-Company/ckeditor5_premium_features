@@ -27,8 +27,8 @@ const definitions = [
     reactsTo: { message: 'wproofreader-service-id-error' }
   },
   {
-    header: 'WProofreader Limit Error',
-    description: 'Word usage for your website has reached its limit.',
+    header: 'WProofreader usage limit exceeded',
+    description: 'The daily limit for the number of words checked using the WProofreader grammar and spell checker has been reached. Please contact your site administrator for help. Access to the service will resume at 00:00 UTC.',
     type: 'error',
     reactsTo: { message: 'wproofreader-usage-limit-error' }
   },
