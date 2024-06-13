@@ -107,8 +107,10 @@ class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPlu
     // User settings sections access.
     $settingsSections = [];
     $disableOptionsStorage = [];
+    $actionItems = ['proofreadDialog'];
     if ($this->currentUser->hasPermission('ckeditor5 wproofreader user dictionary')) {
       $settingsSections[] = 'dictionaries';
+      $actionItems[] = 'addWord';
     }
     if ($this->currentUser->hasPermission('ckeditor5 wproofreader user language')) {
       $settingsSections[] = 'languages';
@@ -125,13 +127,13 @@ class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPlu
     }
     if ($this->currentUser->hasPermission('ckeditor5 wproofreader user ignore settings')) {
       $settingsSections[] = 'options';
+      $actionItems[] = 'ignoreAll';
     }
     else {
       $disableIgnoreOptionsStorage = ['ignoreAllCapsWords', 'ignoreDomainNames', 'ignoreWordsWithMixedCases', 'ignoreWordsWithNumbers'];
       $disableOptionsStorage = array_merge($disableOptionsStorage, $disableIgnoreOptionsStorage);
     }
 
-    $actionItems = ['proofreadDialog'];
     if ($this->currentUser->hasPermission('ckeditor5 wproofreader toggle proofreading')) {
       $actionItems[] = 'toggle';
     }
@@ -140,8 +142,8 @@ class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPlu
       $actionItems[] = 'settings';
     }
 
+    $actionItems[] = 'report';
     $static_plugin_config['wproofreader']['actionItems'] = $actionItems;
-
 
     if ($disableOptionsStorage) {
       $static_plugin_config['wproofreader']['disableOptionsStorage'] = $disableOptionsStorage;
