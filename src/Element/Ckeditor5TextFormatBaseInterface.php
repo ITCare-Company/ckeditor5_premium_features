@@ -19,7 +19,7 @@ interface Ckeditor5TextFormatBaseInterface {
   public const STORAGE_KEY = 'ckeditor5-premium';
   public const STORAGE_KEY_COLLABORATION = 'ckeditor5-premium-collaboration';
 
-  public const NESTING_COUNTER_LIMIT = 10;
+  public const NESTING_COUNTER_LIMIT = 3;
 
   /**
    * Process the text_format form element.
