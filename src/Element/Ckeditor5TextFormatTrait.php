@@ -134,7 +134,6 @@ trait Ckeditor5TextFormatTrait {
             return;
           }
         }
-
         $callbacks[] = $callback;
         NestedArray::setValue($form, $key, $callbacks);
       }
