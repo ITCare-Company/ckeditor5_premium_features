@@ -131,15 +131,10 @@ trait Ckeditor5TextFormatTrait {
         // Let's make sure that callback is set only once.
         foreach ($callbacks as $test_callback) {
           if (is_array($test_callback) && in_array($callbackName, $test_callback)) {
-
-            // Continue twice to also move on to the next
-            // element as the callback already exists. No need
-            // to re-add it.
-            continue 2;
+            return;
           }
         }
 
-        // This happens only if the callback does not exist yet.
         $callbacks[] = $callback;
         NestedArray::setValue($form, $key, $callbacks);
       }
