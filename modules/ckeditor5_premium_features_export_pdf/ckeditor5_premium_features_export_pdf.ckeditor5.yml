@@ -17,8 +17,3 @@ ckeditor5_premium_features_export_pdf__export_pdf:
       toolbarItem: exportPdf
       plugins:
         - ckeditor5_premium_features__cloud_services
-    premium_features:
-      plugin: exportPdf
-      file_extension: .pdf
-      settings_form: Drupal\ckeditor5_premium_features_export_pdf\Form\SettingsForm
-      configuration: ckeditor5_premium_features_export_pdf.settings

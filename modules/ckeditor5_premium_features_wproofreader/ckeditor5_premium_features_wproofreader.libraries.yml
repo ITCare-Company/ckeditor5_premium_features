@@ -15,6 +15,10 @@ wproofreader:
 
 wproofreader.adapter:
   version: 20240122
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
+    gpl-compatible: true
   js:
     js/build/wproofreaderAdapter.js: { minified: true }
   dependencies:

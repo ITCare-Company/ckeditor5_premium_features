@@ -41,7 +41,7 @@ export default class FullScreen extends Plugin {
 				const revHistoryElement = targetElement.parentNode.parentNode.querySelector( '.revision-history-container-data' );
         const stickyPanel = targetElement.querySelector('.ck-sticky-panel__content');
         const stickyPanelPlaceholder = targetElement.querySelector('.ck-sticky-panel__placeholder');
-        const toolbarHeight = targetElement.querySelector('.ck-toolbar').offsetHeight + 1;
+        const toolbar = targetElement.querySelector('.ck-toolbar');
         const wordCountId = editor.sourceElement.id + "-ck-word-count";
         const wordCount = document.querySelector("#" + wordCountId + " .ck-word-count");
         let wordCountHeight = wordCount === null ? 0 : wordCount.offsetHeight + 1;
@@ -89,6 +89,7 @@ export default class FullScreen extends Plugin {
             wordCount.classList.add( editorFullScreenClass );
           }
           document.body.classList.add( overlayClass, ...additionalClasses );
+          const toolbarHeight = toolbar ? toolbar.offsetHeight : 0;
           container.style.height = "calc(100vh - " + (toolbarHeight + wordCountHeight) + "px";
 					view.set( 'label', 'Minimize' );
 					view.set( 'isOn', true );
