@@ -18,11 +18,11 @@ use Drupal\ckeditor5_premium_features_notifications\Utility\NotificationContextH
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcCommentNotificationEntity;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\RtcSuggestionNotificationEntity;
-use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Provides logic for bulk notifications in rtc module.
@@ -41,7 +41,7 @@ class BulkNotificationIntegrator extends NotificationIntegratorBase {
    */
   public function __construct(ApiAdapter $apiAdapter,
                               AccountProxyInterface $currentUser,
-                              ContainerAwareEventDispatcher $eventDispatcher,
+                              EventDispatcherInterface $eventDispatcher,
                               EntityTypeManagerInterface $entityTypeManager) {
     parent::__construct($apiAdapter, $currentUser, $eventDispatcher, $entityTypeManager);
     $this->channelStorage = $entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID);

@@ -5,6 +5,10 @@ admin.import_word:
 
 import-word.adapter:
   version: 20231128
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
+    gpl-compatible: true
   js:
     js/build/importWordAdapter.js: { minified: true }
   dependencies:

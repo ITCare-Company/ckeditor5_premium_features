@@ -31,7 +31,8 @@ function ckeditor5_premium_features_productivity_pack_library_info_build(): arra
     'document-outline',
     'template',
     'slash-command',
-    'paste-from-office-enhanced'
+    'paste-from-office-enhanced',
+    'case-change'
   ];
 
   $definitions = [];

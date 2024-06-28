@@ -4,6 +4,10 @@ ckeditor5_premium_features_realtime_collaboration__comment:
       - cloudServices.CloudServices
       - realtimeAdapter.RealtimeAdapter
       - realTimeCollaboration.PresenceList
+      - basicStyles.Bold
+      - basicStyles.Italic
+      - autoformat.Autoformat
+      - list.DocumentList
       - comments.Comments
       - commentsAdapter.CommentsAdapter
       - realTimeCollaboration.RealTimeCollaborativeComments
@@ -27,9 +31,14 @@ ckeditor5_premium_features_realtime_collaboration__track_changes:
       - cloudServices.CloudServices
       - realtimeAdapter.RealtimeAdapter
       - realTimeCollaboration.PresenceList
+      - basicStyles.Bold
+      - basicStyles.Italic
+      - autoformat.Autoformat
+      - list.DocumentList
       - comments.Comments
       - trackChanges.TrackChanges
       - realTimeCollaboration.RealTimeCollaborativeTrackChanges
+
   drupal:
     label: Track Changes
     library: ckeditor5_premium_features_realtime_collaboration/realtime-track-changes

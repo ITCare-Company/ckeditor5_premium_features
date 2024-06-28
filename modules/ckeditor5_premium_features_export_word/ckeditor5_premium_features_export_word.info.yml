@@ -1,9 +1,8 @@
 name: CKEditor 5 Premium Features Export to Word
 type: module
 description: "Generate Word files directly from the CKEditor 5."
-package: CKEditor 5 Premium (Experimental)
+package: CKEditor 5 Premium
 core_version_requirement: ^9.4 || ^10.0
-lifecycle: experimental
 configure: ckeditor5_premium_features_export_word.form.settings
 dependencies:
   - ckeditor5_premium_features:ckeditor5_premium_features

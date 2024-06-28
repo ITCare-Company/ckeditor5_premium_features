@@ -6,6 +6,10 @@ admin.ai_assistant:
 
 ai-service-adapter:
   version: 20231213
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
+    gpl-compatible: true
   js:
     js/build/aiServiceAdapter.js: { minified: true }
   dependencies:
