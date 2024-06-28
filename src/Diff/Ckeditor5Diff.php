@@ -53,6 +53,8 @@ class Ckeditor5Diff implements Ckeditor5DiffInterface {
     $tags['h5'] = '[[REPLACE_H5]]';
     $tags['h6'] = '[[REPLACE_H6]]';
     $tags['blockquote'] = '[[REPLACE_BLOCKQUOTE]]';
+    $tags['code'] = '[[REPLACE_CODE]]';
+    $tags['pre'] = '[[REPLACE_PRE]]';
     $htmlDiff->getConfig()->setIsolatedDiffTags($tags);
 
     $this->context = $htmlDiff->build();
