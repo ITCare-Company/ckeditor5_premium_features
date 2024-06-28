@@ -145,19 +145,24 @@ class SidebarAdapter {
    */
   handleSidebarMode() {
     let toggle = this.getSidebarToggleWrapper();
+    let prevWidth = 0;
 
     // Set the resize observer
     this.resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
+        const width = entry.borderBoxSize?.[0].inlineSize;
         clearTimeout(this.resizeThreshold);
         this.resizeThreshold = setTimeout(() => {
-          if (this.sidebarMode !== 'auto') {
-            this.setCkEditorSidebarMode(this.sidebarMode);
-          }
-          else {
-            this.updateCkeditorMode();
+          if (typeof width === 'number' && width !== prevWidth) {
+            prevWidth = width;
+            if (this.sidebarMode !== 'auto') {
+              this.setCkEditorSidebarMode(this.sidebarMode);
+            } else {
+              this.updateCkeditorMode();
+            }
           }
         }, 100);
+
       }
     });
 

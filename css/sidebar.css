@@ -21,6 +21,8 @@
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.wideSidebar {
   min-width: 250px;
+  max-width: 350px;
+  width: 25%;
 }
 .ck-editor-container .ck-editor-sidebar-wrapper.narrowSidebar {
   width: 56px;

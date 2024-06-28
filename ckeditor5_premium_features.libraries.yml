@@ -1,6 +1,10 @@
 
 collaboration-integration-base:
   version: 20240220
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
+    gpl-compatible: true
   css:
     theme:
       css/sidebar.css: { }
@@ -12,6 +16,7 @@ collaboration-integration-base:
     js/build/disableCollaborationMarkersInCaption.js: { minified: true }
     js/build/removeIncorrectCollaborationMarkers.js: { minified: true }
     js/build/commentsAdapter.js: { minified: true }
+    js/build/drupalMediaTrackChangesIntegration.js: { minified: true }
   dependencies:
     - core/ckeditor5
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
@@ -19,6 +24,10 @@ collaboration-integration-base:
 
 media-export-features:
   version: 20231024
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
+    gpl-compatible: true
   js:
     js/libraries/document-export-base.js: { minified: false }
     js/libraries/media-tags-converter.js: { minified: false }
@@ -27,6 +36,10 @@ media-export-features:
 
 export-integration:
   version: 20230626
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
+    gpl-compatible: true
   js:
     js/build/exportAdapters.js: { minified: true }
   dependencies:
@@ -36,13 +49,17 @@ export-integration:
     - ckeditor5_premium_features/media-export-features
 
 claro--override--node-form:
-  version: 20230626
+  version: 20240326
   css:
     layout:
       css/claro/node-form.css: { }
 
 error-notifications:
   version: 20230626
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
+    gpl-compatible: true
   css:
     theme:
       css/notifications.css: { }
@@ -51,6 +68,10 @@ error-notifications:
 
 toolbar-adapter:
   version: 20231012
+  license:
+    name: GNU-GPL-2.0-or-later
+    url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
+    gpl-compatible: true
   js:
     js/build/toolbarAdapter.js: { minified: true }
 

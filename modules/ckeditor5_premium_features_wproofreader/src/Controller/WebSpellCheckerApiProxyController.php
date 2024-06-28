@@ -34,7 +34,7 @@ final class WebSpellCheckerApiProxyController extends ControllerBase {
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    */
-  public function __construct(private readonly ClientInterface $httpClient, ConfigFactoryInterface $config_factory) {
+  public function __construct(private ClientInterface $httpClient, ConfigFactoryInterface $config_factory) {
     $this->configFactory = $config_factory;
   }
 

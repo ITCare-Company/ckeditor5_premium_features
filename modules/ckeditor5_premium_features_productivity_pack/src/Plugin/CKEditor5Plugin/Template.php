@@ -12,6 +12,7 @@ namespace Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Pl
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginInterface;
+use Drupal\ckeditor5_premium_features\Plugin\PremiumFeaturesPluginDefinitionInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -22,9 +23,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  *   Plugin classes are internal.
  */
-class Template extends CKEditor5PluginDefault implements CKEditor5PluginInterface, ContainerFactoryPluginInterface {
+class Template extends CKEditor5PluginDefault implements CKEditor5PluginInterface, ContainerFactoryPluginInterface, PremiumFeaturesPluginDefinitionInterface {
 
   use CKEditor5PluginConfigurableTrait;
+
+  /**
+   * The id of the plugin in productivity pack.
+   */
+  const PRODUCTIVITY_PACK_PLUGIN_ID = 'template';
 
   /**
    * Creates the plugin instance.
@@ -36,7 +42,6 @@ class Template extends CKEditor5PluginDefault implements CKEditor5PluginInterfac
    *   The parent plugin arguments.
    */
   public function __construct(
-    protected string $featuredPluginId,
     ...$parent_arguments) {
     parent::__construct(...$parent_arguments);
   }
@@ -45,10 +50,8 @@ class Template extends CKEditor5PluginDefault implements CKEditor5PluginInterfac
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    $config = $plugin_definition->toArray()['drupal']['productivity_pack'];
 
     return new static(
-      $config['plugin'],
       $configuration,
       $plugin_id,
       $plugin_definition);
@@ -82,7 +85,7 @@ class Template extends CKEditor5PluginDefault implements CKEditor5PluginInterfac
    *   The CKEditor plugin name.
    */
   public function getFeaturedPluginId(): string {
-    return $this->featuredPluginId;
+    return self::PRODUCTIVITY_PACK_PLUGIN_ID;
   }
 
   /**

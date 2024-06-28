@@ -25,16 +25,17 @@ class DocumentOutline extends CKEditor5PluginDefault implements ContainerFactory
   const CONFIG_FIELD_ENABLED = 'document_outline_enabled';
 
   /**
+   * The id of the plugin in productivity pack.
+   */
+  const PRODUCTIVITY_PACK_PLUGIN_ID = 'documentOutline';
+
+  /**
    * Creates the plugin instance.
    *
-   * @param string $featuredPluginId
-   *   The id of the feature plugin.
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    */
-  public function __construct(
-    protected string $featuredPluginId,
-    ...$parent_arguments) {
+  public function __construct(...$parent_arguments) {
     parent::__construct(...$parent_arguments);
   }
 
@@ -42,10 +43,7 @@ class DocumentOutline extends CKEditor5PluginDefault implements ContainerFactory
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    $config = $plugin_definition->toArray()['drupal']['productivity_pack'];
-
     return new static(
-      $config['plugin'],
       $configuration,
       $plugin_id,
       $plugin_definition);
@@ -71,7 +69,7 @@ class DocumentOutline extends CKEditor5PluginDefault implements ContainerFactory
    *   The CKEditor plugin name.
    */
   public function getFeaturedPluginId(): string {
-    return $this->featuredPluginId;
+    return self::PRODUCTIVITY_PACK_PLUGIN_ID;
   }
 
 }
