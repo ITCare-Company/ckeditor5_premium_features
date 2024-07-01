@@ -17,4 +17,11 @@ enum AITextAdapter: string {
   case OpenAI = 'openAI';
   case AWS = 'aws';
 
+  public static function getAITextAdapterPluginName($adapter): string {
+    return match($adapter) {
+      AITextAdapter::OpenAI => 'OpenAITextAdapter',
+      AITextAdapter::AWS => 'AWSTextAdapter',
+    };
+  }
+
 }
