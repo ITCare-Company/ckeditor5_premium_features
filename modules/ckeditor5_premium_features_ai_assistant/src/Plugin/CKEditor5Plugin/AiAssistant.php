@@ -65,6 +65,7 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
     $removeCommands = $this->configuration['remove_commands'] ?? [];
 
     $textAdapter = $config->get('textAdapter') ?? AITextAdapter::OpenAI->value;
+    $static_plugin_config['ai']['textAdapter'] = $textAdapter;
     $textAdapterPlugin = '';
 
     if ($config->get('use_custom_endpoint') && $apiUrl = $config->get('api_url')) {
