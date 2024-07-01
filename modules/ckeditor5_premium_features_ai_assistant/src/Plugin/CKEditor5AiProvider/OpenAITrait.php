@@ -1,12 +1,18 @@
 <?php
 
+/*
+ * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
+declare(strict_types = 1);
+
 namespace Drupal\ckeditor5_premium_features_ai_assistant\Plugin\CKEditor5AiProvider;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-trait OpenAITrait
-{
+trait OpenAITrait {
 
   /**
    * Handle streamed completions request.
