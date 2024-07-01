@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_notifications\Utility;
 
+use Drupal\ckeditor5_premium_features\Utility\BulkMessageBodyHandlerInterface;
 use Drupal\ckeditor5_premium_features_notifications\Entity\Message;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
 

@@ -9,9 +9,9 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Utility;
 
+use Drupal\ckeditor5_premium_features\Utility\BulkMessageBodyHandlerInterface;
 use Drupal\ckeditor5_premium_features_notifications\Entity\Message;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;
-use Drupal\ckeditor5_premium_features_notifications\Utility\BulkMessageBodyHandlerInterface;
 
 /**
  * Class responsible for preparing body for bulk message.
