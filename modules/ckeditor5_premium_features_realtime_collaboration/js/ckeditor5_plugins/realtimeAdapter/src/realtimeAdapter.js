@@ -41,11 +41,21 @@ class RealtimeAdapter {
     if (!presenceListConfig || typeof presenceListConfig === "undefined") {
       return;
     }
-
     if (!presenceListConfig.container) {
       const presenceListContainerId = this.editor.sourceElement.id + '-presence-list-container';
-      presenceListConfig.container = document.getElementById(presenceListContainerId);
+      const presenceListElement = document.getElementById(presenceListContainerId);
+      if (!presenceListElement) {
+        const formItem = this.editor.sourceElement.closest(".form-item");
+        const presenceListWrapper = document.createElement("div");
+        presenceListWrapper.setAttribute("class", "ck-presence-list-container");
+        presenceListWrapper.setAttribute("id", presenceListContainerId);
+        formItem.parentNode.insertBefore(presenceListWrapper, formItem.previousSibling);
+        presenceListConfig.container = presenceListWrapper;
+      } else {
+        presenceListConfig.container = presenceListElement;
+      }
     }
+
     if (!presenceListConfig.collapseAt) {
       presenceListConfig.collapseAt = drupalSettings.presenceListCollapseAt;
     }
