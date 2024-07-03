@@ -20,6 +20,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -144,14 +145,18 @@ class SettingsForm extends ConfigFormBase {
       ];
     }
     if (!$this->moduleHandler->moduleExists('ckeditor5_plugin_pack_free_wproofreader')) {
+      $permissionsUrl = Link::createFromRoute('permissions', 'user.admin_permissions.module', ['modules' => 'ckeditor5_premium_features_wproofreader'])->toString();
       $form['default_settings'] = [
         '#type' => 'details',
         '#title' => $this->t('Default settings'),
         '#open' => TRUE,
       ];
+      $form['default_settings']['description'] = [
+        '#markup' => $this->t("The default WProofreader settings are applied to all new users. However, users can modify these settings from the WProofreader UI, and their changes will apply only to them, as they are saved in the browser's local storage. To restrict users from modifying these settings, update the user %permissions", ['%permissions' => $permissionsUrl]),
+      ];
       $form['default_settings']['general_settings'] = [
         '#type' => 'fieldset',
-        '#title' => $this->t('General settings'),
+        '#title' => $this->t('General check types'),
       ];
       $form['default_settings']['general_settings']['spellingSuggestions'] = [
         '#type' => 'checkbox',
@@ -180,7 +185,7 @@ class SettingsForm extends ConfigFormBase {
       ];
       $form['default_settings']['ignore_options'] = [
         '#type' => 'fieldset',
-        '#title' => $this->t('Ignore settings'),
+        '#title' => $this->t('Spelling ignore options'),
       ];
       $form['default_settings']['ignore_options']['ignoreAllCapsWords'] = [
         '#type' => 'checkbox',

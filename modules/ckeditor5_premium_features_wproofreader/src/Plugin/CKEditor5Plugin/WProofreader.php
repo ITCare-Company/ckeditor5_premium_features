@@ -107,10 +107,9 @@ class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPlu
     // User settings sections access.
     $settingsSections = [];
     $disableOptionsStorage = [];
-    $actionItems = ['proofreadDialog'];
+    $actionItems = ['proofreadDialog', 'addWord', 'ignoreAll'];
     if ($this->currentUser->hasPermission('ckeditor5 wproofreader user dictionary')) {
       $settingsSections[] = 'dictionaries';
-      $actionItems[] = 'addWord';
     }
     if ($this->currentUser->hasPermission('ckeditor5 wproofreader user language')) {
       $settingsSections[] = 'languages';
@@ -127,7 +126,6 @@ class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPlu
     }
     if ($this->currentUser->hasPermission('ckeditor5 wproofreader user ignore settings')) {
       $settingsSections[] = 'options';
-      $actionItems[] = 'ignoreAll';
     }
     else {
       $disableIgnoreOptionsStorage = ['ignoreAllCapsWords', 'ignoreDomainNames', 'ignoreWordsWithMixedCases', 'ignoreWordsWithNumbers'];
