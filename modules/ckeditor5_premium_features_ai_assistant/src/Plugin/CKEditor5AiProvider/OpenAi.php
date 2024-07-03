@@ -88,8 +88,7 @@ final class OpenAi extends CKEditor5AiProviderPluginBase {
       "#required" => TRUE,
     ];
 
-
-    return $fields;
+    return array_merge($fields, $this->getParametersFields());
   }
 
   /**

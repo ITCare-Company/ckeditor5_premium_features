@@ -103,29 +103,9 @@ final class AzureAi extends CKEditor5AiProviderPluginBase {
       '#title' => $this->t('API version'),
       '#required' => TRUE,
     ];
-    $fields['model'] = [
-        "#type" => "textfield",
-        "#title" => $this->t("Model"),
-        "#description" => $this->t('If blank, the OpenAI adapter will use the <pre>gpt-3.5-turbo</pre> model. <br />
-                         You can find more information about offered models in the <a href="https://platform.openai.com/docs/models/" target="_blank">OpenAI documentation.</a>'),
-    ];
-    $fields['parameters'] = [
-      "#type" => "textarea",
-      "#title" => $this->t("Request parameters"),
-      "#description" => $this->t('Additional configuration parameters for the AI service request. Use it to customize how the AI service generates responses. <br />
-Defaults to:') .
-            '<pre>
-{	
-  "max_tokens": 2000,
-  "temperature": 1,
-  "top_p": 1,
-  "stream": true
-}
-</pre>',
 
-    ];
 
-    return $fields;
+    return array_merge($fields, $this->getParametersFields());
   }
 
   /**
