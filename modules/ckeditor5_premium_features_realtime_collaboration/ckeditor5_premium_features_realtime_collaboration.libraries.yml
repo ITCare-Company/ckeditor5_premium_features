@@ -51,8 +51,10 @@ realtime-comments:
   dependencies:
     - ckeditor5_premium_features_realtime_collaboration/real-time-collaboration
     - ckeditor5_premium_features_realtime_collaboration/comments
+    - core/ckeditor5.list
 
 realtime-track-changes:
   dependencies:
     - ckeditor5_premium_features_realtime_collaboration/realtime-comments
     - ckeditor5_premium_features_realtime_collaboration/track-changes
+    - core/ckeditor5.list
