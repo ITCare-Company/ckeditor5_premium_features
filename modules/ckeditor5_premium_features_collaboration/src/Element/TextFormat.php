@@ -517,6 +517,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       return;
     }
 
+    if ($storage instanceof SuggestionStorage) {
+      $this->processSuggestionGroups($entities_data);
+    }
+
     $added = [];
     $updated = [];
     foreach ($entities_data as $element_data) {
@@ -550,6 +554,26 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $this->storagesOperations[$storageKey][$itemKey]['updated'] = $updated;
     $this->storagesOperations[$storageKey][$itemKey]['original_content'] = $originalContent;
     $this->storagesOperations[$storageKey][$itemKey]['new_content'] = $newContent;
+  }
+
+  /**
+   * Overrides head attribute in case of grouped suggestions as they should be sent as a single notification.
+   *
+   * @param array $entities_data
+   *   The entities data collected from markup.
+   */
+  private function processSuggestionGroups(&$entities_data): void {
+    $groups = [];
+    // Override head value of grouped suggestions, so they'll be sent in a single notification.
+    foreach ($entities_data as $key => $element_data) {
+      if (isset($element_data['attributes']['groupId'])) {
+        $groupId = $element_data['attributes']['groupId'];
+        if (!array_key_exists($element_data['attributes']['groupId'], $groups)) {
+          $groups[$groupId] = $element_data['id'];
+        }
+        $entities_data[$key]['attributes']['head'] = $groups[$groupId];
+      }
+    }
   }
 
   /**
