@@ -16,6 +16,20 @@ use Drupal\Component\Utility\NestedArray;
  */
 class LibraryDefinitionItem {
 
+  // Translations available through CKSource CDN.
+  const AVAILABLE_TRANSLATIONS = [
+    'ar', 'bg', 'bn', 'ca', 'cs', 'da', 'de', 'el', 'en-au', 'es', 'et', 'fi', 'fr', 'gl', 'he', 'hi', 'hr', 'hu',
+    'id', 'it', 'ja', 'ko', 'lt', 'lv', 'ms', 'nl', 'no', 'pl', 'pt', 'pt-br', 'ro', 'ru', 'sk', 'sr', 'sr-latn', 'sv',
+    'th', 'tr', 'uk', 'vi', 'zh', 'zh-cn',
+  ];
+
+  // Plugins that does not have any translations.
+  const UNTRANSLATABLE_PLUGINS = [
+    'cloud-services',
+    'mention',
+    'paste-from-office-enhanced'
+  ];
+
   /**
    * Constructs the library instance.
    *
@@ -56,16 +70,26 @@ class LibraryDefinitionItem {
    *   The name of the library file without extension.
    */
   public function addRemoteJs(string $name): void {
-    $file_name = "{$this->baseDirectory}{$name}/{$name}.js";
+    $file_names = ["{$this->baseDirectory}{$name}/{$name}.js"];
 
-    $this->jsData[$file_name] = [
-      'type' => 'external',
-      'minified' => 'true',
-      'preprocess' => FALSE,
-      'attributes' => [
-        'crossorigin' => 'anonymous'
-      ]
-    ];
+    if (!in_array($name, $this::UNTRANSLATABLE_PLUGINS)) {
+      $languages = $this::AVAILABLE_TRANSLATIONS;
+      foreach ($languages as $language) {
+        $file_names[] = "{$this->baseDirectory}{$name}/translations/{$language}.js";
+      }
+    }
+
+    foreach ($file_names as $file_name) {
+      $this->jsData[$file_name] = [
+        'type' => 'external',
+        'minified' => 'true',
+        'preprocess' => FALSE,
+        'attributes' => [
+          'crossorigin' => 'anonymous'
+        ]
+      ];
+    }
+
   }
 
   /**
@@ -117,6 +141,19 @@ class LibraryDefinitionItem {
         'ckeditor5/ckeditor5',
       ],
     ];
+  }
+
+  /**
+   * Gets langcodes of all enabled UI languages
+   *
+   * @return array
+   *   Array of ISO 639 language codes for all enabled UI languages.
+   */
+  private function getAvailableTranslations() {
+    $languages = \Drupal::entityTypeManager()->getStorage('configurable_language')->loadMultiple();
+    $langcodes = array_keys($languages);
+
+    return array_intersect($this::AVAILABLE_TRANSLATIONS, $langcodes);
   }
 
 }
