@@ -90,6 +90,7 @@ class RealtimeAdapter {
             if (suggestions[i].head != null && (suggestions[i].next != null || suggestions[i].previous != null)) {
               suggestions[i].setAttribute('head', suggestions[i].head.id);
             }
+            suggestions[i].setAttribute('items', suggestions[i].getItems());
             trackedSuggestion.set(suggestions[i].id, suggestions[i]);
           }
           trackChangesElement.value = JSON.stringify(Array.from(trackedSuggestion.values()));
