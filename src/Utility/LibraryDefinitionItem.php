@@ -72,8 +72,8 @@ class LibraryDefinitionItem {
   public function addRemoteJs(string $name): void {
     $file_names = ["{$this->baseDirectory}{$name}/{$name}.js"];
 
-    if (!in_array($name, $this::UNTRANSLATABLE_PLUGINS)) {
-      $languages = $this::AVAILABLE_TRANSLATIONS;
+    if (!in_array($name, $this::UNTRANSLATABLE_PLUGINS) && \Drupal::moduleHandler()->moduleExists('language')) {
+      $languages = $this->getAvailableTranslations();
       foreach ($languages as $language) {
         $file_names[] = "{$this->baseDirectory}{$name}/translations/{$language}.js";
       }
@@ -133,7 +133,7 @@ class LibraryDefinitionItem {
    * @return array
    *   The definition.
    */
-  public function getBaseDefinition() {
+  public function getBaseDefinition(): array {
     return [
       'remote' => 'https://ckeditor.com/',
       'license' => [],
@@ -149,7 +149,7 @@ class LibraryDefinitionItem {
    * @return array
    *   Array of ISO 639 language codes for all enabled UI languages.
    */
-  private function getAvailableTranslations() {
+  private function getAvailableTranslations(): array {
     $languages = \Drupal::entityTypeManager()->getStorage('configurable_language')->loadMultiple();
     $langcodes = array_keys($languages);
 
