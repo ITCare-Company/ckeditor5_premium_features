@@ -13,6 +13,7 @@ use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -46,10 +47,11 @@ class SettingsForm extends ConfigFormBase {
    *   Module handler service.
    */
   public function __construct(ConfigFactoryInterface $config_factory,
+                              TypedConfigManagerInterface $typedConfigManager,
                               protected SettingsConfigHandlerInterface $configHandler,
                               protected ModuleHandlerInterface $moduleHandler,
-                              protected LibraryVersionChecker $libraryVersionChecker) {
-    parent::__construct($config_factory);
+                              protected LibraryVersionChecker $libraryVersionChecker,) {
+    parent::__construct($config_factory, $typedConfigManager);
   }
 
   /**
@@ -58,6 +60,7 @@ class SettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('ckeditor5_premium_features.config_handler.settings'),
       $container->get('module_handler'),
       $container->get('ckeditor5_premium_features.core_library_version_checker'),
