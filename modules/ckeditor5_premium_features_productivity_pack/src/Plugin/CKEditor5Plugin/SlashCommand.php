@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_productivity_pack\Plugin\CKEditor5Plugin;
 
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
+use Drupal\ckeditor5_premium_features\Plugin\PremiumFeaturesPluginDefinitionInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,20 +21,22 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @internal
  *   Plugin classes are internal.
  */
-class SlashCommand extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface {
+class SlashCommand extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface, PremiumFeaturesPluginDefinitionInterface {
 
   const CONFIG_FIELD_ENABLED = 'slash_command_enabled';
 
   /**
+   * The id of the plugin in productivity pack.
+   */
+  const PRODUCTIVITY_PACK_PLUGIN_ID = 'slashCommand';
+
+  /**
    * Creates the plugin instance.
    *
-   * @param string $featuredPluginId
-   *   The id of the feature plugin.
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    */
   public function __construct(
-    protected string $featuredPluginId,
     ...$parent_arguments) {
     parent::__construct(...$parent_arguments);
   }
@@ -42,10 +45,7 @@ class SlashCommand extends CKEditor5PluginDefault implements ContainerFactoryPlu
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    $config = $plugin_definition->toArray()['drupal']['productivity_pack'];
-
     return new static(
-      $config['plugin'],
       $configuration,
       $plugin_id,
       $plugin_definition);
@@ -71,7 +71,7 @@ class SlashCommand extends CKEditor5PluginDefault implements ContainerFactoryPlu
    *   The CKEditor plugin name.
    */
   public function getFeaturedPluginId(): string {
-    return $this->featuredPluginId;
+    return self::PRODUCTIVITY_PACK_PLUGIN_ID;
   }
 
 }

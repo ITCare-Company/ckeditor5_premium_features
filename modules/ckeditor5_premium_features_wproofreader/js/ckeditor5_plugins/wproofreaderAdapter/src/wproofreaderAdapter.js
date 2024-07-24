@@ -14,7 +14,7 @@ class WProofreaderAdapter {
   }
 
   _validateKey() {
-    Drupal.CKEditor5PremiumFeatures.wproofreaderServiceIdValidator.validate().then((response) => {
+    Drupal.CKEditor5PremiumFeaturesWProofreader.validate().then((response) => {
       if (!response.valid) {
         this._disablePlugin();
         let errorMessage = 'wproofreader-service-id-error';
@@ -27,7 +27,7 @@ class WProofreaderAdapter {
   }
 
   _validatePermission() {
-    const isUserHasPermission = this.editor.config._config.wproofreader.cke5.validPermission;
+    const isUserHasPermission = this.editor.config._config.wproofreader.cke5?.validPermission;
     if (!isUserHasPermission) {
       this._disablePlugin();
       this._dispatchErrorEvent('wproofreader-permission-error')
@@ -55,7 +55,7 @@ export {
 
 
 (function ($, Drupal) {
-  Drupal.CKEditor5PremiumFeatures.wproofreaderServiceIdValidator = {
+  Drupal.CKEditor5PremiumFeaturesWProofreader = {
 
     /**
      * Validate if service id is valid.

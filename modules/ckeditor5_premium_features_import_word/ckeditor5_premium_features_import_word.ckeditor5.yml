@@ -17,7 +17,3 @@ ckeditor5_premium_features_import_word__import_word:
       toolbarItem: importWord
       plugins:
         - ckeditor5_premium_features__cloud_services
-    premium_features:
-      plugin: importWord
-      settings_form: Drupal\ckeditor5_premium_features_import_word\Form\SettingsForm
-      configuration: ckeditor5_premium_features_import_word.settings
