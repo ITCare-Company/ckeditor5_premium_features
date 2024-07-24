@@ -196,7 +196,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $realtimeConfig = $this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings');
     if ($form_object instanceof EntityFormInterface) {
       $realtimePermissionsEnabled = $realtimeConfig->get('realtime_permissions');
-      $textFormatChangeAllowed = !$realtimeConfig->get('allow_text_format_change');
+      $textFormatChangeAllowed = $realtimeConfig->get('allow_text_format_change');
       if (!$form_object->getEntity()->isNew() && ($realtimePermissionsEnabled || !$textFormatChangeAllowed)) {
         $element['format']['format']['#attributes']['disabled'] = 'disabled';
       }

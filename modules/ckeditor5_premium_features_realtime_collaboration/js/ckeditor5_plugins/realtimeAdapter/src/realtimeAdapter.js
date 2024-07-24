@@ -35,7 +35,7 @@ class RealtimeAdapter {
       editor.plugins.get('SourceEditing').forceDisabled('drupal-rtc');
     }
 
-    let editorParent = this.storage.getEditorParentContainer(this.editor.sourceElement.id);
+    let editorParent = this.getFieldWrapper(this.editor.sourceElement.id);
     if (editorParent) {
       this.textFormatSelect = editorParent.querySelector(".js-filter-list");
       if (this.textFormatSelect) {
@@ -43,6 +43,14 @@ class RealtimeAdapter {
       }
     }
 
+  }
+
+  getFieldWrapper(elementId) {
+    const editorElement = document.getElementById(elementId);
+    if (editorElement) {
+      return editorElement.closest(".js-text-format-wrapper");
+    }
+    return null;
   }
 
   /**
@@ -70,6 +78,13 @@ class RealtimeAdapter {
     }
     if (!presenceListConfig.collapseAt) {
       presenceListConfig.collapseAt = drupalSettings.presenceListCollapseAt;
+    }
+  }
+
+  clearPresenceListContainer() {
+    const presenceListContainer = this.editor.config._config.presenceList.container;
+    if (presenceListContainer) {
+      presenceListContainer.innerHTML = '';
     }
   }
 
@@ -139,9 +154,10 @@ class RealtimeAdapter {
   }
 
   destroy() {
-    if (this.textFormatSelect || this.textFormatSelect !== undefined) {
+    if (this.textFormatSelect || typeof this.textFormatSelect !== "undefined") {
       this.textFormatSelect.removeEventListener('change', this.changeEditor.bind(this));
     }
+    this.clearPresenceListContainer();
   }
 
   /**
