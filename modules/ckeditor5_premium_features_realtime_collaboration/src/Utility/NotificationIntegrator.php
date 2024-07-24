@@ -66,7 +66,8 @@ class NotificationIntegrator extends NotificationIntegratorBase {
     });
     foreach ($newSuggestions as $key => $suggestion) {
       // Do not process if suggestion is not attached to any item anymore.
-      if (!isset($suggestion['attributes']['items'])) {
+      $items = $suggestion['attributes']['items'] ?? [];
+      if (!$items) {
         unset($newSuggestions[$key]);
         continue;
       }
