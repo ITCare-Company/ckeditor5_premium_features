@@ -15,7 +15,7 @@
     "@ckeditor/ckeditor5-basic-styles": "^41.2.0",
     "@ckeditor/ckeditor5-cloud-services": "^41.2.0",
     "@ckeditor/ckeditor5-comments": "^41.2.0",
-    "@ckeditor/ckeditor5-dev-utils": "^25.4.5",
+    "@ckeditor/ckeditor5-dev-utils": "^38.0.0",
     "@ckeditor/ckeditor5-export-pdf": "^41.2.0",
     "@ckeditor/ckeditor5-export-word": "^41.2.0",
     "@ckeditor/ckeditor5-import-word": "^41.2.1",
