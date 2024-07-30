@@ -18,8 +18,10 @@ use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -31,6 +33,13 @@ class SettingsForm extends ConfigFormBase {
   const DEFAULT_WSCBUNDLE_URL = 'https://svc.webspellchecker.net/spellcheck31/wscbundle/wscbundle.js';
   const WSC_DEFAULT_SERVICE_TYPE = 'default';
   const WSC_ON_PREMISE_SERVICE_TYPE = 'on_premise';
+
+  /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
 
   /**
    * {@inheritdoc}
@@ -51,8 +60,9 @@ class SettingsForm extends ConfigFormBase {
   /**
    * {@inheritDoc}
    */
-  public function __construct(protected WebSpellCheckerHandler $webSpellCheckerHandler, ConfigFactoryInterface $config_factory, TypedConfigManagerInterface $typedConfigManager) {
+  public function __construct(protected WebSpellCheckerHandler $webSpellCheckerHandler, ConfigFactoryInterface $config_factory, ModuleHandlerInterface $moduleHandler, TypedConfigManagerInterface $typedConfigManager) {
     parent::__construct($config_factory, $typedConfigManager);
+    $this->moduleHandler = $moduleHandler;
   }
 
   /**
@@ -62,6 +72,7 @@ class SettingsForm extends ConfigFormBase {
     return new static(
       $container->get('ckeditor5_premium_features_wproofreader.wsc_handler'),
       $container->get('config.factory'),
+      $container->get('module_handler'),
       $container->get('config.typed'),
     );
   }
@@ -131,6 +142,74 @@ class SettingsForm extends ConfigFormBase {
         '#options' => $langOptions,
         '#default_value' => $config->get('lang_code') ?? 'auto',
         '#attributes' => ['id' => 'lang-code'],
+      ];
+    }
+    if (!$this->moduleHandler->moduleExists('ckeditor5_plugin_pack_free_wproofreader')) {
+      $permissionsUrl = Link::createFromRoute('permissions', 'user.admin_permissions.module', ['modules' => 'ckeditor5_premium_features_wproofreader'])->toString();
+      $form['default_settings'] = [
+        '#type' => 'details',
+        '#title' => $this->t('Default settings'),
+        '#open' => TRUE,
+      ];
+      $form['default_settings']['description'] = [
+        '#markup' => $this->t("The default WProofreader settings are applied to all new users. However, users can modify these settings from the WProofreader UI, and their changes will apply only to them, as they are saved in the browser's local storage. To restrict users from modifying these settings, update the user %permissions", ['%permissions' => $permissionsUrl]),
+      ];
+      $form['default_settings']['general_settings'] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t('General check types'),
+      ];
+      $form['default_settings']['general_settings']['spellingSuggestions'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Spelling suggestions'),
+        '#default_value' => $config->get('spellingSuggestions') ?? TRUE,
+      ];
+      $form['default_settings']['general_settings']['grammarSuggestions'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Grammar suggestions'),
+        '#default_value' => $config->get('grammarSuggestions') ?? TRUE,
+      ];
+      $form['default_settings']['general_settings']['styleGuideSuggestions'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Style guide suggestions'),
+        '#default_value' => $config->get('styleGuideSuggestions') ?? TRUE,
+      ];
+      $form['default_settings']['general_settings']['autocorrect'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Correct spelling automatically'),
+        '#default_value' => $config->get('autocorrect') ?? TRUE,
+      ];
+      $form['default_settings']['general_settings']['autocomplete'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Autocomplete suggestions'),
+        '#default_value' => $config->get('autocomplete') ?? FALSE,
+      ];
+      $form['default_settings']['ignore_options'] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t('Spelling ignore options'),
+      ];
+      $form['default_settings']['ignore_options']['ignoreAllCapsWords'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Ignore all-caps words'),
+        '#default_value' => $config->get('ignoreAllCapsWords') ?? FALSE,
+        '#description' => $this->t("All caps words like 'EXAMPLE'."),
+      ];
+      $form['default_settings']['ignore_options']['ignoreDomainNames'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Ignore domain names'),
+        '#default_value' => $config->get('ignoreDomainNames') ?? TRUE,
+        '#description' => $this->t("Domain names like 'http://example.com'."),
+      ];
+      $form['default_settings']['ignore_options']['ignoreWordsWithMixedCases'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Ignore words with mixed case'),
+        '#default_value' => $config->get('ignoreWordsWithMixedCases') ?? FALSE,
+        '#description' => $this->t("Words with mixed case like 'eXaMpLe'."),
+      ];
+      $form['default_settings']['ignore_options']['ignoreWordsWithNumbers'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Ignore words with numbers'),
+        '#default_value' => $config->get('ignoreWordsWithNumbers') ?? TRUE,
+        '#description' => $this->t("Words with numbers like 'example7'."),
       ];
     }
 
