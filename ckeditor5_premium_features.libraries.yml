@@ -1,6 +1,6 @@
 
 collaboration-integration-base:
-  version: 20240220
+  version: 20240625
   license:
     name: GNU-GPL-2.0-or-later
     url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
