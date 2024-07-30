@@ -20,7 +20,6 @@ use OpenAI\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Plugin implementation of the ckeditor5_ai_provider.
@@ -29,33 +28,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *   id = "azureai_service",
  *   label = @Translation("AzureAI Service"),
  *   description = @Translation("AzureAI Service Provider."),
- *   form_fields = {
- *     "resource_name" = {
- *        "#type" = "textfield",
- *        "#title" = "Resource name",
- *        "#required" = TRUE
- *      },
- *     "deployment_name" = {
- *        "#type" = "textfield",
- *        "#title" = "Deployment name",
- *        "#required" = TRUE
- *      },
- *     "api_key" = {
- *        "#type" = "textfield",
- *        "#title" = "API key",
- *        "#required" = TRUE
- *      },
- *     "api_version" = {
- *        "#type" = "textfield",
- *        "#title" = "API version",
- *        "#required" = TRUE
- *      }
- *   }
  * )
  */
 final class AzureAi extends CKEditor5AiProviderPluginBase {
 
   use StringTranslationTrait;
+  use OpenAITrait;
 
   /**
    * Config object.
@@ -93,29 +71,41 @@ final class AzureAi extends CKEditor5AiProviderPluginBase {
     }
     $content = $request->getContent();
     $requestData = json_decode($content, TRUE);
-
-    $client = $this->getClient();
-
-    $stream = $client->chat()->createStreamed($requestData);
-    return new StreamedResponse(function () use ($stream) {
-      foreach ($stream as $data) {
-        echo json_encode($data->toArray()), PHP_EOL;
-        ob_flush();
-        flush();
-      }
-    }, 200, [
-      'Cache-Control' => 'no-cache, must-revalidate',
-      'Content-Type' => 'text/event-stream',
-      'X-Accel-Buffering' => 'no',
-    ]);
+    if ($requestData['stream']) {
+      return $this->processStreamed($requestData);
+    }
+    return $this->processRegular($requestData);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getConfigFields(): array {
-    $definition = $this->getPluginDefinition();
-    return $definition['form_fields'];
+    $fields = [];
+
+    $fields['resource_name'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Resource name'),
+      '#required' => TRUE,
+    ];
+    $fields['deployment_name'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Deployment name'),
+      '#required' => TRUE,
+    ];
+    $fields['api_key'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('API key'),
+      '#required' => TRUE,
+    ];
+    $fields['api_version'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('API version'),
+      '#required' => TRUE,
+    ];
+
+
+    return array_merge($fields, $this->getParametersFields());
   }
 
   /**

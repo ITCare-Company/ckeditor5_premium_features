@@ -14,11 +14,11 @@ use Drupal\ckeditor5_premium_features_ai_assistant\CKEditor5AiProviderPluginBase
 use Drupal\ckeditor5_premium_features_ai_assistant\Form\SettingsForm;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use OpenAI\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Plugin implementation of the ckeditor5_ai_provider.
@@ -27,16 +27,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *   id = "openai_service",
  *   label = @Translation("OpenAI Service"),
  *   description = @Translation("OpenAI Service Provider."),
- *   form_fields = {
- *     "auth_key" = {
- *        "#type" = "textfield",
- *        "#title" = "Auth key",
- *        "#required" = TRUE
- *      }
- *   }
  * )
  */
 final class OpenAi extends CKEditor5AiProviderPluginBase {
+
+  use StringTranslationTrait;
+  use OpenAITrait;
 
   /**
    * Config object.
@@ -74,28 +70,25 @@ final class OpenAi extends CKEditor5AiProviderPluginBase {
     }
     $content = $request->getContent();
     $requestData = json_decode($content, TRUE);
-
-    $client = $this->getClient();
-    $stream = $client->chat()->createStreamed($requestData);
-    return new StreamedResponse(function () use ($stream) {
-      foreach ($stream as $data) {
-        echo json_encode($data->toArray()), PHP_EOL;
-        ob_flush();
-        flush();
-      }
-    }, 200, [
-      'Cache-Control' => 'no-cache, must-revalidate',
-      'Content-Type' => 'text/event-stream',
-      'X-Accel-Buffering' => 'no',
-    ]);
+    if ($requestData['stream']) {
+      return $this->processStreamed($requestData);
+    }
+    return $this->processRegular($requestData);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getConfigFields(): array {
-    $definition = $this->getPluginDefinition();
-    return $definition['form_fields'];
+    $fields = [];
+
+    $fields['auth_key'] = [
+      "#type" => "textfield",
+      "#title" => $this->t("Auth key"),
+      "#required" => TRUE,
+    ];
+
+    return array_merge($fields, $this->getParametersFields());
   }
 
   /**
