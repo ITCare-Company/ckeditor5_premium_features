@@ -39,6 +39,10 @@ class Ckeditor5Diff implements Ckeditor5DiffInterface {
     // It will prevent a wall of warnings about invalid html tags.
     $originalLibxmlErrorState = libxml_use_internal_errors(TRUE);
 
+    // When <img> tag is right next to paragraph or heading is not recognize by HtmlDiff e.g. </p><img>
+    // Adding space after closing tag fix that issue.
+    $newDocument = str_replace('<img', ' <img', $newDocument);
+
     $htmlDiff = new Ckeditor5HtmlDiff($oldDocument, $newDocument);
     $htmlDiff->getConfig()
       ->setPurifierEnabled(FALSE);
