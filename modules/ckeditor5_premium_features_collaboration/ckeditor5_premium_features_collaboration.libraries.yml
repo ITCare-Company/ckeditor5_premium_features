@@ -43,7 +43,7 @@ collaboration:
     - core/ckeditor5.list
 
 collaboration-integration:
-  version: 20231012
+  version: 20240626
   license:
     name: GNU-GPL-2.0-or-later
     url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
