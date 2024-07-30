@@ -434,13 +434,17 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
       $current_delta = $parents_path[$current_key + 1];
 
-      $old_delta = NestedArray::getValue($fields_storage, [
+      $elementParent = NestedArray::getValue($fields_storage, [
         ...$processed_parents,
         '#fields',
         $parent,
-        'original_deltas',
-        $current_delta,
       ]);
+
+      if (!empty($elementParent)) {
+        $old_delta = $elementParent['original_deltas'][$current_delta] ?? $current_delta;
+      } else {
+        $old_delta = NULL;
+      }
 
       $processed_parents[] = $parent;
       if ($old_delta === NULL) {
