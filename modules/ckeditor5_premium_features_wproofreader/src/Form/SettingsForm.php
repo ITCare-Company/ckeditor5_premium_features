@@ -17,6 +17,7 @@ use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -50,9 +51,8 @@ class SettingsForm extends ConfigFormBase {
   /**
    * {@inheritDoc}
    */
-  public function __construct(protected WebSpellCheckerHandler $webSpellCheckerHandler, ConfigFactoryInterface $config_factory, $typedConfigManager = NULL) {
-    parent::__construct($config_factory);
-    $this->typedConfigManager = $typedConfigManager;
+  public function __construct(protected WebSpellCheckerHandler $webSpellCheckerHandler, ConfigFactoryInterface $config_factory, TypedConfigManagerInterface $typedConfigManager) {
+    parent::__construct($config_factory, $typedConfigManager);
   }
 
   /**

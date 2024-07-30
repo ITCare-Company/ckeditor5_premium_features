@@ -2,7 +2,7 @@ name: CKEditor 5 Full-screen Mode
 type: module
 description: "Provides a plugin to maximize the editor window."
 package: CKEditor 5 Plugin Pack
-core_version_requirement: ^9.4 || ^10
+core_version_requirement: ^9.4 || ^10 || ^11
 dependencies:
   - drupal:editor
   - ckeditor5:ckeditor5
