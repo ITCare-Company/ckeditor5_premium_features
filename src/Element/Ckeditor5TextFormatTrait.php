@@ -123,8 +123,10 @@ trait Ckeditor5TextFormatTrait {
   private static function addCallback(string $callbackName, array $callbackKeys, array &$form, int $nestingCounter = 0): void {
     $callback = [static::class, $callbackName];
     foreach ($callbackKeys as $key) {
-      if (NestedArray::keyExists($form, $key)) {
-        $callbacks = NestedArray::getValue($form, $key) ?? [];
+
+      // Get value also checks if the key exists.
+      $callbacks = NestedArray::getValue($form, $key) ?? [];
+      if (!empty($callbacks)) {
 
         // Let's make sure that callback is set only once.
         foreach ($callbacks as $test_callback) {
