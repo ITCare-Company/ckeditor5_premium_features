@@ -1,4 +1,3 @@
-
 collaboration-integration-base:
   version: 20240220
   license:
@@ -19,6 +18,9 @@ collaboration-integration-base:
     js/build/drupalMediaTrackChangesIntegration.js: { minified: true }
   dependencies:
     - core/ckeditor5
+    - core/ckeditor5.basic
+    - core/ckeditor5.list
+    - core/ckeditor5.autoformat
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
     - ckeditor5_premium_features/toolbar-adapter
 
