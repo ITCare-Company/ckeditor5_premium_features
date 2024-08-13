@@ -15,6 +15,7 @@ use Drupal\ckeditor5_premium_features_collaboration\Entity\Revision;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\RevisionStorage;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\Suggestion;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\SuggestionStorage;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Url;
 use Drupal\ckeditor5_premium_features_collaboration\Entity\CommentInterface;
 use Drupal\ckeditor5_premium_features\Entity\CollaborationStorageSchema;
@@ -85,7 +86,7 @@ function ckeditor5_premium_features_collaboration_update_10000() {
 function ckeditor5_premium_features_collaboration_update_10001() {
   $lang = \Drupal::languageManager()->getDefaultLanguage()->getId();
 
-  $field_storage_definition = \Drupal\Core\Field\BaseFieldDefinition::create('language')
+  $field_storage_definition = BaseFieldDefinition::create('language')
     ->setLabel(t('Language code'))
     ->setInitialValue($lang)
     ->setDescription(t('The collaboration entity language code.'));
