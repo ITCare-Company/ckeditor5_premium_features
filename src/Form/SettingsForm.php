@@ -340,7 +340,7 @@ class SettingsForm extends ConfigFormBase {
 
     // Let's make sure the path ends with the trailing slash.
     if (!empty($clean_values['dll_location'])) {
-      $clean_values['dll_location'] = trim($clean_values['dll_location'], ' /') . '/';
+      $clean_values['dll_location'] = rtrim($clean_values['dll_location'], ' /') . '/';
     }
 
     $dll_changed = $config->get('dll_location') !== $clean_values['dll_location'];

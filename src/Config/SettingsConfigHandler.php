@@ -122,7 +122,7 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   public function getDllLocation(string $file_name = ''): string {
     $base_path = $this->config->get('dll_location') ?: $this->getDefaultDllLocation();
 
-    $base_path = trim($base_path, ' /') . '/';
+    $base_path = rtrim($base_path, ' /') . '/';
 
     $base_path = $this->replaceTokens($base_path);
 
