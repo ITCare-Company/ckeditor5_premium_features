@@ -1,6 +1,6 @@
 
 collaboration-integration-base:
-  version: 20240625
+  version: 20240913
   license:
     name: GNU-GPL-2.0-or-later
     url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
@@ -20,6 +20,7 @@ collaboration-integration-base:
   dependencies:
     - ckeditor5_premium_features/ckeditor5-collaboration-dll
     - ckeditor5_premium_features/toolbar-adapter
+    - ckeditor5/internal.drupal.ckeditor5
 
 media-export-features:
   version: 20231024
