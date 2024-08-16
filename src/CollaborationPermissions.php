@@ -95,7 +95,10 @@ class CollaborationPermissions implements ContainerInjectionInterface {
         continue;
       }
       $editorSettings = $editorConfig->get('settings');
-      $plugins = $editorSettings["plugins"] ? array_keys($editorSettings["plugins"]) : [];
+      $plugins = [];
+      if (isset($editorSettings['plugins']) && $editorSettings['plugins']) {
+        $plugins = array_keys($editorSettings['plugins']);
+      }
       if (empty(array_intersect($plugins, $premiumPlugins))) {
         continue;
       }
