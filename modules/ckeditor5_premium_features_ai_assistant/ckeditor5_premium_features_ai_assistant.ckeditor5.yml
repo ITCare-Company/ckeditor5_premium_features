@@ -7,7 +7,8 @@ ckeditor5_premium_features_ai_assistant__ai_assistant:
       - aiServiceAdapter.AIServiceAdapter
   drupal:
     label: AI Assistant
-    elements: false
+    elements:
+      - <h1>
     library: ckeditor5_premium_features_ai_assistant/ai-service-adapter
     class: Drupal\ckeditor5_premium_features_ai_assistant\Plugin\CKEditor5Plugin\AiAssistant
     admin_library: ckeditor5_premium_features_ai_assistant/admin.ai_assistant
