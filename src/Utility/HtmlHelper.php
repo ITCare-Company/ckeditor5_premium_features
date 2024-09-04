@@ -464,4 +464,85 @@ class HtmlHelper {
     return $context;
   }
 
+  /**
+   * Removes element and moves the children to the parent element.
+   *
+   * @param \DOMElement $element
+   *   The element to be removed.
+   */
+  public function removeWrappingElement(\DOMElement $element): void {
+    $parent = $element->parentElement;
+    while ($element->firstChild) {
+      $parent->insertBefore($element->firstChild, $element);
+    }
+    $parent->removeChild($element);
+  }
+
+  /**
+   * Wraps the element with a tag.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMElement $element
+   *   The element to be wrapped.
+   * @param string $tag
+   *   The tag to wrap the text with.
+   * @param array $style
+   *   The style properties array.
+   */
+  public function wrapElementWithTag(\DOMDocument $dom, \DOMElement $element, string $tag, array $style = []): void {
+    $newElement = $dom->createElement($tag);
+    if ($style) {
+      foreach ($style as $property => $value) {
+        $newElement->setAttribute($property, $value);
+      }
+    }
+    $newElement->appendChild($element->cloneNode(TRUE));
+    $element->parentNode->replaceChild($newElement, $element);
+  }
+
+  /**
+   * Wrap the text node with a tag.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMText $text
+   *   The text node to be wrapped.
+   * @param string $tag
+   *   The tag to wrap the text with.
+   * @param array $style
+   *   The style properties array.
+   */
+  public function wrapTextWithTag(\DOMDocument $dom, \DOMText $text, string $tag, array $style = []): void {
+    $newElement = $dom->createElement($tag);
+    if ($style) {
+      foreach ($style as $property => $value) {
+        $newElement->setAttribute('style', $property . ':' . $value);
+      }
+    }
+    $newElement->textContent = $text->textContent;
+    $text->parentElement->replaceChild($newElement, $text);
+  }
+
+  /**
+   * Replaces the element with new one preserving all the attributes and children.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMElement $element
+   *   The element to be changed.
+   * @param string $tag
+   *   The new tag.
+   */
+  public function changeElementTag(\DOMDocument $dom, \DOMElement $element, string $tag): void {
+    $newElement = $dom->createElement($tag);
+    foreach ($element->attributes as $attribute) {
+      $newElement->setAttribute($attribute->name, $attribute->value);
+    }
+    while ($element->firstChild) {
+      $newElement->appendChild($element->firstChild);
+    }
+    $element->parentNode->replaceChild($newElement, $element);
+  }
+
 }

@@ -272,7 +272,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     // User does not have permission to make non-suggestion changes. Throw
     // error in case there are changes outside collaboration tags.
-    $isRawDocumentChanged = $this->documentDiffHelper->isRawDocumentChanged($sourceOriginalData, $sourceNewData);
+    $trackChangesData = $this->getFormElementSourceData($form_state, $item_parents, 'track_changes', $item_key);
+    $isRawDocumentChanged = $this->documentDiffHelper->isRawDocumentChanged($sourceOriginalData, $sourceNewData, $trackChangesData);
     if (!$userAccess['document_write'] && $isRawDocumentChanged) {
       $form_state->setError($element, $this->t("You are not allowed to edit the %field field.", ['%field' => $element['#title']]));
       return;

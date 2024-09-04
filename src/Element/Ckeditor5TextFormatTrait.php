@@ -119,8 +119,10 @@ trait Ckeditor5TextFormatTrait {
    *   The form structure.
    * @param int $nestingCounter
    *   Nesting counter.
+   * @param bool $addFirst
+   *   If true, add new callback to the beginning of the callbacks array.
    */
-  private static function addCallback(string $callbackName, array $callbackKeys, array &$form, int $nestingCounter = 0): void {
+  private static function addCallback(string $callbackName, array $callbackKeys, array &$form, int $nestingCounter = 0, $addFirst = FALSE): void {
     $callback = [static::class, $callbackName];
     foreach ($callbackKeys as $key) {
       if (NestedArray::keyExists($form, $key)) {
@@ -132,7 +134,12 @@ trait Ckeditor5TextFormatTrait {
             return;
           }
         }
-        $callbacks[] = $callback;
+        if ($addFirst) {
+          array_unshift($callbacks, $callback);
+        }
+        else {
+          $callbacks[] = $callback;
+        }
         NestedArray::setValue($form, $key, $callbacks);
       }
     }
@@ -151,7 +158,7 @@ trait Ckeditor5TextFormatTrait {
         continue;
       }
 
-      self::addCallback($callbackName, $callbackKeys, $element, $nestingCounter + 1);
+      self::addCallback($callbackName, $callbackKeys, $element, $nestingCounter + 1, $addFirst);
     }
   }
 
