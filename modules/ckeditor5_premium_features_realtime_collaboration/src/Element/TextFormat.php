@@ -190,7 +190,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     // Remove element containing the document id before editing and set the callback to add it again after submit.
     $pattern = '/<div data-document-id="[^"]+"><\/div>/';
-    $element['value']['#default_value'] = preg_replace($pattern, '', $element['value']['#default_value']);
+    $value = $element['value']['#default_value'] ?? '';
+    $element['value']['#default_value'] = preg_replace($pattern, '', $value);
     self::addCallback('rtcPreSaveSubmit', [['actions', 'submit', '#submit']], $complete_form, 0, TRUE);
 
     return $element;
