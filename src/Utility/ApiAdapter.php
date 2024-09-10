@@ -239,7 +239,8 @@ class ApiAdapter {
    */
   private function sendRequest(string $method, string $path): array {
     $url = $this->getBaseUrl() . $path;
-    $timestamp = hrtime(TRUE);
+    // CKEditor CS API requires timestamp in milliseconds.
+    $timestamp = (int) floor(microtime(true) * 1000);
     try {
       $signature = $this->generateSignature($method, $url, $timestamp, []);
     }
