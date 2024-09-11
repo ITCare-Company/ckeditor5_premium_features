@@ -305,7 +305,7 @@ class FilterCollaboration extends FilterBase implements ContainerFactoryPluginIn
         }
       }
 
-      $documentElement->parentElement->removeChild($documentElement);
+      $documentElement->parentNode->removeChild($documentElement);
     }
   }
 

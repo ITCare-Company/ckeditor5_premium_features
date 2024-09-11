@@ -471,7 +471,10 @@ class HtmlHelper {
    *   The element to be removed.
    */
   public function removeWrappingElement(\DOMElement $element): void {
-    $parent = $element->parentElement;
+    $parent = $element->parentNode;
+    if (!$parent instanceof \DOMElement) {
+      return;
+    }
     while ($element->firstChild) {
       $parent->insertBefore($element->firstChild, $element);
     }
@@ -521,7 +524,11 @@ class HtmlHelper {
       }
     }
     $newElement->textContent = $text->textContent;
-    $text->parentElement->replaceChild($newElement, $text);
+    $parent = $text->parentNode;
+    if (!$parent instanceof \DOMElement) {
+      return;
+    }
+    $parent->replaceChild($newElement, $text);
   }
 
   /**
