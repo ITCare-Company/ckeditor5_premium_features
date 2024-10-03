@@ -44,9 +44,11 @@ class EndpointController extends ControllerBase {
    *   The ajax response containing JWT token.
    */
   public function jwtToken(): AjaxResponse {
+    $filterFormatId = \Drupal::request()->query->get('format');
+
     $response = new AjaxResponse();
 
-    $token = $this->tokenGenerator->generate();
+    $token = $this->tokenGenerator->generate($filterFormatId);
     $response->setContent($token);
 
     return $response;

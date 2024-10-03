@@ -37,6 +37,7 @@ ckeditor5_premium_features_realtime_collaboration__track_changes:
       - list.DocumentList
       - comments.Comments
       - trackChanges.TrackChanges
+      - commentsAdapter.CommentsAdapter
       - realTimeCollaboration.RealTimeCollaborativeTrackChanges
 
   drupal:

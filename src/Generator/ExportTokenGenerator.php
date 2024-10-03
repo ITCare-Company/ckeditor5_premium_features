@@ -41,7 +41,7 @@ class ExportTokenGenerator implements TokenGeneratorInterface {
    * @return string
    *   The token.
    */
-  public function generate(): string {
+  public function generate($filterFormatId = NULL): string {
     $payload = [
       'aud' => $this->settingsConfigHandler->getEnvironmentId(),
       'iat' => time(),
