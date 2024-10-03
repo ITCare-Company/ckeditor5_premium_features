@@ -90,13 +90,13 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
     }
     elseif ($textAdapter === AITextAdapter::OpenAI->value) {
       $model = !empty($config->get("{$providerName}_model")) ? $config->get("{$providerName}_model") : 'gpt-3.5-turbo';
-      $parameters = json_decode($config->get("{$providerName}_parameters"), TRUE) ?? [];
+      $parameters = json_decode($config->get("{$providerName}_parameters") ?? '', TRUE) ?? [];
       $defaults = [
         'model' => $model,
         'max_tokens' => 2000,
         'temperature' => 1,
         'top_p' => 1,
-        'stream' => TRUE
+        'stream' => TRUE,
       ];
       $requestParameters = array_merge($defaults, $parameters);
       $static_plugin_config['ai'][$textAdapter]['requestParameters'] = $requestParameters;
