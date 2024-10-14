@@ -65,9 +65,11 @@ class NotificationIntegrator extends NotificationIntegratorBase {
       return strtotime($suggestion['created_at']) > $changeDate;
     });
     foreach ($newSuggestions as $key => $suggestion) {
-      // Do not process if suggestion is not attached to any item anymore.
+      // Do not process if suggestion is not attached to any item anymore,
+      // unless it's a suggestion that has been resolved.
       $items = $suggestion['attributes']['items'] ?? [];
-      if (!$items) {
+      $isResolved = $suggestion['state'] === 'accepted' || $suggestion['state'] === 'rejected';
+      if (!$items && !$isResolved) {
         unset($newSuggestions[$key]);
         continue;
       }
