@@ -364,22 +364,21 @@ class FilterCollaboration extends FilterBase implements ContainerFactoryPluginIn
       return explode(':', $nameValue)[2];
     }, iterator_to_array($endElements));
 
-    if ($this->moduleHandler->moduleExists('ckeditor5_premium_features_collaboration')) {
+    if ($this->routeMatch->getRouteName() == 'entity.node.preview') {
       // On node preview page, new suggestions won't be yet added to the database so we need to get them from the tempstore.
-      if ($this->routeMatch->getRouteName() == 'entity.node.preview') {
-        $node = $this->routeMatch->getParameter('node_preview');
-        $store = $this->tempStoreFactory->get('ckeditor5_premium_features_collaboration');
-        $this->suggestionsData = $store->get($node->uuid());
-      }
-      else {
-        $suggestions = $this->entityTypeManager->getStorage('ckeditor5_suggestion')->loadMultiple($suggestionIds);
-        foreach ($suggestions as $suggestion) {
-          $this->suggestionsData[$suggestion->id()] = $suggestion->toArray();
-        }
+      // RTC suggestions are also being passed through tempstore.
+      $node = $this->routeMatch->getParameter('node_preview');
+      $store = $this->tempStoreFactory->get('ckeditor5_premium_features_collaboration');
+      $this->suggestionsData = $store->get($node->uuid());
+    }
+    elseif ($this->moduleHandler->moduleExists('ckeditor5_premium_features_collaboration')) {
+      $suggestions = $this->entityTypeManager->getStorage('ckeditor5_suggestion')->loadMultiple($suggestionIds);
+      foreach ($suggestions as $suggestion) {
+        $this->suggestionsData[$suggestion->id()] = $suggestion->toArray();
       }
     }
     elseif ($this->moduleHandler->moduleExists('ckeditor5_premium_features_realtime_collaboration')) {
-      // With RTC we do not store suggestions dats so those should be retrieved with cloud API.
+      // With RTC we do not store suggestions data so those should be retrieved with cloud API.
       $documentElement = $xpath->query('//*[@data-document-id]');
       if ($documentElement->length == 0) {
         return;

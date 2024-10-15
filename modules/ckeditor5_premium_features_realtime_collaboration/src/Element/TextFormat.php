@@ -193,8 +193,63 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $value = $element['value']['#default_value'] ?? '';
     $element['value']['#default_value'] = preg_replace($pattern, '', $value);
     self::addCallback('rtcPreSaveSubmit', [['actions', 'submit', '#submit']], $complete_form, 0, TRUE);
+    self::addCallback('previewAction', [['actions', 'preview', '#submit']], $complete_form, 0, TRUE);
 
     return $element;
+  }
+
+  /**
+   * Loads the service in static call and executes pre preview action.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public static function previewAction(array &$form, FormStateInterface $form_state): void {
+    $service = \Drupal::service('ckeditor5_premium_features_realtime_collaboration.element.text_format');
+    $service->preparePreview($form, $form_state);
+  }
+
+  /**
+   * Custom action for previewing content. Newly added suggestions won't be added to database yes, so we're storing
+   * attribute suggestion data in temp storage for text filter processing.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public function preparePreview(array &$form, FormStateInterface $form_state): void {
+    $form_object = $form_state->getFormObject();
+    if (!$this->isFormTypeSupported($form_object)) {
+      // Do not process anything, the entity is missing.
+      return;
+    }
+    $items = $form_state->get(static::STORAGE_KEY) ?? [];
+    $storageData = [];
+    foreach ($items as $item_key => $item_parents) {
+      $documentId = $form_state->getValue([...$item_parents['parents'], 'entity_channel']) ?? '';
+      if (empty($documentId)) {
+        continue;
+      }
+      $suggestions = $this->apiAdapter->getDocumentSuggestions(
+        $documentId, [
+          'sort_by' => 'updated_at',
+          'order' => 'desc',
+          'limit' => 1000,
+        ]
+      );
+      foreach ($suggestions as $suggestion) {
+        if (!str_contains($suggestion['type'], 'attribute')) {
+          continue;
+        }
+        $storageData[$suggestion['id']] = $suggestion;
+      }
+    }
+
+    $store = \Drupal::service('tempstore.private')->get('ckeditor5_premium_features_collaboration');
+    $store->set($form_object->getEntity()->uuid(), $storageData);
   }
 
   /**
