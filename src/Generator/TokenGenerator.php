@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Generator;
 
+use Drupal\ckeditor5_premium_features\CollaborationAccessHandlerInterface;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\ckeditor5_premium_features\Utility\UserHelper;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -30,6 +31,8 @@ class TokenGenerator implements TokenGeneratorInterface {
    *   The settings config handler.
    * @param \Drupal\ckeditor5_premium_features\Utility\UserHelper $userHelper
    *   Helper for getting user data.
+   * @param CollaborationAccessHandlerInterface $accessHandler
+   *   The Collaboration Access Handler.
    *
    * @note The account will be used later in collaboration features.
    */
@@ -37,25 +40,30 @@ class TokenGenerator implements TokenGeneratorInterface {
     protected AccountProxyInterface $account,
     protected SettingsConfigHandlerInterface $settingsConfigHandler,
     protected UserHelper $userHelper,
+    protected CollaborationAccessHandlerInterface $accessHandler
   ) {
   }
 
   /**
-   * Generates the JWT token.
-   *
-   * @return string
-   *   The token.
+   * {@inheritdoc}
    */
-  public function generate(): string {
+  public function generate($filterFormatId = NULL): string {
+    $access = [];
+
+    if ($filterFormatId) {
+      $access['permissions'] = $this->accessHandler->getCollaborationPermissionArray($this->account, $filterFormatId);
+    }
+    else {
+      $access['role'] = 'writer';
+    }
+
     $payload = [
       'aud' => $this->settingsConfigHandler->getEnvironmentId(),
       'iat' => time(),
       'sub' => $this->userHelper->getUserUuid($this->account) ?? $this->userHelper->generateSiteUserId($this->account),
       'auth' => [
         'collaboration' => [
-          '*' => [
-            'role' => 'writer',
-          ],
+          '*' => $access,
         ],
       ],
     ];

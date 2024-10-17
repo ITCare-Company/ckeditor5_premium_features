@@ -105,7 +105,7 @@ function ckeditor5_premium_features_library_info_alter(&$libraries, $extension) 
  */
 function ckeditor5_premium_features_ckeditor5_plugin_info_alter(array &$plugin_definitions) {
   // In order to safely remove disableGhsTableIntegration.js we have to alter
-  // CKEditor5 plugin that wa using this file.
+  // CKEditor5 plugin that was using this file.
   if (\Drupal::service('ckeditor5_premium_features.core_library_version_checker')->isLibraryVersionHigherOrEqual('35.4.0')) {
     $definition = $plugin_definitions["ckeditor5_premium_features__collaboration_integration_base"];
     $definition_array = $definition->toArray();
@@ -151,7 +151,7 @@ function ckeditor5_premium_features_filter_format_disable(FilterFormatInterface 
   // Revoke all collaboration permissions after text format is disabled.
   /** @var \Drupal\ckeditor5_premium_features\Utility\PermissionHelper $permissionHelper */
   $permissionHelper = \Drupal::service('ckeditor5_premium_features.permission_helper');
-  $permissionHelper->deleteCollaborationPermissions($format);
+  $permissionHelper->revokeCollaborationPermissions([$format]);
 }
 
 /**

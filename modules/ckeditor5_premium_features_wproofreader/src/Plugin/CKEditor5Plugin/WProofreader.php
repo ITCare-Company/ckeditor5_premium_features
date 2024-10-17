@@ -86,11 +86,12 @@ class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPlu
       $static_plugin_config['wproofreader']['servicePort'] = $this->wProofReaderConfig->get('service_port') ?? '';
       $static_plugin_config['wproofreader']['servicePath'] = $this->wProofReaderConfig->get('service_path') ?? '';
       $static_plugin_config['wproofreader']['srcUrl'] = $this->wProofReaderConfig->get('src_url') ?? '';
-      return $static_plugin_config;
     }
-    $static_plugin_config['wproofreader']['srcUrl'] = SettingsForm::DEFAULT_WSCBUNDLE_URL;
-    $static_plugin_config['wproofreader']['serviceHost'] = $this->host;
-    $static_plugin_config['wproofreader']['servicePath'] = $this->urlGenerator->generateFromRoute('ckeditor5_premium_features_wproofreader.webspellchecker_proxy');
+    else {
+      $static_plugin_config['wproofreader']['srcUrl'] = SettingsForm::DEFAULT_WSCBUNDLE_URL;
+      $static_plugin_config['wproofreader']['serviceHost'] = $this->host;
+      $static_plugin_config['wproofreader']['servicePath'] = $this->urlGenerator->generateFromRoute('ckeditor5_premium_features_wproofreader.webspellchecker_proxy');
+    }
 
     // Default settings
     $rawConfig = $this->wProofReaderConfig->getRawData();

@@ -34,6 +34,36 @@ class RealtimeAdapter {
       console.info('The Source editing plugin is not compatible with real-time collaboration, so it has been disabled. If you need it, please contact us to discuss your use case - https://ckeditor.com/contact/');
       editor.plugins.get('SourceEditing').forceDisabled('drupal-rtc');
     }
+
+    let editorParent = this.getFieldWrapper(this.editor.sourceElement.id);
+    if (editorParent) {
+      this.textFormatSelect = editorParent.querySelector(".js-filter-list");
+      if (this.textFormatSelect) {
+        this.textFormatSelect.addEventListener('change', this.changeEditor.bind(this));
+      }
+    }
+
+  }
+
+  getFieldWrapper(elementId) {
+    const editorElement = document.getElementById(elementId);
+    if (editorElement) {
+      return editorElement.closest(".js-text-format-wrapper");
+    }
+    return null;
+  }
+
+  /**
+   * Calls an endpoint that resets the collaborative session for a channel of the field that has text format changed.
+   *
+   * @param event
+   */
+  changeEditor(event) {
+    const channelId = this.editor.config._config.collaboration.channelId
+    const Http = new XMLHttpRequest();
+    const url='/ckeditor5-premium-features-realtime-collaboration/flush-session/' + channelId;
+    Http.open("DELETE", url);
+    Http.send();
   }
 
   setPresenceListContainer() {
@@ -58,6 +88,13 @@ class RealtimeAdapter {
 
     if (!presenceListConfig.collapseAt) {
       presenceListConfig.collapseAt = drupalSettings.presenceListCollapseAt;
+    }
+  }
+
+  clearPresenceListContainer() {
+    const presenceListContainer = this.editor.config._config.presenceList.container;
+    if (presenceListContainer) {
+      presenceListContainer.innerHTML = '';
     }
   }
 
@@ -124,6 +161,13 @@ class RealtimeAdapter {
         this.editor.execute('trackChanges');
       }
     });
+  }
+
+  destroy() {
+    if (this.textFormatSelect || typeof this.textFormatSelect !== "undefined") {
+      this.textFormatSelect.removeEventListener('change', this.changeEditor.bind(this));
+    }
+    this.clearPresenceListContainer();
   }
 
   /**

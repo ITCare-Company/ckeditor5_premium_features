@@ -15,7 +15,7 @@ ckeditor5 wproofreader user ignore settings:
   description: "Allow users to manage spelling ignore cases in the Ignore options section of the settings dialog."
 
 ckeditor5 wproofreader toggle proofreading:
-  title: 'Turning WProofreader on/off '
+  title: 'Turning WProofreader on/off'
   description: 'Allow users to turn on/off spelling and grammar checker.'
 
 ckeditor5 webspellchecker proxy access:

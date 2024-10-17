@@ -23,15 +23,15 @@ use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\Notificatio
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\NotificationIntegrator;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Config\Config;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Session\AccountInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Defines the Text Format utility class for handling the collaboration data.
@@ -39,13 +39,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class TextFormat implements Ckeditor5TextFormatInterface {
 
   use Ckeditor5TextFormatTrait;
-
-  /**
-   * The collaboration config.
-   *
-   * @var \Drupal\Core\Config\Config
-   */
-  protected Config $config;
 
   /**
    * Channel storage.
@@ -65,6 +58,14 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    *   The api adapter.
    * @param \Drupal\ckeditor5_premium_features\Storage\EditorStorageHandlerInterface $editorStorageHandler
    *   The editor storage handler.
+   * @param \Drupal\ckeditor5_premium_features_realtime_collaboration\Utility\NotificationIntegrator $notificationIntegrator
+   *   The notifications integrator.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
+   *   The module handler.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The config factory.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request stack.
    *
    * @throws InvalidPluginDefinitionException
    * @throws PluginNotFoundException
@@ -74,10 +75,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     protected CollaborationSettings $collaborationSettings,
     protected ApiAdapter $apiAdapter,
     protected EditorStorageHandlerInterface $editorStorageHandler,
-    protected EventDispatcherInterface $eventDispatcher,
-    protected AccountInterface $currentUser,
     protected NotificationIntegrator $notificationIntegrator,
-    protected ModuleHandlerInterface $moduleHandler
+    protected ModuleHandlerInterface $moduleHandler,
+    protected ConfigFactoryInterface $configFactory,
+    protected RequestStack $requestStack
   ) {
     $this->channelStorage = $this->entityTypeManager->getStorage(ChannelInterface::ENTITY_TYPE_ID);
   }
@@ -162,7 +163,11 @@ class TextFormat implements Ckeditor5TextFormatInterface {
           }
         }
 
-        $this->apiAdapter->validateLibraryVersion($channel_id);
+        // Do not validate bundle on form submit to prevent error when text format has been modified during node edition.
+        $request_method = $this->requestStack->getCurrentRequest()->getMethod();
+        if ($request_method == 'GET') {
+          $this->apiAdapter->validateBundleVersion($channel_id, $element['#format']);
+        }
 
         $element['entity_channel'] = [
           '#type' => 'hidden',
@@ -187,7 +192,55 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $track_changes_states = $this->editorStorageHandler->getTrackChangesStates($element, TRUE);
     $element['#attached']['drupalSettings']['ckeditor5Premium']['tracking_changes']['default_state'] = $track_changes_states;
     $element['value']['#theme'] = 'ckeditor5_textarea';
+
+    $realtimeConfig = $this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings');
+    if ($form_object instanceof EntityFormInterface) {
+      $realtimePermissionsEnabled = $realtimeConfig->get('realtime_permissions');
+      $textFormatChangeAllowed = $realtimeConfig->get('allow_text_format_change');
+      if (!$form_object->getEntity()->isNew() && ($realtimePermissionsEnabled || !$textFormatChangeAllowed)) {
+        $element['format']['format']['#attributes']['disabled'] = 'disabled';
+      }
+    }
+
+    $element['#element_validate'] = [[$this, 'validateElement']];
     return $element;
+  }
+
+  /**
+   * Validation function for text fields with realtime collaboration enabled.
+   *
+   * @param array $element
+   *   The form element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The state of the form.
+   * @param array $form
+   *   The form structure.
+   */
+  public function validateElement(array $element, FormStateInterface $form_state, array $form): void {
+    if (!$this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings')->get('realtime_permissions')) {
+      return;
+    }
+    if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element, FALSE)) {
+      return;
+    }
+
+    $channelId = $form_state->getValue([...$element["#parents"], 'entity_channel']);
+
+    if (!$channelId) {
+      return;
+    }
+
+    $response = $this->apiAdapter->exportDocument($channelId);
+
+    if(isset($response['code'])) {
+      $form_state->setError($element, 'An error occurred during document export for validation. Please check details in Drupal watchdog and contact support in case you need assistance solving the issue.');
+      return;
+    }
+
+    // Set the value retrieved from cloud. This is done instead validation in
+    // case other user with broader permissions made changes that are not allowed
+    // for user that is saving the entity.
+    $form_state->setValue([...$element["#parents"], 'value'], array_shift($response));
   }
 
   /**
@@ -301,8 +354,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state):void {
-    // @todo validation for RTC document submit
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
+    // Validation is performed on single elements separately.
   }
 
   /**

@@ -15,9 +15,12 @@ interface TokenGeneratorInterface {
   /**
    * Generates the token.
    *
+   * @param string|null $filterFormatId
+   *   The filter format id.
+   *
    * @return string
    *   The token.
    */
-  public function generate(): string;
+  public function generate(?string $filterFormatId): string;
 
 }
