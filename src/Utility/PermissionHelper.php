@@ -12,8 +12,8 @@ namespace Drupal\ckeditor5_premium_features\Utility;
 use Drupal\ckeditor5_premium_features\CollaborationPermissions;
 use Drupal\ckeditor5_premium_features_collaboration\NonRealtimeCollaborationPermissions;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\RealtimeCollaborationPermissions;
-use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\Core\Extension\ModuleHandler;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
  * Helper class for handling text format permissions.
@@ -23,15 +23,15 @@ class PermissionHelper {
   /**
    * Constructor.
    *
-   * @param \Drupal\Core\Entity\EntityTypeManager $entityTypeManager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager.
    *
-   * @param \Drupal\Core\Extension\ModuleHandler $moduleHandler
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
    *   The module handler service.
    */
   public function __construct(
-    protected EntityTypeManager $entityTypeManager,
-    protected ModuleHandler $moduleHandler
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected ModuleHandlerInterface $moduleHandler
   ) {
   }
 
