@@ -72,6 +72,26 @@ class NotificationIntegrator extends NotificationIntegratorBase {
   }
 
   /**
+   * Overrides head attribute in case of grouped suggestions as they should be sent as a single notification.
+   *
+   * @param array $entities_data
+   *   The entities data collected from markup.
+   */
+  public function processSuggestionGroups(&$entities_data): void {
+    $groups = [];
+    // Override head value of grouped suggestions, so they'll be sent in a single notification.
+    foreach ($entities_data as $key => $element_data) {
+      if (isset($element_data['attributes']['groupId'])) {
+        $groupId = $element_data['attributes']['groupId'];
+        if (!array_key_exists($element_data['attributes']['groupId'], $groups)) {
+          $groups[$groupId] = $element_data['id'];
+        }
+        $entities_data[$key]['attributes']['head'] = $groups[$groupId];
+      }
+    }
+  }
+
+  /**
    * Prepare suggestion event object.
    *
    * @param array $suggestion

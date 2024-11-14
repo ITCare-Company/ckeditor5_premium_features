@@ -133,10 +133,12 @@ class RealtimeAdapter {
           const suggestions = trackChangesPlugin.getSuggestions({skipNotAttached: false});
           const trackChangesElement = document.querySelector(trackChangesCssClass + dataAttribute);
           for (let i in suggestions) {
-            if (suggestions[i].head != null && (suggestions[i].next != null || suggestions[i].previous != null)) {
-              suggestions[i].setAttribute('head', suggestions[i].head.id);
+            // Clone suggestion before adding modifications to attributes as this may break grouped suggestions.
+            let clone = structuredClone(suggestions[i]);
+            if (clone.head != null && (clone.next != null || clone.previous != null)) {
+              clone.setAttribute('head', clone.head.id);
             }
-            trackedSuggestion.set(suggestions[i].id, suggestions[i]);
+            trackedSuggestion.set(clone.id, clone);
           }
           trackChangesElement.value = JSON.stringify(Array.from(trackedSuggestion.values()));
         }

@@ -193,6 +193,14 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $element['#attached']['drupalSettings']['ckeditor5Premium']['tracking_changes']['default_state'] = $track_changes_states;
     $element['value']['#theme'] = 'ckeditor5_textarea';
 
+    // Remove element containing the document id before editing and set the callback to add it again after submit.
+    $pattern = '/<div data-document-id="[^"]+"><\/div>/';
+    $value = $element['value']['#default_value'] ?? '';
+    $element['value']['#default_value'] = preg_replace($pattern, '', $value);
+    self::addCallback('rtcPreSaveSubmit', [['actions', 'submit', '#submit']], $complete_form, 0, TRUE);
+    self::addCallback('previewAction', [['actions', 'preview', '#submit']], $complete_form, 0, TRUE);
+
+
     $realtimeConfig = $this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings');
     if ($form_object instanceof EntityFormInterface) {
       $realtimePermissionsEnabled = $realtimeConfig->get('realtime_permissions');
@@ -244,12 +252,98 @@ class TextFormat implements Ckeditor5TextFormatInterface {
   }
 
   /**
+   * Loads the service in static call and executes pre preview action.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public static function previewAction(array &$form, FormStateInterface $form_state): void {
+    $service = \Drupal::service('ckeditor5_premium_features_realtime_collaboration.element.text_format');
+    $service->preparePreview($form, $form_state);
+  }
+
+  /**
+   * Custom action for previewing content. Newly added suggestions won't be added to database yes, so we're storing
+   * attribute suggestion data in temp storage for text filter processing.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public function preparePreview(array &$form, FormStateInterface $form_state): void {
+    $form_object = $form_state->getFormObject();
+    if (!$this->isFormTypeSupported($form_object)) {
+      // Do not process anything, the entity is missing.
+      return;
+    }
+    $items = $form_state->get(static::STORAGE_KEY) ?? [];
+    $storageData = [];
+    foreach ($items as $item_key => $item_parents) {
+      $documentId = $form_state->getValue([...$item_parents['parents'], 'entity_channel']) ?? '';
+      if (empty($documentId)) {
+        continue;
+      }
+      $suggestions = $this->apiAdapter->getDocumentSuggestions(
+        $documentId, [
+          'sort_by' => 'updated_at',
+          'order' => 'desc',
+          'limit' => 1000,
+        ]
+      );
+      foreach ($suggestions as $suggestion) {
+        if (!str_contains($suggestion['type'], 'attribute')) {
+          continue;
+        }
+        $storageData[$suggestion['id']] = $suggestion;
+      }
+    }
+
+    $store = \Drupal::service('tempstore.private')->get('ckeditor5_premium_features_collaboration');
+    $store->set($form_object->getEntity()->uuid(), $storageData);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function process(array &$element, FormStateInterface $form_state, array &$complete_form): array {
     /** @var \Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat $service */
     $service = \Drupal::service('ckeditor5_premium_features_realtime_collaboration.element.text_format');
     return $service->processElement($element, $form_state, $complete_form);
+  }
+
+  /**
+   * Callback for operations that should be handled before entity is saved.
+   * It adds an empty element with document ID stored as an attribute value, which is required for collaboration tags
+   * filter in order to be able to get suggestion data from cloud.
+   *
+   * @param array $form
+   *  The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *  The form state object.
+   */
+  public static function rtcPreSaveSubmit(array &$form, FormStateInterface $form_state): void {
+    $items = $form_state->get(static::STORAGE_KEY) ?? [];
+    foreach ($items as $element_data) {
+      $channelId = $form_state->getValue([
+        ...$element_data['parents'],
+        'entity_channel',
+      ]);
+
+      $value = $form_state->getValue([
+        ...$element_data['parents'],
+        'value',
+      ]);
+
+      $value .= '<div data-document-id="' . $channelId . '"></div>';
+
+      $form_state->setValue([
+        ...$element_data['parents'],
+        'value',
+      ], $value);
+    }
   }
 
   /**
@@ -292,7 +386,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
           $channel->delete();
         }
       }
-
     }
 
     foreach ($items as $element_key => $element_data) {
@@ -310,9 +403,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
         $source_original_data = $this->getFormElementOriginalValue($form, $array_parents);
         $source_new_data = $form_state->getValue(
-        [...$element_data['parents'],
-          'value',
-        ]
+          [...$element_data['parents'],
+            'value',
+          ]
         ) ?? '';
         $changed = $element_data['changed'] ?? FALSE;
 
@@ -320,7 +413,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
           $commentsData = $this->getFormElementSourceData($form_state, $element_data['parents'], 'comments', $element_key);
           $this->notificationIntegrator->transformCommentsData($commentsData);
 
-        $documentHelper = new NotificationDocumentHelper($element_key, $source_original_data, $source_new_data);
+          $documentHelper = new NotificationDocumentHelper($element_key, $source_original_data, $source_new_data);
 
           $suggestionData = $this->apiAdapter->getDocumentSuggestions(
             $entity_channel, [
@@ -330,6 +423,9 @@ class TextFormat implements Ckeditor5TextFormatInterface {
             ]
           );
 
+          $this->filterSuggestions($suggestionData, $source_new_data);
+
+          $this->notificationIntegrator->processSuggestionGroups($suggestionData);
           $chainedSuggestions = $this->notificationIntegrator->chainSuggestion($suggestionData);
 
           $this->notificationIntegrator->handleDocumentUpdateEvent($entity, $documentHelper);
@@ -521,6 +617,22 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     }
 
     return NULL;
+  }
+
+  /**
+   * Removes the data for suggestions that are not in the content anymore.
+   *
+   * @param array $suggestionsData
+   *   Suggestions data.
+   * @param string $text
+   *   The text to filter suggestions.
+   */
+  private function filterSuggestions(array &$suggestionsData, $text): void {
+    foreach ($suggestionsData as $key => $suggestion) {
+      if (!str_contains($text, $suggestion['id'])) {
+        unset($suggestionsData[$key]);
+      }
+    }
   }
 
 }
