@@ -8,7 +8,8 @@
   --ck-z-default: 10000;
   --ck-z-modal: calc(var(--ck-z-default) + 999);
 }
-.ck-fullscreen-overlay .ui-dialog {
+.ck-fullscreen-overlay .ui-dialog,
+.ck-fullscreen-overlay .ck-dialog-overlay {
   z-index: calc(var(--ck-z-modal) + 2) !important;
 }
 .ck-fullscreen-overlay .ck.ck-balloon-panel {
