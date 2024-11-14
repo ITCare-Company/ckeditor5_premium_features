@@ -14,6 +14,7 @@ use Drupal\ckeditor5_premium_features\Utility\PermissionHelper;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\BundleUploadHelper;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -24,6 +25,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class SettingsForm extends SharedBuildConfigFormBase {
 
   const COLLABORATION_SETTINGS_ID = 'ckeditor5_premium_features_realtime_collaboration.settings';
+  protected TypedConfigManagerInterface $typedConfigManager;
 
   /**
    * Constructs a \Drupal\system\ConfigFormBase object.
@@ -39,11 +41,12 @@ class SettingsForm extends SharedBuildConfigFormBase {
    */
   public function __construct(
       ConfigFactoryInterface $config_factory,
+      TypedConfigManagerInterface $typedConfigManager,
       protected EntityTypeManagerInterface $entityTypeManager,
       protected BundleUploadHelper $bundleUploadHelper,
       protected PermissionHelper $permissionHelper
   ) {
-    parent::__construct($config_factory);
+    parent::__construct($config_factory, $typedConfigManager);
   }
 
   /**
@@ -52,6 +55,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
   public static function create(ContainerInterface $container): static {
     return new static(
         $container->get('config.factory'),
+        $container->get('config.typed'),
         $container->get('entity_type.manager'),
         $container->get('ckeditor5_premium_features_realtime_collaboration.bundle_upload_helper'),
         $container->get('ckeditor5_premium_features.permission_helper')
