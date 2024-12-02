@@ -16,9 +16,21 @@ const definitions = [
   },
   {
     header: 'Trial limit exceeded',
-    description: 'Your premium features trial limit for this node has been exceeded. Create a new node or contact sales@cksource.com if you want to upgrade to the full version. ',
+    description: 'You have exhausted the trial usage limit. Restart the editor - you can reload the page or save edited content.',
     type: 'error',
     reactsTo: { message: 'trial-license-key-reached-limit' }
+  },
+  {
+    header: 'Trial limit exceeded',
+    description: 'You have reached the usage limit of your trial license key. Restart the editor - you can reload the page or save edited content.',
+    type: 'error',
+    reactsTo: { message: 'license-key-trial-limit' }
+  },
+  {
+    header: 'Usage limit reached',
+    description: 'You have reached the usage limit of your license key. Please contact our customer support to extend the limit at https://ckeditor.com/contact/.',
+    type: 'error',
+    reactsTo: { message: 'license-key-usage-limit' }
   },
   {
     header: 'WProofreader Authorization Error',

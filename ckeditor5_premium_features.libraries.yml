@@ -1,5 +1,5 @@
 collaboration-integration-base:
-  version: 20241114
+  version: 20241201
   license:
     name: GNU-GPL-2.0-or-later
     url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
@@ -16,6 +16,7 @@ collaboration-integration-base:
     js/build/removeIncorrectCollaborationMarkers.js: { minified: true }
     js/build/commentsAdapter.js: { minified: true }
     js/build/drupalMediaTrackChangesIntegration.js: { minified: true }
+    js/build/ubb.js: { minified: true }
   dependencies:
     - core/ckeditor5
     - core/ckeditor5.basic
@@ -78,3 +79,7 @@ toolbar-adapter:
   js:
     js/build/toolbarAdapter.js: { minified: true }
 
+distribution-channel:
+  version: 20241121
+  js:
+    js/ckeditor5_distribution_channel.js: { }

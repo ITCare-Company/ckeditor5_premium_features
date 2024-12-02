@@ -136,4 +136,11 @@ interface SettingsConfigHandlerInterface {
    */
   public function isAlterNodeFormCssEnabled(): bool;
 
+  /**
+   * Checks if license key should be added to all CKEditor 5 instances.
+   *
+   * @return bool
+   */
+  public function isAddKeyToAllInstancesEnabled(): bool;
+
 }

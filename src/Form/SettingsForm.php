@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Form;
 
+use Drupal\ckeditor5_premium_features\CKEditorPremiumPluginsCheckerTrait;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\Core\Cache\Cache;
@@ -17,6 +18,8 @@ use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\editor\Entity\Editor;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -53,6 +56,9 @@ class SettingsForm extends ConfigFormBase {
                               protected LibraryVersionChecker $libraryVersionChecker,) {
     parent::__construct($config_factory, $typedConfigManager);
   }
+
+  use CKEditorPremiumPluginsCheckerTrait;
+  use StringTranslationTrait;
 
   /**
    * {@inheritDoc}
@@ -107,19 +113,28 @@ class SettingsForm extends ConfigFormBase {
 
     $dashboard_url = 'https://dashboard.ckeditor.com/';
 
-    if ($this->libraryVersionChecker->isLibraryVersionHigherOrEqual('38.0.0')) {
-      $licenseKeyDescription = $this->t('The license key is required only for Revision History, Track changes, Comments (without real-time collaboration) and Productivity Pack. Use the license key <strong>for versions 38.0.0 and above</strong>.');
+    if ($this->libraryVersionChecker->isLibraryVersionHigherOrEqual('44.0.0')) {
+      $licenseKeyDescription = $this->t('The license key is required only for Revision History, Track changes, Comments (without real-time collaboration), and Productivity Pack. Use the license key <strong>for versions 44.0.0 and above</strong>.');
+    }
+    elseif ($this->libraryVersionChecker->isLibraryVersionHigherOrEqual('38.0.0')) {
+      $licenseKeyDescription = $this->t('The license key is required only for Revision History, Track changes, Comments (without real-time collaboration), and Productivity Pack. Use the license key <strong>for versions 38.0.0 up to 43.x.x</strong>.');
     }
     else {
       $licenseKeyDescription = $this->t('The license key is required only for Revision History, Track changes and Comments (without real-time collaboration). Use the license key <strong>for versions up to 37.1.0</strong>.');
     }
 
     $configuration['license_key'] = [
-      '#type' => 'textfield',
-      '#maxlength' => 512,
+      '#type' => 'textarea',
       '#required' => $this->isNonRealtimeSettingsRequired(),
       '#title' => $this->t('License key'),
       '#description' => $licenseKeyDescription,
+    ];
+
+    $configuration['add_key_to_all_instances'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Add the license key to all CKEditor instances'),
+      '#description' => $this->t('If enabled, the license key will be used for all CKEditor 5 instances. If disabled, the license key will be used only for CKEditor 5 instances with enabled Premium Features (<strong>%formats</strong>). </br> Editor instances without the license key will display the "Powered by CKEditor" logo, but will not report the license usage. This affects only CKEditor 5 v44.0.0 and later.', ['%formats' => $this->getTextFormatsWithPremiumFeatures()]),
+      '#default_value' => $this->configHandler->isAddKeyToAllInstancesEnabled(),
     ];
 
     $configuration['auth_type'] = [
@@ -413,6 +428,24 @@ class SettingsForm extends ConfigFormBase {
    */
   protected function isNonRealtimeSettingsRequired(): bool {
     return $this->moduleHandler->moduleExists('ckeditor5_premium_features_collaboration');
+  }
+
+  /**
+   * Returns the labels of text formats with premium features enabled.
+   *
+   * @return string
+   *   The text formats with premium features enabled.
+   */
+  private function getTextFormatsWithPremiumFeatures(): string {
+    $editors = Editor::loadMultiple();
+    $labels = [];
+    foreach ($editors as $editor) {
+      if ($editor->get('editor') === 'ckeditor5' && $this->hasPremiumFeaturesEnabled($editor->get('settings'))) {
+        $labels[] = $editor->label();
+      }
+    }
+
+    return $labels ? implode(', ', $labels) : '-none-';
   }
 
 }

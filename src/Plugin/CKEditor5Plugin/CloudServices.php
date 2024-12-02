@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin;
 
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
+use Drupal\ckeditor5_premium_features\CKEditorPremiumPluginsCheckerTrait;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -23,6 +24,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   Plugin classes are internal.
  */
 class CloudServices extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface {
+
+  use CKEditorPremiumPluginsCheckerTrait;
 
   /**
    * Creates the cloud service plugin instance.

@@ -4,6 +4,7 @@ services:
     arguments:
       - '@config.factory'
       - '@library.discovery'
+      - '@ckeditor5_premium_features.core_library_version_checker'
       - '@module_handler'
 
   ckeditor5_premium_features.config_handler.export_settings:

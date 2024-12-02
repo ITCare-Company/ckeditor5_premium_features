@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin;
 
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
+use Drupal\ckeditor5_premium_features\CKEditorPremiumPluginsCheckerTrait;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\editor\EditorInterface;
@@ -22,6 +23,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   Plugin classes are internal.
  */
 class CollaborationBase extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface {
+
+  use CKEditorPremiumPluginsCheckerTrait;
 
   /**
    * Creates the Track Changes plugin instance.
@@ -52,11 +55,12 @@ class CollaborationBase extends CKEditor5PluginDefault implements ContainerFacto
    * {@inheritdoc}
    */
   public function getDynamicPluginConfig(array $static_plugin_config, EditorInterface $editor): array {
-    if ($licenseKey = $this->settingsConfigHandler->getLicenseKey()) {
+    $settings = $editor->getSettings();
+    $licenseKey = $this->settingsConfigHandler->getLicenseKey();
+    if ($licenseKey && ($this->hasPremiumFeaturesEnabled($settings, $editor) || $this->settingsConfigHandler->isAddKeyToAllInstancesEnabled())) {
       $static_plugin_config['licenseKey'] = $licenseKey;
     }
 
-    $settings = $editor->getSettings();
     if (!isset($settings['plugins']['media_media'])) {
       $static_plugin_config['removePlugins'] = ['DrupalMediaTrackChangesIntegration'];
     }
