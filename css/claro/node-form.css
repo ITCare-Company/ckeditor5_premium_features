@@ -4,6 +4,8 @@
  */
 
 @media (min-width: 61rem) {
+  .layout-region--main,
+  .layout-region--footer,
   .layout-region--node-main,
   .layout-region--node-footer {
     /* @todo Remove the `!important` once https://www.drupal.org/project/drupal/issues/1945262 is released. */
@@ -13,6 +15,8 @@
 }
 
 @media screen and (min-width: 61rem) {
+  .layout-region--main .layout-region__content,
+  .layout-region--footer .layout-region__content,
   .layout-region--node-main .layout-region__content,
   .layout-region--node-footer .layout-region__content {
     max-width: none !important;

@@ -65,7 +65,7 @@ class OverrideHandler {
     foreach ($librariesMapping as $key => $library) {
       $absoluteFileLocation = $absoluteLibrariesLocation . $version . '/' . $library . '/' . $library . '.js';
       if (file_exists($absoluteFileLocation)) {
-        $fileLocation = $this->getLibrariesLocation() . $version . '/' . $library . '/' . $library . '.js';
+        $fileLocation = '/' . $this->getLibrariesLocation() . $version . '/' . $library . '/' . $library . '.js';
       }
       else {
         $fileLocation = 'https://cdn.ckeditor.com/ckeditor5/' . $version . '/dll/' .  $library . '/' . $library . '.js';
