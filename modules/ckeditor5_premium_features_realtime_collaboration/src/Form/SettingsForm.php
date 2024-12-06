@@ -25,13 +25,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class SettingsForm extends SharedBuildConfigFormBase {
 
   const COLLABORATION_SETTINGS_ID = 'ckeditor5_premium_features_realtime_collaboration.settings';
-  protected TypedConfigManagerInterface $typedConfigManager;
 
   /**
    * Constructs a \Drupal\system\ConfigFormBase object.
    *
    * @param ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
+   * @param TypedConfigManagerInterface $typedConfigManager
+   *  The typed configuration manager.
    * @param EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
    * @param BundleUploadHelper $bundleUploadHelper
