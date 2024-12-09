@@ -50,12 +50,7 @@ class TokenGenerator implements TokenGeneratorInterface {
   public function generate($filterFormatId = NULL): string {
     $access = [];
 
-    if ($filterFormatId) {
-      $access['permissions'] = $this->accessHandler->getCollaborationPermissionArray($this->account, $filterFormatId);
-    }
-    else {
-      $access['role'] = 'writer';
-    }
+    $access['role'] = 'writer';
 
     $payload = [
       'aud' => $this->settingsConfigHandler->getEnvironmentId(),
