@@ -25,7 +25,19 @@ trait CKEditorPremiumPluginsCheckerTrait {
       }
     }
 
-    if (isset($config['toolbar']['items']) && array_intersect($this->getPremiumToolbarItems(), $config['toolbar']['items'])) {
+    if (isset($config['toolbar']['items'])) {
+      $enabledPremiumPlugins = array_intersect($this->getPremiumToolbarItems(), $config['toolbar']['items']);
+      // Check the case when only insertTemplate is enabled. It can be enabled through Plugin Pack in that case it's
+      // not considered as premium feature.
+      if (!$enabledPremiumPlugins) {
+        return FALSE;
+      }
+      if (count($enabledPremiumPlugins) === 1 && in_array('insertTemplate', $enabledPremiumPlugins, TRUE)) {
+        $moduleHandler = \Drupal::service('module_handler');
+        if ($moduleHandler->moduleExists('ckeditor5_plugin_pack_templates')) {
+          return FALSE;
+        }
+      }
       return TRUE;
     }
     return FALSE;

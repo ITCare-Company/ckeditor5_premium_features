@@ -15,6 +15,8 @@ class Ubb {
       return;
     }
 
+    console.log('UBB plugin initialized');
+
     const format = this.editor.sourceElement.dataset.editorActiveTextFormat
     const INTEGRATION_NAME = 'drupal';
     let INTEGRATION_USAGE_DATA = {
