@@ -55,8 +55,8 @@ export default class FullScreen extends Plugin {
         if (sourceEditing && wordCount) {
           sourceEditing.on( 'change:isSourceEditingMode', () => {
             if (fullScreenEnabled) {
-              wordCountHeight = wordCount === null ? 0 : wordCount.offsetHeight + 1;
-              container.style.height = "calc(100vh - " + (toolbarHeight + wordCountHeight) + "px";
+              wordCountHeight = wordCount === null ? 0 : wordCount.offsetHeight;
+              container.style.height = "calc(100vh - " + (toolbarHeight + wordCountHeight + 2) + "px";
             }
           });
         }
@@ -90,7 +90,7 @@ export default class FullScreen extends Plugin {
           }
           document.body.classList.add( overlayClass, ...additionalClasses );
           const toolbarHeight = toolbar ? toolbar.offsetHeight : 0;
-          container.style.height = "calc(100vh - " + (toolbarHeight + wordCountHeight) + "px";
+          container.style.height = "calc(100vh - " + (toolbarHeight + wordCountHeight + 2) + "px";
 					view.set( 'label', 'Minimize' );
 					view.set( 'isOn', true );
           editor.ui.view.stickyPanel.set('isActive', false);
