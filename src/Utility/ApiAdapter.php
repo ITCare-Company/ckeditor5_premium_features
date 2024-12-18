@@ -300,7 +300,8 @@ class ApiAdapter {
    */
   private function sendRequest(string $method, string $path, array $options = []): array {
     $url = $this->getBaseUrl() . $path;
-    $timestamp = hrtime(TRUE);
+    $time = new \DateTime();
+    $timestamp = (int) $time->format('Uv');
     $requestBody = $options['body'] ?? NULL;
 
     try {
