@@ -66,7 +66,7 @@ class CollaborationSettings implements CommonCollaborationSettingsInterface {
    * Check whether the realtime collaboration permissions are enabled.
    */
   public function isPermissionsEnabled(): bool {
-    return (bool) ($this->collaborationSettings->get('realtime_permissions') ?? 8);
+    return (bool) ($this->collaborationSettings->get('realtime_permissions') ?? FALSE);
   }
 
 }

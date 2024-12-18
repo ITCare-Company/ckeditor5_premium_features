@@ -14,6 +14,7 @@ use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\ckeditor5_premium_features\Utility\UserHelper;
 use Drupal\Core\Session\AccountProxyInterface;
 use Firebase\JWT\JWT;
+use Drupal\Core\DependencyInjection\Container;
 
 /**
  * Provides the JWT Token generator service.
@@ -33,6 +34,8 @@ class TokenGenerator implements TokenGeneratorInterface {
    *   Helper for getting user data.
    * @param CollaborationAccessHandlerInterface $accessHandler
    *   The Collaboration Access Handler.
+   * @param \Drupal\Core\DependencyInjection\Container $serviceContainer
+   *   The service container.
    *
    * @note The account will be used later in collaboration features.
    */
@@ -40,7 +43,8 @@ class TokenGenerator implements TokenGeneratorInterface {
     protected AccountProxyInterface $account,
     protected SettingsConfigHandlerInterface $settingsConfigHandler,
     protected UserHelper $userHelper,
-    protected CollaborationAccessHandlerInterface $accessHandler
+    protected CollaborationAccessHandlerInterface $accessHandler,
+    protected Container $serviceContainer
   ) {
   }
 
@@ -50,7 +54,13 @@ class TokenGenerator implements TokenGeneratorInterface {
   public function generate($filterFormatId = NULL): string {
     $access = [];
 
-    if ($filterFormatId) {
+    $isRtcPermissionsEnabled = FALSE;
+    if ($this->serviceContainer->get('module_handler')->moduleExists('ckeditor5_premium_features_realtime_collaboration')) {
+      $rtcConfig = $this->serviceContainer->get('ckeditor5_premium_features_realtime_collaboration.collaboration_settings');
+      $isRtcPermissionsEnabled = $rtcConfig->isPermissionsEnabled();
+    }
+
+    if ($filterFormatId && $isRtcPermissionsEnabled) {
       $access['permissions'] = $this->accessHandler->getCollaborationPermissionArray($this->account, $filterFormatId);
     }
     else {
