@@ -62,4 +62,11 @@ class CollaborationSettings implements CommonCollaborationSettingsInterface {
     return (int) ($this->collaborationSettings->get('presence_list_collapse_at') ?? 8);
   }
 
+  /**
+   * Check whether the realtime collaboration permissions are enabled.
+   */
+  public function isPermissionsEnabled(): bool {
+    return (bool) ($this->collaborationSettings->get('realtime_permissions') ?? FALSE);
+  }
+
 }

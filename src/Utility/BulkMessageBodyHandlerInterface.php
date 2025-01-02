@@ -5,7 +5,7 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-namespace Drupal\ckeditor5_premium_features_notifications\Utility;
+namespace Drupal\ckeditor5_premium_features\Utility;
 
 use Drupal\ckeditor5_premium_features_notifications\Entity\Message;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryInterface;

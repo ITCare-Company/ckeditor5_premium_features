@@ -56,15 +56,6 @@ class TrackChangesAdapter {
       this.attachSuggestionEvents(trackChangesPlugin.getSuggestion(suggestion.id));
     }
 
-    // Observe data change and update the data fields.
-    this.editor.model.document.on( 'change:data', () => {
-      this.updateStorage(trackChangesPlugin, trackChangesElement);
-    });
-
-    this.editor.model.document.on( 'comments:change:data', () => {
-      this.updateStorage(trackChangesPlugin, trackChangesElement);
-    });
-
     // Hook to form submit.
     const form = this.editor.sourceElement.closest('form');
     form.addEventListener("submit", () => {

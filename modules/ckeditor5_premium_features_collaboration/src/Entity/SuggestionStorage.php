@@ -72,7 +72,10 @@ class SuggestionStorage extends SqlContentEntityStorage implements
 
     $serialized = [];
     foreach ($suggestions as $suggestion) {
-      $serialized[] = $suggestion->toArray();
+      $serializedSuggestion = $suggestion->toArray();
+      // Do not pass head attribute as it may break suggestion annotations for some specific changes (for example list type change).
+      unset($serializedSuggestion['attributes']['head']);
+      $serialized[] = $serializedSuggestion;
     }
 
     return (string) json_encode($serialized);

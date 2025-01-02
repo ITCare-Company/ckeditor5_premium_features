@@ -61,10 +61,13 @@ interface SettingsConfigHandlerInterface {
   /**
    * Gets the token URL based on the configuration values.
    *
+   * @param string|null $filterFormatId
+   *   The filter format id.
+   *
    * @return string
    *   The token URL.
    */
-  public function getTokenUrl(): string;
+  public function getTokenUrl(?string $filterFormatId): string;
 
   /**
    * Gets the DLLs location.
@@ -132,5 +135,12 @@ interface SettingsConfigHandlerInterface {
    *   True if config field is set to true.
    */
   public function isAlterNodeFormCssEnabled(): bool;
+
+  /**
+   * Checks if license key should be added to all CKEditor 5 instances.
+   *
+   * @return bool
+   */
+  public function isAddKeyToAllInstancesEnabled(): bool;
 
 }

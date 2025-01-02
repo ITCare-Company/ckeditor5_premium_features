@@ -17,6 +17,7 @@ use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\Notifica
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationMessageFactoryPluginManager;
 use Drupal\ckeditor5_premium_features_notifications\Plugin\Notification\NotificationSenderPluginManager;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\filter\FilterFormatInterface;
@@ -42,11 +43,12 @@ class SettingsForm extends SharedBuildConfigFormBase {
    *   Mentions integrator service.
    */
   public function __construct(ConfigFactoryInterface $configFactory,
+                              TypedConfigManagerInterface $typedConfigManager,
                               protected NotificationMessageFactoryPluginManager $messageFactoryPluginManager,
                               protected NotificationSenderPluginManager $senderPluginManager,
                               protected MentionsIntegrator $mentionsIntegrator,
                               protected CollaborationModuleIntegrator $collaborationModuleIntegrator) {
-    parent::__construct($configFactory);
+    parent::__construct($configFactory, $typedConfigManager);
   }
 
   /**
@@ -55,6 +57,7 @@ class SettingsForm extends SharedBuildConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('plugin.manager.notification_message_factory'),
       $container->get('plugin.manager.notification_sender'),
       $container->get('ckeditor5_premium_features.mention_integrator'),

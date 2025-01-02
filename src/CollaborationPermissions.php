@@ -26,13 +26,11 @@ class CollaborationPermissions implements ContainerInjectionInterface {
 
   public const COMMENTS_WRITE = 'comments_write';
   public const COMMENTS_ADMIN = 'comments_admin';
-  public const DOCUMENT_SUGGESTIONS = 'document_suggestions';
   public const DOCUMENT_WRITE = 'document_write';
 
-  public const PERMISSIONS = [
+  public const COMMON_PERMISSIONS = [
     self::COMMENTS_WRITE,
     self::COMMENTS_ADMIN,
-    self::DOCUMENT_SUGGESTIONS,
     self::DOCUMENT_WRITE,
   ];
 
@@ -53,26 +51,43 @@ class CollaborationPermissions implements ContainerInjectionInterface {
   protected $configFactory;
 
   /**
-   * Constructs a new FilterPermissions instance.
+   * Permissions available in current module.
+   *
+   * @var array
+   */
+  protected $permissions;
+
+  /**
+   * Constructs a new CollaborationPermissions instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
-   * @param \Drupal\Core\Config\ConfigFactory
+   * @param \Drupal\Core\Config\ConfigFactory $config_factory
    *   The config factory.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, ConfigFactory $config_factory) {
     $this->entityTypeManager = $entity_type_manager;
     $this->configFactory = $config_factory;
+    $this->permissions = $this->permissions ?? [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('config.factory')
     );
+  }
+
+  /**
+   * Returns list of permissions types handled by given module.
+   *
+   * @return array
+   */
+  public static function getModulePermissions(): array {
+    return static::COMMON_PERMISSIONS;
   }
 
   /**
@@ -81,11 +96,12 @@ class CollaborationPermissions implements ContainerInjectionInterface {
    * @return array
    */
   public function permissions(): array {
+    return [];
+  }
+
+  protected function getPermissions($premiumPlugins, $availablePermissions): array {
     $permissions = [];
-    $premiumPlugins = [
-      'ckeditor5_premium_features_collaboration__comments',
-      'ckeditor5_premium_features_collaboration__track_changes'
-    ];
+
     /** @var \Drupal\filter\FilterFormatInterface[] $formats */
     $formats = $this->entityTypeManager->getStorage('filter_format')->loadByProperties(['status' => TRUE]);
     uasort($formats, 'Drupal\Core\Config\Entity\ConfigEntityBase::sort');
@@ -95,13 +111,13 @@ class CollaborationPermissions implements ContainerInjectionInterface {
         continue;
       }
       $editorSettings = $editorConfig->get('settings');
-      $plugins = $editorSettings["plugins"] ? array_keys($editorSettings["plugins"]) : [];
+      $plugins = array_keys($editorSettings["plugins"] ?? []);
       if (empty(array_intersect($plugins, $premiumPlugins))) {
         continue;
       }
 
       if ($format->getPermissionName()) {
-        foreach (self::PERMISSIONS as $collaborationPermission) {
+        foreach ($availablePermissions as $collaborationPermission) {
           $description = $this->getPermissionDescription($collaborationPermission);
           $permissions[$this->getPermissionName($format, $collaborationPermission)] = [
             'title' => $this->t('Collaboration @permission for the <a href=":url">@format</a> text format',
@@ -130,21 +146,20 @@ class CollaborationPermissions implements ContainerInjectionInterface {
     return $permissions;
   }
 
-    /**
-     * Returns label of the collaboration permission.
-     *
-     * @param string $permission
-     *   Collaboration permission name.
-     *
-     * @return string|TranslatableMarkup
-     *   Permission label
-     */
-  private function getPermissionLabel(string $permission): string|TranslatableMarkup {
+  /**
+   * Returns label of the collaboration permission.
+   *
+   * @param string $permission
+   *   Collaboration permission name.
+   *
+   * @return string|TranslatableMarkup
+   *   Permission label
+   */
+  protected function getPermissionLabel(string $permission): string|TranslatableMarkup {
     return match ($permission) {
       self::COMMENTS_WRITE => $this->t('Write comments'),
       self::COMMENTS_ADMIN => $this->t('Administer comments'),
-      self::DOCUMENT_SUGGESTIONS => $this->t('Add suggestions'),
-      self::DOCUMENT_WRITE => $this->t('Evaluate suggestions and edit content'),
+      self::DOCUMENT_WRITE => $this->t('Edit content'),
       default => '',
     };
   }
@@ -158,11 +173,10 @@ class CollaborationPermissions implements ContainerInjectionInterface {
    * @return string|TranslatableMarkup
    *   Permission description
    */
-  private function getPermissionDescription(string $permission): string|TranslatableMarkup {
+  protected function getPermissionDescription(string $permission): string|TranslatableMarkup {
     return match ($permission) {
-      self::COMMENTS_WRITE => $this->t('Allows to add, modify and delete own collaboration comments.'),
-      self::COMMENTS_ADMIN => $this->t('Allows to add and delete all collaboration comments.'),
-      self::DOCUMENT_SUGGESTIONS => $this->t('Allows to add and edit suggestions only.'),
+      self::COMMENTS_WRITE => $this->t('Allows to add, modify, and delete own collaboration comments. It also allows to resolve all collaboration comment threads.'),
+      self::COMMENTS_ADMIN => $this->t('Allows to add, modify, and delete own collaboration comments. It also allows to resolve and delete all collaboration comment threads.'),
       self::DOCUMENT_WRITE => $this->t('Allows to add, evaluate suggestions and make non-suggestion changes.'),
       default => '',
     };

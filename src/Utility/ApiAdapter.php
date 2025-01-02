@@ -12,6 +12,7 @@ namespace Drupal\ckeditor5_premium_features\Utility;
 use Drupal\ckeditor5_premium_features\Config\SettingsConfigHandlerInterface;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Config\ConfigException;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelTrait;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -36,10 +37,13 @@ class ApiAdapter {
    *   The settings configuration handler.
    * @param \GuzzleHttp\ClientInterface $http_client
    *   The HTTP client.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The config factory.
    */
   public function __construct(protected SettingsConfigHandlerInterface $settingsConfigHandler,
                               protected ClientInterface $http_client,
-                              protected AccountProxyInterface $account) {
+                              protected AccountProxyInterface $account,
+                              protected ConfigFactoryInterface $configFactory) {
   }
 
   /**
@@ -47,6 +51,13 @@ class ApiAdapter {
    */
   public function flushAllCollaborativeSessions(): void {
     $this->sendRequest('DELETE', 'collaborations');
+  }
+
+  /**
+   * Call flush collaborative session endpoint.
+   */
+  public function flushCollaborativeSession(string $documentId): void {
+    $this->sendRequest('DELETE', 'collaborations/' . $documentId . '?force=true');
   }
 
   /**
@@ -60,6 +71,42 @@ class ApiAdapter {
    */
   public function getCollaborativeSessionDetails(string $documentId): array {
     return $this->sendRequest('GET', 'collaborations/' . $documentId . '/details');
+  }
+
+  /**
+   * Call to get the HTML contents of the document.
+   *
+   * @param string $documentId
+   *   The document id.
+   *
+   * @return array
+   *   Response of the request.
+   */
+  public function exportDocument(string $documentId): array {
+    return $this->sendRequest('GET', 'collaborations/' . $documentId);
+  }
+
+
+  /**
+   * Post editor bundle to the cloud server.
+   *
+   * @param array $config
+   *   Editor config.
+   * @param string $code
+   *   The complete code of posted bundle.
+   *
+   * @return array
+   *   Response of the request.
+   */
+  public function postEditor(array $config, string $code): array {
+    $body = [
+      'bundle' => $code,
+      'config' => $config,
+    ];
+    $options = [
+      'body' => json_encode($body),
+    ];
+    return $this->sendRequest('POST', 'editors', $options);
   }
 
   /**
@@ -155,7 +202,7 @@ class ApiAdapter {
    * @return string|null
    *   Library version
    */
-  public function getLibraryVersion(string $documentId): ?string {
+  public function getBundleVersion(string $documentId): ?string {
     $details = $this->getCollaborativeSessionDetails($documentId);
     if (!empty($details['current_session'])) {
       return $details['current_session']['bundle_version'];
@@ -168,16 +215,25 @@ class ApiAdapter {
    *
    * @param string $documentId
    *   The document id.
+   * @param string $textFormat
+   *   Text format used for the document.
    */
-  public function validateLibraryVersion(string $documentId): void {
-    $sessionVersion = $this->getLibraryVersion($documentId);
-    $libraryVersion = $this->settingsConfigHandler->getDllVersion();
-    if (is_null($sessionVersion) || $sessionVersion === $libraryVersion) {
-      return;
+  public function validateBundleVersion(string $documentId, string $textFormat): void {
+    $sessionVersion = $this->getBundleVersion($documentId);
+    $config = $this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings');
+
+    if ($config->get('realtime_permissions')) {
+      $bundles = $config->get('editor_bundles') ?? [];
+      $bundleVersion = $bundles[$textFormat] ?? '';
     }
     else {
-      $this->flushAllCollaborativeSessions();
+      $bundleVersion = $textFormat;
     }
+
+    if (is_null($sessionVersion) || $sessionVersion === $bundleVersion) {
+      return;
+    }
+    $this->flushCollaborativeSession($documentId);
   }
 
   /**
@@ -199,13 +255,13 @@ class ApiAdapter {
    *   Request url.
    * @param int $timestamp
    *   Timestamp.
-   * @param array $body
+   * @param string|array|NULL $body
    *   Request body.
    *
    * @return string
    *   Generated signature.
    */
-  private function generateSignature(string $method, string $url, int $timestamp, array $body): String {
+  private function generateSignature(string $method, string $url, int $timestamp, string|array|NULL $body): String {
     $parsedUrl = parse_url($url);
     $uri = $parsedUrl['path'] ?? '';
 
@@ -216,7 +272,12 @@ class ApiAdapter {
     $data = $method . $uri . $timestamp;
 
     if ($body) {
-      $data .= JSON::encode($body);
+      if (is_array($body)) {
+        $data .= array_shift($body);
+      }
+      else {
+        $data .= $body;
+      }
     }
     $key = $this->settingsConfigHandler->getApiKey();
 
@@ -237,12 +298,14 @@ class ApiAdapter {
    * @return array
    *   Result of sent request.
    */
-  private function sendRequest(string $method, string $path): array {
+  private function sendRequest(string $method, string $path, array $options = []): array {
     $url = $this->getBaseUrl() . $path;
-    // CKEditor CS API requires timestamp in milliseconds.
-    $timestamp = (int) floor(microtime(true) * 1000);
+    $time = new \DateTime();
+    $timestamp = (int) $time->format('Uv');
+    $requestBody = $options['body'] ?? NULL;
+
     try {
-      $signature = $this->generateSignature($method, $url, $timestamp, []);
+      $signature = $this->generateSignature($method, $url, $timestamp, $requestBody);
     }
     catch (ConfigException $e) {
       if ($this->account->hasPermission('use ckeditor5 access token')) {
@@ -251,25 +314,29 @@ class ApiAdapter {
       return [];
     }
 
-    $options = [
-      'headers' => [
-        'X-CS-Signature' => $signature,
-        'X-CS-Timestamp' => $timestamp,
-      ],
-    ];
+    $options['headers']['X-CS-Signature'] = $signature;
+    $options['headers']['X-CS-Timestamp'] = $timestamp;
 
     try {
       $request = $this->http_client->request($method, $url, $options);
     }
     catch (GuzzleException $e) {
       // Log the error.
-      Error::logException($this->getLogger('ckeditor5_premium_features'), $e, $e->getMessage());
-      return [];
+      $msg = $e?->getResponse()?->getBody()?->getContents() ?? '';
+      Error::logException($this->getLogger('ckeditor5_premium_features'), $e, $msg);
+      return ['code' => $e->getCode(), 'message' => $msg];
     }
 
     $response = $request->getBody()->getContents();
 
-    return empty($response) ? [] : (array) Json::decode($response);
+    if (empty($response)) {
+      return ['code' => $request->getStatusCode()];
+    }
+    $decodedJson = Json::decode($response);
+    if (!empty($decodedJson)) {
+      return (array) $decodedJson;
+    }
+    return [$response];
   }
 
 }

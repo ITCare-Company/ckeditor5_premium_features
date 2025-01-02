@@ -92,11 +92,16 @@ function ckeditor5_premium_features_library_info_alter(&$libraries, $extension) 
   }
 
   // @todo Change this to use `after` instead of `dependencies` after https://www.drupal.org/project/drupal/issues/1945262 is released.
-  if ($extension === 'claro' && isset($libraries['node-form'])) {
+  $validForm = isset($libraries['node-form']) ? 'node-form' : (isset($libraries['form-two-columns']) ? 'form-two-columns' : NULL);
+  if ($extension === 'claro' && $validForm) {
     $cke5PremiumFeaturesSettings = \Drupal::configFactory()->get('ckeditor5_premium_features.settings');
     if ($cke5PremiumFeaturesSettings->get('alter_node_form_css')) {
-      $libraries['node-form']['dependencies'][] = 'ckeditor5_premium_features/claro--override--node-form';
+      $libraries[$validForm]['dependencies'][] = 'ckeditor5_premium_features/claro--override--node-form';
     }
+  }
+
+  if ($extension === 'core' && isset($libraries['ckeditor5'])) {
+    $libraries['ckeditor5']['dependencies'][] = 'ckeditor5_premium_features/distribution-channel';
   }
 }
 
@@ -105,7 +110,7 @@ function ckeditor5_premium_features_library_info_alter(&$libraries, $extension) 
  */
 function ckeditor5_premium_features_ckeditor5_plugin_info_alter(array &$plugin_definitions) {
   // In order to safely remove disableGhsTableIntegration.js we have to alter
-  // CKEditor5 plugin that wa using this file.
+  // CKEditor5 plugin that was using this file.
   if (\Drupal::service('ckeditor5_premium_features.core_library_version_checker')->isLibraryVersionHigherOrEqual('35.4.0')) {
     $definition = $plugin_definitions["ckeditor5_premium_features__collaboration_integration_base"];
     $definition_array = $definition->toArray();
@@ -151,7 +156,7 @@ function ckeditor5_premium_features_filter_format_disable(FilterFormatInterface 
   // Revoke all collaboration permissions after text format is disabled.
   /** @var \Drupal\ckeditor5_premium_features\Utility\PermissionHelper $permissionHelper */
   $permissionHelper = \Drupal::service('ckeditor5_premium_features.permission_helper');
-  $permissionHelper->deleteCollaborationPermissions($format);
+  $permissionHelper->revokeCollaborationPermissions([$format]);
 }
 
 /**

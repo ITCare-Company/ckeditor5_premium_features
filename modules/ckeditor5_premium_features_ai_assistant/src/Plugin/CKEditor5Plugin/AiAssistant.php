@@ -66,6 +66,7 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
 
     $textAdapter = $config->get('textAdapter') ?? AITextAdapter::OpenAI->value;
     $static_plugin_config['ai']['textAdapter'] = $textAdapter;
+    $textAdapterPlugin = '';
 
     if ($config->get('use_custom_endpoint') && $apiUrl = $config->get('api_url')) {
       $static_plugin_config['ai'][$textAdapter]['apiUrl'] = $apiUrl;
@@ -78,13 +79,28 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
         ->toString();
     }
 
+    $providerName = $config->get('ai_provider');
     if ($textAdapter === AITextAdapter::AWS->value) {
-      $providerName = $config->get('ai_provider');
       $model = $config->get("{$providerName}_model");
       $static_plugin_config['ai'][$textAdapter]['requestParameters'] = [
         'model' => $model,
         'stream' => FALSE,
       ];
+      $textAdapterPlugin = AITextAdapter::getAITextAdapterPluginName(AITextAdapter::AWS);
+    }
+    elseif ($textAdapter === AITextAdapter::OpenAI->value) {
+      $model = !empty($config->get("{$providerName}_model")) ? $config->get("{$providerName}_model") : 'gpt-3.5-turbo';
+      $parameters = json_decode($config->get("{$providerName}_parameters") ?? '', TRUE) ?? [];
+      $defaults = [
+        'model' => $model,
+        'max_tokens' => 2000,
+        'temperature' => 1,
+        'top_p' => 1,
+        'stream' => TRUE,
+      ];
+      $requestParameters = array_merge($defaults, $parameters);
+      $static_plugin_config['ai'][$textAdapter]['requestParameters'] = $requestParameters;
+      $textAdapterPlugin = AITextAdapter::getAITextAdapterPluginName(AITextAdapter::OpenAI);
     }
 
     if ($config->get('disable_default_styles')) {
@@ -105,6 +121,8 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
         ];
       }
     }
+
+    $static_plugin_config['removePlugins'] = $this->getUnnecessaryTextAdapterPlugins($textAdapterPlugin);
     return $static_plugin_config;
   }
 
@@ -180,6 +198,19 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
     }
 
     return $definitions;
+  }
+
+  /**
+   * Get array of Text Adapter plugins to disable.
+   *
+   * @param string $activeTextAdapter
+   *  Text Adapter plugin for active AI provider
+   * @return array
+   *  Text Adapter plugins that should be disabled.
+   */
+  private function getUnnecessaryTextAdapterPlugins(string $activeTextAdapter): array {
+    $allAdapters = ['AWSTextAdapter', 'OpenAITextAdapter'];
+    return array_diff($allAdapters, [$activeTextAdapter]);
   }
 
 }

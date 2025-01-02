@@ -34,6 +34,36 @@ class RealtimeAdapter {
       console.info('The Source editing plugin is not compatible with real-time collaboration, so it has been disabled. If you need it, please contact us to discuss your use case - https://ckeditor.com/contact/');
       editor.plugins.get('SourceEditing').forceDisabled('drupal-rtc');
     }
+
+    let editorParent = this.getFieldWrapper(this.editor.sourceElement.id);
+    if (editorParent) {
+      this.textFormatSelect = editorParent.querySelector(".js-filter-list");
+      if (this.textFormatSelect) {
+        this.textFormatSelect.addEventListener('change', this.changeEditor.bind(this));
+      }
+    }
+
+  }
+
+  getFieldWrapper(elementId) {
+    const editorElement = document.getElementById(elementId);
+    if (editorElement) {
+      return editorElement.closest(".js-text-format-wrapper");
+    }
+    return null;
+  }
+
+  /**
+   * Calls an endpoint that resets the collaborative session for a channel of the field that has text format changed.
+   *
+   * @param event
+   */
+  changeEditor(event) {
+    const channelId = this.editor.config._config.collaboration.channelId
+    const Http = new XMLHttpRequest();
+    const url='/ckeditor5-premium-features-realtime-collaboration/flush-session/' + channelId;
+    Http.open("DELETE", url);
+    Http.send();
   }
 
   setPresenceListContainer() {
@@ -41,13 +71,30 @@ class RealtimeAdapter {
     if (!presenceListConfig || typeof presenceListConfig === "undefined") {
       return;
     }
-
     if (!presenceListConfig.container) {
       const presenceListContainerId = this.editor.sourceElement.id + '-presence-list-container';
-      presenceListConfig.container = document.getElementById(presenceListContainerId);
+      const presenceListElement = document.getElementById(presenceListContainerId);
+      if (!presenceListElement) {
+        const formItem = this.editor.sourceElement.closest(".form-item");
+        const presenceListWrapper = document.createElement("div");
+        presenceListWrapper.setAttribute("class", "ck-presence-list-container");
+        presenceListWrapper.setAttribute("id", presenceListContainerId);
+        formItem.parentNode.insertBefore(presenceListWrapper, formItem.previousSibling);
+        presenceListConfig.container = presenceListWrapper;
+      } else {
+        presenceListConfig.container = presenceListElement;
+      }
     }
+
     if (!presenceListConfig.collapseAt) {
       presenceListConfig.collapseAt = drupalSettings.presenceListCollapseAt;
+    }
+  }
+
+  clearPresenceListContainer() {
+    const presenceListContainer = this.editor.config._config.presenceList.container;
+    if (presenceListContainer) {
+      presenceListContainer.innerHTML = '';
     }
   }
 
@@ -87,8 +134,10 @@ class RealtimeAdapter {
           const suggestions = trackChangesPlugin.getSuggestions({skipNotAttached: false});
           const trackChangesElement = document.querySelector(trackChangesCssClass + dataAttribute);
           for (let i in suggestions) {
-            if (suggestions[i].head != null && (suggestions[i].next != null || suggestions[i].previous != null)) {
-              suggestions[i].setAttribute('head', suggestions[i].head.id);
+            // Clone suggestion before adding modifications to attributes as this may break grouped suggestions.
+            let clone = structuredClone(suggestions[i]);
+            if (clone.head != null && (clone.next != null || clone.previous != null)) {
+              clone.setAttribute('head', clone.head.id);
             }
             suggestions[i].setAttribute('items', suggestions[i].getItems());
             trackedSuggestion.set(suggestions[i].id, suggestions[i]);
@@ -116,6 +165,13 @@ class RealtimeAdapter {
         this.editor.execute('trackChanges');
       }
     });
+  }
+
+  destroy() {
+    if (this.textFormatSelect || typeof this.textFormatSelect !== "undefined") {
+      this.textFormatSelect.removeEventListener('change', this.changeEditor.bind(this));
+    }
+    this.clearPresenceListContainer();
   }
 
   /**

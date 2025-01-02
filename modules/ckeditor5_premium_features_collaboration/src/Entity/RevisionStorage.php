@@ -100,9 +100,18 @@ class RevisionStorage extends SqlContentEntityStorage implements
     $raw_data = Revision::normalize($raw_data);
     $data = new ParameterBag($raw_data);
 
+    // Try getting the creator id. Since Drupal 11, Symfony's ParameterBag->getInt() will throw an exception if the
+    // value is null instead returning 0.
+    try {
+      $uid = $data->getInt('creator');
+    }
+    catch (\Exception $e) {
+      $uid = 0;
+    }
+
     $object_data = [
       'id' => $data->get('id'),
-      'uid' => $data->getInt('creator'),
+      'uid' => $uid,
       'entity_id' => $data->get('entity_id'),
       'created' => $data->getInt('created'),
       'langcode' => $data->get('langcode'),

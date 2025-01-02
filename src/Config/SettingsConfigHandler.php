@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Config;
 
+use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\Core\Asset\LibraryDiscoveryInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
@@ -35,6 +36,13 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   protected $libraryDiscovery;
 
   /**
+   *  The CKEditor 5 library version checker.
+   *
+   * @var \Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker
+   */
+  protected $libraryVersionChecker;
+
+  /**
    * The module handler.
    *
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
@@ -46,14 +54,18 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory service.
+   * @param \Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker $library_version_checker
+   *   The library version checker.
    * @param \Drupal\Core\Asset\LibraryDiscoveryInterface $library_discovery
    *   Library discovery service.
    */
   public function __construct(protected ConfigFactoryInterface $configFactory,
                               protected LibraryDiscoveryInterface $library_discovery,
+                              protected LibraryVersionChecker $library_version_checker,
                               protected ModuleHandlerInterface $module_handler) {
     $this->config = $this->configFactory->get('ckeditor5_premium_features.settings');
     $this->libraryDiscovery = $library_discovery;
+    $this->libraryVersionChecker = $library_version_checker;
     $this->moduleHandler = $this->module_handler;
   }
 
@@ -99,15 +111,21 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTokenUrl(): string {
+  public function getTokenUrl($filterFormatId = NULL): string {
     $type = $this->config->get('auth_type');
 
     if ($type === 'dev_token' && $token_url = $this->getDevelopmentTokenUrl()) {
       return $token_url;
     }
 
+    $options = [];
+
+    if ($filterFormatId) {
+      $options['query'] = ['format' => $filterFormatId];
+    }
+
     if ($type === 'key' && $this->getAccessKey() && $this->getEnvironmentId()) {
-      return Url::fromRoute('ckeditor5_premium_features.endpoint.jwt_token')
+      return Url::fromRoute('ckeditor5_premium_features.endpoint.jwt_token', [], $options)
         ->toString(TRUE)
         ->getGeneratedUrl();
     }
@@ -122,7 +140,7 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   public function getDllLocation(string $file_name = ''): string {
     $base_path = $this->config->get('dll_location') ?: $this->getDefaultDllLocation();
 
-    $base_path = trim($base_path, ' /') . '/';
+    $base_path = rtrim($base_path, ' /') . '/';
 
     $base_path = $this->replaceTokens($base_path);
 
@@ -200,6 +218,18 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
    */
   public function isAlterNodeFormCssEnabled(): bool {
     return (bool) $this->config->get('alter_node_form_css');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isAddKeyToAllInstancesEnabled(): bool {
+    if (!$this->libraryVersionChecker->isLibraryVersionHigherOrEqual('44.0.0')) {
+      // Ignore the setting for versions older than 44.0.0 the license can be always added as there is no usage based billing.
+      return TRUE;
+    }
+
+    return (bool) $this->config->get('add_key_to_all_instances');
   }
 
   /**

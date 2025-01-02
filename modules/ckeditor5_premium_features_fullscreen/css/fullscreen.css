@@ -8,13 +8,15 @@
   --ck-z-default: 10000;
   --ck-z-modal: calc(var(--ck-z-default) + 999);
 }
-.ck-fullscreen-overlay .ui-dialog {
+.ck-fullscreen-overlay .ui-dialog,
+.ck-fullscreen-overlay .ck-dialog-overlay {
   z-index: calc(var(--ck-z-modal) + 2) !important;
 }
 .ck-fullscreen-overlay .ck.ck-balloon-panel {
   z-index: calc(var(--ck-z-modal) + 10000) !important;
 }
 
+.ck-fullscreen-overlay:not(.ck-fullscreen-with-word-count) .ck-evaluation-badge-balloon .ck-evaluation-badge,
 .ck-fullscreen-overlay:not(.ck-fullscreen-with-word-count) .ck-powered-by-balloon .ck-powered-by {
   margin-bottom: 13px;
 }

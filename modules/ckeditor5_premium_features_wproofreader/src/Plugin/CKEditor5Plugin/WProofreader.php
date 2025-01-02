@@ -86,11 +86,67 @@ class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPlu
       $static_plugin_config['wproofreader']['servicePort'] = $this->wProofReaderConfig->get('service_port') ?? '';
       $static_plugin_config['wproofreader']['servicePath'] = $this->wProofReaderConfig->get('service_path') ?? '';
       $static_plugin_config['wproofreader']['srcUrl'] = $this->wProofReaderConfig->get('src_url') ?? '';
-      return $static_plugin_config;
     }
-    $static_plugin_config['wproofreader']['srcUrl'] = SettingsForm::DEFAULT_WSCBUNDLE_URL;
-    $static_plugin_config['wproofreader']['serviceHost'] = $this->host;
-    $static_plugin_config['wproofreader']['servicePath'] = $this->urlGenerator->generateFromRoute('ckeditor5_premium_features_wproofreader.webspellchecker_proxy');
+    else {
+      $static_plugin_config['wproofreader']['srcUrl'] = SettingsForm::DEFAULT_WSCBUNDLE_URL;
+      $static_plugin_config['wproofreader']['serviceHost'] = $this->host;
+      $static_plugin_config['wproofreader']['servicePath'] = $this->urlGenerator->generateFromRoute('ckeditor5_premium_features_wproofreader.webspellchecker_proxy');
+    }
+
+    // Default settings
+    $rawConfig = $this->wProofReaderConfig->getRawData();
+    $static_plugin_config['wproofreader']['spellingSuggestions'] = isset($rawConfig['spellingSuggestions']) ? (bool) $rawConfig['spellingSuggestions'] : TRUE;
+    $static_plugin_config['wproofreader']['grammarSuggestions'] = isset($rawConfig['grammarSuggestions']) ? (bool) $rawConfig['grammarSuggestions'] : TRUE;
+    $static_plugin_config['wproofreader']['styleGuideSuggestions'] = isset($rawConfig['styleGuideSuggestions']) ? (bool) $rawConfig['styleGuideSuggestions'] : TRUE;
+    $static_plugin_config['wproofreader']['autocorrect'] = isset($rawConfig['autocorrect']) ? (bool) $rawConfig['autocorrect'] : TRUE;
+    $static_plugin_config['wproofreader']['autocomplete'] = isset($rawConfig['autocomplete']) ? (bool) $rawConfig['autocomplete'] : FALSE;
+    $static_plugin_config['wproofreader']['ignoreAllCapsWords'] = isset($rawConfig['ignoreAllCapsWords']) ? (bool) $rawConfig['ignoreAllCapsWords'] : FALSE;
+    $static_plugin_config['wproofreader']['ignoreDomainNames'] = isset($rawConfig['ignoreDomainNames']) ? (bool) $rawConfig['ignoreDomainNames'] : TRUE;
+    $static_plugin_config['wproofreader']['ignoreWordsWithMixedCases'] = isset($rawConfig['ignoreWordsWithMixedCases']) ? (bool) $rawConfig['ignoreWordsWithMixedCases'] : FALSE;
+    $static_plugin_config['wproofreader']['ignoreWordsWithNumbers'] = isset($rawConfig['ignoreWordsWithNumbers']) ? (bool) $rawConfig['ignoreWordsWithNumbers'] : TRUE;
+
+    // User settings sections access.
+    $settingsSections = [];
+    $disableOptionsStorage = [];
+    $actionItems = ['proofreadDialog', 'addWord', 'ignoreAll'];
+    if ($this->currentUser->hasPermission('ckeditor5 wproofreader user dictionary')) {
+      $settingsSections[] = 'dictionaries';
+    }
+    if ($this->currentUser->hasPermission('ckeditor5 wproofreader user language')) {
+      $settingsSections[] = 'languages';
+    }
+    else {
+      $disableOptionsStorage[] = 'lang';
+    }
+    if ($this->currentUser->hasPermission('ckeditor5 wproofreader user general settings')) {
+      $settingsSections[] = 'general';
+    }
+    else {
+      $disableGeneralOptionsStorage = ['spellingSuggestions', 'grammarSuggestions', 'styleGuideSuggestions', 'autocorrect', 'autocomplete'];
+      $disableOptionsStorage = array_merge($disableOptionsStorage, $disableGeneralOptionsStorage);
+    }
+    if ($this->currentUser->hasPermission('ckeditor5 wproofreader user ignore settings')) {
+      $settingsSections[] = 'options';
+    }
+    else {
+      $disableIgnoreOptionsStorage = ['ignoreAllCapsWords', 'ignoreDomainNames', 'ignoreWordsWithMixedCases', 'ignoreWordsWithNumbers'];
+      $disableOptionsStorage = array_merge($disableOptionsStorage, $disableIgnoreOptionsStorage);
+    }
+
+    if ($this->currentUser->hasPermission('ckeditor5 wproofreader toggle proofreading')) {
+      $actionItems[] = 'toggle';
+    }
+    if ($settingsSections) {
+      $static_plugin_config['wproofreader']['settingsSections'] = $settingsSections;
+      $actionItems[] = 'settings';
+    }
+
+    $actionItems[] = 'report';
+    $static_plugin_config['wproofreader']['actionItems'] = $actionItems;
+
+    if ($disableOptionsStorage) {
+      $static_plugin_config['wproofreader']['disableOptionsStorage'] = $disableOptionsStorage;
+    }
 
     return $static_plugin_config;
   }

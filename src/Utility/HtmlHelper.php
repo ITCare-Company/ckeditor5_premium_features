@@ -390,12 +390,20 @@ class HtmlHelper {
    * @throws \DOMException
    */
   private function replaceSuggestionAttribute(\DOMDocument $dom, \DOMElement $suggestion, string $attribute, string $qualifiedName, string $function): void {
-    $value = $suggestion->getAttribute($attribute);
-    $elem = new \DOMElement($qualifiedName);
-    $elemNode = $dom->importNode($elem);
-    $elemNode->setAttribute('name', $value);
-    $suggestion->$function($elemNode);
-    $suggestion->removeAttribute($attribute);
+    $values = explode(',', $suggestion->getAttribute($attribute));
+
+    foreach ($values as $value) {
+      $elem = new \DOMElement($qualifiedName);
+      $elemNode = $dom->importNode($elem);
+      $elemNode->setAttribute('name', $value);
+      if (str_contains($value, 'attribute:linkHref')) {
+        $suggestion->parentNode->$function($elemNode);
+      }
+      else {
+        $suggestion->$function($elemNode);
+      }
+      $suggestion->removeAttribute($attribute);
+    }
   }
 
   /**
@@ -462,6 +470,190 @@ class HtmlHelper {
       $context = str_replace($suggestion, $fixedSuggestion, $context);
     }
     return $context;
+  }
+
+  /**
+   * Removes element and moves the children to the parent element.
+   *
+   * @param \DOMElement $element
+   *   The element to be removed.
+   */
+  public function removeWrappingElement(\DOMElement $element): void {
+    $parent = $element->parentNode;
+    if (!$parent instanceof \DOMElement) {
+      return;
+    }
+    while ($element->firstChild) {
+      $parent->insertBefore($element->firstChild, $element);
+    }
+    $parent->removeChild($element);
+  }
+
+  /**
+   * Wraps the element with a tag.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMElement $element
+   *   The element to be wrapped.
+   * @param string $tag
+   *   The tag to wrap the text with.
+   * @param array $attributes
+   *   The attributes array.
+   */
+  public function wrapElementWithTag(\DOMDocument $dom, \DOMElement $element, string $tag, array $attributes = []): void {
+    $newElement = $dom->createElement($tag);
+    if ($attributes) {
+      $this->addAttributesToElement($newElement, $attributes);
+    }
+    $newElement->appendChild($element->cloneNode(TRUE));
+    $element->parentNode->replaceChild($newElement, $element);
+  }
+
+  /**
+   * Wraps the DOMNodeList with a tag.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMNodeList $nodes
+   *   The nodes to be wrapped.
+   * @param string $tag
+   *   The tag to wrap the text with.
+   * @param array $attributes
+   *   The attributes array.
+   */
+  public function wrapNodesWithTag(\DOMDocument $dom, \DOMNodeList $nodes, string $tag, array $attributes = []): void {
+    $newElement = $dom->createElement($tag);
+    if ($attributes) {
+      $this->addAttributesToElement($newElement, $attributes);
+    }
+
+    foreach ($nodes as $node) {
+      $newElement->appendChild($node->cloneNode(TRUE));
+      $node->parentNode->replaceChild($newElement, $node);
+    }
+  }
+
+  /**
+   * Wrap the text node with a tag.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMText $text
+   *   The text node to be wrapped.
+   * @param string $tag
+   *   The tag to wrap the text with.
+   * @param array $attributes
+   *   The attributes array.
+   */
+  public function wrapTextWithTag(\DOMDocument $dom, \DOMText $text, string $tag, array $attributes = []): void {
+    $newElement = $dom->createElement($tag);
+    if ($attributes) {
+      $this->addAttributesToElement($newElement, $attributes);
+    }
+    $newElement->textContent = $text->textContent;
+    $parent = $text->parentNode;
+    if (!$parent instanceof \DOMElement) {
+      return;
+    }
+    $parent->replaceChild($newElement, $text);
+  }
+
+  /**
+   * Replaces the element with new one preserving all the attributes and children.
+   *
+   * @param \DOMDocument $dom
+   *   The DOM Document.
+   * @param \DOMElement $element
+   *   The element to be changed.
+   * @param string $tag
+   *   The new tag.
+   */
+  public function changeElementTag(\DOMDocument $dom, \DOMElement $element, string $tag): void {
+    $newElement = $dom->createElement($tag);
+    foreach ($element->attributes as $attribute) {
+      $newElement->setAttribute($attribute->name, $attribute->value);
+    }
+    while ($element->firstChild) {
+      $newElement->appendChild($element->firstChild);
+    }
+    $element->parentNode->replaceChild($newElement, $element);
+  }
+
+  /**
+   * Adds attributes to the element.
+   *
+   * @param \DOMElement $element
+   *   The element to add attributes to.
+   * @param array $attributes
+   *   The attributes to add.
+   */
+  public function addAttributesToElement(\DOMElement $element, array $attributes): void {
+    foreach ($attributes as $attribute => $value) {
+      if (!$attribute || !$value) {
+        continue;
+      }
+      if ($attribute === 'style') {
+        foreach ($value as $property => $propertyValue) {
+          $element->setAttribute($attribute, $property . ':' . $propertyValue);
+        }
+      }
+      else {
+        $element->setAttribute($attribute, $value);
+      }
+    }
+  }
+
+  /**
+   * Replaces the class of the element.
+   *
+   * @param \DOMElement $element
+   *   The element to replace class.
+   * @param string $oldClass
+   *   The class to be removed.
+   * @param string $newClass
+   *   The class to be added.
+   */
+  public function replaceClass(\DOMElement $element, string $oldClass = '', string $newClass = ''): void {
+    if ($oldClass) {
+      $this->removeClass($element, $oldClass);
+    }
+    if ($newClass) {
+      $this->addClass($element, $newClass);
+    }
+  }
+
+  /**
+   * Adds class to the element.
+   *
+   * @param \DOMElement $element
+   *   The element to add class to.
+   * @param string $class
+   *   The class to add.
+   */
+  public function addClass(\DOMElement $element, string $class): void {
+    $classesStr = $element->getAttribute('class');
+    $classes = $classesStr ? explode(' ', $classesStr) : [];
+    if (!in_array($class, $classes)) {
+      $classes[] = $class;
+    }
+    $element->setAttribute('class', implode(' ', $classes));
+  }
+
+  /**
+   * Removes class from the element.
+   *
+   * @param \DOMElement $element
+   *   The element to remove class from.
+   * @param string $class
+   *   The class to remove.
+   */
+  public function removeClass(\DOMElement $element, string $class): void {
+    $classes = explode(' ', $element->getAttribute('class'));
+    $classes = array_filter($classes, function ($item) use ($class) {
+      return $item !== $class;
+    });
+    $element->setAttribute('class', implode(' ', $classes));
   }
 
 }

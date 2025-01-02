@@ -41,3 +41,15 @@ ckeditor5_premium_features.base64_image_converter:
   requirements:
     _permission: 'access content'
     _format: json
+
+ckeditor5_premium_features.drupal_version:
+  path: '/ckeditor5-premium-features/drupal-version/{editor}'
+  defaults:
+    _title: 'Drupal Version'
+    _controller: '\Drupal\ckeditor5_premium_features\Controller\DrupalVersion::currentVersion'
+  requirements:
+    _custom_access: '\Drupal\ckeditor5_premium_features\Controller\DrupalVersion::access'
+  options:
+    parameters:
+      editor:
+        type: entity:editor

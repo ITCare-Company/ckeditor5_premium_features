@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features_collaboration\Element;
 
 use Drupal\ckeditor5_premium_features\CKeditorFieldKeyHelper;
-use Drupal\ckeditor5_premium_features\CollaborationAccessHandler;
+use Drupal\ckeditor5_premium_features\CollaborationAccessHandlerInterface;
 use Drupal\ckeditor5_premium_features\Diff\DocumentDiffHelper;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatInterface;
 use Drupal\ckeditor5_premium_features\Element\Ckeditor5TextFormatTrait;
@@ -121,7 +121,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     protected EventDispatcherInterface $eventDispatcher,
     protected AccountInterface $currentUser,
     protected DocumentDiffHelper $documentDiffHelper,
-    protected CollaborationAccessHandler $collaborationAccessHandler,
+    protected CollaborationAccessHandlerInterface $collaborationAccessHandler,
     protected RevisionsLimitHandler $revisionsLimitHandler
   ) {
     $this->suggestionStorage = $this->entityTypeManager->getStorage(SuggestionInterface::ENTITY_TYPE_ID);
@@ -233,8 +233,61 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     $element['#element_validate'] = [[$this, 'validateElement']];
     $element['value']['#theme'] = 'ckeditor5_textarea';
+
+    self::addCallback('previewAction', [['actions', 'preview', '#submit']], $complete_form, 0, TRUE);
+
     return $element;
   }
+
+  /**
+   * Loads the service in static call and executes pre preview action.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public static function previewAction(array &$form, FormStateInterface $form_state): void {
+    $service = \Drupal::service('ckeditor5_premium_features_collaboration.element.text_format');
+    $service->preparePreview($form, $form_state);
+  }
+
+  /**
+   * Custom action for previewing content. Newly added suggestions won't be added to database yes, so we're storing
+   * attribute suggestion data in temp storage for text filter processing.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public function preparePreview(array &$form, FormStateInterface $form_state): void {
+    $form_object = $form_state->getFormObject();
+    if (!$this->isFormTypeSupported($form_object)) {
+      // Do not process anything, the entity is missing.
+      return;
+    }
+    $items = $form_state->get(static::STORAGE_KEY) ?? [];
+    $storageData = [];
+    foreach ($items as $item_key => $item_parents) {
+      $key = 'track_changes';
+      $source_data = $this->getFormElementSourceData($form_state, $item_parents['parents'], $key, $item_key);
+      if (empty($source_data)) {
+        continue;
+      }
+      foreach ($source_data as $suggestion) {
+        if (!str_contains($suggestion['type'], 'attribute')) {
+          continue;
+        }
+        $storageData[$suggestion['id']] = $suggestion;
+      }
+    }
+
+    $store = \Drupal::service('tempstore.private')->get('ckeditor5_premium_features_collaboration');
+    $store->set($form_object->getEntity()->uuid(), $storageData);
+  }
+
+
 
   /**
    * Validate element.
@@ -272,7 +325,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
 
     // User does not have permission to make non-suggestion changes. Throw
     // error in case there are changes outside collaboration tags.
-    $isRawDocumentChanged = $this->documentDiffHelper->isRawDocumentChanged($sourceOriginalData, $sourceNewData);
+    $trackChangesData = $this->getFormElementSourceData($form_state, $item_parents, 'track_changes', $item_key);
+    $isRawDocumentChanged = $this->documentDiffHelper->isRawDocumentChanged($sourceOriginalData, $sourceNewData, $trackChangesData);
     if (!$userAccess['document_write'] && $isRawDocumentChanged) {
       $form_state->setError($element, $this->t("You are not allowed to edit the %field field.", ['%field' => $element['#title']]));
       return;
@@ -517,6 +571,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       return;
     }
 
+    if ($storage instanceof SuggestionStorage) {
+      $this->processSuggestionGroups($entities_data);
+    }
+
     $added = [];
     $updated = [];
     foreach ($entities_data as $element_data) {
@@ -550,6 +608,26 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     $this->storagesOperations[$storageKey][$itemKey]['updated'] = $updated;
     $this->storagesOperations[$storageKey][$itemKey]['original_content'] = $originalContent;
     $this->storagesOperations[$storageKey][$itemKey]['new_content'] = $newContent;
+  }
+
+  /**
+   * Overrides head attribute in case of grouped suggestions as they should be sent as a single notification.
+   *
+   * @param array $entities_data
+   *   The entities data collected from markup.
+   */
+  private function processSuggestionGroups(&$entities_data): void {
+    $groups = [];
+    // Override head value of grouped suggestions, so they'll be sent in a single notification.
+    foreach ($entities_data as $key => $element_data) {
+      if (isset($element_data['attributes']['groupId'])) {
+        $groupId = $element_data['attributes']['groupId'];
+        if (!array_key_exists($element_data['attributes']['groupId'], $groups)) {
+          $groups[$groupId] = $element_data['id'];
+        }
+        $entities_data[$key]['attributes']['head'] = $groups[$groupId];
+      }
+    }
   }
 
   /**

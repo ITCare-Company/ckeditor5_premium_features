@@ -3,9 +3,6 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-import AWSTextAdapter from "@ckeditor/ckeditor5-ai/src/adapters/awstextadapter";
-import OpenAITextAdapter from "@ckeditor/ckeditor5-ai/src/adapters/openaitextadapter";
-
 class AIServiceAdapter {
 
   static get pluginName() {
@@ -17,9 +14,9 @@ class AIServiceAdapter {
     const AIAdapter = this.editor.plugins.get('AIAdapter');
     let textAdapter;
     if (this.editor.config._config.ai.textAdapter === 'aws') {
-      textAdapter = new AWSTextAdapter(editor);
+      textAdapter = editor.plugins.get('AWSTextAdapter');
     } else {
-      textAdapter = new OpenAITextAdapter(editor);
+      textAdapter = editor.plugins.get('OpenAITextAdapter');
     }
     AIAdapter.set('textAdapter', textAdapter)
   }

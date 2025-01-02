@@ -46,6 +46,9 @@ class LibraryVersionChecker {
    *   If version is the same or higher returns TRUE.
    */
   public function isLibraryVersionHigherOrEqual(string $expectedVersion): bool {
+    if (in_array($this->ckeditor5Version, ['nightly', 'master'])) {
+      return TRUE;
+    }
     if (version_compare($this->ckeditor5Version, $expectedVersion) >= 0) {
       return TRUE;
     }

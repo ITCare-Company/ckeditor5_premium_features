@@ -11,6 +11,7 @@ namespace Drupal\ckeditor5_premium_features\Form;
 
 use Drupal\ckeditor5_premium_features\Utility\CssStyleProvider;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -33,8 +34,9 @@ abstract class BaseExportSettingsForm extends SharedBuildConfigFormBase {
    *   The css style provider.
    */
   public function __construct(ConfigFactoryInterface $config_factory,
+                              TypedConfigManagerInterface $typedConfigManager,
                               protected CssStyleProvider $cssStyleProvider) {
-    parent::__construct($config_factory);
+    parent::__construct($config_factory, $typedConfigManager);
   }
 
   /**
@@ -43,6 +45,7 @@ abstract class BaseExportSettingsForm extends SharedBuildConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('ckeditor5_premium_features.css_style_provider'),
     );
   }

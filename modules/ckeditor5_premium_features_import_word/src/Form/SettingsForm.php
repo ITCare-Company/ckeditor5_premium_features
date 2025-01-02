@@ -27,8 +27,7 @@ class SettingsForm extends ConfigFormBase {
   public function __construct(ConfigFactoryInterface $config_factory,
                               TypedConfigManagerInterface $typedConfigManager,
                               protected LibraryVersionChecker $libraryVersionChecker) {
-    parent::__construct($config_factory);
-    $this->typedConfigManager = $typedConfigManager;
+    parent::__construct($config_factory, $typedConfigManager);
   }
 
   /**

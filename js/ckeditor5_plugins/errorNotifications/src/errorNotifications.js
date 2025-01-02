@@ -16,9 +16,21 @@ const definitions = [
   },
   {
     header: 'Trial limit exceeded',
-    description: 'Your premium features trial limit for this node has been exceeded. Create a new node or contact sales@cksource.com if you want to upgrade to the full version. ',
+    description: 'You have exhausted the trial usage limit. Restart the editor - you can reload the page or save edited content.',
     type: 'error',
     reactsTo: { message: 'trial-license-key-reached-limit' }
+  },
+  {
+    header: 'Trial limit exceeded',
+    description: 'You have reached the usage limit of your trial license key. Restart the editor - you can reload the page or save edited content.',
+    type: 'error',
+    reactsTo: { message: 'license-key-trial-limit' }
+  },
+  {
+    header: 'Usage limit reached',
+    description: 'You have reached the usage limit of your license key. Please contact our customer support to extend the limit at https://ckeditor.com/contact/.',
+    type: 'error',
+    reactsTo: { message: 'license-key-usage-limit' }
   },
   {
     header: 'WProofreader Authorization Error',
@@ -37,6 +49,12 @@ const definitions = [
     description: 'You have no permission to access the WProofreader proxy.',
     type: 'error',
     reactsTo: { message: 'wproofreader-permission-error' }
+  },
+  {
+    header: 'Access denied',
+    description: 'You don\'t have enough permissions for this action.',
+    type: 'unhandledrejection',
+    reactsTo: { message: 'You don\'t have enough permissions to access this resource' }
   }
 ]
 
@@ -89,7 +107,6 @@ class ErrorNotifications extends Plugin {
 
         this.editor.editing.view.focus();
       } );
-
       this.availableNotifications.add( notification )
     }
   }
@@ -106,10 +123,11 @@ class ErrorNotifications extends Plugin {
 
   _handleError( evt ) {
     let notificationToShow = null;
-
     const matches = new Collection();
 
-    if ( this.activeNotification || !evt.error ) {
+    if ( this.activeNotification ||
+      ( evt.type === "error" && !evt.error) ||
+      ( evt.type === "unhandledrejection" && !evt.reason)) {
       return;
     }
 
@@ -117,7 +135,10 @@ class ErrorNotifications extends Plugin {
       const reactsTo = notification.reactsTo;
 
       for ( const key in reactsTo ) {
-        if ( evt.error[ key ] && evt.error[ key ].includes( reactsTo[ key ] ) ) {
+        if ( evt.type === "error" && evt.error[ key ] && evt.error[ key ].includes( reactsTo[ key ] ) ) {
+          matches.add( notification );
+        }
+        if ( evt.type === "unhandledrejection" && evt.reason[ key ] && evt.reason[ key ].includes( reactsTo[ key ] ) ) {
           matches.add( notification );
         }
       }

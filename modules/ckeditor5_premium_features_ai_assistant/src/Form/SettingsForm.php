@@ -86,7 +86,7 @@ class SettingsForm extends ConfigFormBase {
       '#ajax' => [
         'callback' => '::changeProviderFields',
         'wrapper' => 'provider-settings',
-        'method' => 'replace',
+        'method' => 'replaceWith',
       ],
     ];
 

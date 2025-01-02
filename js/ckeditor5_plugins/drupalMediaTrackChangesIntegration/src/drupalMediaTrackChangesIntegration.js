@@ -14,13 +14,17 @@ class DrupalMediaTrackChangesIntegration extends Plugin {
   afterInit() {
     const editor = this.editor;
 
+    if (!editor.plugins.has( 'TrackChangesEditing' )) {
+      return;
+    }
+
     const trackChangesEditing = editor.plugins.get( 'TrackChangesEditing' );
 
     trackChangesEditing.enableCommand( 'insertDrupalMedia' );
 
     const t = editor.t;
-
-    trackChangesEditing._descriptionFactory.registerElementLabel(
+    const descriptionFactory = typeof trackChangesEditing._descriptionFactory === 'undefined' ? trackChangesEditing.descriptionFactory : trackChangesEditing._descriptionFactory;
+    descriptionFactory.registerElementLabel(
       'drupalMedia',
 
       quantity => t( {
