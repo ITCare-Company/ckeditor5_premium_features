@@ -135,11 +135,11 @@ class RealtimeAdapter {
           const trackChangesElement = document.querySelector(trackChangesCssClass + dataAttribute);
           for (let i in suggestions) {
             // Clone suggestion before adding modifications to attributes as this may break grouped suggestions.
-            let clone = structuredClone(suggestions[i]);
-            if (clone.head != null && (clone.next != null || clone.previous != null)) {
-              clone.setAttribute('head', clone.head.id);
+            let clone = this.cloneSuggestionForBackend(suggestions[i]);
+            if (suggestions[i].head != null && (suggestions[i].next != null || suggestions[i].previous != null)) {
+              clone.attributes.head = suggestions[i].head;
             }
-            suggestions[i].setAttribute('items', suggestions[i].getItems());
+            clone.attributes.items = suggestions[i].getItems();
             trackedSuggestion.set(suggestions[i].id, suggestions[i]);
           }
           trackChangesElement.value = JSON.stringify(Array.from(trackedSuggestion.values()));
@@ -185,6 +185,20 @@ class RealtimeAdapter {
         this.editor.sourceElement.setAttribute('data-editor-value-is-changed', true);
       }
     } );
+  }
+
+  cloneSuggestionForBackend(suggestion) {
+    let clone = {
+      'id': suggestion.id,
+      'type': suggestion.type,
+      'authorId': suggestion.authorId,
+      'createdAt': suggestion.createdAt,
+      'hasComments': suggestion.hasComments,
+      'data': suggestion.data,
+      'attributes': suggestion.attributes,
+    };
+
+    return clone
   }
 
 }
