@@ -7,7 +7,7 @@
 
 namespace Drupal\ckeditor5_premium_features\Generator;
 
-use Drupal\ckeditor5_premium_features\Config\ExportFeaturesConfigHandlerInterface;
+use Drupal\ckeditor5_premium_features\Config\ImportExportFeaturesConfigHandlerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Firebase\JWT\JWT;
 
@@ -31,7 +31,7 @@ class ExportTokenGenerator implements TokenGeneratorInterface {
    */
   public function __construct(
     protected AccountProxyInterface $account,
-    protected ExportFeaturesConfigHandlerInterface $settingsConfigHandler,
+    protected ImportExportFeaturesConfigHandlerInterface $settingsConfigHandler,
   ) {
   }
 

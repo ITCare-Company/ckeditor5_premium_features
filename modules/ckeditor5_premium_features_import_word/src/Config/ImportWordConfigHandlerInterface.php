@@ -9,10 +9,12 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_import_word\Config;
 
+use Drupal\ckeditor5_premium_features\Config\ImportExportFeaturesConfigHandlerInterface;
+
 /**
  * Interface for ImportWordConfigHandler.
  */
-interface ImportWordConfigHandlerInterface {
+interface ImportWordConfigHandlerInterface extends ImportExportFeaturesConfigHandlerInterface {
 
   /**
    * Check if Word styles should be preserved on import.
