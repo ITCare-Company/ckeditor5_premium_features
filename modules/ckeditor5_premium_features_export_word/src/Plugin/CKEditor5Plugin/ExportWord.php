@@ -174,13 +174,13 @@ class ExportWord extends ExportBase {
       'left' => $oldFormatConfig['margin_left'],
       'right' => $oldFormatConfig['margin_right'],
     ];
-    if ($oldFormatConfig['orientation']) {
+    if (isset($oldFormatConfig['orientation'])) {
       $config['document']['orientation'] = $oldFormatConfig['orientation'];
     }
-    if (isset($oldFormatConfig['header']) && $oldFormatConfig['header']) {
+    if (isset($oldFormatConfig['header'])) {
       $config['headers'] = $this->convertHeaderAndFooterConfigToV2($oldFormatConfig['header']);
     }
-    if (isset($oldFormatConfig['footer']) && $oldFormatConfig['footer']) {
+    if (isset($oldFormatConfig['footer'])) {
       $config['footers'] = $this->convertHeaderAndFooterConfigToV2($oldFormatConfig['footer']);
     }
   }
