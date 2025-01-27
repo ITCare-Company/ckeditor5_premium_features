@@ -83,7 +83,7 @@ final class OpenAi extends CKEditor5AiProviderPluginBase {
     $fields = [];
 
     $fields['auth_key'] = [
-      "#type" => "textfield",
+      "#type" => "textarea",
       "#title" => $this->t("Auth key"),
       "#required" => TRUE,
     ];
