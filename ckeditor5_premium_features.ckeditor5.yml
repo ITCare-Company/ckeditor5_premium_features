@@ -9,7 +9,6 @@ ckeditor5_premium_features__cloud_services:
 ckeditor5_premium_features__collaboration_integration_base:
   ckeditor5:
     plugins:
-      - disableGhsTableIntegration.DisableGhsTableIntegration
       - disableCollaborationMarkersInCaption.DisableCollaborationMarkersInCaption
       - sidebarAdapter.SidebarAdapter
       - toolbarAdapter.ToolbarAdapter

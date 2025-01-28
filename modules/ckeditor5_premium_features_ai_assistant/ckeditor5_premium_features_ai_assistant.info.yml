@@ -1,7 +1,7 @@
 name: CKEditor 5 Premium Features AI Assistant
 type: module
 description: "Provides AI Assistant features."
-package: CKEditor 5 Premium
+package: CKEditor 5 Premium Features
 core_version_requirement: ^10.2 || ^11
 configure: ckeditor5_premium_features_ai_assistant.form.settings
 dependencies:
