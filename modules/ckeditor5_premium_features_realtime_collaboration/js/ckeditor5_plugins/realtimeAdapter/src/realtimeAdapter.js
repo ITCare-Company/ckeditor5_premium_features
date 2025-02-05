@@ -115,6 +115,7 @@ class RealtimeAdapter {
       form.addEventListener("submit", () => {
         const isCommentsEnabled = this.editor.plugins.has('CommentsRepository');
         const isTrackChangesEnabled = this.editor.plugins.has('TrackChanges');
+        const isInstantRtcCommentsEnabled = this.editor.plugins.has('RealtimeCommentNotifications');
         if (!isCommentsEnabled || !isTrackChangesEnabled) {
           return
         }
@@ -134,16 +135,17 @@ class RealtimeAdapter {
           const trackChangesElement = document.querySelector(trackChangesCssClass + dataAttribute);
           for (let i in suggestions) {
             // Clone suggestion before adding modifications to attributes as this may break grouped suggestions.
-            let clone = structuredClone(suggestions[i]);
-            if (clone.head != null && (clone.next != null || clone.previous != null)) {
-              clone.setAttribute('head', clone.head.id);
+            let clone = this.cloneSuggestionForBackend(suggestions[i]);
+            if (suggestions[i].head != null && (suggestions[i].next != null || suggestions[i].previous != null)) {
+              clone.attributes.head = suggestions[i].head;
             }
-            trackedSuggestion.set(clone.id, clone);
+            clone.attributes.items = suggestions[i].getItems();
+            trackedSuggestion.set(suggestions[i].id, suggestions[i]);
           }
           trackChangesElement.value = JSON.stringify(Array.from(trackedSuggestion.values()));
         }
 
-        if (isCommentsEnabled) {
+        if (isCommentsEnabled && !isInstantRtcCommentsEnabled) {
           const commentsCssClass = types['comments'] + '-data';
           const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
           const commentsElement = document.querySelector(commentsCssClass + dataAttribute);
@@ -183,6 +185,20 @@ class RealtimeAdapter {
         this.editor.sourceElement.setAttribute('data-editor-value-is-changed', true);
       }
     } );
+  }
+
+  cloneSuggestionForBackend(suggestion) {
+    let clone = {
+      'id': suggestion.id,
+      'type': suggestion.type,
+      'authorId': suggestion.authorId,
+      'createdAt': suggestion.createdAt,
+      'hasComments': suggestion.hasComments,
+      'data': suggestion.data,
+      'attributes': suggestion.attributes,
+    };
+
+    return clone
   }
 
 }

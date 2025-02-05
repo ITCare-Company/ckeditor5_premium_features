@@ -15,7 +15,7 @@ use Drupal\editor\EditorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * CKEditor 5 Productivity Pack Slash Command Plugin.
+ * CKEditor 5 Productivity Pack Paste from Office Enhanced plugin.
  *
  * @internal
  *   Plugin classes are internal.

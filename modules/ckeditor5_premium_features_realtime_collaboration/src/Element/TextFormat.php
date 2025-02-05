@@ -423,8 +423,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
             ]
           );
 
-          $this->filterSuggestions($suggestionData, $source_new_data);
-
           $this->notificationIntegrator->processSuggestionGroups($suggestionData);
           $chainedSuggestions = $this->notificationIntegrator->chainSuggestion($suggestionData);
 
@@ -617,22 +615,6 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     }
 
     return NULL;
-  }
-
-  /**
-   * Removes the data for suggestions that are not in the content anymore.
-   *
-   * @param array $suggestionsData
-   *   Suggestions data.
-   * @param string $text
-   *   The text to filter suggestions.
-   */
-  private function filterSuggestions(array &$suggestionsData, $text): void {
-    foreach ($suggestionsData as $key => $suggestion) {
-      if (!str_contains($text, $suggestion['id'])) {
-        unset($suggestionsData[$key]);
-      }
-    }
   }
 
 }

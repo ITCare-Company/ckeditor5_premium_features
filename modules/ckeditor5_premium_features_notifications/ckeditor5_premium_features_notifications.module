@@ -215,3 +215,25 @@ function ckeditor5_premium_features_notifications_theme($existing, $type, $theme
     ],
   ];
 }
+
+/**
+ * Implements hook_library_info_alter().
+ */
+function ckeditor5_premium_features_notifications_library_info_alter(&$libraries, $extension): void {
+  if ($extension == 'ckeditor5_premium_features_notifications') {
+    $isRtcEnabled = \Drupal::moduleHandler()->moduleExists('ckeditor5_premium_features_realtime_collaboration');
+    if (!$isRtcEnabled) {
+      unset($libraries['realtime-comment-notifications']);
+    }
+  }
+}
+
+/**
+ * Implements hook_ckeditor5_plugin_info_alter().
+ */
+function ckeditor5_premium_features_notifications_ckeditor5_plugin_info_alter(array &$plugin_definitions): void {
+  $isRtcEnabled = \Drupal::moduleHandler()->moduleExists('ckeditor5_premium_features_realtime_collaboration');
+  if (!$isRtcEnabled) {
+    unset($plugin_definitions['ckeditor5_premium_features_notifications__realtime_comment_notifications']);
+  }
+}

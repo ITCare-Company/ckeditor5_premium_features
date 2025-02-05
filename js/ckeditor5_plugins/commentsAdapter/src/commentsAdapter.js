@@ -39,15 +39,18 @@ class CommentsAdapter {
     const commentsRepositoryPlugin = this.editor.plugins.get( 'CommentsRepository' );
     const isRealtimeCommentsEnabled = this.editor.plugins.has('RealTimeCollaborativeComments');
     const commentsRepositoryElement = document.querySelector(this.storage.getSourceDataSelector('comments'));
+    const isRealtimeCollboration = this.editor.plugins.has( 'RealtimeAdapter' );
 
     if (!commentsRepositoryElement || commentsRepositoryElement.value == '' || isRealtimeCommentsEnabled) {
       return;
     }
 
-    // Load comments.
-    const threads = JSON.parse(commentsRepositoryElement.value);
-    for (const thread of threads) {
-      commentsRepositoryPlugin.addCommentThread(thread);
+    // Load comments (only in non realtime collaboration mode).
+    if (!isRealtimeCollboration) {
+      const threads = JSON.parse(commentsRepositoryElement.value);
+      for (const thread of threads) {
+        commentsRepositoryPlugin.addCommentThread(thread);
+      }
     }
 
     // Observe data change and update the data fields.
