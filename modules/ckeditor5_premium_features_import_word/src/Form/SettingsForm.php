@@ -60,6 +60,30 @@ class SettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('ckeditor5_premium_features_import_word.settings');
+
+    $form['converter_url'] = [
+      '#type' => 'textfield',
+      '#title' => t('Converter URL'),
+      '#description' => t('Leave this field empty unless you are using the on-premises version of Import from Word.'),
+      '#default_value' => $config->get('converter_url'),
+    ];
+
+    $form['env'] = [
+      '#type' => 'textfield',
+      '#title' => t('Environment ID'),
+      '#required' => FALSE,
+      '#description' => t('Leave this field empty unless, for Import from Word, you are using a different environment than the one from the main module configuration.'),
+      '#default_value' => $config->get('env'),
+    ];
+
+    $form['access_key'] = [
+      '#type' => 'textfield',
+      '#title' => t('Access key'),
+      '#required' => FALSE,
+      '#description' => t('Leave this field empty unless, for Import from Word, you are using a different environment than the one from the main module configuration.'),
+      '#default_value' => $config->get('access_key'),
+    ];
+
     $form['info'] = [
       '#markup' => $this->t('You can learn more about configuration options in the <a target="_blank" href="@guides-url">Styles</a> guide for Import from Word.', ['@guides-url' => 'https://ckeditor.com/docs/cs/latest/guides/import-from-word/styles.html#default-styles']),
     ];

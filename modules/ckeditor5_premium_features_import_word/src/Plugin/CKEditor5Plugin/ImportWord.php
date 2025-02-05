@@ -159,6 +159,13 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       $static_plugin_config['importWord']['uploadMedia']['enabled'] = $uploadMedia['enabled'];
     }
 
+    if ($this->configHandler->hasConverterUrl()) {
+      $static_plugin_config['importWord']['converterUrl'] = $this->configHandler->getConverterUrl();
+    }
+    if ($tokenUrl = $this->configHandler->getTokenUrl()) {
+      $static_plugin_config['importWord']['tokenUrl'] = $tokenUrl;
+    }
+
     return $static_plugin_config;
   }
 

@@ -25,12 +25,20 @@ class ExportFeaturesConfigHandler implements ExportFeaturesConfigHandlerInterfac
   protected ?ImmutableConfig $config = NULL;
 
   /**
+   * The configuration object for the general Premium Features settings
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
+  protected ImmutableConfig $generalConfig;
+
+  /**
    * Constructs the handler.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory service.
    */
   public function __construct(protected ConfigFactoryInterface $configFactory) {
+    $this->generalConfig = $this->configFactory->get('ckeditor5_premium_features.settings');
   }
 
   /**
@@ -63,14 +71,14 @@ class ExportFeaturesConfigHandler implements ExportFeaturesConfigHandlerInterfac
    * {@inheritdoc}
    */
   public function getEnvironmentId(): ?string {
-    return $this->config->get('env');
+    return $this->config->get('env') ? $this->config->get('env') : $this->generalConfig->get('env');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getAccessKey(): ?string {
-    return $this->config->get('access_key');
+    return $this->config->get('access_key') ? $this->config->get('access_key') : $this->generalConfig->get('access_key');
   }
 
   /**

@@ -17,3 +17,12 @@ ckeditor5_premium_features_import_word:
     parameters:
       editor:
         type: entity:editor
+
+ckeditor5_premium_features_import_word.endpoint.jwt_token:
+  path: '/ckeditor5-premium-features/token/import-word'
+  defaults:
+    _controller: '\Drupal\ckeditor5_premium_features_import_word\Controller\EndpointController::jwtToken'
+  requirements:
+    _permission: 'use ckeditor5 access token'
+  options:
+    no_cache: 'TRUE'
