@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Drupal\ckeditor5_premium_features\Generator;
 
 use Drupal\ckeditor5_premium_features\Utility\Html;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
@@ -17,7 +18,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
  */
 class FileNameGenerator implements FileNameGeneratorInterface {
 
-  public const DEFAULT_FILENAME = 'filename';
+  public const DEFAULT_FILENAME = 'document';
 
   /**
    * Constructs a new BookNavigationCacheContext service.
@@ -34,13 +35,18 @@ class FileNameGenerator implements FileNameGeneratorInterface {
    * Generate file name based entity alias.
    */
   public function generateFromRequest(): string {
-    $route_name = $this->routeMatch->getRouteName();
-    $route_param = explode('.', $route_name);
-    $entity = $this?->routeMatch->getParameter($route_param[1]);
+    $entity = NULL;
+    $params = $this->routeMatch->getParameters()->all();
+    foreach ($params as $param) {
+      if ($param instanceof EntityInterface) {
+        $entity = $param;
+        break;
+      }
+    }
     try {
       if ($entity) {
-        $alias = $entity->toUrl()->toString();
-        return $this->convertUrlToFileName($alias);
+        $label = $entity->label() ?: $this::DEFAULT_FILENAME;
+        return $this->convertLabelToFileName($label);
       }
     }
     catch (\Exception $e) {
@@ -63,18 +69,16 @@ class FileNameGenerator implements FileNameGeneratorInterface {
   }
 
   /**
-   * Cleanup and convert alias to friendly filename.
+   * Convert entity label to friendly filename.
    *
-   * @param string $alias
-   *   Entity alias/url.
+   * @param string $label
+   *   Entity label.
    *
    * @return string
    *   Converted filename.
    */
-  public function convertUrlToFileName(string $alias): string {
-    $alias = ltrim($alias, '/');
-
-    return Html::cleanCssIdentifier($alias);
+  public function convertLabelToFileName(string $label): string {
+    return Html::cleanCssIdentifier($label);
   }
 
 }
