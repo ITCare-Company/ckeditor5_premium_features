@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2025, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -53,7 +53,7 @@ Object.entries(entries).forEach((mapping) => {
       libraryExport: 'default',
     },
     plugins: [
-      new webpack.BannerPlugin("Copyright (c) 2003-2024, CKSource Holding sp. z o.o. All rights reserved.\nFor licensing, see https://ckeditor.com/legal/ckeditor-oss-license"),
+      new webpack.BannerPlugin("Copyright (c) 2003-2025, CKSource Holding sp. z o.o. All rights reserved.\nFor licensing, see https://ckeditor.com/legal/ckeditor-oss-license"),
       new webpack.DllReferencePlugin({
         manifest: require('./node_modules/ckeditor5/build/ckeditor5-dll.manifest.json'), // eslint-disable-line global-require, import/no-unresolved
         scope: 'ckeditor5/src',
