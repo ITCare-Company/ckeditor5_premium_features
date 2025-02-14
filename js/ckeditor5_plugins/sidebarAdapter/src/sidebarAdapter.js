@@ -3,7 +3,7 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-import CollaborationStorage from "../../collaborationStorage/src/collaborationStorage";
+import CollaborationStorage from "../../collaborationStorage/src/collaborationStorage.js";
 
 class SidebarAdapter {
   constructor( editor ) {

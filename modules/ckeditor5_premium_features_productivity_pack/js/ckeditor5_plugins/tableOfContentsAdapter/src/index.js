@@ -3,7 +3,7 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-import TableOfContentsAdapter from "./tableOfContentsAdapter";
+import TableOfContentsAdapter from "./tableOfContentsAdapter.js";
 
 export default {
   TableOfContentsAdapter: TableOfContentsAdapter,

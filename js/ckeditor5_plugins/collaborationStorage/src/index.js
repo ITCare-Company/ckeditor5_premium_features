@@ -12,7 +12,7 @@
  */
 // cSpell:ignore simplebox
 
-import CollaborationStorage from "./collaborationStorage";
+import CollaborationStorage from "./collaborationStorage.js";
 
 export default {
   CollaborationStorage,

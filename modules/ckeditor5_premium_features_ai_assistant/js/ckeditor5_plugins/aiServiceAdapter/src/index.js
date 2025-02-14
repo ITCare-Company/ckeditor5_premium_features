@@ -3,7 +3,7 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-import AIServiceAdapter from "./aiServiceAdapter";
+import AIServiceAdapter from "./aiServiceAdapter.js";
 
 export default {
   AIServiceAdapter,

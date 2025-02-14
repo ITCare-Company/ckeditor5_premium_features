@@ -12,7 +12,7 @@
  */
 // cSpell:ignore simplebox
 
-import RealtimeAdapter from "./realtimeAdapter";
+import RealtimeAdapter from "./realtimeAdapter.js";
 
 export default {
   RealtimeAdapter,

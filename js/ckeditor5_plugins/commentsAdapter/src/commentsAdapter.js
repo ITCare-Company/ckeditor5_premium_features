@@ -5,7 +5,7 @@
  */
 
 import CollaborationStorage
-  from "../../collaborationStorage/src/collaborationStorage";
+  from "../../collaborationStorage/src/collaborationStorage.js";
 
 class CommentsAdapter {
   constructor( editor ) {

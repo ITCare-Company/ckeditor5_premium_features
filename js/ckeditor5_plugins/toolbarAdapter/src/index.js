@@ -12,7 +12,7 @@
  */
 // cSpell:ignore simplebox
 
-import ToolbarAdapter from "./toolbarAdapter";
+import ToolbarAdapter from "./toolbarAdapter.js";
 
 export default {
   ToolbarAdapter,

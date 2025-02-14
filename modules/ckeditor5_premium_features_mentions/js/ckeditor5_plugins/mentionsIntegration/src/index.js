@@ -12,7 +12,7 @@
  */
 // cSpell:ignore simplebox
 
-import MentionsIntegration from "./mentionsIntegration";
+import MentionsIntegration from "./mentionsIntegration.js";
 
 export default {
   MentionsIntegration,

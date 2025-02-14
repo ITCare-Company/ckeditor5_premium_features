@@ -3,6 +3,6 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-import importWordAdapter from './importWordAdapter';
+import importWordAdapter from './importWordAdapter.js';
 
 export default { importWordAdapter };

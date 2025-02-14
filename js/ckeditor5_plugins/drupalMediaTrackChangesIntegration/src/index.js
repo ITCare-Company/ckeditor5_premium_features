@@ -11,7 +11,7 @@
  * I.e. this file's purpose is to make plugin(s) discoverable.
  */
 
-import DrupalMediaTrackChangesIntegration from "./drupalMediaTrackChangesIntegration";
+import DrupalMediaTrackChangesIntegration from "./drupalMediaTrackChangesIntegration.js";
 
 export default {
   DrupalMediaTrackChangesIntegration

@@ -12,7 +12,7 @@
  */
 // cSpell:ignore simplebox
 
-import TrackChangesAdapter from "./trackChangesAdapter";
+import TrackChangesAdapter from "./trackChangesAdapter.js";
 
 export default {
   TrackChangesAdapter,

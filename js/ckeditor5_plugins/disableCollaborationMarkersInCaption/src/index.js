@@ -11,7 +11,7 @@
  * I.e. this file's purpose is to make plugin(s) discoverable.
  */
 
-import DisableCollaborationMarkersInCaption from "./disableCollaborationMarkersInCaption";
+import DisableCollaborationMarkersInCaption from "./disableCollaborationMarkersInCaption.js";
 
 export default {
   DisableCollaborationMarkersInCaption
