@@ -3,7 +3,7 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-import WProofreader from "../../../libraries/wproofreader-ckeditor5/src/wproofreader";
+import WProofreader from "../../../libraries/wproofreader-ckeditor5/src/wproofreader.js";
 
 export {
   WProofreader

@@ -12,7 +12,7 @@
  */
 // cSpell:ignore simplebox
 
-import RealtimeCommentNotifications from "./realtimeCommentNotifications";
+import RealtimeCommentNotifications from "./realtimeCommentNotifications.js";
 
 export default {
   RealtimeCommentNotifications,

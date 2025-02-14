@@ -12,7 +12,7 @@
  */
 // cSpell:ignore simplebox
 
-import ExportAdapters from "./exportAdapters";
+import ExportAdapters from "./exportAdapters.js";
 
 export default {
   ExportAdapters,

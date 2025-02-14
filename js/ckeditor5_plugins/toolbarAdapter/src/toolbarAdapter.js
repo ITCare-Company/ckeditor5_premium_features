@@ -3,9 +3,9 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-import SidebarAdapter from "../../sidebarAdapter/src/sidebarAdapter";
+import SidebarAdapter from "../../sidebarAdapter/src/sidebarAdapter.js";
 import CollaborationStorage
-  from "../../collaborationStorage/src/collaborationStorage";
+  from "../../collaborationStorage/src/collaborationStorage.js";
 
 class ToolbarAdapter {
   constructor(editor) {

@@ -1,8 +1,8 @@
 import { Plugin } from 'ckeditor5/src/core';
 
-import WProofreaderEditing from './wproofreaderediting';
-import WProofreaderUI from './wproofreaderui';
-import { ScriptLoader } from './utils/script-loader';
+import WProofreaderEditing from './wproofreaderediting.js';
+import WProofreaderUI from './wproofreaderui.js';
+import { ScriptLoader } from './utils/script-loader.js';
 
 const DISABLE_COMMAND_ID = 'WProofreaderToggleCommandDisabling';
 const DISABLE_INSTANCES_ID = 'InstancesDisabling';

@@ -12,7 +12,7 @@
  */
 // cSpell:ignore simplebox
 
-import { WProofreader } from "./wproofreader";
+import { WProofreader } from "./wproofreader.js";
 
 export default {
   WProofreader

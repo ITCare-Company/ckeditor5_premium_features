@@ -12,7 +12,7 @@
  */
 // cSpell:ignore simplebox
 
-import SidebarAdapter from "./sidebarAdapter";
+import SidebarAdapter from "./sidebarAdapter.js";
 
 export default {
   SidebarAdapter,

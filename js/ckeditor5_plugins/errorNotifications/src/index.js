@@ -12,7 +12,7 @@
  */
 // cSpell:ignore simplebox
 
-import ErrorNotifications from "./errorNotifications";
+import ErrorNotifications from "./errorNotifications.js";
 
 export default {
   ErrorNotifications,

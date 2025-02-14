@@ -12,7 +12,7 @@
  */
 // cSpell:ignore simplebox
 
-import CommentsAdapter from "./commentsAdapter";
+import CommentsAdapter from "./commentsAdapter.js";
 
 export default {
   CommentsAdapter,

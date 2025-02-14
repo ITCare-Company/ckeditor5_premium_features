@@ -12,7 +12,7 @@
  */
 // cSpell:ignore simplebox
 
-import Ubb from "./ubb";
+import Ubb from "./ubb.js";
 
 export default {
   Ubb,

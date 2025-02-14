@@ -5,7 +5,7 @@
  */
 
 import CollaborationStorage
-  from "../../../../../../js/ckeditor5_plugins/collaborationStorage/src/collaborationStorage";
+  from "../../../../../../js/ckeditor5_plugins/collaborationStorage/src/collaborationStorage.js";
 
 class TrackChangesAdapter {
   trackedSuggestion;

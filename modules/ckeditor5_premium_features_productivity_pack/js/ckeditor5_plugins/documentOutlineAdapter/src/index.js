@@ -3,7 +3,7 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-import DocumentOutlineAdapter from './documentOutlineAdapter';
+import DocumentOutlineAdapter from './documentOutlineAdapter.js';
 
 export default {
   DocumentOutlineAdapter: DocumentOutlineAdapter,

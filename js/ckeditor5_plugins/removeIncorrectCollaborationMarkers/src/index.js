@@ -13,7 +13,7 @@
 // cSpell:ignore simplebox
 
 import RemoveIncorrectCollaborationMarkers
-  from "./removeIncorrectCollaborationMarkers";
+  from "./removeIncorrectCollaborationMarkers.js";
 
 export default {
   RemoveIncorrectCollaborationMarkers
