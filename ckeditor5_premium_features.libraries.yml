@@ -26,7 +26,7 @@ collaboration-integration-base:
     - ckeditor5/internal.drupal.ckeditor5
 
 media-export-features:
-  version: 20231024
+  version: 20250227
   license:
     name: GNU-GPL-2.0-or-later
     url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md

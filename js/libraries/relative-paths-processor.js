@@ -15,7 +15,7 @@
       'data',
       'background'
     ];
-    let pattern =  new RegExp("(" + attributes.join("|") + ")\s*=\s*(\"|')(((?!\/\/)[^\"'><])+)(\"|')", "igd");
+    let pattern =  new RegExp("(" + attributes.join("|") + ")\\s*=\\s*(\"|')(((?!\/\/)[^\"'><])+)(\"|')", "igd");
 
     content = content.replace(pattern, function(matched){
       // Let's make sure there is no additional spaces around "=" and '"' characters.
