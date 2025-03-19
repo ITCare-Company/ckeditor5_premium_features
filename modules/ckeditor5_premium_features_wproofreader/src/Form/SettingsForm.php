@@ -145,6 +145,12 @@ class SettingsForm extends ConfigFormBase {
       ];
     }
     if (!$this->moduleHandler->moduleExists('ckeditor5_plugin_pack_free_wproofreader')) {
+      $form['company_dictionaries'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Company dictionaries'),
+        '#default_value' => $config->get('company_dictionaries') ?? '',
+        '#description' => $this->t("Comma separated list of dictionary IDs to load with WProofreader. (See https://docs.webspellchecker.com/display/WebSpellCheckerServer55x/WProofreader+Customization+Options#WProofreadercustomizationoptions-3.6.Customdictionaries)"),
+      ];
       $permissionsUrl = Link::createFromRoute('permissions', 'user.admin_permissions.module', ['modules' => 'ckeditor5_premium_features_wproofreader'])->toString();
       $form['default_settings'] = [
         '#type' => 'details',
