@@ -155,6 +155,13 @@ class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPlu
       $static_plugin_config['wproofreader']['disableOptionsStorage'] = $disableOptionsStorage;
     }
 
+    $static_plugin_config['wproofreader']['aiWritingAssistant'] = (bool)$this->wProofReaderConfig->get('aiWritingAssistant') ?? FALSE;
+    $customConfigRaw = $this->wProofReaderConfig->get('custom') ?? '';
+    $customConfig = json_decode($customConfigRaw, TRUE);
+    if ($customConfig) {
+      $static_plugin_config['wproofreader'] = array_merge($static_plugin_config['wproofreader'], $customConfig);
+    }
+
     return $static_plugin_config;
   }
 

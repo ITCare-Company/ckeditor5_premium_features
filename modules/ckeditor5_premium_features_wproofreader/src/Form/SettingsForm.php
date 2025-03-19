@@ -152,77 +152,102 @@ class SettingsForm extends ConfigFormBase {
         '#description' => $this->t("Comma separated list of dictionary IDs to load with WProofreader. (See https://docs.webspellchecker.com/display/WebSpellCheckerServer55x/WProofreader+Customization+Options#WProofreadercustomizationoptions-3.6.Customdictionaries)"),
       ];
       $permissionsUrl = Link::createFromRoute('permissions', 'user.admin_permissions.module', ['modules' => 'ckeditor5_premium_features_wproofreader'])->toString();
-      $form['default_settings'] = [
+      $form['settings'] = [
         '#type' => 'details',
-        '#title' => $this->t('Default settings'),
+        '#title' => $this->t('Settings'),
         '#open' => TRUE,
       ];
-      $form['default_settings']['description'] = [
+      $form['settings']['user_default'] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t('User default settings'),
+      ];
+      $form['settings']['user_default']['description'] = [
         '#markup' => $this->t("The default WProofreader settings are applied to all new users. However, users can modify these settings from the WProofreader UI, and their changes will apply only to them, as they are saved in the browser's local storage. To restrict users from modifying these settings, update the user %permissions", ['%permissions' => $permissionsUrl]),
       ];
-      $form['default_settings']['general_settings'] = [
+      $form['settings']['user_default']['general_settings'] = [
         '#type' => 'fieldset',
         '#title' => $this->t('General check types'),
       ];
-      $form['default_settings']['general_settings']['spellingSuggestions'] = [
+      $form['settings']['user_default']['general_settings']['spellingSuggestions'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Spelling suggestions'),
         '#default_value' => $config->get('spellingSuggestions') ?? TRUE,
       ];
-      $form['default_settings']['general_settings']['grammarSuggestions'] = [
+      $form['settings']['user_default']['general_settings']['grammarSuggestions'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Grammar suggestions'),
         '#default_value' => $config->get('grammarSuggestions') ?? TRUE,
       ];
-      $form['default_settings']['general_settings']['styleGuideSuggestions'] = [
+      $form['settings']['user_default']['general_settings']['styleGuideSuggestions'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Style guide suggestions'),
         '#default_value' => $config->get('styleGuideSuggestions') ?? TRUE,
       ];
-      $form['default_settings']['general_settings']['autocorrect'] = [
+      $form['settings']['user_default']['general_settings']['autocorrect'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Correct spelling automatically'),
         '#default_value' => $config->get('autocorrect') ?? TRUE,
       ];
-      $form['default_settings']['general_settings']['autocomplete'] = [
+      $form['settings']['user_default']['general_settings']['autocomplete'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Autocomplete suggestions'),
         '#default_value' => $config->get('autocomplete') ?? FALSE,
       ];
-      $form['default_settings']['ignore_options'] = [
+      $form['settings']['user_default']['ignore_options'] = [
         '#type' => 'fieldset',
         '#title' => $this->t('Spelling ignore options'),
       ];
-      $form['default_settings']['ignore_options']['ignoreAllCapsWords'] = [
+      $form['settings']['user_default']['ignore_options']['ignoreAllCapsWords'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Ignore all-caps words'),
         '#default_value' => $config->get('ignoreAllCapsWords') ?? FALSE,
         '#description' => $this->t("All caps words like 'EXAMPLE'."),
       ];
-      $form['default_settings']['ignore_options']['ignoreDomainNames'] = [
+      $form['settings']['user_default']['ignore_options']['ignoreDomainNames'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Ignore domain names'),
         '#default_value' => $config->get('ignoreDomainNames') ?? TRUE,
         '#description' => $this->t("Domain names like 'http://example.com'."),
       ];
-      $form['default_settings']['ignore_options']['ignoreWordsWithMixedCases'] = [
+      $form['settings']['user_default']['ignore_options']['ignoreWordsWithMixedCases'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Ignore words with mixed case'),
         '#default_value' => $config->get('ignoreWordsWithMixedCases') ?? FALSE,
         '#description' => $this->t("Words with mixed case like 'eXaMpLe'."),
       ];
-      $form['default_settings']['ignore_options']['ignoreWordsWithNumbers'] = [
+      $form['settings']['user_default']['ignore_options']['ignoreWordsWithNumbers'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Ignore words with numbers'),
         '#default_value' => $config->get('ignoreWordsWithNumbers') ?? TRUE,
         '#description' => $this->t("Words with numbers like 'example7'."),
       ];
+
+      $form['settings']['advanced'] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t('Advanced features'),
+      ];
+      $form['settings']['advanced']['aiWritingAssistant'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('AI writing assistant'),
+        '#description' => $this->t('Enables an AI-powered assistant to refine and adapt text in multiple ways. Subject to the <a href="https://webspellchecker.com/legal/terms-of-service/" target="_blank">Terms of Service</a>.'),
+        '#default_value' => $config->get('aiWritingAssistant') ?? FALSE,
+      ];
+
+
+
     }
 
     $form['advanced'] = [
       '#type' => 'details',
       '#title' => $this->t('Advanced settings'),
       '#open' => FALSE,
+    ];
+
+    $form['advanced']['custom'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Configuration options'),
+      '#default_value' => $config->get('custom') ?? '{}',
+      '#description' => $this->t('Specify additional configuration options in JSON format to customize WProofreader’s behavior. For example: {"autoStartup": false, "theme": "dark"}<br />See the full list of configurable options <a href="https://webspellchecker.com/docs/api/wscbundle/Options.html" target="_blank">here</a>.<br />These options will override values set in the configuration form.'),
     ];
 
     $form['advanced']['service_type'] = [
@@ -334,6 +359,11 @@ class SettingsForm extends ConfigFormBase {
     }
     if ($serviceId && !$this->webSpellCheckerHandler->isServiceIdValid($serviceId)) {
       $form_state->setErrorByName('service_id', $this->t('Invalid Service ID'));
+    }
+
+    $custom = $form_state->getUserInput()['custom'] ?? NULL;
+    if (!json_validate($custom)) {
+      $form_state->setErrorByName('custom', $this->t('Invalid JSON format'));
     }
     parent::validateForm($form, $form_state);
   }
