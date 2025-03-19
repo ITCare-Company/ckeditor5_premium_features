@@ -193,7 +193,8 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
     $definitions = [];
     foreach ($commandsGroups as $commandGroup) {
       if (!empty($commandGroup->get('commands'))) {
-        $definitions[] = $commandGroup->getDefinition();
+        $definition = $commandGroup->getDefinition();
+        $definitions[] = $this->convertGroupDefinitionToConfig($definition);
       }
     }
 
@@ -211,6 +212,30 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
   private function getUnnecessaryTextAdapterPlugins(string $activeTextAdapter): array {
     $allAdapters = ['AWSTextAdapter', 'OpenAITextAdapter'];
     return array_diff($allAdapters, [$activeTextAdapter]);
+  }
+
+  /**
+   * Convert CKEditor5 AI Command Group definition to config that can be passed to the editor.
+   *
+   * @param array $groupDefinition
+   *   CKEditor5 AI Command Group definition.
+   *
+   * @return array
+   *   CKEditor5 AI Command Group config.
+   */
+  private function convertGroupDefinitionToConfig(array $groupDefinition): array {
+    $output = [];
+    $output['id'] = $groupDefinition['id'];
+    $output['label'] = $groupDefinition['label'];
+    $output['commands'] = [];
+    foreach ($groupDefinition['commands'] as $command) {
+      $output['commands'][] = [
+        'id' => $command['command_id'],
+        'label' => $command['label'],
+        'prompt' => $command['prompt'],
+      ];
+    }
+    return $output;
   }
 
 }
