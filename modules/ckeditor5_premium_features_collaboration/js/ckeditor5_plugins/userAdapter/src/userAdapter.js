@@ -68,6 +68,9 @@ class UserAdapter {
     if (plugins.has('SourceEditing')) {
       plugins.get('SourceEditing').forceDisabled(id);
     }
+    if (plugins.has('SourceEditingAdvanced')) {
+      plugins.get('SourceEditingAdvanced').forceDisabled(id);
+    }
     if (plugins.has('RevisionTracker')) {
       plugins.get('RevisionTracker').forceDisabled(id);
     }

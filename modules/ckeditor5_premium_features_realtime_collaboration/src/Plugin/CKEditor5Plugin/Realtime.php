@@ -119,34 +119,38 @@ class Realtime extends CKEditor5PluginDefault implements CKEditor5PluginElements
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state): void {
     $toolbars = $this->pluginHelper->getFormToolbars($form_state);
-    if (!$this->settingsConfigHandler->getApiKey()) {
-      $labels = [];
-      if (in_array('comment', $toolbars)) {
-        $labels[] = 'Comments';
+    $labels = [];
+    if (in_array('comment', $toolbars)) {
+      $labels[] = 'Comments';
+    }
+    if (in_array('trackChanges', $toolbars)) {
+      $labels[] = 'Track Changes';
+    }
+    if (in_array('revisionHistory', $toolbars)) {
+      $labels[] = 'Revision History';
+    }
+    if (in_array('commentsArchive', $toolbars)) {
+      $labels[] = 'Comments Archive';
+    }
+    if (!$this->settingsConfigHandler->getApiKey() && !empty($labels)) {
+      $pluginsLabels[] = implode(' and ', array_splice($labels, -2));
+      $form_state->setErrorByName('realtime',
+        $this->t('API Key required for using %plugins. Check <a href="@config_page">Premium features configuration.</a>',
+          [
+            '@config_page' => '/admin/config/ckeditor5-premium-features/settings',
+            '%plugins' => implode(', ', $pluginsLabels),
+          ]));
+    }
+
+    if (!empty($labels)) {
+      if (in_array('sourceEditing', $toolbars)) {
+        $form_state->setErrorByName('editor', $this->t('Source editing can`t be enabled when Realtime Collaboration module is used'));
       }
-      if (in_array('trackChanges', $toolbars)) {
-        $labels[] = 'Track Changes';
-      }
-      if (in_array('revisionHistory', $toolbars)) {
-        $labels[] = 'Revision History';
-      }
-      if (in_array('commentsArchive', $toolbars)) {
-        $labels[] = 'Comments Archive';
-      }
-      if (!empty($labels)) {
-        $pluginsLabels[] = implode(' and ', array_splice($labels, -2));
-        $form_state->setErrorByName('realtime',
-          $this->t('API Key required for using %plugins. Check <a href="@config_page">Premium features configuration.</a>',
-            [
-              '@config_page' => '/admin/config/ckeditor5-premium-features/settings',
-              '%plugins' => implode(', ', $pluginsLabels),
-            ]));
+      if (in_array('sourceEditingEnhanced', $toolbars)) {
+        $form_state->setErrorByName('editor', $this->t('Source Editing Enhanced can`t be enabled when Realtime Collaboration module is used'));
       }
     }
 
-    if (in_array('sourceEditing', $toolbars)) {
-      $form_state->setErrorByName('editor', $this->t('Source editing can`t be enabled when Realtime Collaboration module is used'));
-    }
     if (in_array('commentsArchive', $toolbars) && !$this->libraryVersionChecker->isLibraryVersionHigherOrEqual('37.1.0')) {
       $form_state->setErrorByName('editor', $this->t('The Comments Archive is available since CKEditor 5 v37.1.0. CKEditor 5 v38.0.1 was introduced in Drupal 10.1. Please update your Drupal core in order to use this feature.'));
     }

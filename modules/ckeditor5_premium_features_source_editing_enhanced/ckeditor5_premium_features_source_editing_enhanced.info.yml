@@ -1,0 +1,7 @@
+name: 'CKEditor 5 Premium Features Source Editing Enhanced'
+type: module
+description: 'Provides enhanced source editing capabilities for CKEditor 5.'
+package: CKEditor 5 Premium Features
+core_version_requirement: ^10.3 || ^11
+dependencies:
+  - drupal:ckeditor5 

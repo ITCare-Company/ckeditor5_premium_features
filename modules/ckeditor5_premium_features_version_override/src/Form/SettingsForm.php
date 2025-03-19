@@ -86,6 +86,7 @@ class SettingsForm extends ConfigFormBase {
     $values = [
       'none' => $this->t('Not set'),
       '44.0.0' => '44.0.0',
+      '44.3.0' => '44.3.0',
     ];
 
     $absoluteDirLocation = $this->overrideHandler->getAbsoluteLibrariesLocation();
