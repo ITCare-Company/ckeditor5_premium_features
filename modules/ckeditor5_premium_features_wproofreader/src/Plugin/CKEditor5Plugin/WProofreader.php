@@ -104,6 +104,7 @@ class WProofreader extends CKEditor5PluginDefault implements ContainerFactoryPlu
     $static_plugin_config['wproofreader']['ignoreDomainNames'] = isset($rawConfig['ignoreDomainNames']) ? (bool) $rawConfig['ignoreDomainNames'] : TRUE;
     $static_plugin_config['wproofreader']['ignoreWordsWithMixedCases'] = isset($rawConfig['ignoreWordsWithMixedCases']) ? (bool) $rawConfig['ignoreWordsWithMixedCases'] : FALSE;
     $static_plugin_config['wproofreader']['ignoreWordsWithNumbers'] = isset($rawConfig['ignoreWordsWithNumbers']) ? (bool) $rawConfig['ignoreWordsWithNumbers'] : TRUE;
+    $static_plugin_config['wproofreader']['customDictionaryIds'] = isset($rawConfig['company_dictionaries']) ? $rawConfig['company_dictionaries'] : '';
 
     // User settings sections access.
     $settingsSections = [];
