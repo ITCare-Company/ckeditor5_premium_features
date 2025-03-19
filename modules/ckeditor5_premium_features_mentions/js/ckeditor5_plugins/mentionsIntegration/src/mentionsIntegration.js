@@ -15,21 +15,22 @@ class MentionsIntegration {
     }
 
     const mentionConfig = {
-      feeds: [
-        {
-          feed: this.getFeedItems,
-          marker: drupalSettings.ckeditor5Premium.mentions.marker,
-          minimumCharacters: drupalSettings.ckeditor5Premium.mentions.minCharacter,
-          dropdownLimit: drupalSettings.ckeditor5Premium.mentions.dropdownLimit
-        }
-      ],
+      feed: this.getFeedItems,
+      marker: drupalSettings.ckeditor5Premium.mentions.marker,
+      minimumCharacters: drupalSettings.ckeditor5Premium.mentions.minCharacter,
+      dropdownLimit: drupalSettings.ckeditor5Premium.mentions.dropdownLimit
     }
-    this.editor.config._config.mention = mentionConfig;
+    if (this.editor.config._config.mention.feeds.length !== 0) {
+      this.editor.config._config.mention.feeds.push(mentionConfig);
+    }
+    else {
+      this.editor.config._config.mention.feeds = [mentionConfig];
+    }
 
     if (typeof this.editor.config._config.comments != "undefined" &&
       typeof this.editor.config._config.comments.editorConfig != "undefined") {
       this.editor.config._config.comments.editorConfig.extraPlugins.push(this.editor.plugins._availablePlugins.get('Mention'));
-      this.editor.config._config.comments.editorConfig.mention = mentionConfig
+      this.editor.config._config.comments.editorConfig.mention = {feeds: [mentionConfig]}
     }
   }
 
