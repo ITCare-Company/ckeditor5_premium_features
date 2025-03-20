@@ -83,7 +83,6 @@ class LibraryDefinitionItem {
       $this->jsData[$file_name] = [
         'type' => 'external',
         'minified' => 'true',
-        'preprocess' => FALSE,
         'attributes' => [
           'crossorigin' => 'anonymous'
         ]
@@ -138,7 +137,7 @@ class LibraryDefinitionItem {
       'remote' => 'https://ckeditor.com/',
       'license' => [],
       'dependencies' => [
-        'ckeditor5/ckeditor5',
+        'core/ckeditor5',
       ],
     ];
   }
