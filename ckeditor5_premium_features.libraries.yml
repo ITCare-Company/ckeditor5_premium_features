@@ -1,5 +1,5 @@
 collaboration-integration-base:
-  version: 20241201
+  version: 20250318
   license:
     name: GNU-GPL-2.0-or-later
     url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
@@ -70,7 +70,7 @@ error-notifications:
       js/build/errorNotifications.js: { minified: true }
 
 toolbar-adapter:
-  version: 20231012
+  version: 20250318
   license:
     name: GNU-GPL-2.0-or-later
     url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md

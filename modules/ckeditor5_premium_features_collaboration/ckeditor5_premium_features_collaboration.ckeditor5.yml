@@ -9,6 +9,7 @@ ckeditor5_premium_features_collaboration__track_changes:
       - commentsAdapter.CommentsAdapter
       - sidebarAdapter.SidebarAdapter
       - trackChanges.TrackChanges
+      - trackChanges.TrackChangesPreview
       - trackChangesAdapter.TrackChangesAdapter
   drupal:
     label: Track changes

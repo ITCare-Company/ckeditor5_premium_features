@@ -14,6 +14,9 @@ class ToolbarAdapter {
   }
 
   afterInit() {
+    if (typeof this.editor.sourceElement === "undefined") {
+      return;
+    }
     this.editor.on('ready', () => {
       this.toolbarContainer = this.getToolbarElement(this.editor.sourceElement.id);
       if (this.toolbarContainer) {

@@ -13,6 +13,9 @@ class SidebarAdapter {
     this.sidebarMode = drupalSettings.ckeditor5SidebarMode ?? 'auto';
     this.resizeThreshold = 0;
 
+    if (typeof this.editor.sourceElement === "undefined") {
+      return;
+    }
     let sidebar_column = this.getSidebarWrapper(this.editor.sourceElement.id);
 
     if (typeof sidebar_column === 'undefined' || !sidebar_column) {

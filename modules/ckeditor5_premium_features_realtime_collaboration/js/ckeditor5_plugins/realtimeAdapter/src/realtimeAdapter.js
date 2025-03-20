@@ -9,6 +9,11 @@ import CollaborationStorage
 class RealtimeAdapter {
   constructor(editor) {
     this.editor = editor;
+
+    if (typeof this.editor.sourceElement === "undefined") {
+      return;
+    }
+
     this.storage = new CollaborationStorage(editor);
 
     if (typeof drupalSettings.ckeditor5ChannelId == "undefined" ||
@@ -27,6 +32,10 @@ class RealtimeAdapter {
   }
 
   init() {
+    if (typeof this.editor.sourceElement === "undefined") {
+      return;
+    }
+
     const editor = this.editor;
     const hasRTC = editor.plugins.has('RealTimeCollaborativeEditing');
     const hasSourceEditing = editor.plugins.has('SourceEditing') || editor.plugins.has('SourceEditingEnhanced');
@@ -110,6 +119,10 @@ class RealtimeAdapter {
    * items.
    */
   afterInit() {
+    if (typeof this.editor.sourceElement === "undefined") {
+      return;
+    }
+
     this.storage.processCollaborationCommandDisable("trackChanges");
     this.storage.processCollaborationCommandDisable("addCommentThread");
     this.checkIfInitialDataChanged();

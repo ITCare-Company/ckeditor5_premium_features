@@ -6,7 +6,10 @@
 class CollaborationStorage {
   constructor( editor ) {
     this.editor = editor;
-    this.elementId = this.editor.sourceElement.dataset.ckeditor5PremiumElementId;
+    this.elementId = null;
+    if (typeof this.editor.sourceElement !== "undefined") {
+      this.elementId = this.editor.sourceElement.dataset.ckeditor5PremiumElementId;
+    }
   }
 
   /**

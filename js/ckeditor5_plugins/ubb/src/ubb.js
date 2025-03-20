@@ -15,6 +15,10 @@ class Ubb {
       return;
     }
 
+    if (typeof this.editor.sourceElement === "undefined") {
+      return;
+    }
+
     const format = this.editor.sourceElement.dataset.editorActiveTextFormat
     const INTEGRATION_NAME = 'drupal';
     let INTEGRATION_USAGE_DATA = {

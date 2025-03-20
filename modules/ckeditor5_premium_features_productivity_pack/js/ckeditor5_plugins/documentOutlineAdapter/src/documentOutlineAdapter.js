@@ -12,6 +12,11 @@ export default class DocumentOutlineAdapter {
 
   constructor( editor ) {
     this.editor = editor;
+
+    if (typeof this.editor.sourceElement === "undefined") {
+      return;
+    }
+
     this.elementId = this.editor.sourceElement.dataset.drupalSelector;
 
     const documentOutlineId = this.elementId + '-ck-document-outline';

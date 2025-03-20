@@ -12,6 +12,7 @@
 
 declare(strict_types = 1);
 
+use Drupal\ckeditor5\Plugin\CKEditor5PluginDefinition;
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 use Drupal\ckeditor5_premium_features_productivity_pack\Element\TextFormat as TextFormatProductivityPack;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat;
@@ -57,6 +58,22 @@ function ckeditor5_premium_features_realtime_collaboration_element_info_alter(ar
     }
     if (!$isOrderChanged) {
       $info['text_format']['#process'][] = [TextFormat::class, 'process'];
+    }
+  }
+}
+
+/**
+ * Implements hook_ckeditor5_plugin_info_alter().
+ */
+function ckeditor5_premium_features_realtime_collaboration_ckeditor5_plugin_info_alter(array &$plugin_definitions) {
+  $libraryVersionChecker = \Drupal::service('ckeditor5_premium_features.core_library_version_checker');
+  if (!$libraryVersionChecker->isLibraryVersionHigherOrEqual('44.2.0')) {
+    $definition = $plugin_definitions["ckeditor5_premium_features_realtime_collaboration__track_changes"]->toArray();
+    $key = array_search('trackChanges.TrackChangesPreview', $definition["ckeditor5"]["plugins"]);
+    if ($key) {
+      unset($definition["ckeditor5"]["plugins"][$key]);
+      $pluginDefinition = new CKEditor5PluginDefinition($definition);
+      $plugin_definitions['ckeditor5_premium_features_realtime_collaboration__track_changes'] = $pluginDefinition;
     }
   }
 }
