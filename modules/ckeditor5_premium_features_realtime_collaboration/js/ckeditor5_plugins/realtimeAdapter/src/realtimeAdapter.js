@@ -9,6 +9,9 @@ import CollaborationStorage
 class RealtimeAdapter {
   constructor(editor) {
     this.editor = editor;
+    this.submitElements = [];
+    this.formElement = this.editor.sourceElement.closest('form');
+    this.disabledAttributeName = 'data-ckeditor5-block-' + this.editor.id;
 
     if (typeof this.editor.sourceElement === "undefined") {
       return;
@@ -25,6 +28,8 @@ class RealtimeAdapter {
       channelId: drupalSettings.ckeditor5ChannelId[this.editor.sourceElement.dataset.ckeditorfieldid],
     }
     this.setPresenceListContainer();
+
+    this.disableSubmitButtons();
   }
 
   static get pluginName() {
@@ -182,6 +187,8 @@ class RealtimeAdapter {
       if (typeof isTrackingChangesOn[textFormat] !== 'undefined' && isTrackingChangesOn[textFormat]) {
         this.editor.execute('trackChanges');
       }
+
+      this.enableSubmitButtons();
     });
   }
 
@@ -190,6 +197,7 @@ class RealtimeAdapter {
       this.textFormatSelect.removeEventListener('change', this.changeEditor.bind(this));
     }
     this.clearPresenceListContainer();
+    this.submitElements = [];
   }
 
   /**
@@ -203,6 +211,58 @@ class RealtimeAdapter {
         this.editor.sourceElement.setAttribute('data-editor-value-is-changed', true);
       }
     } );
+  }
+
+  /**
+   * Disables all submit buttons in the form that contains the editor.
+   */
+  disableSubmitButtons() {
+    if (!this.formElement) {
+      return;
+    }
+
+    this.submitElements = this.formElement.querySelectorAll('input[type="submit"], button[type="submit"]');
+
+    Array.from(this.submitElements).forEach(element => {
+      element.disabled = true;
+      element.setAttribute(this.disabledAttributeName, true);
+    });
+  }
+
+  /**
+   * Remove lock on submit buttons in the form that contains the editor.
+   * Re-enable the buttons if there is no more locks applied.
+   */
+  enableSubmitButtons() {
+    if (!this.formElement) {
+      return;
+    }
+
+    Array.from(this.submitElements).forEach(element => {
+      element.removeAttribute(this.disabledAttributeName);
+      if (!this.hasDataBlockedAttribute(element)) {
+        element.disabled = false;
+      }
+    });
+  }
+
+  /**
+   * Checks if an element is blocked by CKEditor still being loaded'
+   * @param {HTMLElement} element - The DOM element to check
+   * @returns {boolean} - True if such attributes exist, false otherwise
+   */
+  hasDataBlockedAttribute(element) {
+    if (!element || !element.hasAttributes()) {
+      return false;
+    }
+
+    for (let attr of element.attributes) {
+      if (attr.name.startsWith('data-ckeditor5-block-')) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   cloneSuggestionForBackend(suggestion) {
