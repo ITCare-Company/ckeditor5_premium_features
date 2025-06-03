@@ -125,7 +125,6 @@ class SettingsForm extends ConfigFormBase {
 
     $configuration['license_key'] = [
       '#type' => 'textarea',
-      '#required' => $this->isNonRealtimeSettingsRequired(),
       '#title' => $this->t('License key'),
       '#description' => $licenseKeyDescription,
     ];
@@ -154,14 +153,10 @@ class SettingsForm extends ConfigFormBase {
     $configuration['env'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Environment ID'),
-      '#required' => $auth_type === 'key',
       '#description' =>
       $this->t('The environment management panel can be found in <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url]),
       '#states' => [
         'visible' => [
-          'select[name="auth_type"]' => ['value' => 'key'],
-        ],
-        'required' => [
           'select[name="auth_type"]' => ['value' => 'key'],
         ],
       ],
@@ -170,14 +165,10 @@ class SettingsForm extends ConfigFormBase {
     $configuration['access_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Access key'),
-      '#required' => $auth_type === 'key',
       '#description' =>
       $this->t('The access key for the environment can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url]),
       '#states' => [
         'visible' => [
-          'select[name="auth_type"]' => ['value' => 'key'],
-        ],
-        'required' => [
           'select[name="auth_type"]' => ['value' => 'key'],
         ],
       ],
@@ -186,16 +177,12 @@ class SettingsForm extends ConfigFormBase {
     $configuration['dev_token_url'] = [
       '#type' => 'url',
       '#title' => $this->t('Development token URL'),
-      '#required' => $auth_type == 'dev_token',
       '#description' => $this->t('The development token URL should be used with care as it does not provide sufficient permission validation. While it is good for testing, it is highly recommended to specify Environment ID and Access Key instead for production environments.'),
       '#attributes' => [
         'placeholder' => 'https://',
       ],
       '#states' => [
         'visible' => [
-          'select[name="auth_type"]' => ['value' => 'dev_token'],
-        ],
-        'required' => [
           'select[name="auth_type"]' => ['value' => 'dev_token'],
         ],
       ],
@@ -217,7 +204,6 @@ class SettingsForm extends ConfigFormBase {
     $configuration['organization_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Organization ID'),
-      '#required' => $this->isRealtimeSettingsRequired(),
       '#description' =>
       $this->t('The organization ID can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
       . '<br>'
@@ -227,7 +213,6 @@ class SettingsForm extends ConfigFormBase {
     $configuration['api_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('API Key'),
-      '#required' => $this->isRealtimeSettingsRequired(),
       '#description' =>
       $this->t('The API Key can be found in the <a href="@dashboard">CKEditor dashboard</a>.', ['@dashboard' => $dashboard_url])
       . '<br>'
@@ -421,13 +406,6 @@ class SettingsForm extends ConfigFormBase {
    */
   protected function isRealtimeSettingsRequired(): bool {
     return $this->moduleHandler->moduleExists('ckeditor5_premium_features_realtime_collaboration');
-  }
-
-  /**
-   * Checks if the Realtime Collaboration module is enabled.
-   */
-  protected function isNonRealtimeSettingsRequired(): bool {
-    return $this->moduleHandler->moduleExists('ckeditor5_premium_features_collaboration');
   }
 
   /**
