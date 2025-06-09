@@ -149,7 +149,9 @@ class SettingsForm extends ConfigFormBase {
         '#type' => 'textfield',
         '#title' => $this->t('Company dictionaries'),
         '#default_value' => $config->get('company_dictionaries') ?? '',
-        '#description' => $this->t("Comma separated list of dictionary IDs to load with WProofreader. (See https://docs.webspellchecker.com/display/WebSpellCheckerServer55x/WProofreader+Customization+Options#WProofreadercustomizationoptions-3.6.Customdictionaries)"),
+        '#description' => $this->t('Comma-separated list of dictionary IDs to load with WProofreader. If left empty, all enabled dictionaries will be loaded. Manage dictionaries at <a href="@link" target="_blank">custom dictionary page</a>.', [
+          '@link' => 'https://app.wproofreader.com/custom-dictionary',
+        ]),
       ];
       $permissionsUrl = Link::createFromRoute('permissions', 'user.admin_permissions.module', ['modules' => 'ckeditor5_premium_features_wproofreader'])->toString();
       $form['settings'] = [
