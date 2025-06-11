@@ -313,6 +313,9 @@ class FilterCollaboration extends FilterBase implements ContainerFactoryPluginIn
   public function processAttributeSuggestions(\DOMDocument $dom, \DOMXPath $xpath): void {
     foreach ($this->suggestionsData as $suggestion) {
       $data = $suggestion['data'];
+      if (!isset($data['key'])) {
+        continue;
+      }
       $key = $data['key'];
       $tag = $this::TAG_SUGGESTIONS[$key] ?? NULL;
       $style = $this::STYLE_SUGGESTIONS[$key] ?? NULL;
