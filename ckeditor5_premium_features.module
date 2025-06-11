@@ -58,6 +58,10 @@ function ckeditor5_premium_features_library_info_build(): array {
     'cloud-services',
   ];
 
+  if (version_compare(\Drupal::VERSION, '10.1.0', '<')) {
+    $libraries[] = 'autoformat';
+  }
+
   $definitions = [];
 
   foreach ($libraries as $library) {
@@ -95,6 +99,15 @@ function ckeditor5_premium_features_library_info_alter(&$libraries, $extension) 
 
   if ($extension === 'core' && isset($libraries['ckeditor5'])) {
     $libraries['ckeditor5']['dependencies'][] = 'ckeditor5_premium_features/distribution-channel';
+  }
+
+  $isCoreWithoutAutoformat = version_compare(\Drupal::VERSION, '10.1.0', '<');
+  if ($isCoreWithoutAutoformat && $extension === 'ckeditor5_premium_features' && isset($libraries['collaboration-integration-base'])) {
+    $key = array_search('core/ckeditor5.autoformat', $libraries["collaboration-integration-base"]["dependencies"]);
+    if ($key !== FALSE) {
+      unset($libraries["collaboration-integration-base"]["dependencies"][$key]);
+    }
+    $libraries["collaboration-integration-base"]["dependencies"][] = 'ckeditor5_premium_features/autoformat';
   }
 }
 
