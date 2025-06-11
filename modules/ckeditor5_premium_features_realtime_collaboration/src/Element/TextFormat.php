@@ -210,7 +210,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       }
     }
 
-    $element['#element_validate'] = [[$this, 'validateElement']];
+    $element['#element_validate'] = [[static::class, 'validateElement']];
     return $element;
   }
 
@@ -224,11 +224,14 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    * @param array $form
    *   The form structure.
    */
-  public function validateElement(array $element, FormStateInterface $form_state, array $form): void {
-    if (!$this->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings')->get('realtime_permissions')) {
+  public static function validateElement(array $element, FormStateInterface $form_state, array $form): void {
+    /** @var \Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat $service */
+    $service = \Drupal::service('ckeditor5_premium_features_realtime_collaboration.element.text_format');
+
+    if (!$service->configFactory->get('ckeditor5_premium_features_realtime_collaboration.settings')->get('realtime_permissions')) {
       return;
     }
-    if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element, FALSE)) {
+    if (!$service->editorStorageHandler->hasCollaborationFeaturesEnabled($element, FALSE)) {
       return;
     }
 
@@ -238,7 +241,7 @@ class TextFormat implements Ckeditor5TextFormatInterface {
       return;
     }
 
-    $response = $this->apiAdapter->exportDocument($channelId);
+    $response = $service->apiAdapter->exportDocument($channelId);
 
     if(isset($response['code'])) {
       $form_state->setError($element, 'An error occurred during document export for validation. Please check details in Drupal watchdog and contact support in case you need assistance solving the issue.');
