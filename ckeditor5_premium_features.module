@@ -109,6 +109,19 @@ function ckeditor5_premium_features_library_info_alter(&$libraries, $extension) 
     }
     $libraries["collaboration-integration-base"]["dependencies"][] = 'ckeditor5_premium_features/autoformat';
   }
+
+  if ($extension === 'ckeditor5_premium_features_wproofreader') {
+    $libraryDiscovery = \Drupal::service('library.discovery');
+    $ckeditorLibrary = $libraryDiscovery->getLibraryByName('core', 'ckeditor5');
+
+    if (version_compare($ckeditorLibrary['version'], '41.0.0', '<')) {
+      $libraries["wproofreader"]["js"] = [
+        'js/build/wproofreader_3_27.js' => [
+          'minified' => TRUE,
+        ],
+      ];
+    }
+  }
 }
 
 /**
