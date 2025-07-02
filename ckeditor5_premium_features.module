@@ -202,14 +202,14 @@ function ckeditor5_premium_features_check_dependency_class(string $class): bool 
 
 function ckeditor5_premium_features_display_missing_dependency_warning(TranslatableMarkup $message): void {
   $learn = t("To learn how to fix this, go to the <a href=\"@url\" target=\"_blank\">CKEditor 5 Premium Features configuration guide</a>", [
-    '@url' => 'https://www.drupal.org/docs/extending-drupal/contributed-modules/contributed-module-documentation/ckeditor-5-premium-features/configuration-guide'
+    '@url' => 'https://www.drupal.org/docs/extending-drupal/contributed-modules/contributed-module-documentation/ckeditor-5-premium-features/configuration-guide#s-optional-composer-dependencies'
   ]);
   \Drupal::messenger()->addWarning(Markup::create($message . ' ' . $learn));
 }
 
 function ckeditor5_premium_features_display_dependency_general_info_message(): void {
   $message = t('A few CKEditor 5 Premium Features modules require additional Composer packages to work properly. To learn more, go to the <a href="@url" target="_blank">CKEditor 5 Premium Features configuration guide</a>', [
-    '@url' => 'https://www.drupal.org/docs/extending-drupal/contributed-modules/contributed-module-documentation/ckeditor-5-premium-features/configuration-guide'
+    '@url' => 'https://www.drupal.org/docs/extending-drupal/contributed-modules/contributed-module-documentation/ckeditor-5-premium-features/configuration-guide#s-optional-composer-dependencies'
   ]);
   \Drupal::messenger()->addMessage(Markup::create($message));
 }
