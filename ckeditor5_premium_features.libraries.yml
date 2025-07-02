@@ -82,3 +82,14 @@ distribution-channel:
   version: 20241121
   js:
     js/ckeditor5_distribution_channel.js: { }
+
+dependency-install:
+  version: 20250429
+  js:
+    js/dependency_install.js: { }
+  css:
+    theme:
+      css/dependency-installer.css: { }
+  dependencies:
+    - core/drupal
+    - core/once

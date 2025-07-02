@@ -60,6 +60,13 @@ function ckeditor5_premium_features_collaboration_requirements($phase): array {
   return $requirements;
 }
 
+/*
+ * Implements hook_install().
+ */
+function ckeditor5_premium_features_collaboration_install(): void {
+  ckeditor5_premium_features_display_dependency_general_info_message();
+}
+
 /**
  * Implements hook_update().
  */

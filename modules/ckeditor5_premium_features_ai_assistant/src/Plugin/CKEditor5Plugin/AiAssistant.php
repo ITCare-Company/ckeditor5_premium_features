@@ -15,6 +15,7 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
 use Drupal\ckeditor5_premium_features_ai_assistant\AITextAdapter;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
 use Drupal\editor\EditorInterface;
@@ -29,6 +30,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPluginInterface, CKEditor5PluginConfigurableInterface {
 
   use CKEditor5PluginConfigurableTrait;
+  use MessengerTrait;
 
   /**
    * Creates the plugin instance.
@@ -64,7 +66,20 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
     $config = $this->configFactory->get('ckeditor5_premium_features_ai_assistant.settings');
     $removeCommands = $this->configuration['remove_commands'] ?? [];
 
-    $textAdapter = $config->get('textAdapter') ?? AITextAdapter::OpenAI->value;
+    $providerName = $config->get('ai_provider');
+
+    if (!$providerName) {
+      // If no provider is selected, disable the AI Assistant plugin.
+      $static_plugin_config['removePlugins'] = ['AWSTextAdapter', 'OpenAITextAdapter', 'AIAssistant', 'AIServiceAdapter'];
+
+      // Display a warning message to the user.
+      $this->messenger();
+      $this->messenger->addWarning($this->t('AI Assistant plugin is disabled because no AI provider is selected. Please configure an AI provider in the AI Assistant <a href="/admin/config/ckeditor5-premium-features/ai-assistant">settings page</a>.'));
+
+      return $static_plugin_config;
+    }
+
+    $textAdapter = $config->get('textAdapter') ?? NULL;
     $static_plugin_config['ai']['textAdapter'] = $textAdapter;
     $textAdapterPlugin = '';
 
@@ -80,6 +95,21 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
     }
 
     $providerName = $config->get('ai_provider');
+    $pluginManager = \Drupal::service('plugin.manager.ckeditor5_ai_provider');
+    $providerPlugin = $pluginManager->getDefinition($providerName);
+    $class = $providerPlugin['class'] ?? NULL;
+    $providerLabel = $providerPlugin['label']->render();
+    $isInstalled = $class::isInstalled('AI Assistant plugin');
+
+    //Disable AI Assistant plugin in case the provider is not installed.
+    if (!$isInstalled) {
+      $static_plugin_config['removePlugins'] = $this->getUnnecessaryTextAdapterPlugins($textAdapterPlugin);
+      $static_plugin_config['removePlugins'][] = 'AIAssistant';
+      $static_plugin_config['removePlugins'][] = 'AIServiceAdapter';
+      unset($static_plugin_config['ai']);
+      return $static_plugin_config;
+    }
+
     if ($textAdapter === AITextAdapter::AWS->value) {
       $model = $config->get("{$providerName}_model");
       $static_plugin_config['ai'][$textAdapter]['requestParameters'] = [

@@ -63,17 +63,20 @@ trait OpenAITrait {
   /**
    * Return render array of common Open AI config fields.
    *
+   * @param array $default
+   *   Default form API settings. Here used to optionally mark fields as disabled.
+   *
    * @return array
    *   The render array for model and parameters fields.
    */
-  protected function getParametersFields(): array {
+  protected function getParametersFields(array $default): array {
     $fields = [];
     $fields['model'] = [
         "#type" => "textfield",
         "#title" => $this->t("Model"),
         "#description" => $this->t('If blank, the OpenAI adapter will use the <pre>gpt-3.5-turbo</pre> model. <br />
                          You can find more information about offered models in the <a href="https://platform.openai.com/docs/models/" target="_blank">OpenAI documentation.</a>'),
-    ];
+    ] + $default;
     $fields['parameters'] = [
         "#type" => "textarea",
         "#title" => $this->t("Request parameters"),
@@ -87,8 +90,29 @@ Defaults to:') .
   "stream": true
 }
 </pre>',
-    ];
+    ] + $default;
     return $fields;
+  }
+
+  /**
+   * Checks if the required library is installed and displays warning message in case it's missing,
+   *
+   * @param string $provider
+   *  The provider name to be displayed in the message.
+   *
+   * @return bool
+   *   TRUE if the required dependencies are installed, FALSE otherwise.
+   */
+  public static function isInstalled(string $provider = ''): bool {
+    if (ckeditor5_premium_features_check_dependency_class('\OpenAI')) {
+      return TRUE;
+    }
+
+    $message = t('@provider is disabled because its required dependency <code>openai-php/client</code> is not installed.', [
+      '@provider' => $provider,
+    ]);
+    ckeditor5_premium_features_display_missing_dependency_warning($message);
+    return FALSE;
   }
 
 }

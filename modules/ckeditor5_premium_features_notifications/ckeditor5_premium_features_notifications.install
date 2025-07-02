@@ -43,6 +43,8 @@ function ckeditor5_premium_features_notifications_install($is_syncing) {
   ];
 
   $userFormConfig->setData($configArray)->save();
+
+  ckeditor5_premium_features_display_dependency_general_info_message();
 }
 
 /**

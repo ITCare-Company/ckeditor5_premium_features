@@ -303,6 +303,10 @@ class TextFormat implements Ckeditor5TextFormatInterface {
     if (!$this->editorStorageHandler->hasCollaborationFeaturesEnabled($element, FALSE)) {
       return;
     }
+    if (!ckeditor5_premium_features_check_htmldiff_installed()) {
+      $form_state->setError($element['value'], $this->t('Field validation in collaboration features require <code>caxy/php-htmldiff</code> library to be installed'));
+      return ;
+    }
     $form_object = $form_state->getFormObject();
     if (!$this->isFormTypeSupported($form_object)) {
       // Do not process anything, the entity is missing.

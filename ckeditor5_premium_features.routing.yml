@@ -53,3 +53,11 @@ ckeditor5_premium_features.drupal_version:
     parameters:
       editor:
         type: entity:editor
+
+ckeditor5_premium_features.dependency_install:
+  path: '/ckeditor5-premium-features/dependency-install'
+  defaults:
+    _title: 'Dependency install'
+    _controller: '\Drupal\ckeditor5_premium_features\Controller\InstallerController::install'
+  requirements:
+    _permission: 'administer modules'

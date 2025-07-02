@@ -102,7 +102,7 @@ abstract class ExportBase extends CKEditor5PluginDefault implements CKEditor5Plu
     if ($this->settingsConfigHandler->hasConverterUrl()) {
       $static_plugin_config[$plugin]['converterUrl'] = $this->settingsConfigHandler->getConverterUrl();
     }
-    if ($this->settingsConfigHandler->getEnvironmentId() && $this->settingsConfigHandler->getAccessKey()) {
+    if ($this->settingsConfigHandler->getEnvironmentId() && $this->settingsConfigHandler->getAccessKey() && ckeditor5_premium_features_check_jwt_installed()) {
       $static_plugin_config[$plugin]['tokenUrl'] = $this->settingsConfigHandler->getTokenUrl();
     }
 
