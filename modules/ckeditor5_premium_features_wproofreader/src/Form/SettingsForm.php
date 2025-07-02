@@ -364,7 +364,7 @@ class SettingsForm extends ConfigFormBase {
     }
 
     $custom = $form_state->getUserInput()['custom'] ?? NULL;
-    if (!json_validate($custom)) {
+    if (is_null(json_decode($custom))) {
       $form_state->setErrorByName('custom', $this->t('Invalid JSON format'));
     }
     parent::validateForm($form, $form_state);
