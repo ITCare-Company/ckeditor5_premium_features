@@ -82,7 +82,7 @@ function ckeditor5_premium_features_library_info_build(): array {
 function ckeditor5_premium_features_editor_xss_filter_alter(
   &$editor_xss_filter_class,
   FilterFormatInterface $format,
-  FilterFormatInterface $original_format = NULL) {
+  ?FilterFormatInterface $original_format = NULL) {
   $editor_xss_filter_class = CollaborationXSSFilter::class;
 }
 
