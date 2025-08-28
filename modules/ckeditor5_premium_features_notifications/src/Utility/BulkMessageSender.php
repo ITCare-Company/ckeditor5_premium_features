@@ -83,7 +83,7 @@ class BulkMessageSender {
       '#items' => $body,
     ];
 
-    return (string) strip_tags($this->renderer->renderInIsolation($messageOuterWrapper));
+    return $this->renderer->renderInIsolation($messageOuterWrapper)->__toString();
   }
 
   /**

@@ -214,6 +214,7 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
     $entityStorage = \Drupal::service('entity_type.manager')
       ->getStorage('ckeditor5_ai_command_group');
     $query = $entityStorage->getQuery();
+    $query->accessCheck(TRUE);
     $query->condition('status', TRUE);
     $query->condition('textFormats.*', $format, '=');
     $query->sort('weight');
