@@ -279,7 +279,7 @@ function ckeditor5_premium_features_form_filter_format_edit_form_alter(&$form, \
       'msg' => [
         '#markup' => '<div class="messages messages--warning">' .
           t('A few CKEditor 5 Premium Features require additional Composer packages to work properly. For more information, see the <a href="@url" target="_blank">CKEditor 5 Premium Features configuration guide</a>.', [
-            '@url' => 'https://www.drupal.org/docs/extending-drupal/contributed-modules/contributed-module-documentation/ckeditor-5-premium-features/configuration-guide',
+            '@url' => 'https://www.drupal.org/docs/extending-drupal/contributed-modules/contributed-module-documentation/ckeditor-5-premium-features/configuration-guide#s-optional-composer-dependencies',
           ]) .
           '</div>',
       ],
