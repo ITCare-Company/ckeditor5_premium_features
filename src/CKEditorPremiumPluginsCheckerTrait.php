@@ -59,8 +59,10 @@ trait CKEditorPremiumPluginsCheckerTrait {
       'exportWord',
       'formatPainter',
       'importWord',
+      'insertMergeField',
       'insertTemplate',
       'multiLevelList',
+      'previewMergeFields',
       'revisionHistory',
       'tableOfContents',
       'trackChanges'
