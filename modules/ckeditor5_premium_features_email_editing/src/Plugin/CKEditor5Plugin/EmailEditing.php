@@ -62,6 +62,11 @@ class EmailEditing extends CKEditor5PluginDefault implements ContainerFactoryPlu
       'enable_configuration_helper' => FALSE,
       'suppress_all' => FALSE,
       'suppress_html_element' => FALSE,
+      'enable_export_inline_styles' => FALSE,
+      'form_element' => '',
+      'stylesheets' => '',
+      'inline_css' => '',
+      'strip_classes' => FALSE,
     ];
   }
 
@@ -105,6 +110,69 @@ class EmailEditing extends CKEditor5PluginDefault implements ContainerFactoryPlu
       ],
     ];
 
+    $form['export_inline_styles'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Export inline styles'),
+    ];
+
+    $form['export_inline_styles']['enable'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable Export inline styles'),
+      '#default_value' => $this->configuration['enable_export_inline_styles'] ?? FALSE,
+      '#description' => $this->t('Enabling this setting will allow to use the Export Inline Styles.'),
+    ];
+
+    $form['export_inline_styles']['form_element'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Form field'),
+      '#default_value' => $this->configuration['form_element'] ?? FALSE,
+      '#description' => $this->t('The target form element id. The content with inline styles will be exported to this element on form submit'),
+      '#states' => [
+        'visible' => [
+          ':input[name="editor[settings][plugins][ckeditor5_premium_features_email_editing__email_editing][export_inline_styles][enable]"]' => ['checked' => TRUE],
+        ],
+        'required' => [
+          ':input[name="editor[settings][plugins][ckeditor5_premium_features_email_editing__email_editing][export_inline_styles][enable]"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['export_inline_styles']['stylesheets'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Stylesheets'),
+      '#default_value' => $this->configuration['stylesheets'] ?? FALSE,
+      '#description' => $this->t('Paths to css files to be used for exporting inline styles. Each path should be on a new line and start at Drupal root folder.<br />The order matters as later files can override styles from earlier ones.'),
+      '#states' => [
+        'visible' => [
+          ':input[name="editor[settings][plugins][ckeditor5_premium_features_email_editing__email_editing][export_inline_styles][enable]"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['export_inline_styles']['inline_css'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Inline CSS'),
+      '#default_value' => $this->configuration['inline_css'] ?? FALSE,
+      '#description' => $this->t(''),
+      '#states' => [
+        'visible' => [
+          ':input[name="editor[settings][plugins][ckeditor5_premium_features_email_editing__email_editing][export_inline_styles][enable]"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['export_inline_styles']['strip_classes'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Strip CSS classes'),
+      '#default_value' => $this->configuration['strip_classes'] ?? FALSE,
+      '#description' => $this->t('When enabled the CSS classes will be removed from elements after inline styles are applied.'),
+      '#states' => [
+        'visible' => [
+          ':input[name="editor[settings][plugins][ckeditor5_premium_features_email_editing__email_editing][export_inline_styles][enable]"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
     return $form;
   }
 
@@ -122,6 +190,12 @@ class EmailEditing extends CKEditor5PluginDefault implements ContainerFactoryPlu
     $this->configuration['enable_configuration_helper'] = $form_state->getValue(['configuration_helper', 'enable']);
     $this->configuration['suppress_all'] = $form_state->getValue(['configuration_helper', 'suppress_all']);
     $this->configuration['suppress_html_element'] = $form_state->getValue(['configuration_helper', 'suppress_html']);
+
+    $this->configuration['enable_export_inline_styles'] = $form_state->getValue(['export_inline_styles', 'enable']);
+    $this->configuration['form_element'] = $form_state->getValue(['export_inline_styles', 'form_element']);
+    $this->configuration['stylesheets'] = $form_state->getValue(['export_inline_styles', 'stylesheets']);
+    $this->configuration['inline_css'] = $form_state->getValue(['export_inline_styles', 'inline_css']);
+    $this->configuration['strip_classes'] = $form_state->getValue(['export_inline_styles', 'strip_classes']);
   }
 
   /**
@@ -142,6 +216,25 @@ class EmailEditing extends CKEditor5PluginDefault implements ContainerFactoryPlu
     else {
       $static_plugin_config['removePlugins'][] = 'EmailConfigurationHelper';
     }
+
+    if ($this->configuration['enable_export_inline_styles']) {
+      $static_plugin_config['exportInlineStyles'] = [
+        'formElement' => $this->configuration['form_element'],
+        'stripCssClasses' => $this->configuration['strip_classes'],
+      ];
+      if (!empty($this->configuration['inline_css'])) {
+        $static_plugin_config['exportInlineStyles']['inlineCss'] = $this->configuration['inline_css'];
+      }
+      if (!empty($this->configuration['stylesheets'])) {
+        $stylesheets = str_replace(array("\r\n", "\r"), "\n", $this->configuration['stylesheets']);
+        $static_plugin_config['exportInlineStyles']['stylesheets'] = explode("\n", $stylesheets);
+      }
+    }
+    else {
+      $static_plugin_config['removePlugins'][] = 'ExportInlineStyles';
+      $static_plugin_config['removePlugins'][] = 'ExportInlineStylesAdapter';
+    }
+
 
     if (empty($static_plugin_config['removePlugins'])) {
       unset($static_plugin_config['removePlugins']);
