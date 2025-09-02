@@ -6,6 +6,7 @@ ckeditor5_premium_features_source_editing_enhanced__source_editing_enhanced:
     label: Source editing enhanced
     library: ckeditor5_premium_features_source_editing_enhanced/source-editing-enhanced
     admin_library: ckeditor5_premium_features_source_editing_enhanced/admin.source-editing-enhanced
+    class: Drupal\ckeditor5_premium_features_source_editing_enhanced\Plugin\CKEditor5Plugin\SourceEditingEnhanced
     toolbar_items:
       sourceEditingEnhanced:
         label: Enhanced Source editing
