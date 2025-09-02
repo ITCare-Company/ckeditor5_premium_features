@@ -105,7 +105,8 @@ services:
   ckeditor5_premium_features.core_library_version_checker:
     class: Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker
     arguments:
-      - '@library.discovery'
+      - '@module_handler'
+      - '@config.factory'
 
   ckeditor5_premium_features.collaborators:
     class: Drupal\ckeditor5_premium_features\Utility\Collaborators
