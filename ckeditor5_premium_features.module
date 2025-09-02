@@ -82,7 +82,7 @@ function ckeditor5_premium_features_library_info_build(): array {
 function ckeditor5_premium_features_editor_xss_filter_alter(
   &$editor_xss_filter_class,
   FilterFormatInterface $format,
-  FilterFormatInterface $original_format = NULL) {
+  ?FilterFormatInterface $original_format = NULL) {
   $editor_xss_filter_class = CollaborationXSSFilter::class;
 }
 
@@ -222,7 +222,7 @@ function ckeditor5_premium_features_form_filter_format_edit_form_alter(&$form, \
   $filter_format = $form_state->getFormObject()->getEntity();
 
   // Check if CKEditor 5 is the selected editor.
-  $editor = editor_load($filter_format->id());
+  $editor = \Drupal::entityTypeManager()->getStorage('editor')->load($filter_format->id());
   if (!$editor || $editor->getEditor() !== 'ckeditor5') {
     return;
   }

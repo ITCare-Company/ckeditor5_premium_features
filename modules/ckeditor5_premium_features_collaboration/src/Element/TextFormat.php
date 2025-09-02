@@ -710,8 +710,8 @@ class TextFormat implements Ckeditor5TextFormatInterface {
    */
   protected function dispatchDocumentUpdateEvent(FieldableEntityInterface $entity,
                                                  string $key,
-                                                 string $original_value = NULL,
-                                                 string $new_value = NULL): void {
+                                                 ?string $original_value = NULL,
+                                                 ?string $new_value = NULL): void {
     $event = new CollaborationEventBase(
       $entity,
       User::load($this->currentUser->id()),
