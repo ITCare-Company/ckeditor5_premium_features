@@ -18,6 +18,7 @@ function ckeditor5_premium_features_email_editing_library_info_build(): array {
 
   $libraries = [
     'email',
+    'export-inline-styles'
   ];
 
   $definitions = [];

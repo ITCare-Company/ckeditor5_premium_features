@@ -70,12 +70,18 @@ trait OpenAITrait {
    *   The render array for model and parameters fields.
    */
   protected function getParametersFields(array $default): array {
+
+    $versionChecker = \Drupal::service('ckeditor5_premium_features.core_library_version_checker');
+    $version = $versionChecker->getCurrentVersion();
+    $documentationUrl = 'https://ckeditor.com/docs/ckeditor5/' . $version . '/features/ai-assistant/ai-assistant-integration.html#supported-models';
+
     $fields = [];
     $fields['model'] = [
         "#type" => "textfield",
         "#title" => $this->t("Model"),
-        "#description" => $this->t('If blank, the OpenAI adapter will use the <pre>gpt-3.5-turbo</pre> model. <br />
-                         You can find more information about offered models in the <a href="https://platform.openai.com/docs/models/" target="_blank">OpenAI documentation.</a>'),
+        "#description" => $this->t('If empty, the default model depends on the CKEditor 5 version (<a href="@documentation" target="_blank">see documentation</a>)<br />
+                         You can find more information about offered models in the <a href="https://platform.openai.com/docs/models/" target="_blank">OpenAI documentation.</a>',
+                          ['@documentation' => $documentationUrl]),
     ] + $default;
     $fields['parameters'] = [
         "#type" => "textarea",
@@ -83,7 +89,7 @@ trait OpenAITrait {
         "#description" => $this->t('Additional configuration parameters for the AI service request. Use it to customize how the AI service generates responses. <br />
 Defaults to:') .
             '<pre>
-{	
+{
   "max_tokens": 2000,
   "temperature": 1,
   "top_p": 1,
