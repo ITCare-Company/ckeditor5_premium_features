@@ -78,11 +78,30 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
     $data = [
       'id' => $this->id(),
       'uid' => (string) $this->getAuthorId(),
-      'created' => $this->getCreatedTime() * 1000,
+      'created' => $this->convertTimestampToAtom($this->getCreatedTime()),
       'attributes' => $this->getAttributes(),
     ];
 
     return static::normalize($data, TRUE);
+  }
+
+  /**
+   * Converts the timestamp to ATOM date format.
+   *
+   * @param int $timestamp
+   *   The timestamp to be converted.
+   *
+   * @return string
+   *   The ATOM formatted date or '0' on failure.
+   */
+  protected function convertTimestampToAtom(int $timestamp): string {
+    try {
+      $dateTime = new \DateTime();
+      $dateTime->setTimestamp($timestamp);
+      return $dateTime->format(\DateTimeInterface::ATOM);
+    } catch (\Exception) {
+      return '0';
+    }
   }
 
   /**
