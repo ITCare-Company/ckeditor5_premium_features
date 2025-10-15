@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_collaboration\Entity;
 
+use DateTimeInterface;
 use Drupal\ckeditor5_premium_features\CKeditorDateFormatterTrait;
 use Drupal\Component\Serialization\Json;
 use Drupal\ckeditor5_premium_features\Utility\Html;
@@ -78,7 +79,7 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
     $data = [
       'id' => $this->id(),
       'uid' => (string) $this->getAuthorId(),
-      'created' => $this->getCreatedTime() * 1000,
+      'created' => $this->convertTimestampToAtom($this->getCreatedTime()),
       'attributes' => $this->getAttributes(),
     ];
 
@@ -298,6 +299,26 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
     $this->set($field_name, $name);
 
     return $this;
+  }
+
+  /**
+   * Converts the timestamp to ATOM date format.
+   *
+   * @param int $timestamp
+   *   The timestamp to be converted.
+   *
+   * @return string
+   *   The ATOM formatted date or '0' on failure.
+   */
+  protected function convertTimestampToAtom(int $timestamp): string {
+    try {
+      $dateTime = new \DateTime();
+      $dateTime->setTimestamp($timestamp);
+      return $dateTime->format(DateTimeInterface::ATOM);
+    }
+    catch (\Exception) {
+      return '0';
+    }
   }
 
 }
