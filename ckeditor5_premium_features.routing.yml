@@ -61,3 +61,12 @@ ckeditor5_premium_features.dependency_install:
     _controller: '\Drupal\ckeditor5_premium_features\Controller\InstallerController::install'
   requirements:
     _permission: 'administer modules'
+
+ckeditor5_premium_features.caption_filter:
+  path: '/ck5/api/caption-filter'
+  defaults:
+    _controller: 'Drupal\ckeditor5_premium_features\Controller\CaptionFilterController::applyFilter'
+  methods:  [POST]
+  requirements:
+    _permission: 'access content'
+    _format: json

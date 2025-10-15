@@ -36,6 +36,7 @@ media-export-features:
     js/libraries/media-tags-converter.js: { minified: false }
     js/libraries/relative-paths-processor.js: { minified: false }
     js/libraries/base64-image-converter.js: { minified: false }
+    js/libraries/caption-filter-converter.js: { minified: false }
 
 export-integration:
   version: 20230626
