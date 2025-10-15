@@ -11,7 +11,6 @@ namespace Drupal\ckeditor5_premium_features;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\ServiceProviderBase;
-use Drupal\ckeditor5_premium_features\ComposerInstaller\Installer;
 
 /**
  * Defines a service provider for the CKEditor 5 Premium Features module.
@@ -27,8 +26,14 @@ class Ckeditor5PremiumFeaturesServiceProvider extends ServiceProviderBase {
 
     // Only register the installer service if the package_manager module is installed.
     if (array_key_exists('package_manager', $modules)) {
-      $container->register('ckeditor5_premium_features.installer', Installer::class)
-        ->setAutowired(TRUE);
+      if (version_compare(\Drupal::VERSION, '11.2.0', '>=')) {
+        $container->register('ckeditor5_premium_features.installer', \Drupal\ckeditor5_premium_features\ComposerInstaller\Installer::class)
+          ->setAutowired(TRUE);
+      }
+      else {
+        $container->register('ckeditor5_premium_features.installer', \Drupal\ckeditor5_premium_features\ComposerInstaller\LegacyInstaller::class)
+          ->setAutowired(TRUE);
+      }
     }
   }
 
