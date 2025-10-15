@@ -72,6 +72,13 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#description' => t('Set the character which triggers autocompletion for mentions. It must be a single character.'),
     ];
 
+    $form['mentions']['use_static_permission_condition'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Use the static permission condition for user query'),
+      '#default_value' => $config->get('use_static_permission_condition') ?? FALSE,
+      '#description' => t('When enabled, all users with the "to be mentioned" permission will be included in the query.'),
+    ];
+
     return $form;
   }
 
