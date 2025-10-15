@@ -18,7 +18,7 @@ class ExportAdapters {
     if (editor.config._config.exportWord && typeof editor.config._config.exportWord !== 'undefined') {
       editor.config._config.exportWord.dataCallback = (editor) => {
         return Drupal.CKEditor5PremiumFeatures.editorContentExportProcessor(
-          editor, { enableHighlighting: true, pluginConfig: editor.config._config.exportWord });
+          editor, { enableHighlighting: false, pluginConfig: editor.config._config.exportWord });
       }
     }
   }

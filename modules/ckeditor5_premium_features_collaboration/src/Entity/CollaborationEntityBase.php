@@ -87,6 +87,25 @@ abstract class CollaborationEntityBase extends ContentEntityBase implements Coll
   }
 
   /**
+   * Converts the timestamp to ATOM date format.
+   *
+   * @param int $timestamp
+   *   The timestamp to be converted.
+   *
+   * @return string
+   *   The ATOM formatted date or '0' on failure.
+   */
+  protected function convertTimestampToAtom(int $timestamp): string {
+    try {
+      $dateTime = new \DateTime();
+      $dateTime->setTimestamp($timestamp);
+      return $dateTime->format(\DateTimeInterface::ATOM);
+    } catch (\Exception) {
+      return '0';
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function normalize(array $data, bool $reversed = FALSE): array {
