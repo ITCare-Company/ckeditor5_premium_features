@@ -78,6 +78,7 @@ class MergeFieldsGroupDeleteForm extends EntityConfirmFormBase {
     // Delete all items that belong to this group.
     $query = $this->entityTypeManager->getStorage('merge_fields_item')->getQuery();
     $itemIds = $query
+      ->accessCheck(FALSE)
       ->condition('group', $entity_id)
       ->execute();
     if (!empty($itemIds)) {

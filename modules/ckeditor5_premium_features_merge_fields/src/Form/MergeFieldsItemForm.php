@@ -211,9 +211,11 @@ class MergeFieldsItemForm extends EntityForm {
    */
   public function exist($id) {
     $group = $this->entityTypeManager->getStorage('merge_fields_group')->getQuery()
+      ->accessCheck(FALSE)
       ->condition('id', $id)
       ->execute();
     $item = $this->entityTypeManager->getStorage('merge_fields_item')->getQuery()
+      ->accessCheck(FALSE)
       ->condition('id', $id)
       ->execute();
     return $group || $item;
