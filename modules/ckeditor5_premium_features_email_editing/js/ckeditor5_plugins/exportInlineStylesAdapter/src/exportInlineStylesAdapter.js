@@ -13,10 +13,7 @@ class ExportInlineStylesAdapter {
 
   init() {
     const editor = this.editor;
-    const formElementId = this.editor.config._config.exportInlineStyles?.formElement;
-    if (!formElementId) {
-      return;
-    }
+    const formElementId = this.editor.config._config.exportInlineStyles.formElement;
     const formElement = document.getElementById(formElementId);
 
     if (!formElement) {

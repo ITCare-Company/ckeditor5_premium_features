@@ -33,36 +33,6 @@ class DrupalMediaTrackChangesIntegration extends Plugin {
         id: 'ELEMENT_DRUPAL_MEDIA'
       }, quantity )
     );
-
-
-    editor.editing.mapper.on( 'modelToViewPosition', ( evt, data ) => {
-      if ( data.isPhantom ) {
-        return;
-      }
-      return;
-      console.log('evt', evt);
-      console.log('data', data);
-
-      const modelPosition = data.modelPosition;
-      const parent = modelPosition.parent; // text node parent
-
-      console.log('modelPosition', modelPosition);
-      console.log('parent', parent);
-      console.log('isValid', modelPosition.isValid());
-
-      if ( parent && parent.name === 'caption' ) {
-
-        let viewElement = data.mapper.toViewElement( parent );
-        while ( viewElement && viewElement.name !== 'figcaption' ) {
-          viewElement = viewElement.nextSibling;
-        }
-        console.log('viewElement', viewElement);
-        const viewPosition = editor.editing.view.createPositionAt( viewElement,  modelPosition.offset );
-        console.log('viewPosition', viewPosition);
-        data.viewPosition = viewPosition;
-        evt.stop();
-      }
-    });
   }
 }
 

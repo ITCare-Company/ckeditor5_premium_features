@@ -10,34 +10,11 @@ export default class importWordAdapter {
   }
 
   init() {
-
     if (this.editor.plugins.has('ImageUploadEditing')) {
       const imageUploadEditing = this.editor.plugins.get('ImageUploadEditing');
-      imageUploadEditing.on('uploadComplete', (evt, { data, imageElement }) => {
+      imageUploadEditing.on('uploadComplete', (evt, { imageElement }) => {
         this.editor.model.change((writer) => {
-          console.log('imageElement', imageElement);
-          console.log('evt', evt);
-
-            // Set the selection on the image element.
-            writer.setSelection( imageElement, 'on' );
-            // Execute the command to change the style to 'block', which will convert it to imageBlock.
-            this.editor.execute( 'imageStyle', { value: 'block' } );
-
-          let htmlAttributes = imageElement._attrs.get('htmlImgAttributes');
-          console.log('data', data);
-          if (htmlAttributes === undefined) {
-            return;
-          }
-          htmlAttributes.attributes.src = data.response.url;
-
-          writer.setAttribute('style', htmlAttributes.styles, imageElement);
-          console.log('htmlAttributes', htmlAttributes);
-          writer.setAttribute('htmlImgAttributes', htmlAttributes, imageElement);
-
-          //writer.setAttribute('src', data.response.url, imageElement);
-          // writer.removeAttribute('htmlAttributes', imageElement);
-          // writer.removeAttribute('htmlImgAttributes', imageElement);
-
+          writer.removeAttribute('htmlAttributes', imageElement);
         });
       });
     }
