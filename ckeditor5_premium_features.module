@@ -287,3 +287,10 @@ function ckeditor5_premium_features_form_filter_format_edit_form_alter(&$form, \
 
   }
 }
+
+function ckeditor5_premium_features_get_error_severity() {
+  if (version_compare(\Drupal::VERSION, '11.2.0', '>=')) {
+    return \Drupal\Core\Extension\Requirement\RequirementSeverity::Error;
+  }
+  return REQUIREMENT_ERROR;
+}

@@ -172,6 +172,10 @@ class ImportWord extends CKEditor5PluginDefault implements CKEditor5PluginConfig
       }
     }
 
+    $static_plugin_config['importWord']['formatting']['resets'] = 'none';
+    $static_plugin_config['importWord']['formatting']['defaults'] = 'none';
+    $static_plugin_config['importWord']['formatting']['styles'] = 'inline';
+
     return $static_plugin_config;
   }
 

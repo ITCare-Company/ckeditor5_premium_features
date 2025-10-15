@@ -111,11 +111,12 @@ class Collaborators {
 
     /** @var \Drupal\ckeditor5_premium_features_collaboration\Entity\CollaborationEntityInterface $threadComment */
     foreach ($commentsInThread as $threadComment) {
+      if ($mentionedInComment = $this->getCommentMentions($threadComment)) {
+        $mentionedUsers = array_unique(array_merge($mentionedUsers, $mentionedInComment));
+      }
+
       if ($threadComment->id() == $comment->id()) {
         continue;
-      }
-      if ($mentionedInComment = $this->getCommentMentions($threadComment)) {
-        $mentionedUsers = array_merge($mentionedUsers, $mentionedInComment);
       }
       if ($threadComment->getAuthorId() == $comment->getAuthorId()) {
         continue;
@@ -243,7 +244,7 @@ class Collaborators {
       return [];
     }
     $mentionsHelper = $this->mentionsIntegrator->getMentionHelperService();
-    $commentBody = $comment->getContentPlain();
+    $commentBody = $comment->getContent();
 
     return $mentionsHelper->getMentions($commentBody);
   }
