@@ -12,6 +12,7 @@ namespace Drupal\ckeditor5_premium_features_ai_assistant\Plugin\CKEditor5Plugin;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableInterface;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
+use Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker;
 use Drupal\ckeditor5_premium_features_ai_assistant\AITextAdapter;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -36,11 +37,13 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
    * Creates the plugin instance.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   * @param \Drupal\ckeditor5_premium_features\Utility\LibraryVersionChecker $versionChecker
    * @param mixed ...$parent_arguments
    *   The parent plugin arguments.
    */
   public function __construct(
                               protected ConfigFactoryInterface $configFactory,
+                              protected LibraryVersionChecker $versionChecker,
                               ...$parent_arguments
   ) {
     parent::__construct(...$parent_arguments);
@@ -52,6 +55,7 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
     return new static(
       $container->get('config.factory'),
+      $container->get('ckeditor5_premium_features.core_library_version_checker'),
       $configuration,
       $plugin_id,
       $plugin_definition
@@ -150,6 +154,10 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
           'commands' => $group['commands'],
         ];
       }
+    }
+
+    if ($this->versionChecker->isLibraryVersionHigherOrEqual('47.0.0')) {
+      $static_plugin_config['ai'] = $this->convertSettingsToNewFormat($static_plugin_config['ai']);
     }
 
     $static_plugin_config['removePlugins'] = $this->getUnnecessaryTextAdapterPlugins($textAdapterPlugin);
@@ -267,6 +275,33 @@ class AiAssistant extends CKEditor5PluginDefault implements ContainerFactoryPlug
       ];
     }
     return $output;
+  }
+
+  /**
+   * Converts the settings array to format used in CKEditor v47.0.0 and newer.
+   *
+   * @param array $oldSettings
+   *   Old settings format.
+   *
+   * @return array
+   *   New settings format.
+   */
+  private function convertSettingsToNewFormat(array $oldSettings): array {
+    $newSettings = [];
+
+    $newSettings['assistant'] = $oldSettings['aiAssistant'] ?? [];
+    $newSettings['assistant']['textAdapter'] = $oldSettings['textAdapter'];
+    if (isset($oldSettings['aws'])) {
+      $newSettings['assistant']['adapter']['aws'] = $oldSettings['aws'];
+    }
+    if (isset($oldSettings['openAI'])) {
+      $newSettings['assistant']['adapter']['openAI'] = $oldSettings['openAI'];
+    }
+    if (isset($oldSettings['useTheme'])) {
+      $newSettings['assistant']['useTheme'] = $oldSettings['useTheme'];
+    }
+
+    return $newSettings;
   }
 
 }
