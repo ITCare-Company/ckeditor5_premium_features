@@ -287,3 +287,57 @@ function ckeditor5_premium_features_form_filter_format_edit_form_alter(&$form, \
 
   }
 }
+
+/**
+ * Removes the specified CKEditor plugins from toolbar of all CKEditor 5 text formats.
+ *
+ * @param array $items
+ *   An array of toolbar item ids to be removed.
+ *
+ * @param array $plugin_configs
+ *  (optional) An array of plugin configuration names to be removed.
+ */
+function ckeditor5_premium_features_remove_ckeditor_plugins(array $toolbar_items, array $plugin_configs = []): void {
+  try {
+    $editors = \Drupal::entityTypeManager()
+      ->getStorage('editor')
+      ->loadByProperties(['editor' => 'ckeditor5']);
+  } catch (\Exception $e) {
+    return;
+  }
+
+  if (empty($editors)) {
+    return;
+  }
+
+  foreach ($editors as $editor) {
+    $settings = $editor->getSettings();
+    $modified = FALSE;
+    foreach ($toolbar_items as $item) {
+      $key = array_search($item, $settings['toolbar']['items']);
+      if ($key !== FALSE) {
+        unset($settings['toolbar']['items'][$key]);
+        // Reindex the array to avoid breaking the field value.
+        $settings['toolbar']['items'] = array_values($settings['toolbar']['items']);
+        $modified = TRUE;
+      }
+    }
+
+    foreach ($plugin_configs as $config) {
+      if (isset($settings['plugins'][$config])) {
+        unset($settings['plugins'][$config]);
+        $modified = TRUE;
+      }
+    }
+
+    if ($modified) {
+      try {
+        $editor->setSettings($settings);
+        $editor->save();
+      }
+      catch (\Exception $e) {
+        // Do nothing.
+      }
+    }
+  }
+}

@@ -16,6 +16,13 @@ use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 use Drupal\ckeditor5_premium_features_merge_fields\MergeFieldsProcessor;
 
 /**
+ * Implements hook_uninstall().
+ */
+function ckeditor5_premium_features_merge_fields_uninstall($is_syncing) {
+  ckeditor5_premium_features_remove_ckeditor_plugins(['insertMergeField', 'previewMergeFields'], ['ckeditor5_premium_features_merge_fields__merge_fields']);
+}
+
+/**
  * Implements hook_library_info_build().
  */
 function ckeditor5_premium_features_merge_fields_library_info_build(): array {

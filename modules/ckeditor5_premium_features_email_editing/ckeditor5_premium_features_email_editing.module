@@ -32,3 +32,10 @@ function ckeditor5_premium_features_email_editing_library_info_build(): array {
 
   return $definitions;
 }
+
+/**
+ * Implements hook_uninstall().
+ */
+function ckeditor5_premium_features_email_editing_uninstall($is_syncing) {
+  ckeditor5_premium_features_remove_ckeditor_plugins([], ['ckeditor5_premium_features_email_editing__email_editing']);
+}
