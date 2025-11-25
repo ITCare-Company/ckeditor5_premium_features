@@ -54,8 +54,9 @@ class SettingsForm extends SharedBuildConfigFormBase {
       '#type' => 'number',
       '#title' => t('Minimal mention character.'),
       '#min' => 1,
+      '#max' => 8,
       '#default_value' => $config->get('mention_min_character') ?? 1,
-      '#description' => t('Set the number of letters after which the autocomplete panel will show up.'),
+      '#description' => t('Set the number of letters after which the autocomplete panel will show up. Allowed values are between 1 and 8.'),
     ];
     $form['mentions']['mention_dropdown_limit'] = [
       '#type' => 'number',
