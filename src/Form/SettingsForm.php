@@ -307,6 +307,13 @@ class SettingsForm extends ConfigFormBase {
     $auth_type = $form_state->getValue('auth_type');
     $license_key = $form_state->getValue('license_key');
 
+    list($headersB64, $payloadB64) = explode('.', $license_key);
+    $payload = json_decode(base64_decode($payloadB64), true);
+
+    if(isset($payload['removeFeatures']) && !empty($payload['removeFeatures'])) {
+      $form_state->setErrorByName('license_key', $this->t('CKEditor 5 Free plan licenses are not supported by this module. Leave this field empty unless you have a paid Premium Features license.'));
+    }
+
     if (!empty($license_key) && strlen($license_key) < self::LICENSE_KEY_MIN_LENGTH) {
       $form_state->setErrorByName('license_key', $this->t('@name length is invalid (minimum @num characters required)', [
         '@name' => 'License key',
