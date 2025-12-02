@@ -30,7 +30,7 @@ ckeditor5_premium_features.media_tags:
     _controller: 'Drupal\ckeditor5_premium_features\Controller\MediaTagConverterController::decodeMediaTags'
   methods:  [POST]
   requirements:
-    _permission: 'view media'
+    _permission: 'use ckeditor5 exporters endpoints'
     _format: json
 
 ckeditor5_premium_features.base64_image_converter:
@@ -39,7 +39,7 @@ ckeditor5_premium_features.base64_image_converter:
     _controller: 'Drupal\ckeditor5_premium_features\Controller\Base64ImageConverterController::convertImages'
   methods:  [POST]
   requirements:
-    _permission: 'access content'
+    _permission: 'use ckeditor5 exporters endpoints'
     _format: json
 
 ckeditor5_premium_features.drupal_version:
