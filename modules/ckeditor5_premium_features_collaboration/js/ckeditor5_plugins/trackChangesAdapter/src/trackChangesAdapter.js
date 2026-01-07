@@ -114,8 +114,8 @@ class TrackChangesAdapter {
       suggestionTracked.setAttribute('status', event.name);
     }
 
-    suggestion.on('accept', suggestionStatusUpdate);
-    suggestion.on('discard', suggestionStatusUpdate);
+    suggestion.on('accept', suggestionStatusUpdate, {priority: 'highest'});
+    suggestion.on('discard', suggestionStatusUpdate, {priority: 'highest'});
   }
 
   updateSuggestionCommentsData(data) {
