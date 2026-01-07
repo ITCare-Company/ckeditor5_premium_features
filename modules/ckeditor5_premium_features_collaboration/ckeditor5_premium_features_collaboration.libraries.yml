@@ -21,7 +21,7 @@ admin.track-changes:
       css/track-changes.admin.css: { }
 
 revision-history-integration:
-  version: 20250820
+  version: 20251230
   license:
     name: GNU-GPL-2.0-or-later
     url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md

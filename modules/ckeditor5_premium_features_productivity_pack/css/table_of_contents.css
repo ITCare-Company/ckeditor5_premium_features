@@ -12,3 +12,7 @@
 .ck-table-of-contents li:not(:has(> a))::marker {
   content: '';
 }
+
+.gin--dark-mode .ck {
+  --ck-table-of-contents-background-color: var(--gin-bg-layer);
+}

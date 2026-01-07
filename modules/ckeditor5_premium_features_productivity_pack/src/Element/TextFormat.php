@@ -46,7 +46,7 @@ class TextFormat implements Ckeditor5TextFormatBaseInterface {
       '#type' => 'html_tag',
       '#tag' => 'div',
       '#attributes' => [
-        'class' => ['document-outline-container', 'collapsed', 'hidden'],
+        'class' => ['ck', 'document-outline-container', 'collapsed', 'hidden'],
         'id' => [
           $element["#attributes"]["data-drupal-selector"] . '-value-ck-document-outline',
         ],

@@ -38,7 +38,7 @@ class AnnotationSidebar {
     $sidebar = [
       'ck_sidebar_wrapper' => [
         '#type' => 'container',
-        '#attributes' => ['class' => ['ck-editor-sidebar-wrapper', $class_wrapper]],
+        '#attributes' => ['class' => ['ck', 'ck-editor-sidebar-wrapper', $class_wrapper]],
         'ck_sidebar' => [
           '#type' => 'html_tag',
           '#tag' => 'div',
