@@ -1,0 +1,5 @@
+admin.footnotes:
+  version: 20251127
+  css:
+    theme:
+      css/footnotes.admin.css: { }
