@@ -11,7 +11,10 @@ namespace Drupal\ckeditor5_premium_features_export_word\Plugin\CKEditor5Plugin;
 
 use Drupal\ckeditor5_premium_features\Plugin\CKEditor5Plugin\ExportBase;
 use Drupal\ckeditor5_premium_features_export_word\Form\SettingsForm;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 use Drupal\editor\EditorInterface;
+use Drupal\file\Entity\File;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -116,6 +119,18 @@ class ExportWord extends ExportBase {
       $this->convertConfigOptionsFormatToV2($options);
     }
 
+    if (isset($options["watermark"])) {
+      if (isset($options["watermark"]['image']) && !empty($options["watermark"]['image'])) {
+        $file = File::load($options["watermark"]['image'][0]);
+        if ($file) {
+          $options["watermark"]['source'] = $file->createFileUrl(FALSE);
+        }
+      }
+      elseif (isset($options["watermark"]['image_url']) && !empty($options["watermark"]['image_url'])) {
+        $options["watermark"]['source'] = $options["watermark"]['image_url'];
+      }
+    }
+
     return $static_plugin_config;
   }
 
@@ -180,6 +195,9 @@ class ExportWord extends ExportBase {
     ];
     if (isset($oldFormatConfig['orientation'])) {
       $config['document']['orientation'] = $oldFormatConfig['orientation'];
+    }
+    if (isset($oldFormatConfig['watermark'])) {
+      $config['watermark'] = $oldFormatConfig['watermark'];
     }
     if (isset($oldFormatConfig['header'])) {
       $config['headers'] = $this->convertHeaderAndFooterConfigToV2($oldFormatConfig['header']);
