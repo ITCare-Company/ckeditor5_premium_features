@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003-2025, CKSource Holding sp. z o.o. All rights reserved.
+ * Copyright (c) 2003-2026, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
@@ -26,7 +26,7 @@ class ExportInlineStylesAdapter {
     if (!formElement) {
       return;
     }
-    
+
     const command = this.editor.commands.get( 'exportInlineStyles' );
     if ( !command ) {
       return;
