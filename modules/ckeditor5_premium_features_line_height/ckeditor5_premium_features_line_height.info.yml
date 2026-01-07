@@ -1,0 +1,7 @@
+name: CKEditor 5 Premium Features Line Height
+type: module
+description: "Provides the Line Height plugin."
+package: CKEditor 5 Premium Features
+core_version_requirement: ^10.6 || ^11.3
+dependencies:
+  - ckeditor5_premium_features:ckeditor5_premium_features
