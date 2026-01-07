@@ -129,6 +129,9 @@ class ExportWord extends ExportBase {
       elseif (isset($options["watermark"]['image_url']) && !empty($options["watermark"]['image_url'])) {
         $options["watermark"]['source'] = $options["watermark"]['image_url'];
       }
+      elseif (isset($static_plugin_config["exportWord"]["converterOptions"]["watermark"])) {
+        unset($static_plugin_config["exportWord"]["converterOptions"]["watermark"]);
+      }
     }
 
     return $static_plugin_config;
