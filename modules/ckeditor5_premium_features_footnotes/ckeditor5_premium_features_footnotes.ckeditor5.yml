@@ -5,7 +5,7 @@ ckeditor5_premium_features_footnotes__footnotes:
       - footnotes.FootnotesProperties
   drupal:
     label: Footnotes
-    library: ckeditor5_premium_features_footnotes/footnotes
+    library: ckeditor5_premium_features_footnotes/footnotes_integration
     admin_library: ckeditor5_premium_features_footnotes/admin.footnotes
     class: Drupal\ckeditor5_premium_features_footnotes\Plugin\CKEditor5Plugin\Footnotes
     toolbar_items:
