@@ -12,6 +12,7 @@ namespace Drupal\ckeditor5_premium_features_line_height\Plugin\CKEditor5Plugin;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableInterface;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginConfigurableTrait;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefault;
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\editor\EditorInterface;
 
@@ -48,7 +49,7 @@ class LineHeight extends CKEditor5PluginDefault implements CKEditor5PluginConfig
         $static_plugin_config['lineHeight']['options'][] = $option;
       }
     }
-    $static_plugin_config['lineHeight']['defaultValue'] = $this->configuration['default_option'];
+    $static_plugin_config['lineHeight']['defaultValue'] = $this->t($this->configuration['default_option']);
     return $static_plugin_config;
   }
 
@@ -76,7 +77,7 @@ class LineHeight extends CKEditor5PluginDefault implements CKEditor5PluginConfig
               2<br />
               2.5<br />
               3<br /></code>
-              To learn more about possible options list please refer to the module's configuration guide."),
+              To learn more about possible options list please refer to the module's <a href=\"https://www.drupal.org/docs/extending-drupal/contributed-modules/contributed-module-documentation/ckeditor-5-premium-features/configuration-guide#s-line-height\" target=\"_blank\">configuration guide</a>."),
       '#default_value' => $this->configuration['options'],
     ];
 
@@ -103,7 +104,7 @@ class LineHeight extends CKEditor5PluginDefault implements CKEditor5PluginConfig
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $options = $this->getParsedOptions($form_state->getValue('options'));
     $this->configuration['options'] = implode("\n", $options);
-    $this->configuration['default_option'] = $form_state->getValue('default_option');
+    $this->configuration['default_option'] = Html::escape($form_state->getValue('default_option'));
   }
 
   /**
