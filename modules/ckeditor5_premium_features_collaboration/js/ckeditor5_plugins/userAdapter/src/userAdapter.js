@@ -78,6 +78,9 @@ class UserAdapter {
     if (plugins.has('RevisionTracker')) {
       plugins.get('RevisionTracker').forceDisabled(id);
     }
+    if (plugins.has('RevisionHistory')) {
+      plugins.get('RevisionHistory').forceDisabled(id);
+    }
     if (plugins.has('TrackChanges')) {
       plugins.get('TrackChanges').forceDisabled(id);
     }
