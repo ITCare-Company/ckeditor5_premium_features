@@ -1,0 +1,7 @@
+name: CKEditor 5 Premium Features Cloud Services
+type: module
+description: "Provides shared functionalities for plugins connecting to CKEditor cloud or self-hosted servers."
+package: CKEditor 5 Premium Features
+core_version_requirement: ^10.3 || ^11
+dependencies:
+  - ckeditor5_premium_features:ckeditor5_premium_features

@@ -1,0 +1,41 @@
+entity.ckeditor5_ai_custom_action.collection:
+  path: '/admin/structure/ckeditor-ai-custom-actions'
+  defaults:
+    _entity_list: 'ckeditor5_ai_custom_action'
+    _title: 'Custom Actions'
+  requirements:
+    _permission: 'ckeditor ai manage custom actions'
+
+entity.ckeditor5_ai_custom_action.add_form:
+  path: '/admin/structure/ckeditor-ai-custom-actions/add'
+  defaults:
+    _entity_form: 'ckeditor5_ai_custom_action.add'
+    _title: 'Add Custom Action'
+  requirements:
+    _permission: 'ckeditor ai manage custom actions'
+
+entity.ckeditor5_ai_custom_action.edit_form:
+  path: '/admin/structure/ckeditor-ai-custom-actions/{ckeditor5_ai_custom_action}'
+  defaults:
+    _entity_form: 'ckeditor5_ai_custom_action.edit'
+    _title: 'Edit Custom Action'
+  requirements:
+    _permission: 'ckeditor ai manage custom actions'
+
+entity.ckeditor5_ai_custom_action.delete_form:
+  path: '/admin/structure/ckeditor-ai-custom-actions/{ckeditor5_ai_custom_action}/delete'
+  defaults:
+    _entity_form: 'ckeditor5_ai_custom_action.delete'
+    _title: 'Delete Custom Action'
+  requirements:
+    _permission: 'ckeditor ai manage custom actions'
+
+ckeditor5_premium_features_ai.settings:
+  path: '/admin/config/ckeditor5-premium-features/ckeditor-ai'
+  defaults:
+    _form: '\Drupal\ckeditor5_premium_features_ai\Form\SettingsForm'
+    _title: 'CKEditor AI settings'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE

@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Entity;
+namespace Drupal\ckeditor5_premium_features_cloud_services\Entity;
 
 use Drupal\ckeditor5_premium_features\CKeditorPremiumLoggerChannelTrait;
 use Drupal\Core\Entity\EntityInterface;
@@ -31,7 +31,7 @@ class ChannelStorage extends SqlContentEntityStorage {
    * @param string $element_id
    *   ID of the field element.
    *
-   * @return \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface
+   * @return \Drupal\ckeditor5_premium_features_cloud_services\Entity\ChannelInterface
    *   Channel entity.
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
@@ -71,7 +71,7 @@ class ChannelStorage extends SqlContentEntityStorage {
   }
 
   /**
-   * Deletes RTC channels in an entity.
+   * Deletes channels in an entity.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity to remove channels from.

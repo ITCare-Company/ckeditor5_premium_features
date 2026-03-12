@@ -16,7 +16,7 @@ use Drupal\ckeditor5\Plugin\CKEditor5PluginDefinition;
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 use Drupal\ckeditor5_premium_features_productivity_pack\Element\TextFormat as TextFormatProductivityPack;
 use Drupal\ckeditor5_premium_features_realtime_collaboration\Element\TextFormat;
-use Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface;
+use Drupal\ckeditor5_premium_features_cloud_services\Entity\ChannelInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\editor\EditorInterface;
 

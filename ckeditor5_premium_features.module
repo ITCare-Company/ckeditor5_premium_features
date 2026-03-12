@@ -176,6 +176,7 @@ function ckeditor5_premium_features_preprocess_ckeditor5_textarea(&$variables): 
   template_preprocess_textarea($variables);
   $element = $variables['element'];
   $variables['sidebar'] = !empty($element['#sidebar']) ? $element['#sidebar'] : NULL;
+  $variables['ai_sidebar'] = !empty($element['#ai_sidebar']) ? $element['#ai_sidebar'] : NULL;
   $variables['document_outline'] = !empty($element['#document_outline']) ? $element['#document_outline'] : NULL;
 }
 

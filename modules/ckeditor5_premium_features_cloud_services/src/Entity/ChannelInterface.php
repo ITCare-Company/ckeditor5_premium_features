@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Entity;
+namespace Drupal\ckeditor5_premium_features_cloud_services\Entity;
 
 /**
  * Channel entity interface.

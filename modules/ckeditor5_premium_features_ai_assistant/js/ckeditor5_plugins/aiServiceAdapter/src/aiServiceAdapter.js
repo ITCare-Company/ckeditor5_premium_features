@@ -14,7 +14,6 @@ class AIServiceAdapter {
     const AIAdapter = this.editor.plugins.get('AIAdapter');
     let textAdapter;
     const config = this.editor.config._config.ai.assistant ?? this.editor.config._config.ai;
-    console.log('config', config);
     if (config.textAdapter === 'aws') {
       textAdapter = editor.plugins.get('AWSTextAdapter');
     } else {

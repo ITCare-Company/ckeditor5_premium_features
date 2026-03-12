@@ -7,6 +7,7 @@ const { View } = window.CKEditor5.ui;
 const { Rect, Collection } = window.CKEditor5.utils;
 const { Plugin } = window.CKEditor5.core;
 
+// Error notification definitions: each entry defines a UI message and what error it reacts to.
 const definitions = [
   {
     header: 'Oops...',
@@ -58,6 +59,19 @@ const definitions = [
   }
 ]
 
+// Global suppression rules: define errors that should NOT display a popup.
+// Shape mirrors simple "reactsTo" matching using substring semantics, e.g.:
+// {
+//   type: 'error' | 'unhandledrejection',
+//   reactsTo: { name?: '...', message?: '...' }
+// }
+const suppressions = [
+  {
+    type: 'unhandledrejection',
+    reactsTo: { message: 'ai-chat-feed-view-item-not-found' }
+  }
+];
+
 class ErrorNotifications extends Plugin {
   constructor( ...args ) {
     super( ...args );
@@ -72,6 +86,10 @@ class ErrorNotifications extends Plugin {
 
   init() {
     const editor = this.editor;
+
+    // Collect suppression rules from top-level `suppressions` and optional editor config.
+    const configSuppress = editor.config.get( 'errorNotifications.suppress' ) || [];
+    this._suppressRules = [ ...suppressions, ...configSuppress ];
 
     this._setupNotifications( definitions );
 
@@ -121,13 +139,44 @@ class ErrorNotifications extends Plugin {
     window.removeEventListener( 'unhandledrejection', this._handleError.bind( this ) );
   }
 
+  _isSuppressed( evt ) {
+    const rules = this._suppressRules || [];
+    const type = evt.type; // 'error' | 'unhandledrejection'
+    const err = type === 'error' ? evt.error : evt.reason;
+    const name = err && err.name ? err.name : '';
+    const message = err && err.message ? err.message : '';
+
+    for ( const rule of rules ) {
+      if ( rule.type && rule.type !== type ) {
+        continue;
+      }
+
+      if ( rule.reactsTo && typeof rule.reactsTo === 'object' ) {
+        const rt = rule.reactsTo;
+        let matched = false;
+        if ( Object.prototype.hasOwnProperty.call( rt, 'name' ) && typeof rt.name === 'string' ) {
+          matched = matched || ( typeof name === 'string' && name.indexOf( rt.name ) !== -1 );
+        }
+        if ( Object.prototype.hasOwnProperty.call( rt, 'message' ) && typeof rt.message === 'string' ) {
+          matched = matched || ( typeof message === 'string' && message.indexOf( rt.message ) !== -1 );
+        }
+        if ( matched ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   _handleError( evt ) {
     let notificationToShow = null;
     const matches = new Collection();
 
     if ( this.activeNotification ||
       ( evt.type === "error" && !evt.error) ||
-      ( evt.type === "unhandledrejection" && !evt.reason)) {
+      ( evt.type === "unhandledrejection" && !evt.reason) ||
+      this._isSuppressed( evt ) ) {
       return;
     }
 
@@ -152,6 +201,11 @@ class ErrorNotifications extends Plugin {
     }
 
     if ( !notificationToShow ) {
+      return;
+    }
+
+    // Final safeguard to prevent showing suppressed notifications.
+    if ( this._isSuppressed( evt ) ) {
       return;
     }
 

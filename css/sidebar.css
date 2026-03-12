@@ -137,6 +137,9 @@ tr.draggable .ck-editor-sidebar-wrapper .ck-sidebar-wrapper {
   --ck-color-annotation-wrapper-background: var(--gin-bg-layer);
   --ck-color-comment-input-background: var(--gin-bg-layer);
   --ck-color-comment-remove-background: var(--gin-bg-layer);
+  --ck-tabs-panels-container-background: var(--ck-color-base-background);
+  --ck-color-tabs-buttons-container-background: var(--ck-color-toolbar-background);
+
 
   .ck.ck-sidebar--narrow .ck-annotation-counter {
     color: var(--ck-color-text);

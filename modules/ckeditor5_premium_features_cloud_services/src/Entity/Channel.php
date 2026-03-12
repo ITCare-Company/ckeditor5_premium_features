@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\ckeditor5_premium_features_realtime_collaboration\Entity;
+namespace Drupal\ckeditor5_premium_features_cloud_services\Entity;
 
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -29,7 +29,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *      "created" = "created",
  *   },
  *   handlers = {
- *     "storage" = "Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelStorage",
+ *     "storage" = "Drupal\ckeditor5_premium_features_cloud_services\Entity\ChannelStorage",
  *     "storage_schema" = "Drupal\ckeditor5_premium_features\Entity\CollaborationStorageSchema",
  *   }
  * )

@@ -6,3 +6,4 @@ core_version_requirement: ^10.3 || ^11
 configure: ckeditor5_premium_features_realtime_collaboration.form.settings
 dependencies:
   - ckeditor5_premium_features:ckeditor5_premium_features
+  - ckeditor5_premium_features:ckeditor5_premium_features_cloud_services

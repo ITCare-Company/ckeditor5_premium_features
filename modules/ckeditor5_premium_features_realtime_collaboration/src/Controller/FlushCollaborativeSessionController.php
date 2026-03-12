@@ -63,7 +63,7 @@ class FlushCollaborativeSessionController extends ControllerBase {
    *   Current user account.
    */
   public function access(string $documentId, AccountInterface $account) :AccessResultInterface {
-    /** @var \Drupal\ckeditor5_premium_features_realtime_collaboration\Entity\ChannelInterface $channel */
+    /** @var \Drupal\ckeditor5_premium_features_cloud_services\Entity\ChannelInterface $channel */
     $channel = $this->entityTypeManager()->getStorage('ckeditor5_channel')->load($documentId);
 
     if (!$channel) {

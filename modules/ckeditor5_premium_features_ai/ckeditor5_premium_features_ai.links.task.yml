@@ -1,0 +1,13 @@
+ckeditor5_premium_features_ai.settings:
+  title: 'CKEditor AI'
+  route_name: ckeditor5_premium_features_ai.settings
+  base_route: ckeditor5_premium_features.form.settings
+  description: 'Settings for CKEditor 5 AI.'
+  weight: 30
+
+entity.ckeditor5_ai_custom_action.collection:
+  title: 'CKEditor AI Custom Actions'
+  route_name: entity.ckeditor5_ai_custom_action.collection
+  base_route: ckeditor5_premium_features.form.settings
+  description: 'Manage CKEditor AI Custom Actions.'
+  weight: 31

@@ -5,7 +5,7 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-namespace Drupal\ckeditor5_premium_features_realtime_collaboration;
+namespace Drupal\ckeditor5_premium_features_cloud_services;
 
 /**
  * Exception class for Ckeditor5 channel exceptions.

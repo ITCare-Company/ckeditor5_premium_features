@@ -49,12 +49,13 @@
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
+  align-items: stretch;
   position: relative;
 }
 
 .ck-editor-container .ck-editor-instance {
   width: 100%;
-  height: 100%;
+  height: auto;
 }
 
 .ck-editor-container .ck-editor-instance .ck-content{

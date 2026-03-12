@@ -60,6 +60,7 @@ trait CKEditorPremiumPluginsCheckerTrait {
     return [
       'aiAssistant',
       'aiCommands',
+      'aiQuickActions',
       'caseChange',
       'comment',
       'commentsArchive',
@@ -67,13 +68,17 @@ trait CKEditorPremiumPluginsCheckerTrait {
       'exportWord',
       'formatPainter',
       'importWord',
+      'insertFootnote',
       'insertMergeField',
       'insertTemplate',
+      'lineHeight',
       'multiLevelList',
       'previewMergeFields',
       'revisionHistory',
+      'sourceEditingEnhanced',
       'tableOfContents',
-      'trackChanges'
+      'toggleAi',
+      'trackChanges',
     ];
   }
 }
