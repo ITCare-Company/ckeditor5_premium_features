@@ -7,12 +7,19 @@ class ExportInlineStylesAdapter {
 
   constructor( editor ) {
     this.editor = editor;
+    if (typeof this.editor.sourceElement === "undefined") {
+      return;
+    }
     this.form = this.editor.sourceElement.closest('form');
     this.disabledAttributeName = 'data-ckeditor5-block-' + this.editor.id;
   }
 
   init() {
     const editor = this.editor;
+    if (typeof this.editor.sourceElement === "undefined") {
+      return;
+    }
+
     if (typeof this.editor.config._config.exportInlineStyles === "undefined") {
       return;
     }
@@ -36,10 +43,8 @@ class ExportInlineStylesAdapter {
     if ( sourceEditingPlugin ) {
       sourceEditingPlugin.on( 'change:isSourceEditingMode', (eventInfo, name, value, oldValue) => {
         if ( value ) {
-          console.log('source enabled');
           this.disableSubmitButtons();
         } else {
-          console.log('source disabled');
           this.enableSubmitButtons();
         }
       });
@@ -56,19 +61,16 @@ class ExportInlineStylesAdapter {
       if (commandExec instanceof Promise) {
         commandExec.then((result) => {
           formElement.value = result;
-          console.log('Exported inline styles');
         })
         .then(() => {
           // Ensure the form is submitted after the value is set.
           const submitterId = event.submitter.id;
           document.getElementById(submitterId).click();
           exported = true;
-          console.log('Form submitted with inline styles');
         })
         .catch((error) => {
           const submitterId = event.submitter.id;
           document.getElementById(submitterId).click();
-          console.error('Error exporting inline styles');
         });
       }
     });
