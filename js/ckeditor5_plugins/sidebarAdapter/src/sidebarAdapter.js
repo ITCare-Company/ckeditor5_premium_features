@@ -278,6 +278,9 @@ class SidebarAdapter {
   updateCkeditorMode() {
     // TODO: move to config?
     let w = this.editorContainer.clientWidth;
+    if (w === 0) {
+      return;
+    }
     let newMode = w >= 720 ? 'wideSidebar' : (w >= 500 ? 'narrowSidebar' : 'inline');
     this.setCkEditorSidebarMode(newMode);
   }
