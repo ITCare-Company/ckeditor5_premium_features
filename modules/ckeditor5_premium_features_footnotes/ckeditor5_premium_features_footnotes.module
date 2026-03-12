@@ -28,3 +28,10 @@ function ckeditor5_premium_features_footnotes_library_info_build(): array {
 
   return $libraries;
 }
+
+/**
+ * Implements hook_uninstall().
+ */
+function ckeditor5_premium_features_footnotes_uninstall($is_syncing): void {
+  ckeditor5_premium_features_remove_ckeditor_plugins(['insertFootnote'], ['ckeditor5_premium_features_footnotes__footnotes']);
+}

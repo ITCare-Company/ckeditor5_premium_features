@@ -13,3 +13,10 @@ declare(strict_types=1);
 function ckeditor5_premium_features_line_height_library_info_build(): array {
   return ckeditor5_plugin_pack_library_loader(['line-height']);
 }
+
+/**
+ * Implements hook_uninstall().
+ */
+function ckeditor5_premium_features_line_height_uninstall($is_syncing): void {
+  ckeditor5_premium_features_remove_ckeditor_plugins(['lineHeight'], ['ckeditor5_premium_features_line_height__line_height']);
+}
