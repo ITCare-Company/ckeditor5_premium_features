@@ -116,7 +116,7 @@ class ExportWord extends ExportBase {
     }
 
     if (\Drupal::service('ckeditor5_premium_features.core_library_version_checker')->isLibraryVersionHigherOrEqual('43.0.0')) {
-      $this->convertConfigOptionsFormatToV2($options);
+      $this->transformConverterOptionsFormatToV2($options);
     }
 
     if (isset($options["watermark"])) {
@@ -177,57 +177,6 @@ class ExportWord extends ExportBase {
    */
   public function getExportFileExtension(): string {
     return self::EXPORT_FILE_EXTENSION;
-  }
-
-  /**
-   * Converts the Export to Word configuration options format to the V2 format.
-   *
-   * @param array $config
-   *   The Export to Word configuration array.
-   * @return void
-   */
-  private function convertConfigOptionsFormatToV2(array &$config): void {
-    $oldFormatConfig = $config;
-    $config = [];
-    $config['document']['size'] = $oldFormatConfig['format'];
-    $config['document']['margins'] = [
-      'top' => $oldFormatConfig['margin_top'],
-      'bottom' => $oldFormatConfig['margin_bottom'],
-      'left' => $oldFormatConfig['margin_left'],
-      'right' => $oldFormatConfig['margin_right'],
-    ];
-    if (isset($oldFormatConfig['orientation'])) {
-      $config['document']['orientation'] = $oldFormatConfig['orientation'];
-    }
-    if (isset($oldFormatConfig['watermark'])) {
-      $config['watermark'] = $oldFormatConfig['watermark'];
-    }
-    if (isset($oldFormatConfig['header'])) {
-      $config['headers'] = $this->convertHeaderAndFooterConfigToV2($oldFormatConfig['header']);
-    }
-    if (isset($oldFormatConfig['footer'])) {
-      $config['footers'] = $this->convertHeaderAndFooterConfigToV2($oldFormatConfig['footer']);
-    }
-  }
-
-  /**
-   * Converts the Export to Word header and footer configuration to the V2 format.
-   *
-   * @param array $v1Config
-   *   The V1 configuration array.
-   * @return array
-   *   The V2 configuration array.
-   */
-  private function convertHeaderAndFooterConfigToV2($v1Config): array {
-    $v2Config = [];
-    foreach ($v1Config as $v1ConfigItem) {
-      $type = $v1ConfigItem['type'];
-      $v2Config[$type] = [
-        'html' => $v1ConfigItem['html'],
-        'css' => $v1ConfigItem['css'],
-      ];
-    }
-    return $v2Config;
   }
 
 }
