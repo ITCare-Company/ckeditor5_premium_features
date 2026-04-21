@@ -78,6 +78,12 @@ class ErrorNotifications extends Plugin {
 
     this.availableNotifications = new Collection();
     this.activeNotification = null;
+
+    /**
+     * @private
+     * @type {Function}
+     */
+    this._boundHandleError = this._handleError.bind( this );
   }
 
   static get pluginName() {
@@ -130,13 +136,13 @@ class ErrorNotifications extends Plugin {
   }
 
   _attachListeners() {
-    window.addEventListener( 'error', this._handleError.bind( this ) );
-    window.addEventListener( 'unhandledrejection', this._handleError.bind( this ) );
+    window.addEventListener( 'error', this._boundHandleError );
+    window.addEventListener( 'unhandledrejection', this._boundHandleError );
   }
 
   _detachListeners() {
-    window.removeEventListener( 'error', this._handleError.bind( this ) );
-    window.removeEventListener( 'unhandledrejection', this._handleError.bind( this ) );
+    window.removeEventListener( 'error', this._boundHandleError );
+    window.removeEventListener( 'unhandledrejection', this._boundHandleError );
   }
 
   _isSuppressed( evt ) {
