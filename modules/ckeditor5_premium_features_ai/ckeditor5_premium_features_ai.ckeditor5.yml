@@ -3,6 +3,7 @@ ckeditor5_premium_features_ai__ai:
     plugins:
       - aiSidebarAdapter.AiSidebarAdapter
       - ai.AIChat
+      - ai.AIChatShortcuts
       - ai.AIQuickActions
       - ai.AIActions
       - ai.AIReviewMode

@@ -12,33 +12,33 @@ namespace Drupal\ckeditor5_premium_features_ai\Entity;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 
 /**
- * Defines the AI Custom Action config entity.
+ * Defines the AI Custom Review config entity.
  *
  * @ConfigEntityType(
- *   id = "ckeditor5_ai_custom_action",
- *   label = @Translation("Custom Actions"),
- *   label_collection = @Translation("Custom Actions"),
- *   label_singular = @Translation("Custom Action"),
- *   label_plural = @Translation("Custom Actions"),
+ *   id = "ckeditor5_ai_custom_review",
+ *   label = @Translation("Custom Reviews"),
+ *   label_collection = @Translation("Custom Reviews"),
+ *   label_singular = @Translation("Custom Review"),
+ *   label_plural = @Translation("Custom Reviews"),
  *   label_count = @PluralTranslation(
- *     singular = "@count Custom Action",
- *     plural = "@count Custom Actions",
+ *     singular = "@count Custom Review",
+ *     plural = "@count Custom Reviews",
  *   ),
  *   handlers = {
- *     "list_builder" = "Drupal\ckeditor5_premium_features_ai\CustomActionListBuilder",
+ *     "list_builder" = "Drupal\ckeditor5_premium_features_ai\CustomReviewListBuilder",
  *     "form" = {
- *       "add" = "Drupal\ckeditor5_premium_features_ai\Form\CustomActionForm",
- *       "edit" = "Drupal\ckeditor5_premium_features_ai\Form\CustomActionForm",
+ *       "add" = "Drupal\ckeditor5_premium_features_ai\Form\CustomReviewForm",
+ *       "edit" = "Drupal\ckeditor5_premium_features_ai\Form\CustomReviewForm",
  *       "delete" = "Drupal\Core\Entity\EntityDeleteForm"
  *     }
  *   },
- *   config_prefix = "ckeditor5_ai_custom_action",
+ *   config_prefix = "ckeditor5_ai_custom_review",
  *   admin_permission = "administer ckeditor ai",
  *   links = {
- *     "collection" = "/admin/structure/ckeditor-ai-custom-actions",
- *     "add-form" = "/admin/structure/ckeditor-ai-custom-actions/add",
- *     "edit-form" = "/admin/structure/ckeditor-ai-custom-actions/{ckeditor5_ai_custom_action}",
- *     "delete-form" = "/admin/structure/ckeditor-ai-custom-actions/{ckeditor5_ai_custom_action}/delete"
+ *     "collection" = "/admin/structure/ckeditor-ai-custom-reviews",
+ *     "add-form" = "/admin/structure/ckeditor-ai-custom-reviews/add",
+ *     "edit-form" = "/admin/structure/ckeditor-ai-custom-reviews/{ckeditor5_ai_custom_review}",
+ *     "delete-form" = "/admin/structure/ckeditor-ai-custom-reviews/{ckeditor5_ai_custom_review}/delete"
  *   },
  *   entity_keys = {
  *     "id" = "id",
@@ -48,14 +48,14 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   config_export = {
  *     "id",
  *     "label",
+ *     "description",
  *     "prompt",
- *     "type",
  *     "model",
  *     "textFormats",
  *   }
  * )
  */
-final class CustomAction extends ConfigEntityBase {
+final class CustomReview extends ConfigEntityBase {
 
   /**
    * The machine name ID.
@@ -72,18 +72,18 @@ final class CustomAction extends ConfigEntityBase {
   protected string $label;
 
   /**
+   * The description.
+   *
+   * @var string|null
+   */
+  protected ?string $description = NULL;
+
+  /**
    * The prompt text.
    *
    * @var string|null
    */
   protected ?string $prompt = NULL;
-
-  /**
-   * The type of command: ACTION | CHAT.
-   *
-   * @var string|null
-   */
-  protected ?string $type = NULL;
 
   /**
    * The model name.

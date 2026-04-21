@@ -294,6 +294,20 @@ class CKEditorAi extends CKEditor5PluginDefault implements ContainerFactoryPlugi
     // filtered by the current text format associated with this editor.
     $static_plugin_config['ai']['quickActions']['extraCommands'] = $this->buildExtraCommands($editor);
 
+    // Build Review Commands from saved Custom Review config entities
+    // filtered by the current text format associated with this editor.
+    $static_plugin_config['ai']['review']['extraCommands'] = $this->buildReviewExtraCommands($editor);
+
+    // Build Chat Shortcuts from saved Chat Shortcut config entities
+    // filtered by the current text format associated with this editor.
+    $shortcuts = $this->buildChatShortcuts($editor);
+    if ($shortcuts) {
+      $static_plugin_config['ai']['chat']['shortcuts'] = $shortcuts;
+    }
+    else {
+      $static_plugin_config['removePlugins'][] = 'AIChatShortcuts';
+    }
+
     // Set custom translation languages.
     if (!empty($this->configuration['translation_languages'])) {
       $languages = str_replace(array("\r\n", "\r"), "\n", $this->configuration['translation_languages']);
@@ -370,6 +384,89 @@ class CKEditorAi extends CKEditor5PluginDefault implements ContainerFactoryPlugi
     return $commands;
   }
 
+  /**
+   * Build extraCommands based on Custom Review entities for the given editor.
+   */
+  private function buildReviewExtraCommands(EditorInterface $editor): array {
+    $format_id = $editor->id();
+
+    // Load all custom reviews and filter by allowed text formats.
+    $storage = $this->entityTypeManager->getStorage('ckeditor5_ai_custom_review');
+    $entities = $storage->loadMultiple();
+
+    $commands = [];
+    foreach ($entities as $entity) {
+      /** @var \Drupal\ckeditor5_premium_features_ai\Entity\CustomReview $entity */
+      $formats = (array) $entity->get('textFormats');
+
+      // If no formats defined, treat as available everywhere; otherwise require match.
+      $allowed = empty(array_filter($formats)) || in_array($format_id, $formats, TRUE);
+      if (!$allowed) {
+        continue;
+      }
+
+      $command = [
+        'id' => (string) $entity->get('id'),
+        'label' => (string) $entity->label(),
+        'description' => (string) $entity->get('description'),
+        'prompt' => (string) $entity->get('prompt'),
+      ];
+
+      $model = (string) $entity->get('model');
+      if ($model !== '') {
+        $command['model'] = $model;
+      }
+      $commands[] = $command;
+    }
+
+    return $commands;
+  }
+
+  /**
+   * Build shortcuts based on Chat Shortcut entities for the given editor.
+   */
+  private function buildChatShortcuts(EditorInterface $editor): array {
+    $isCKEditor48 = $this->libraryVersionChecker->isLibraryVersionHigherOrEqual('48.0.0');
+
+    $format_id = $editor->id();
+
+    // Load all chat shortcuts and filter by allowed text formats.
+    $storage = $this->entityTypeManager->getStorage('ckeditor5_ai_chat_shortcut');
+    $entities = $storage->loadMultiple();
+
+    $shortcuts = [];
+    foreach ($entities as $entity) {
+      /** @var \Drupal\ckeditor5_premium_features_ai\Entity\ChatShortcut $entity */
+      $formats = (array) $entity->get('textFormats');
+
+      // If no formats defined, treat as available everywhere; otherwise require match.
+      $allowed = empty(array_filter($formats)) || in_array($format_id, $formats, TRUE);
+      if (!$allowed) {
+        continue;
+      }
+
+      $shortcut = [
+        'id' => (string) $entity->id(),
+        'type' => (string) $entity->get('type'),
+        'label' => (string) $entity->label(),
+      ];
+
+      if ($shortcut['type'] === 'chat') {
+        $shortcut['prompt'] = (string) $entity->get('prompt');
+        $shortcut['useReasoning'] = (bool) $entity->get('useReasoning');
+        $shortcut['useWebSearch'] = (bool) $entity->get('useWebSearch');
+      }
+      elseif ($shortcut['type'] === 'review') {
+        $key = $isCKEditor48 ? 'commandId' : 'check';
+        $shortcut[$key] = (string) $entity->get('commandId');
+      }
+
+      $shortcuts[] = $shortcut;
+    }
+
+    return $shortcuts;
+  }
+
   private function getProviderModelsMapping(): array {
     $apiInfo = $this->apiAdapter->getModels("1");
     $result = [];
@@ -412,7 +509,7 @@ class CKEditorAi extends CKEditor5PluginDefault implements ContainerFactoryPlugi
     if (in_array('ai:admin', $permissions)) {
       return ;
     }
-    $removePlugins = [];
+    $removePlugins = $static_plugin_config["removePlugins"] ?? [];
 
     // Handle models
     $providerModels = [];

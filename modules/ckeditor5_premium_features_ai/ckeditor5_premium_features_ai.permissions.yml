@@ -1,5 +1,6 @@
-ckeditor ai manage custom actions:
-  title: 'Manage custom Quick Actions'
+administer ckeditor ai:
+  title: 'Administer CKEditor AI settings'
+  restrict access: true
 ckeditor ai full access:
   title: 'Full access to all CKEditor AI functionalities'
 ckeditor ai all models:

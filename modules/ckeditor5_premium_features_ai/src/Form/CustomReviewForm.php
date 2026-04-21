@@ -16,11 +16,11 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Form controller for Custom Action add/edit forms.
+ * Form controller for Custom Review add/edit forms.
  *
- * @property \Drupal\ckeditor5_premium_features_ai\Entity\CustomAction $entity
+ * @property \Drupal\ckeditor5_premium_features_ai\Entity\CustomReview $entity
  */
-final class CustomActionForm extends EntityForm {
+final class CustomReviewForm extends EntityForm {
 
   /** @var \Drupal\ckeditor5_premium_features_ai\Utility\ApiAdapter */
   private ApiAdapter $apiAdapter;
@@ -52,14 +52,22 @@ final class CustomActionForm extends EntityForm {
       '#maxlength' => 255,
       '#default_value' => $this->entity->label(),
       '#required' => TRUE,
-      '#description' => $this->t('The name shown to editors in the AI Quick Actions menu.'),
+      '#description' => $this->t('The name shown to editors in the AI Reviews menu.'),
+    ];
+
+    $form['description'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Description'),
+      '#maxlength' => 255,
+      '#default_value' => $this->entity->get('description') ?? '',
+      '#description' => $this->t('The description of the review command.'),
     ];
 
     $form['id'] = [
       '#type' => 'machine_name',
       '#default_value' => $this->entity->id(),
       '#machine_name' => [
-        'exists' => '\\Drupal\\ckeditor5_premium_features_ai\\Entity\\CustomAction::load',
+        'exists' => '\\Drupal\\ckeditor5_premium_features_ai\\Entity\\CustomReview::load',
       ],
       '#disabled' => !$this->entity->isNew(),
     ];
@@ -69,18 +77,6 @@ final class CustomActionForm extends EntityForm {
       '#title' => $this->t('Prompt'),
       '#default_value' => $this->entity->get('prompt') ?? '',
       '#required' => TRUE,
-    ];
-
-    $form['type'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Type'),
-      '#options' => [
-        'ACTION' => $this->t('ACTION'),
-        'CHAT' => $this->t('CHAT'),
-      ],
-      '#default_value' => $this->entity->get('type') ?? 'ACTION',
-      '#required' => TRUE,
-      '#description' => $this->t('<a href="https://ckeditor.com/docs/ckeditor5/latest/features/ai/ckeditor-ai-actions.html#types-of-actions" target="_blank">Learn more about available action types</a>'),
     ];
 
     $form['model'] = [
@@ -95,7 +91,7 @@ final class CustomActionForm extends EntityForm {
       '#title' => $this->t('Available for text formats'),
       '#options' => $this->getCkeditor5EnabledTextFormats(),
       '#default_value' => $this->entity->get('textFormats') ?? [],
-      '#description' => $this->t('Select which text formats can use this action.'),
+      '#description' => $this->t('Select which text formats can use this review.'),
     ];
 
     return $form;
@@ -113,7 +109,7 @@ final class CustomActionForm extends EntityForm {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     parent::submitForm($form, $form_state);
-    $form_state->setRedirect('entity.ckeditor5_ai_custom_action.collection');
+    $form_state->setRedirect('entity.ckeditor5_ai_custom_review.collection');
   }
 
   /**
@@ -127,8 +123,8 @@ final class CustomActionForm extends EntityForm {
       $this->entity->set('textFormats', $values['textFormats']);
     }
     $this->entity->set('id', $values['id'] ?? NULL);
+    $this->entity->set('description', $values['description'] ?? NULL);
     $this->entity->set('prompt', $values['prompt'] ?? NULL);
-    $this->entity->set('type', $values['type'] ?? NULL);
     $this->entity->set('model', $values['model'] ?? NULL);
     return $this->entity->save();
   }
@@ -136,7 +132,6 @@ final class CustomActionForm extends EntityForm {
   private function getModelOptions(): array {
     $options = [];
     $response = $this->apiAdapter->getModels('1');
-    // Expected: ['models' => [['id' => 'gpt-5.2', 'label' => 'GPT 5.2'], ...]] or similar.
     $models = $response['models'] ?? $response ?? [];
     if (empty($models) || !isset($models['items'])) {
       return $options;
