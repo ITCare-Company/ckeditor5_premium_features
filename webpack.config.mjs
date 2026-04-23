@@ -5,7 +5,6 @@
 
 import path from 'path';
 import webpack from 'webpack';
-import { styles, builds } from '@ckeditor/ckeditor5-dev-utils';
 import TerserPlugin from 'terser-webpack-plugin';
 import { createRequire } from 'module';
 
