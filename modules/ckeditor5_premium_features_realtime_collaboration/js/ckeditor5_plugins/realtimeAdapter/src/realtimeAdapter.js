@@ -207,7 +207,7 @@ class RealtimeAdapter {
     if (this.editor.config._config.realtime.readonly) {
       return;
     }
-    if (this.textFormatSelect || typeof this.textFormatSelect !== "undefined") {
+    if (this.textFormatSelect != null) {
       this.textFormatSelect.removeEventListener('change', this.changeEditor.bind(this));
     }
     this.clearPresenceListContainer();

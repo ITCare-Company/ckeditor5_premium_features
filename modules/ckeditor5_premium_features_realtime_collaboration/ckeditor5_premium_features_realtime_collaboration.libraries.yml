@@ -21,7 +21,7 @@ admin.comments-archive:
       css/comments-archive.admin.css: { }
 
 real-time-collaboration:
-  version: 20250623
+  version: 20260525
   license:
     name: GNU-GPL-2.0-or-later
     url: https://raw.githubusercontent.com/ckeditor/ckeditor5/master/LICENSE.md
