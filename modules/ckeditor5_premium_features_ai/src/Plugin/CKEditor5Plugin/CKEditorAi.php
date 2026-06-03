@@ -259,6 +259,11 @@ class CKEditorAi extends CKEditor5PluginDefault implements ContainerFactoryPlugi
     ];
 
     $customContext = \Drupal::moduleHandler()->invokeAll('ckeditor5_premium_features_ai_context', [$editor]);
+
+    if (\Drupal::moduleHandler()->moduleExists('ai_context')) {
+      $customContext = array_merge($customContext, $this->getControlCenterContext());
+    }
+
     if ($customContext) {
       $static_plugin_config['ai']['custom']['context'] = $customContext;
     }
@@ -634,4 +639,38 @@ class CKEditorAi extends CKEditor5PluginDefault implements ContainerFactoryPlugi
 
     return $result;
   }
+
+  /**
+   * Gets matching context defined in the Context Control Center module.
+   */
+  private function getControlCenterContext(): array {
+    $selector = \Drupal::service('ai_context.selector');
+    $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+
+    $request = new \Drupal\ai_context\Model\AiContextRequest(
+      task: 'Global context to be added to the CKEditor AI configuration',
+      scopeSubscriptions: ['language' => [$language]],
+      alwaysInclude: [],
+      neverInclude: [],
+    );
+
+    $result = $selector->select($request);
+    $items = $result->getSelectedItems(TRUE);
+
+    $customContext = [];
+    foreach ($items as $key => $item) {
+      $customContext[] = [
+        'id' => $key,
+        'type' => 'text',
+        'label' => $item['label'],
+        'data' => [
+          'content' => $item['purpose'] . "\r\n" . $item['content_snippet'],
+          'type' => 'markdown',
+        ],
+      ];
+    }
+
+    return $customContext;
+  }
+
 }
