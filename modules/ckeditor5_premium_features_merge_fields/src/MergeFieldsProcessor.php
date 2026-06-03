@@ -35,11 +35,17 @@ class MergeFieldsProcessor {
    */
   public static function validateElement(array $element, FormStateInterface $form_state, array $form): void {
     $editor = Editor::load($element['#format']);
-    $entityTypeManager = \Drupal::entityTypeManager();
+    if (!$editor) {
+      return;
+    }
+    if ($editor->getEditor() !== 'ckeditor5') {
+      return;
+    }
     $editorSettings = $editor->getSettings();
     if (empty(array_intersect($editorSettings['toolbar']['items'], ['insertMergeField', 'previewMergeFields']))) {
       return;
     }
+    $entityTypeManager = \Drupal::entityTypeManager();
     $enabledItemsJSON = $editorSettings["plugins"]["ckeditor5_premium_features_merge_fields__merge_fields"]['enabled_items'] ?? '{}';
     $enabledItemsConfig = Json::decode($enabledItemsJSON);
 
