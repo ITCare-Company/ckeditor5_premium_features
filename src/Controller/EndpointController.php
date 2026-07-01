@@ -51,6 +51,8 @@ class EndpointController extends ControllerBase {
     $token = $this->tokenGenerator->generate($filterFormatId);
     $response->setContent($token);
 
+    $response->headers->set('Cache-Control', 'no-store, private');
+
     return $response;
   }
 
