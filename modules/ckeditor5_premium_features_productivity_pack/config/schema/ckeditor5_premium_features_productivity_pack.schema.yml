@@ -1,4 +1,4 @@
-ckeditor5_premium_features_productivity_pack_templates.ckeditor5_templates.*:
+ckeditor5_premium_features_productivity_pack.ckeditor5_template.*:
   type: config_entity
   label: CKEditor5 Content Template
   mapping:
@@ -11,17 +11,20 @@ ckeditor5_premium_features_productivity_pack_templates.ckeditor5_templates.*:
       type: label
       label: Title
     description:
-      type: string
+      type: text
       label: Description
     icon:
       type: string
       label: Icon
     data:
-      type: string
+      type: text
       label: HTML code
-    formats:
+    textFormats:
       type: sequence
       label: Available for
+      sequence:
+        type: string
+        label: Text Format
     weight:
       type: integer
       label: Weight
