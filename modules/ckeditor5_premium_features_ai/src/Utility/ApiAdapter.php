@@ -21,7 +21,9 @@ use Drupal\Core\Utility\Error;
 use Drupal\ckeditor5_premium_features_ai\Service\AiConfigHandler;
 use Firebase\JWT\JWT;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * Provides the CKEditor API connection.
@@ -120,12 +122,16 @@ class ApiAdapter {
 
     try {
       $request = $this->http_client->request($method, $url, $options);
-    }
-    catch (GuzzleException $e) {
-      // Log the error.
-      $msg = $e?->getResponse()?->getBody()?->getContents() ?? '';
+    } catch (ConnectException $e) {
+      Error::logException($this->getLogger('ckeditor5_premium_features'), $e, $e->getMessage());
+      return ['code' => $e->getCode(), 'message' => $e->getMessage()];
+    } catch (RequestException $e) {
+      $msg = $e->getResponse()?->getBody()?->getContents() ?? '';
       Error::logException($this->getLogger('ckeditor5_premium_features'), $e, $msg);
       return ['code' => $e->getCode(), 'message' => $msg];
+    } catch (GuzzleException $e) {
+      Error::logException($this->getLogger('ckeditor5_premium_features'), $e, $e->getMessage());
+      return ['code' => $e->getCode(), 'message' => $e->getMessage()];
     }
 
     $response = $request->getBody()->getContents();
