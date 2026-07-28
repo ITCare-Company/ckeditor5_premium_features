@@ -54,22 +54,14 @@ class CollaborationXSSFilter extends Standard {
    *   Callback to be used to process collaboration tag.
    */
   protected static function preprocessElementValue(string $original, callable $callback): string {
-    $tagList = [
-      'suggestion-start',
-      'suggestion-end',
-      'comment-start',
-      'comment-end',
-    ];
+    $tagPattern = '(?:suggestion-start|suggestion-end|comment-start|comment-end)';
+    $attributePattern = '\bname="([^"]*)"';
 
-    $attributePattern = '[^<>]+name=[^<>]+';
-
-    foreach ($tagList as $tagName) {
-      $original = preg_replace_callback(
-        "/$tagName$attributePattern/si",
-        $callback,
-        $original
-      );
-    }
+    $original = preg_replace_callback(
+      '/<\s*' . $tagPattern . '\b[^>]*' . $attributePattern . '[^>]*>/si',
+      $callback,
+      $original
+    );
 
     return $original;
   }
@@ -81,7 +73,9 @@ class CollaborationXSSFilter extends Standard {
    *   HTML tag info.
    */
   protected static function replaceSecurity(array $tag): string {
-    return str_replace(":", "##", $tag[0]);
+    $original = $tag[1];
+    $replaced = str_replace(":", "##", $original);
+    return str_replace($original, $replaced, $tag[0]);
   }
 
   /**
@@ -91,7 +85,9 @@ class CollaborationXSSFilter extends Standard {
    *   HTML tag info.
    */
   protected static function revertSecurityReplace(array $tag): string {
-    return str_replace("##", ":", $tag[0]);
+    $original = $tag[1];
+    $replaced = str_replace("##", ":", $original);
+    return str_replace($original, $replaced, $tag[0]);
   }
 
 }

@@ -20,6 +20,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 use Drupal\ckeditor5_premium_features\EditorXssFilter\CollaborationXSSFilter;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\editor\Entity\Editor;
 use Drupal\filter\FilterFormatInterface;
 
 /**
@@ -82,7 +83,20 @@ function ckeditor5_premium_features_library_info_build(): array {
 function ckeditor5_premium_features_editor_xss_filter_alter(
   &$editor_xss_filter_class,
   FilterFormatInterface $format,
-  ?FilterFormatInterface $original_format = NULL) {
+  ?FilterFormatInterface $original_format = NULL): void {
+
+  $editor = Editor::load($format->id());
+
+  if (!isset($editor) || $editor->getEditor() !== 'ckeditor5') {
+    return;
+  }
+
+  $settings = $editor->getSettings();
+
+  if (!array_intersect(['trackChanges', 'comment'], $settings['toolbar']['items'])) {
+    return;
+  }
+
   $editor_xss_filter_class = CollaborationXSSFilter::class;
 }
 
