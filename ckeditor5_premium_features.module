@@ -328,6 +328,11 @@ function ckeditor5_premium_features_remove_ckeditor_plugins(array $toolbar_items
   foreach ($editors as $editor) {
     $settings = $editor->getSettings();
     $modified = FALSE;
+
+    if (!isset($settings['toolbar']['items'])) {
+      continue;
+    }
+
     foreach ($toolbar_items as $item) {
       $key = array_search($item, $settings['toolbar']['items']);
       if ($key !== FALSE) {
