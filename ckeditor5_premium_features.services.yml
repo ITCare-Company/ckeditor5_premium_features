@@ -110,6 +110,7 @@ services:
     arguments:
       - '@module_handler'
       - '@config.factory'
+      - '@cache.discovery'
 
   ckeditor5_premium_features.collaborators:
     class: Drupal\ckeditor5_premium_features\Utility\Collaborators

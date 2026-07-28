@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features\Utility;
 
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -37,6 +38,7 @@ class LibraryVersionChecker {
   public function __construct(
     protected ModuleHandlerInterface $moduleHandler,
     protected ConfigFactoryInterface $configFactory,
+    protected CacheBackendInterface $cacheBackend,
   ) {
     if ($this->moduleHandler->moduleExists('ckeditor5_premium_features_version_override')) {
       $versionOverride = $this->configFactory->get('ckeditor5_premium_features_version_override.settings');
@@ -48,10 +50,18 @@ class LibraryVersionChecker {
       }
     }
 
+    $cid = 'ckeditor5_premium_features_ckeditor5_version';
+    $cachedVersion = $this->cacheBackend->get($cid);
+    if ($cachedVersion) {
+      $this->ckeditor5Version = $cachedVersion->data;
+      return;
+    }
+
     $filePath = DRUPAL_ROOT . '/core/core.libraries.yml';
     $fileContents = file_get_contents($filePath);
     $ymlData = Yaml::parse($fileContents);
 
+    $this->cacheBackend->set($cid, $ymlData['ckeditor5']['version']);
     $this->ckeditor5Version = $ymlData['ckeditor5']['version'];
   }
 
