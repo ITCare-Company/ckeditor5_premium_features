@@ -30,6 +30,10 @@ class AiAdapter {
       return;
     }
 
+    if (this.editor.plugins.has('RealtimeAdapter')) {
+      return;
+    }
+
     const config = this.editor.config.get('ai');
     const usersPlugin = this.editor.plugins.get( 'Users' );
 
