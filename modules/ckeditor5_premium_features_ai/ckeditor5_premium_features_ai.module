@@ -96,6 +96,8 @@ function ckeditor5_premium_features_ai_editor_js_settings_alter(array &$settings
 /**
  * Implements hook_uninstall().
  */
-function ckeditor5_premium_features_ai_uninstall(): void {
-  ckeditor5_premium_features_remove_ckeditor_plugins(['toggleAi', 'aiQuickActions'], ['ckeditor5_premium_features_ai__ai']);
+function ckeditor5_premium_features_ai_uninstall($is_syncing): void {
+  if (!$is_syncing) {
+    ckeditor5_premium_features_remove_ckeditor_plugins(['toggleAi', 'aiQuickActions'], ['ckeditor5_premium_features_ai__ai']);
+  }
 }

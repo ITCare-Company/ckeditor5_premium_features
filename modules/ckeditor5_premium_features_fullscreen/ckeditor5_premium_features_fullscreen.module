@@ -11,40 +11,7 @@ declare(strict_types = 1);
  * Implements hook_uninstall().
  */
 function ckeditor5_premium_features_fullscreen_uninstall($is_syncing): void {
-  $item = 'fullScreen';
-
-  try {
-    $editors = \Drupal::entityTypeManager()
-      ->getStorage('editor')
-      ->loadByProperties(['editor' => 'ckeditor5']);
-  } catch (\Exception $e) {
-    return;
-  }
-
-  if (empty($editors)) {
-    return;
-  }
-
-  foreach ($editors as $editor) {
-    $settings = $editor->getSettings();
-    $modified = FALSE;
-
-    $key = array_search($item, $settings['toolbar']['items']);
-    if ($key !== FALSE) {
-      unset($settings['toolbar']['items'][$key]);
-      // Reindex the array to avoid breaking the field value.
-      $settings['toolbar']['items'] = array_values($settings['toolbar']['items']);
-      $modified = TRUE;
-    }
-
-    if ($modified) {
-      try {
-        $editor->setSettings($settings);
-        $editor->save();
-      }
-      catch (\Exception $e) {
-        // Do nothing.
-      }
-    }
+  if (!$is_syncing) {
+    ckeditor5_premium_features_remove_ckeditor_plugins(['fullScreen']);
   }
 }

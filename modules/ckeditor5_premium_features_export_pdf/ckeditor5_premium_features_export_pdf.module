@@ -24,8 +24,10 @@ function ckeditor5_premium_features_export_pdf_install(): void {
 /**
  * Implements hook_uninstall().
  */
-function ckeditor5_premium_features_export_pdf_uninstall($is_syncing) {
-  ckeditor5_premium_features_remove_ckeditor_plugins(['exportPdf'], ['ckeditor5_premium_features_export_pdf__export_pdf']);
+function ckeditor5_premium_features_export_pdf_uninstall($is_syncing): void {
+  if (!$is_syncing) {
+    ckeditor5_premium_features_remove_ckeditor_plugins(['exportPdf'], ['ckeditor5_premium_features_export_pdf__export_pdf']);
+  }
 }
 
 /**

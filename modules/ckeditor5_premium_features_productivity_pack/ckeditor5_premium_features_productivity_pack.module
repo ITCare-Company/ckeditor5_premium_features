@@ -14,9 +14,11 @@ use Drupal\text\Plugin\Field\FieldType\TextItemBase;
 /**
  * Implements hook_uninstall().
  */
-function ckeditor5_premium_features_productivity_pack_uninstall($is_syncing) {
-  ckeditor5_premium_features_remove_ckeditor_plugins(['caseChange', 'tableOfContents', 'formatPainter', 'insertTemplate'],
-  ['ckeditor5_premium_features_productivity_pack_base', 'ckeditor5_premium_features_productivity_pack_case_change']);
+function ckeditor5_premium_features_productivity_pack_uninstall($is_syncing): void {
+  if (!$is_syncing) {
+    ckeditor5_premium_features_remove_ckeditor_plugins(['caseChange', 'tableOfContents', 'formatPainter', 'insertTemplate'],
+      ['ckeditor5_premium_features_productivity_pack_base', 'ckeditor5_premium_features_productivity_pack_case_change']);
+  }
 }
 
 /**

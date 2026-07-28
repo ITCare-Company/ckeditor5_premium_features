@@ -10,8 +10,10 @@ use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 /**
  * Implements hook_uninstall().
  */
-function ckeditor5_premium_features_source_editing_enhanced_uninstall($is_syncing) {
-  ckeditor5_premium_features_remove_ckeditor_plugins(['sourceEditingEnhanced'], ['ckeditor5_premium_features_source_editing_enhanced__source_editing_enhanced']);
+function ckeditor5_premium_features_source_editing_enhanced_uninstall($is_syncing): void {
+  if (!$is_syncing) {
+    ckeditor5_premium_features_remove_ckeditor_plugins(['sourceEditingEnhanced'], ['ckeditor5_premium_features_source_editing_enhanced__source_editing_enhanced']);
+  }
 }
 
 /**

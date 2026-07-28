@@ -18,8 +18,10 @@ use Drupal\ckeditor5_premium_features_merge_fields\MergeFieldsProcessor;
 /**
  * Implements hook_uninstall().
  */
-function ckeditor5_premium_features_merge_fields_uninstall($is_syncing) {
-  ckeditor5_premium_features_remove_ckeditor_plugins(['insertMergeField', 'previewMergeFields'], ['ckeditor5_premium_features_merge_fields__merge_fields']);
+function ckeditor5_premium_features_merge_fields_uninstall($is_syncing): void {
+  if (!$is_syncing) {
+    ckeditor5_premium_features_remove_ckeditor_plugins(['insertMergeField', 'previewMergeFields'], ['ckeditor5_premium_features_merge_fields__merge_fields']);
+  }
 }
 
 /**

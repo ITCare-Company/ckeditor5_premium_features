@@ -23,13 +23,15 @@ use Drupal\editor\EditorInterface;
 /**
  * Implements hook_uninstall().
  */
-function ckeditor5_premium_features_realtime_collaboration_uninstall($is_syncing) {
-  ckeditor5_premium_features_remove_ckeditor_plugins(['trackChanges', 'comment', 'commentsArchive', 'revisionHistory'],
-    [
-      'ckeditor5_premium_features_realtime_collaboration__comment',
-      'ckeditor5_premium_features_realtime_collaboration__revision_history',
-      'ckeditor5_premium_features_realtime_collaboration__track_changes',
-    ]);
+function ckeditor5_premium_features_realtime_collaboration_uninstall($is_syncing): void {
+  if (!$is_syncing) {
+    ckeditor5_premium_features_remove_ckeditor_plugins(['trackChanges', 'comment', 'commentsArchive', 'revisionHistory'],
+      [
+        'ckeditor5_premium_features_realtime_collaboration__comment',
+        'ckeditor5_premium_features_realtime_collaboration__revision_history',
+        'ckeditor5_premium_features_realtime_collaboration__track_changes',
+      ]);
+  }
 }
 
 /**

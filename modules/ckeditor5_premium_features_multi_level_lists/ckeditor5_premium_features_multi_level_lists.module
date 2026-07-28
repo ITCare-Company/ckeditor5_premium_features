@@ -12,8 +12,10 @@ use Drupal\ckeditor5_premium_features\Utility\LibraryDefinitionItem;
 /**
  * Implements hook_uninstall().
  */
-function ckeditor5_premium_features_multi_level_lists_uninstall($is_syncing) {
-  ckeditor5_premium_features_remove_ckeditor_plugins(['multiLevelList']);
+function ckeditor5_premium_features_multi_level_lists_uninstall($is_syncing): void {
+  if (!$is_syncing) {
+    ckeditor5_premium_features_remove_ckeditor_plugins(['multiLevelList']);
+  }
 }
 
 /**

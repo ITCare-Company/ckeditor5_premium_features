@@ -24,8 +24,10 @@ function ckeditor5_premium_features_export_word_install(): void {
 /**
  * Implements hook_uninstall().
  */
-function ckeditor5_premium_features_export_word_uninstall($is_syncing) {
-  ckeditor5_premium_features_remove_ckeditor_plugins(['exportWord'], ['ckeditor5_premium_features_export_word__export_word']);
+function ckeditor5_premium_features_export_word_uninstall($is_syncing): void {
+  if (!$is_syncing) {
+    ckeditor5_premium_features_remove_ckeditor_plugins(['exportWord'], ['ckeditor5_premium_features_export_word__export_word']);
+  }
 }
 
 /**

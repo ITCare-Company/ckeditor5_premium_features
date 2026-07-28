@@ -184,9 +184,11 @@ function ckeditor5_premium_features_collaboration_form_filter_format_edit_form_a
 /**
  * Implements hook_uninstall().
  */
-function ckeditor5_premium_features_collaboration_uninstall($is_syncing) {
-  ckeditor5_premium_features_remove_ckeditor_plugins(['trackChanges', 'comment', 'commentsArchive', 'revisionHistory'],
-    ['ckeditor5_premium_features_collaboration__track_changes',
-      'ckeditor5_premium_features_collaboration__comments',
-    ]);
+function ckeditor5_premium_features_collaboration_uninstall($is_syncing): void {
+  if (!$is_syncing) {
+    ckeditor5_premium_features_remove_ckeditor_plugins(['trackChanges', 'comment', 'commentsArchive', 'revisionHistory'],
+      ['ckeditor5_premium_features_collaboration__track_changes',
+        'ckeditor5_premium_features_collaboration__comments',
+      ]);
+  }
 }

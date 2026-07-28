@@ -5,8 +5,10 @@ use Drupal\user\Entity\Role;
 /**
  * Implements hook_uninstall().
  */
-function ckeditor5_premium_features_wproofreader_uninstall($is_syncing) {
-  ckeditor5_premium_features_remove_ckeditor_plugins(['wproofreader']);
+function ckeditor5_premium_features_wproofreader_uninstall($is_syncing): void {
+  if (!$is_syncing) {
+    ckeditor5_premium_features_remove_ckeditor_plugins(['wproofreader']);
+  }
 }
 
 /**
