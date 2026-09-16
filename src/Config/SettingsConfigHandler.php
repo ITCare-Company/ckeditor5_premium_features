@@ -203,6 +203,14 @@ class SettingsConfigHandler implements SettingsConfigHandlerInterface {
   public function getDllVersion(): string {
     $library = $this->libraryDiscovery->getLibraryByName('core', 'ckeditor5');
 
+    // Mapping for versions that do not match.
+    $mapping = [
+      '47.6.3' => '47.7.4',
+    ];
+    if (in_array($library['version'], array_keys($mapping))) {
+      return $mapping[$library['version']];
+    }
+
     return $library['version'];
   }
 
