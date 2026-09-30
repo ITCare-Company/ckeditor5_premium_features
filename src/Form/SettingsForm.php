@@ -311,7 +311,9 @@ class SettingsForm extends ConfigFormBase {
       [$headersB64, $payloadB64] = explode('.', $license_key);
       $payload = json_decode(base64_decode($payloadB64), TRUE);
 
-      if (isset($payload['removeFeatures']) && !empty($payload['removeFeatures'])) {
+      // Prevent free keys as they'll break editor
+      $isTrial = isset($payload['licenseType']) && $payload['licenseType'] === "trial";
+      if (!$isTrial && isset($payload['removeFeatures']) && !empty($payload['removeFeatures'])) {
         $form_state->setErrorByName('license_key', $this->t('CKEditor 5 Free plan licenses are not supported by this module. Leave this field empty unless you have a paid Premium Features license.'));
       }
     }
