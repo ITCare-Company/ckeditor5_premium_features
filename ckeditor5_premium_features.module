@@ -103,6 +103,7 @@ function ckeditor5_premium_features_editor_xss_filter_alter(
 /**
  * Implements hook_library_info_alter().
  */
+#[\Drupal\Core\Hook\Attribute\Hook('library_info_alter', order: \Drupal\Core\Hook\Order\Order::Last)]
 function ckeditor5_premium_features_library_info_alter(&$libraries, $extension) {
   // @todo Change this to use `after` instead of `dependencies` after https://www.drupal.org/project/drupal/issues/1945262 is released.
   $validForm = isset($libraries['node-form']) ? 'node-form' : (isset($libraries['form-two-columns']) ? 'form-two-columns' : NULL);
@@ -366,5 +367,5 @@ function ckeditor5_premium_features_get_error_severity() {
   if (version_compare(\Drupal::VERSION, '11.2.0', '>=')) {
     return \Drupal\Core\Extension\Requirement\RequirementSeverity::Error;
   }
-  return REQUIREMENT_ERROR;
+  return (class_exists('\\Drupal\\Core\\Extension\\Requirement\\RequirementSeverity') ? \Drupal\Core\Extension\Requirement\RequirementSeverity::Error : REQUIREMENT_ERROR);
 }
