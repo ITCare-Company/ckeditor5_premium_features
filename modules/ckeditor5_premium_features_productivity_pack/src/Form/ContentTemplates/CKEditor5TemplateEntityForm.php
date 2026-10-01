@@ -145,7 +145,7 @@ class CKEditor5TemplateEntityForm extends EntityForm {
    */
   protected function getAvailableTextFormats(): array {
     $availableFormats = [];
-    $filterFormats = filter_formats();
+    $filterFormats = \Drupal\Component\Utility\DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.4.0', fn() => \Drupal::service('Drupal\filter\FilterFormatRepositoryInterface')->getAllFormats(), fn() => filter_formats());
     foreach ($filterFormats as $format) {
       $editor = $this->entityTypeManager->getStorage('editor')->load($format->id());
       if ($editor && $editor->getEditor() === 'ckeditor5') {

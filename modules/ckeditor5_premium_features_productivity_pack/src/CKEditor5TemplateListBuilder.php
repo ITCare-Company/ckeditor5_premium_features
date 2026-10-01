@@ -69,7 +69,7 @@ class CKEditor5TemplateListBuilder extends DraggableListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     $entityFormatOptions = $entity->get('textFormats');
-    $availableFilterFormats = filter_formats();
+    $availableFilterFormats = \Drupal\Component\Utility\DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '11.4.0', fn() => \Drupal::service('Drupal\filter\FilterFormatRepositoryInterface')->getAllFormats(), fn() => filter_formats());
     $textFormats = array_map(fn($format) =>
       in_array($format->id(), $entityFormatOptions) ? $format->label() : NULL,
       $availableFilterFormats);
