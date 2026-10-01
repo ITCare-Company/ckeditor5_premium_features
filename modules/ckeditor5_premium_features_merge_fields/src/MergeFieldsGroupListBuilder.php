@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Drupal\ckeditor5_premium_features_merge_fields;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -99,8 +100,8 @@ class MergeFieldsGroupListBuilder extends ConfigEntityListBuilder {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultOperations(EntityInterface $entity) {
-    $operations = parent::getDefaultOperations($entity);
+  public function getDefaultOperations(EntityInterface $entity, CacheableMetadata $cacheability) {
+    $operations = parent::getDefaultOperations($entity, $cacheability);
 
     // Add a link to add a new item to this group.
     $operations['add_item'] = [
