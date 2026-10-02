@@ -100,46 +100,14 @@ function ckeditor5_premium_features_editor_xss_filter_alter(
   $editor_xss_filter_class = CollaborationXSSFilter::class;
 }
 
-/**
- * Implements hook_library_info_alter().
- */
-#[\Drupal\Core\Hook\Attribute\Hook('library_info_alter', order: \Drupal\Core\Hook\Order\Order::Last)]
-function ckeditor5_premium_features_library_info_alter(&$libraries, $extension) {
-  // @todo Change this to use `after` instead of `dependencies` after https://www.drupal.org/project/drupal/issues/1945262 is released.
-  $validForm = isset($libraries['node-form']) ? 'node-form' : (isset($libraries['form-two-columns']) ? 'form-two-columns' : NULL);
-  if ($extension === 'claro' && $validForm) {
-    $cke5PremiumFeaturesSettings = \Drupal::configFactory()->get('ckeditor5_premium_features.settings');
-    if ($cke5PremiumFeaturesSettings->get('alter_node_form_css')) {
-      $libraries[$validForm]['dependencies'][] = 'ckeditor5_premium_features/claro--override--node-form';
-    }
-  }
-
-  if ($extension === 'core' && isset($libraries['ckeditor5'])) {
-    $libraries['ckeditor5']['dependencies'][] = 'ckeditor5_premium_features/distribution-channel';
-  }
-
-  $isCoreWithoutAutoformat = version_compare(\Drupal::VERSION, '10.1.0', '<');
-  if ($isCoreWithoutAutoformat && $extension === 'ckeditor5_premium_features' && isset($libraries['collaboration-integration-base'])) {
-    $key = array_search('core/ckeditor5.autoformat', $libraries["collaboration-integration-base"]["dependencies"]);
-    if ($key !== FALSE) {
-      unset($libraries["collaboration-integration-base"]["dependencies"][$key]);
-    }
-    $libraries["collaboration-integration-base"]["dependencies"][] = 'ckeditor5_premium_features/autoformat';
-  }
-
-  if ($extension === 'ckeditor5_premium_features_wproofreader') {
-    $libraryDiscovery = \Drupal::service('library.discovery');
-    $ckeditorLibrary = $libraryDiscovery->getLibraryByName('core', 'ckeditor5');
-
-    if (version_compare($ckeditorLibrary['version'], '41.0.0', '<')) {
-      $libraries["wproofreader"]["js"] = [
-        'js/build/wproofreader_3_27.js' => [
-          'minified' => TRUE,
-        ],
-      ];
-    }
-  }
-}
+// hook_library_info_alter() moved to
+// \Drupal\ckeditor5_premium_features\Hook\Ckeditor5PremiumFeaturesLibraryHooks::libraryInfoAlter()
+// -- D12 (change record 3496788): the "run last" ordering requires the OOP
+// #[Hook(order:...)] pathway; core's procedural-file hook scan never reads
+// an attribute's order parameter (see
+// HookCollectorPass::collectModuleHookImplementations(),
+// core/lib/Drupal/Core/Hook/HookCollectorPass.php:397-405 vs. 424-466), so a
+// bare-function attribute here was silently inert.
 
 /**
  * Implements hook_module_implements_alter().
