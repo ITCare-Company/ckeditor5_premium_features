@@ -2,6 +2,6 @@ name: CKEditor 5 Premium Features Multi-level Lists
 type: module
 description: "Provides Multi-Level lists features."
 package: CKEditor 5 Premium Features
-core_version_requirement: ^10.3 || ^11
+core_version_requirement: ^10.3 || ^11 || ^12
 dependencies:
   - ckeditor5_premium_features:ckeditor5_premium_features

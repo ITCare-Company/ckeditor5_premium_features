@@ -2,7 +2,7 @@ name: CKEditor 5 Premium Features Footnotes
 type: module
 description: "Provides Footnotes plugin."
 package: CKEditor 5 Premium Features
-core_version_requirement: ^10.6 || ^11.3
+core_version_requirement: ^10.6 || ^11.3 || ^12
 dependencies:
   - drupal:editor
   - drupal:ckeditor5

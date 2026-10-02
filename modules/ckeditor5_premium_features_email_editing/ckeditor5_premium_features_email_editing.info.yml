@@ -2,6 +2,6 @@ name: CKEditor 5 Premium Features Email Editing
 type: module
 description: "The email editing solution is a set of tools aimed at making the email composition a better and more effective experience."
 package: CKEditor 5 Premium Features
-core_version_requirement: ^10.5 || ^11.2
+core_version_requirement: ^10.5 || ^11.2 || ^12
 dependencies:
   - ckeditor5_premium_features:ckeditor5_premium_features
